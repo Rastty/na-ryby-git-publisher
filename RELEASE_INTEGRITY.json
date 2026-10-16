@@ -4,8 +4,8 @@
   "site": "na-ryby.eu",
   "branch": "main",
   "editIds": [
-    52057,
-    49275
+    89500,
+    38108
   ],
   "schemaVersion": 3,
   "files": [
@@ -16,8 +16,8 @@
     },
     {
       "name": "manifest.json",
-      "bytes": 6409,
-      "sha256": "134c792e98015881998af7b256b4a51c106f7663db90cfd8d8d5655bbd7f96e0"
+      "bytes": 7256,
+      "sha256": "168c0a1637512280fc32e7084ec6fbef1d6dcc1b2c4338b007dae62f00754e5b"
     },
     {
       "name": "README.md",

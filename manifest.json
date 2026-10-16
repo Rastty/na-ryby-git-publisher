@@ -1,85 +1,85 @@
 {
   "schema_version": 3,
-  "batch_id": "buyer-safety-drag-boat-sonar-20261016-v3",
+  "batch_id": "sonar-facts-catfish-20261016-v3",
   "site": "https://na-ryby.eu",
   "edits": [
     {
-      "post_id": 52057,
-      "slug": "navod-na-spravne-nastaveni-brzdy-na-navijaku-na-ryby",
-      "anchor": "<h3>Krok za krokem: Jak nastavit brzdu na navijáku?</h3>",
-      "source_sha256": "89f7a206f40953a7eaa5289b89eaa0a011bfba35ddc14710d2541acecf002229",
-      "edit_id": "brzda-navijaku-52057-safety-v3",
-      "lead": "Brzdu nastavte ještě před prvním náhozem. Při plynulém silnějším tahu by měla kontrolovaně vydávat vlasec nebo šňůru, aby nedošlo k přetížení sestavy. Nastavení vždy přizpůsobte nejslabší části udice a podmínkám lovu.",
+      "post_id": 89500,
+      "slug": "jak-funguje-echolot-a-sonar-zakladni-rozdily-a-prakticke-vyuziti",
+      "anchor": "<h2>Jak funguje Echolot a sonar</h2>",
+      "source_sha256": "c68165e06a517594ff8a915008a472cf2a89b7f17c48269edc70fab56710d3d0",
+      "edit_id": "sonar-echolot-pojmy-89500-v3",
+      "lead": "Echolot je konkrétní využití sonarové technologie, nikoli úplně odlišný přístroj. Pro rybáře je důležitější vhodná sonda, způsob použití, kvalita zobrazení a napájení než rozdíl v názvech.",
       "choices": [
         {
-          "situation": "Před prvním náhozem",
-          "recommendation": "Vyzkoušejte prokluz brzdy plynulým, bezpečně vedeným tahem, ne prudkým škubnutím.",
-          "tradeoff": "Příliš utažená brzda může způsobit přetržení vlasce nebo poškození návazce; příliš volná zhorší kontrolu nad rybou."
+          "situation": "Lovím ze břehu",
+          "recommendation": "Prověřte vhodnost nahazovací sondy a aplikace pro váš telefon.",
+          "tradeoff": "Dosah bezdrátového spojení, bezpečné vytažení sondy a výdrž mohou být důležitější než počet zobrazovacích režimů."
         },
         {
-          "situation": "Vlasec se při zátěži vůbec nepovoluje",
-          "recommendation": "Brzdu opatrně povolujte po malých krocích a vždy znovu ověřte její reakci.",
-          "tradeoff": "Nezaměňujte maximální brzdnou sílu navijáku s vhodným nastavením pro konkrétní vlasec a uzly."
+          "situation": "Jezdím na člunu",
+          "recommendation": "Vybírejte displej a sondu jako kompatibilní celek včetně montáže a napájení.",
+          "tradeoff": "Pokročilé režimy nepomohou, pokud sonda při jízdě snímá bubliny nebo turbulentní vodu."
         },
         {
-          "situation": "Mám naviják s volnoběžným systémem",
-          "recommendation": "Rozlišujte nastavení hlavní zdolávací brzdy a režimu volnoběhu podle návodu daného modelu.",
-          "tradeoff": "Při přepnutí režimu se může odpor cívky změnit; před použitím vyzkoušejte jeho ovládání."
+          "situation": "Chci rozpoznávat jednotlivé ryby",
+          "recommendation": "Naučte se číst odrazy a strukturu dna v dostupných režimech konkrétního echolotu.",
+          "tradeoff": "Symbol ryby ani oblouk na obrazovce nedokazuje druh nebo velikost ulovené ryby."
         }
       ],
-      "caution": "Pletenou šňůru nikdy nezkoušejte silným tahem holou rukou; může pořezat prsty. Udržujte kontrolu nad háčky a postupujte podle návodu ke konkrétnímu navijáku.",
+      "caution": "Přístroj neposkytuje fotografii dna ani spolehlivé určení druhu ryby. Vhodnou frekvenci, úhel sondy a instalaci ověřte podle dokumentace konkrétního modelu.",
       "corrections": [
         {
-          "old_text": "Začněte uvolněním brzdy na maximum.",
-          "new_text": "Ještě před lovem nastavte brzdu tak, aby při bezpečně vyzkoušeném tahu kontrolovaně prokluzovala a chránila vlasec i návazec."
+          "old_text": "Echolot a sonar jsou oba zařízení používané k detekci objektů pod vodní hladinou, ale existují mezi nimi některé základní rozdíly. Echolot využívá zvukové vlny k odrazu od dna nebo předmětů pod vodou a měří čas, který trvá, než se zvuková vlna vrátí zpět k zařízení. Sonar na druhé straně využívá akustické signály nebo ultrazvuk k detekci objektů pod vodou.",
+          "new_text": "Echolot je druh sonarového zařízení. Sonda vysílá zvukové impulzy do vody a přijímá jejich odrazy od dna a dalších objektů. Rozdíl mezi echolotem a sonarem není v tom, že by jeden používal zvuk a druhý ultrazvuk."
         },
         {
-          "old_text": "Poté, co se ryba chytí na návnadu, utáhneme brzdu, aby rybářský vlasec zůstal v napětí.",
-          "new_text": "Brzda má být přiměřeně nastavená už před záběrem; při zdolávání ji upravujte opatrně a podle situace, ne náhlým prudkým dotažením."
+          "old_text": "Echolot je obvykle používán pro měření hloubky vody a lokalizaci ryb, zatímco sonar je schopen odhalit i pohybující se objekty jako jsou lodě, vraky nebo podvodní zvířata. Echolot využívá jednosměrné zvukové vlny, zatímco sonar používá dvousměrné zvukové pulsy k odhadu vzdálenosti a polohy objektů.",
+          "new_text": "Echolot se v rybaření používá hlavně ke zjišťování hloubky, profilu dna a odrazů objektů ve vodě. Pracuje na principu vyslaného zvukového impulzu a přijaté ozvěny stejně jako další sonarové systémy; neplatí dělení na jednosměrné a dvousměrné zvukové vlny."
         },
         {
-          "old_text": "Po chvíli můžeme brzdu uvolnit tak, aby rybářský vlasec mohl být vytáhnut. Pokud je brzda stále příliš utažená, utáhneme ji ještě více, aby rybářský vlasec zůstal pod kontrolou.",
-          "new_text": "Jestliže brzda při silném tahu vůbec nepovoluje, postupně ji uvolněte. Příliš velký odpor může přetížit vlasec, návazec nebo prut."
+          "old_text": "Na rozdíl od Echolotu se sonar zaměřuje spíše na detekci podmořských objektů, jako jsou vraky lodí, potrubí nebo podvodní překážky. Sonary jsou také používány v námořním průzkumu a v obranných operacích.",
+          "new_text": "Sonar je širší název pro systémy, které používají zvuk k detekci objektů a prostředí pod vodou. Rybářský echolot patří do této skupiny. Konkrétní funkce závisí na sondě a přístroji, ne pouze na jejich obchodním názvu."
         }
       ]
     },
     {
-      "post_id": 49275,
-      "slug": "jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun",
-      "anchor": "<h3>Jak správně používat echolot na lodi?</h3>",
-      "source_sha256": "322199f155add87c8e1e39234668c4804d3e1fe507ba2e03151ca3cb5ace3ac3",
-      "edit_id": "echolot-clun-49275-mounting-v3",
-      "lead": "Pro spolehlivé používání lodního echolotu nejdřív vyřešte bezpečné upevnění sondy a napájení. Sonda potřebuje správný směr a čisté proudění vody bez nadměrných bublin; samotná vysoká cena displeje špatnou montáž nevyřeší.",
+      "post_id": 38108,
+      "slug": "srovnani-nejlepsich-echolotu-na-sumce-v-roce-2023",
+      "anchor": "<h3>1. Jaký je nejlepší echolot na sumce na trhu?</h3>",
+      "source_sha256": "559ecb25ddcfa0f9e8e09df7b6f90ca2a6b272f813c0091e01ce5cfc6e5696e9",
+      "edit_id": "sonar-sumec-stare-srovnani-38108-v3",
+      "lead": "Historický seznam modelů z roku 2023 není automaticky aktuální žebříček. Při výběru echolotu na sumce rozhoduje místo lovu, kompatibilní sonda, zobrazení hloubky a překážek a bezpečné použití na konkrétním plavidle.",
       "choices": [
         {
-          "situation": "Malý člun s odnímatelnou výbavou",
-          "recommendation": "Prověřte snadno demontovatelný držák sondy, jištění kabelu a vhodný zdroj energie.",
-          "tradeoff": "Snadné převážení bývá vykoupeno delší přípravou před vyplutím a nutností bezpečného uchycení."
+          "situation": "Lovím vertikálně z člunu",
+          "recommendation": "Ověřte sledování nástrahy pod lodí, vhodnou sondu a bezpečné uchycení.",
+          "tradeoff": "Pro vertikální lov je praktické zobrazení přímo pod lodí často důležitější než rozsáhlé mapové funkce."
         },
         {
-          "situation": "Motorový člun s trvalou instalací",
-          "recommendation": "Sledujte montážní postup výrobce a vyberte místo s plynulým prouděním vody okolo sondy.",
-          "tradeoff": "Bubliny, turbulence od trupu či vrtule a nevhodný úhel sondy mohou zhoršit obraz i při správném nastavení přístroje."
+          "situation": "Chytám z břehu",
+          "recommendation": "Prověřte dostupnost přenosného nebo nahazovacího řešení a možnosti zobrazení na telefonu.",
+          "tradeoff": "Dosah spojení, způsob manipulace a výdrž omezují jeho použití jinak než na člunu."
         },
         {
-          "situation": "Potřebuji rozeznat detaily dna",
-          "recommendation": "Vyzkoušejte dostupné režimy a frekvence v rozsahu, který podporují konkrétní displej i sonda.",
-          "tradeoff": "Vyšší frekvence často zvýrazní detaily, nižší mohou lépe pronikat do hloubky; neexistuje univerzální hranice platná pro všechny sestavy."
+          "situation": "Hledám ryby ve větší hloubce",
+          "recommendation": "Vybírejte podporované režimy a frekvence podle konkrétní sondy a reálné hloubky vody.",
+          "tradeoff": "Nižší frekvence často umožní větší dosah, zatímco vyšší mohou nabídnout více detailů, ale parametry se liší podle sestavy."
         }
       ],
-      "caution": "Echolot zobrazuje odrazy zvuku, nikoli fotografii pod vodou. Z obrazu nelze s jistotou určit druh ani velikost ryby. Před vyplutím prověřte uchycení, kabeláž, napájení a místní pravidla plavby.",
+      "caution": "Bez doložených testů nelze určit nejlepší model pro všechny rybáře. Označení modelů a cen v původním přehledu z roku 2023 berte jako historické údaje; dostupnost a parametry vždy ověřte u výrobce.",
       "corrections": [
         {
-          "old_text": "Echolot a sonar jsou oba zařízení, která se používají pro měření hloubky a na lokalizaci ryb a dalších předmětů pod hladinou. Rozdílem mezi nimi je, že echolot používá zvukové vlny s vysokou frekvencí a sonar používá zvukové vlny s nižší frekvencí.",
-          "new_text": "Echolot je typ sonarového zařízení: vysílá zvukové impulzy a vyhodnocuje jejich odrazy od dna a dalších objektů. Rozdíl mezi pojmy echolot a sonar nespočívá v pevné hranici frekvence; dostupné režimy závisejí na konkrétní sondě a přístroji."
+          "old_text": "V roce 2023 se na trhu nachází několik vynikajících echolotů, které jsou ideální pro lovení sumců. Mezi nejlepší patří například Garmin Striker Plus 4cv nebo Lowrance HOOK Reveal 5x SplitShot.",
+          "new_text": "Tento starší přehled uvádí příklady echolotů z roku 2023, nikoli aktuální vítěze srovnávacího testu. U přesných variant si před výběrem ověřte dostupnost, kompatibilní sondu a podporované funkce."
         },
         {
-          "old_text": "Frekvence by měla být nižší pro hloubky nad 30 metrů a vyšší pro mělké vody. Dále je důležité správně umístit sondač do vody, aby se vyhnuli překážkám a turbulentním proudům.",
-          "new_text": "Vhodnou frekvenci vybírejte podle požadované hloubky, detailu a možností konkrétní sondy. Nižší frekvence mohou lépe pronikat do hloubky, vyšší mohou nabídnout detailnější obraz. Sondu umístěte podle montážního návodu do co nejklidnějšího proudění vody."
+          "old_text": "Nejdůležitější funkcí, kterou echolot pro lovení sumců musí mít, je dostatečně citlivý snímač, který dokáže přesně rozpoznat ryby v hloubce. Navíc by měl obsahovat také funkce jako je GPS, možnost ukládání a sdílení dat a velký a přehledný displej.",
+          "new_text": "Pro lov sumců ověřte zejména vhodnou sondu, zobrazení hloubky a překážek a podmínky použití. Sonarové odrazy neumějí spolehlivě určit druh ryby. GPS, mapy a větší displej mohou pomoci, ale nejsou nezbytné pro každý způsob lovu."
         },
         {
-          "old_text": "Obecně platí, že čím blíže k trupu, tím lépe.",
-          "new_text": "Vhodné místo sondy závisí na konstrukci plavidla; důležité je omezit turbulence a vzduchové bubliny a dodržet úhel i výšku montáže podle výrobce."
+          "old_text": "Ceny echolotů se mohou lišit v závislosti na značce, kvalitě a funkcích. V roce 2023 se dají sehnat echoloty na sumce od přibližně 5 000 Kč až po vyšší tisícovky Kč.",
+          "new_text": "Ceny uvedené ve starším přehledu nemusí odpovídat dnešní nabídce. Porovnávejte skutečnou cenu celé kompatibilní sestavy včetně sondy, držáku a napájení; aktuální cenu i dostupnost je potřeba ověřit u prodejce."
         }
       ]
     }
