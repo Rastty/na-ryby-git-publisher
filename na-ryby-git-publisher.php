@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Na-Ryby.eu – Git Publisher
  * Description: Apply guarded Git-managed content manifests from wp-admin without WPVibe or outbound WordPress REST writes.
- * Version: 0.3.0
+ * Version: 0.4.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
@@ -23,7 +23,7 @@ final class NRY_Git_Publisher {
     // V1 is immutable legacy compatibility. New cohorts must use the
     // source-hash-bound, insert-only v2 contract.
     public static function validate_manifest($data) {
-        if (!is_array($data) || !in_array($data['schema_version'] ?? null, array(1, 2, 3), true)
+        if (!is_array($data) || !in_array($data['schema_version'] ?? null, array(1, 2, 3, 4), true)
             || ($data['site'] ?? '') !== 'https://na-ryby.eu'
             || !isset($data['batch_id'], $data['edits'])
             || !is_string($data['batch_id'])
@@ -34,22 +34,29 @@ final class NRY_Git_Publisher {
         }
         $v2 = $data['schema_version'] === 2;
         $v3 = $data['schema_version'] === 3;
-        if (!$v2 && !$v3 && (count($data['edits']) !== 2
+        $v4 = $data['schema_version'] === 4;
+        if (!$v2 && !$v3 && !$v4 && (count($data['edits']) !== 2
             || array_column($data['edits'], 'post_id') !== array(52975, 118517))) {
             return new WP_Error('legacy_scope', 'V1 povoluje jen historickou dvojici.');
         }
         $seen = array(); $markers = array();
         foreach ($data['edits'] as $e) {
-            if (!is_array($e) || !isset($e['post_id'], $e['slug'], $e['anchor'])
+            if (!is_array($e) || !isset($e['post_id'], $e['slug'])
                 || !is_int($e['post_id']) || $e['post_id'] < 1
                 || in_array($e['post_id'], array(38064, 42671), true)
                 || isset($seen[$e['post_id']])
                 || !is_string($e['slug']) || !preg_match('/^[a-z0-9-]{10,140}$/D', $e['slug'])
-                || !is_string($e['anchor'])
-                || !preg_match($v3 ? '~^<h[23](?:\s[^>]*)?>[^<]{8,280}</h[23]>$~uD' : '~^<h[12](?:\s[^>]*)?>[^<]{8,280}</h[12]>$~uD', $e['anchor'])) {
+                || (!$v4 && (!isset($e['anchor']) || !is_string($e['anchor'])))
+                || (!$v4 && !preg_match($v3 ? '~^<h[23](?:\s[^>]*)?>[^<]{8,280}</h[23]>$~uD' : '~^<h[12](?:\s[^>]*)?>[^<]{8,280}</h[12]>$~uD', $e['anchor']))) {
                 return new WP_Error('invalid_item', 'Neschválená identita, kotva nebo chráněný článek.');
             }
             $seen[$e['post_id']] = true;
+            if ($v4) {
+                $check = self::validate_v4_edit($e);
+                if (is_wp_error($check)) { return $check; }
+                $markers[$e['edit_id']] = true;
+                continue;
+            }
             if (!$v2 && !$v3) {
                 if (!isset($e['insert_html']) || !is_string($e['insert_html'])
                     || strpos($e['insert_html'], self::MARKER) === false
@@ -117,6 +124,88 @@ final class NRY_Git_Publisher {
             $markers[$e['edit_id']] = true;
         }
         return $data;
+    }
+
+
+    private static function validate_v4_edit($e) {
+        if (!isset($e['source_sha256'], $e['candidate_sha256'], $e['edit_id'], $e['cleanup_ops'])
+            || !is_string($e['source_sha256']) || !preg_match('/^[a-f0-9]{64}$/D', $e['source_sha256'])
+            || !is_string($e['candidate_sha256']) || !preg_match('/^[a-f0-9]{64}$/D', $e['candidate_sha256'])
+            || $e['source_sha256'] === $e['candidate_sha256']
+            || !is_string($e['edit_id']) || !preg_match('/^[a-z0-9][a-z0-9-]{7,63}$/D', $e['edit_id'])
+            || !is_array($e['cleanup_ops']) || count($e['cleanup_ops']) < 1
+            || count($e['cleanup_ops']) > 4
+            || isset($e['insert_html']) || isset($e['corrections'])) {
+            return new WP_Error('v4_invalid', 'Neplatný strukturální úklid nebo SHA.');
+        }
+        $kinds = array();
+        foreach ($e['cleanup_ops'] as $op) {
+            if (!is_array($op) || !isset($op['kind']) || !is_string($op['kind'])
+                || isset($kinds[$op['kind']])) {
+                return new WP_Error('v4_operation', 'Neplatná nebo opakovaná operace.');
+            }
+            $kinds[$op['kind']] = true;
+            if ($op['kind'] === 'demote_body_h1') {
+                if (!isset($op['before']) || !is_string($op['before']) || strlen($op['before']) > 950
+                    || !preg_match('~^<h1(?:\s[^>]*)?>[^<]{10,300}</h1>$~iuD', $op['before'])) {
+                    return new WP_Error('v4_heading', 'Neplatný obsah hlavního nadpisu.');
+                }
+            } elseif ($op['kind'] === 'dedupe_heading') {
+                if (!isset($op['html']) || !is_string($op['html'])
+                    || !preg_match('~^<h[23]>[^<]{10,200}</h[23]>$~iuD', $op['html'])) {
+                    return new WP_Error('v4_duplicate', 'Neplatný opakovaný nadpis.');
+                }
+            } else {
+                return new WP_Error('v4_unknown_operation', 'Neznámá hromadná operace.');
+            }
+        }
+        return true;
+    }
+
+    private static function build_v4_candidate($source, $edit) {
+        $srcHash = hash('sha256', $source);
+        if (hash_equals($edit['candidate_sha256'], $srcHash)) {
+            return array('already' => true);
+        }
+        if (!hash_equals($edit['source_sha256'], $srcHash)) {
+            return array('error' => 'source_sha_drift');
+        }
+        $candidate = $source;
+        foreach ($edit['cleanup_ops'] as $op) {
+            if ($op['kind'] === 'demote_body_h1') {
+                $before = $op['before'];
+                if (substr_count($candidate, $before) !== 1) {
+                    return array('error' => 'h1_missing_or_nonunique');
+                }
+                // Only change heading level; keep the original title and all attributes.
+                $after = preg_replace('~^<h1~i', '<h2', $before, 1);
+                $after = preg_replace('~</h1>$~i', '</h2>', $after, 1);
+                if ($after === $before || strpos($candidate, $after) !== false) {
+                    return array('error' => 'h2_collision');
+                }
+                $candidate = str_replace($before, $after, $candidate);
+            } elseif ($op['kind'] === 'dedupe_heading') {
+                $heading = $op['html'];
+                $n = substr_count($candidate, $heading);
+                if ($n < 2 || $n > 5) {
+                    return array('error' => 'heading_repetition_mismatch');
+                }
+                while (substr_count($candidate, $heading) > 1) {
+                    $pos = strrpos($candidate, $heading);
+                    $candidate = substr_replace($candidate, '', $pos, strlen($heading));
+                }
+            }
+        }
+        $pattern = '~(?:<a\b[^>]*>|<img\b[^>]*>|<iframe\b[^>]*>|\[[a-zA-Z][^\]]*\])~iu';
+        preg_match_all($pattern, $source, $prior);
+        preg_match_all($pattern, $candidate, $after);
+        if ($prior[0] !== $after[0]) {
+            return array('error' => 'affiliate_media_shortcode_drift');
+        }
+        if (!hash_equals($edit['candidate_sha256'], hash('sha256', $candidate))) {
+            return array('error' => 'candidate_sha_mismatch');
+        }
+        return array('candidate' => $candidate);
     }
 
     private static function editorial_text($value, $min, $max) {
@@ -231,6 +320,19 @@ final class NRY_Git_Publisher {
         $source = $post->post_content;
         if (!is_string($source) || strlen($source) < 1000 || strlen($source) > 350000) {
             return array('id' => $post->ID, 'status' => 'blocked', 'reason' => 'size');
+        }
+        if (isset($edit['cleanup_ops'])) {
+            $built = self::build_v4_candidate($source, $edit);
+            if (isset($built['already'])) {
+                return array('id' => $post->ID, 'status' => 'already_applied');
+            }
+            if (isset($built['error'])) {
+                return array('id' => $post->ID, 'status' => 'blocked', 'reason' => $built['error']);
+            }
+            return array('id' => $post->ID, 'status' => 'ready',
+                'source' => $source, 'candidate' => $built['candidate'],
+                'source_sha' => hash('sha256', $source),
+                'candidate_sha' => hash('sha256', $built['candidate']));
         }
         if (isset($edit['choices'])) {
             $built = self::build_v3_candidate($source, $edit);

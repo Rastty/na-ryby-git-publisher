@@ -1,85 +1,174 @@
 {
-  "schema_version": 3,
-  "batch_id": "sonar-facts-catfish-20261016-v3",
+  "schema_version": 4,
+  "batch_id": "structural-buyer-cleanup-13-20261016-v4",
   "site": "https://na-ryby.eu",
   "edits": [
     {
-      "post_id": 89500,
-      "slug": "jak-funguje-echolot-a-sonar-zakladni-rozdily-a-prakticke-vyuziti",
-      "anchor": "<h2>Jak funguje Echolot a sonar</h2>",
-      "source_sha256": "c68165e06a517594ff8a915008a472cf2a89b7f17c48269edc70fab56710d3d0",
-      "edit_id": "sonar-echolot-pojmy-89500-v3",
-      "lead": "Echolot je konkrétní využití sonarové technologie, nikoli úplně odlišný přístroj. Pro rybáře je důležitější vhodná sonda, způsob použití, kvalita zobrazení a napájení než rozdíl v názvech.",
-      "choices": [
+      "post_id": 118553,
+      "slug": "jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce",
+      "source_sha256": "9ebcfc1f6e3e350745d6c9136ca83b0cf01a2810219afd349165a67ee45f5654",
+      "candidate_sha256": "e53faedc69b7cbea9dad74a06c505476a912a87c5656d510e38df20b8e3c5b0a",
+      "edit_id": "bulk-cleanup-118553-v4",
+      "cleanup_ops": [
         {
-          "situation": "Lovím ze břehu",
-          "recommendation": "Prověřte vhodnost nahazovací sondy a aplikace pro váš telefon.",
-          "tradeoff": "Dosah bezdrátového spojení, bezpečné vytažení sondy a výdrž mohou být důležitější než počet zobrazovacích režimů."
-        },
-        {
-          "situation": "Jezdím na člunu",
-          "recommendation": "Vybírejte displej a sondu jako kompatibilní celek včetně montáže a napájení.",
-          "tradeoff": "Pokročilé režimy nepomohou, pokud sonda při jízdě snímá bubliny nebo turbulentní vodu."
-        },
-        {
-          "situation": "Chci rozpoznávat jednotlivé ryby",
-          "recommendation": "Naučte se číst odrazy a strukturu dna v dostupných režimech konkrétního echolotu.",
-          "tradeoff": "Symbol ryby ani oblouk na obrazovce nedokazuje druh nebo velikost ulovené ryby."
-        }
-      ],
-      "caution": "Přístroj neposkytuje fotografii dna ani spolehlivé určení druhu ryby. Vhodnou frekvenci, úhel sondy a instalaci ověřte podle dokumentace konkrétního modelu.",
-      "corrections": [
-        {
-          "old_text": "Echolot a sonar jsou oba zařízení používané k detekci objektů pod vodní hladinou, ale existují mezi nimi některé základní rozdíly. Echolot využívá zvukové vlny k odrazu od dna nebo předmětů pod vodou a měří čas, který trvá, než se zvuková vlna vrátí zpět k zařízení. Sonar na druhé straně využívá akustické signály nebo ultrazvuk k detekci objektů pod vodou.",
-          "new_text": "Echolot je druh sonarového zařízení. Sonda vysílá zvukové impulzy do vody a přijímá jejich odrazy od dna a dalších objektů. Rozdíl mezi echolotem a sonarem není v tom, že by jeden používal zvuk a druhý ultrazvuk."
-        },
-        {
-          "old_text": "Echolot je obvykle používán pro měření hloubky vody a lokalizaci ryb, zatímco sonar je schopen odhalit i pohybující se objekty jako jsou lodě, vraky nebo podvodní zvířata. Echolot využívá jednosměrné zvukové vlny, zatímco sonar používá dvousměrné zvukové pulsy k odhadu vzdálenosti a polohy objektů.",
-          "new_text": "Echolot se v rybaření používá hlavně ke zjišťování hloubky, profilu dna a odrazů objektů ve vodě. Pracuje na principu vyslaného zvukového impulzu a přijaté ozvěny stejně jako další sonarové systémy; neplatí dělení na jednosměrné a dvousměrné zvukové vlny."
-        },
-        {
-          "old_text": "Na rozdíl od Echolotu se sonar zaměřuje spíše na detekci podmořských objektů, jako jsou vraky lodí, potrubí nebo podvodní překážky. Sonary jsou také používány v námořním průzkumu a v obranných operacích.",
-          "new_text": "Sonar je širší název pro systémy, které používají zvuk k detekci objektů a prostředí pod vodou. Rybářský echolot patří do této skupiny. Konkrétní funkce závisí na sondě a přístroji, ne pouze na jejich obchodním názvu."
+          "kind": "demote_body_h1",
+          "before": "<h1 style=\"font-size: 36px; line-height: 1.2; margin: 0 0 14px 0; color: #0f172a;\">Jak vybrat echolot pro rybaření: Kompletní průvodce funkcemi, typy sonaru a použitím v praxi</h1>"
         }
       ]
     },
     {
-      "post_id": 38108,
-      "slug": "srovnani-nejlepsich-echolotu-na-sumce-v-roce-2023",
-      "anchor": "<h3>1. Jaký je nejlepší echolot na sumce na trhu?</h3>",
-      "source_sha256": "559ecb25ddcfa0f9e8e09df7b6f90ca2a6b272f813c0091e01ce5cfc6e5696e9",
-      "edit_id": "sonar-sumec-stare-srovnani-38108-v3",
-      "lead": "Historický seznam modelů z roku 2023 není automaticky aktuální žebříček. Při výběru echolotu na sumce rozhoduje místo lovu, kompatibilní sonda, zobrazení hloubky a překážek a bezpečné použití na konkrétním plavidle.",
-      "choices": [
+      "post_id": 37720,
+      "slug": "jak-spravne-nastavit-echolot-lowrance-pro-nejlepsi-vysledky",
+      "source_sha256": "e1d0ed474bbfc8a5f9d55793f0efaf7b349fa7c470b76fd1ca63bb5488d6e289",
+      "candidate_sha256": "aa5f2575b677bdc983f961ca02031bbe0828f0c93c1274a04bde7bb2776a82b3",
+      "edit_id": "bulk-cleanup-37720-v4",
+      "cleanup_ops": [
         {
-          "situation": "Lovím vertikálně z člunu",
-          "recommendation": "Ověřte sledování nástrahy pod lodí, vhodnou sondu a bezpečné uchycení.",
-          "tradeoff": "Pro vertikální lov je praktické zobrazení přímo pod lodí často důležitější než rozsáhlé mapové funkce."
-        },
-        {
-          "situation": "Chytám z břehu",
-          "recommendation": "Prověřte dostupnost přenosného nebo nahazovacího řešení a možnosti zobrazení na telefonu.",
-          "tradeoff": "Dosah spojení, způsob manipulace a výdrž omezují jeho použití jinak než na člunu."
-        },
-        {
-          "situation": "Hledám ryby ve větší hloubce",
-          "recommendation": "Vybírejte podporované režimy a frekvence podle konkrétní sondy a reálné hloubky vody.",
-          "tradeoff": "Nižší frekvence často umožní větší dosah, zatímco vyšší mohou nabídnout více detailů, ale parametry se liší podle sestavy."
+          "kind": "demote_body_h1",
+          "before": "<h1>Jak správně nastavit echolot Lowrance pro lepší čtení vody i ryb</h1>"
         }
-      ],
-      "caution": "Bez doložených testů nelze určit nejlepší model pro všechny rybáře. Označení modelů a cen v původním přehledu z roku 2023 berte jako historické údaje; dostupnost a parametry vždy ověřte u výrobce.",
-      "corrections": [
+      ]
+    },
+    {
+      "post_id": 118513,
+      "slug": "testovaci-krivka-prutu-v-librach-80-g-vs-120-g-olovo",
+      "source_sha256": "cfe9cf63de91610509241c6136a701b58a53d3a23076263530f61306132917ea",
+      "candidate_sha256": "8995044eebe4e8ff53c4a260329bce950e6fdcf0e24022e6b99bcd21e60d55e6",
+      "edit_id": "bulk-cleanup-118513-v4",
+      "cleanup_ops": [
         {
-          "old_text": "V roce 2023 se na trhu nachází několik vynikajících echolotů, které jsou ideální pro lovení sumců. Mezi nejlepší patří například Garmin Striker Plus 4cv nebo Lowrance HOOK Reveal 5x SplitShot.",
-          "new_text": "Tento starší přehled uvádí příklady echolotů z roku 2023, nikoli aktuální vítěze srovnávacího testu. U přesných variant si před výběrem ověřte dostupnost, kompatibilní sondu a podporované funkce."
-        },
+          "kind": "demote_body_h1",
+          "before": "<h1 style=\"font-size: 34px; line-height: 1.2; margin: 0 0 14px 0; color: #0f172a;\">Testovací křivka v librách (lb): Jak vybrat správnou gramáž pro olovo 80 g vs. 120 g?</h1>"
+        }
+      ]
+    },
+    {
+      "post_id": 41624,
+      "slug": "vlastni-vyroba-stojanu-na-pruty-rychle-a-bez-komplikaci",
+      "source_sha256": "589845b1a291289e1e0f186356c11ac937c1b248fc6614fe90ba3b642fa1abbb",
+      "candidate_sha256": "a566e30bda8cea05bdcbcd7c38c3a1e65f36699bde92d9ac71bc475085f5389e",
+      "edit_id": "bulk-cleanup-41624-v4",
+      "cleanup_ops": [
         {
-          "old_text": "Nejdůležitější funkcí, kterou echolot pro lovení sumců musí mít, je dostatečně citlivý snímač, který dokáže přesně rozpoznat ryby v hloubce. Navíc by měl obsahovat také funkce jako je GPS, možnost ukládání a sdílení dat a velký a přehledný displej.",
-          "new_text": "Pro lov sumců ověřte zejména vhodnou sondu, zobrazení hloubky a překážek a podmínky použití. Sonarové odrazy neumějí spolehlivě určit druh ryby. GPS, mapy a větší displej mohou pomoci, ale nejsou nezbytné pro každý způsob lovu."
-        },
+          "kind": "demote_body_h1",
+          "before": "<h1>Vlastní výroba stojanu na pruty: jednoduchý návod, co dává smysl i v praxi</h1>"
+        }
+      ]
+    },
+    {
+      "post_id": 87667,
+      "slug": "candatove-pruty-jak-vybrat-ty-spravne",
+      "source_sha256": "c78d51424b5c0ce09f694a3bf97a9bce60b8fe0274b156dae6488775421f944d",
+      "candidate_sha256": "11b946d3b42e0e245d5126dd659bb302c0795ebc6801a0600bd6ea0783bdc039",
+      "edit_id": "bulk-cleanup-87667-v4",
+      "cleanup_ops": [
         {
-          "old_text": "Ceny echolotů se mohou lišit v závislosti na značce, kvalitě a funkcích. V roce 2023 se dají sehnat echoloty na sumce od přibližně 5 000 Kč až po vyšší tisícovky Kč.",
-          "new_text": "Ceny uvedené ve starším přehledu nemusí odpovídat dnešní nabídce. Porovnávejte skutečnou cenu celé kompatibilní sestavy včetně sondy, držáku a napájení; aktuální cenu i dostupnost je potřeba ověřit u prodejce."
+          "kind": "demote_body_h1",
+          "before": "<h1>Candátové pruty: jak vybrat ten správný prut na candáta</h1>"
+        }
+      ]
+    },
+    {
+      "post_id": 40381,
+      "slug": "nejlepsi-daiwa-pruty-pro-rybolov-v-cechach-recenze-a-navod-k-vyberu",
+      "source_sha256": "ad0c3366623ba2df862f8c2c18739e56a5330c2eb4932aaec2b3015f84410737",
+      "candidate_sha256": "48369bb9aeb26bc7f9d6815068cc571f1ca82cced6156275b93686d4ab174400",
+      "edit_id": "bulk-cleanup-40381-v4",
+      "cleanup_ops": [
+        {
+          "kind": "demote_body_h1",
+          "before": "<h1>Nejlepší Daiwa pruty pro rybolov v Čechách: jak vybrat správný model podle stylu lovu</h1>"
+        }
+      ]
+    },
+    {
+      "post_id": 118529,
+      "slug": "kaprove-pruty-pro-deti-a-mladez-jak-vybrat-spravne",
+      "source_sha256": "37b79039be952defae4444503507b0c9ea3900313c6b828920b15825ef226f9d",
+      "candidate_sha256": "7264b6e0ded5a4506e4543b270a7182eea5bc31dfbab451f17cbc6b1e53a8c9f",
+      "edit_id": "bulk-cleanup-118529-v4",
+      "cleanup_ops": [
+        {
+          "kind": "demote_body_h1",
+          "before": "<h1 style=\"font-size: 34px; line-height: 1.2; margin: 0 0 14px 0; color: #0f172a;\">Kaprové pruty pro děti a mládež: Jaká délka a váha je ideální pro začátek?</h1>"
+        }
+      ]
+    },
+    {
+      "post_id": 45100,
+      "slug": "jak-vybrat-prut-pro-lov-na-uhore-rady-a-triky-od-zkusenych-rybaru",
+      "source_sha256": "8d64affb3c839c583df08c6940d07aea85067c433edda8b6b5408b4e48d3400c",
+      "candidate_sha256": "e497fd49ec9602c24d7206b20ff696296207f3462c916f94245ef4a08e6cb4ba",
+      "edit_id": "bulk-cleanup-45100-v4",
+      "cleanup_ops": [
+        {
+          "kind": "demote_body_h1",
+          "before": "<h1>Jak vybrat prut na úhoře: délka, akce, zátěž a praktické tipy z praxe</h1>"
+        }
+      ]
+    },
+    {
+      "post_id": 118336,
+      "slug": "pece-o-navijak-po-sezone-jak-ho-neznicit-spatnym-mazanim",
+      "source_sha256": "afd0da371f85049ad5576cfe1e4771bdcfb452451b717820fdcbf35adf4aaec4",
+      "candidate_sha256": "35950ca832c64abc7dc413e17a951c953c53323e9fa23df1ba9268a1fe4a4dfe",
+      "edit_id": "bulk-cleanup-118336-v4",
+      "cleanup_ops": [
+        {
+          "kind": "demote_body_h1",
+          "before": "<h1>Péče o naviják po sezóně: jak ho nezničit špatným mazáním?</h1>"
+        }
+      ]
+    },
+    {
+      "post_id": 118340,
+      "slug": "shimano-ultegra-vs-daiwa-emblem-ktery-kaprovy-navijak-vyhraje-souboj-roku-2026",
+      "source_sha256": "581214a6abcd3bc57e79840af1bd3d7c7fb12db50dbab4ca89ff685c8c8f0e18",
+      "candidate_sha256": "847c3d85750cf61e602759d96be4780d9fe2c7973d3f0c07bcc7b873b82cb8b4",
+      "edit_id": "bulk-cleanup-118340-v4",
+      "cleanup_ops": [
+        {
+          "kind": "demote_body_h1",
+          "before": "<h1>Shimano Ultegra vs. Daiwa Emblem: který kaprový naviják vyhraje souboj roku 2026?</h1>"
+        }
+      ]
+    },
+    {
+      "post_id": 118467,
+      "slug": "echolot-na-kajak-a-belly-boat-jak-vybrat-kompaktni-sonar",
+      "source_sha256": "788d798713186ba8e0ee4e922448fa6844789695a5b26e17953fa8e232b9d169",
+      "candidate_sha256": "0e8274f5d07a827074d86db2a96558e451fdb2af88cec04527a2f11073fa1ca6",
+      "edit_id": "bulk-cleanup-118467-v4",
+      "cleanup_ops": [
+        {
+          "kind": "demote_body_h1",
+          "before": "<h1 style=\"font-size: 34px; line-height: 1.2; margin: 0 0 18px 0; color: #0f172a;\">Echolot na kajak a belly boat: Kompaktní řešení s nízkou spotřebou</h1>"
+        }
+      ]
+    },
+    {
+      "post_id": 38381,
+      "slug": "jak-si-vyrobit-vlastni-stojan-na-sumcovy-prut-navod-krok-za-krokem",
+      "source_sha256": "44835fe030f3af03bcd3338ba5060895cfe484aa10b5d65276f32b9b452c9ed7",
+      "candidate_sha256": "7b44c529fedf2487a655833335721b76bef8ccb89d5fff7ffe45ea9565831993",
+      "edit_id": "bulk-cleanup-38381-v4",
+      "cleanup_ops": [
+        {
+          "kind": "dedupe_heading",
+          "html": "<h2>Jak si vyrobit vlastní stojan na sumcový prut: návod krok za krokem</h2>"
+        }
+      ]
+    },
+    {
+      "post_id": 50149,
+      "slug": "jak-vyrobit-vlastni-rybarsky-podberak-na-ryby-navod-krok-za-krokem",
+      "source_sha256": "c8587792c5932102458780634bb03e9de78bf1d173234451f2e77504ec949790",
+      "candidate_sha256": "8d48247e9b2dc5979658aaf6ce50d3ef3f6a3ebf2da44cfd13e09a1f75f68093",
+      "edit_id": "bulk-cleanup-50149-v4",
+      "cleanup_ops": [
+        {
+          "kind": "dedupe_heading",
+          "html": "<h2>Jak vyrobit vlastní rybářský podběrák na ryby - návod krok za krokem</h2>"
         }
       ]
     }

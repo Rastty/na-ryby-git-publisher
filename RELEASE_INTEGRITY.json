@@ -4,25 +4,36 @@
   "site": "na-ryby.eu",
   "branch": "main",
   "editIds": [
-    89500,
-    38108
+    118553,
+    37720,
+    118513,
+    41624,
+    87667,
+    40381,
+    118529,
+    45100,
+    118336,
+    118340,
+    118467,
+    38381,
+    50149
   ],
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "files": [
     {
       "name": "na-ryby-git-publisher.php",
-      "bytes": 20290,
-      "sha256": "1f2438902fa7dacce446bddf96d62f6533040c39c449e4590ff66914727a3cc2"
+      "bytes": 25512,
+      "sha256": "ac1249bb67812c65f49ae0294b11d9b62f49d06a3f93a08f0b5482295879e6a2"
     },
     {
       "name": "manifest.json",
-      "bytes": 7256,
-      "sha256": "168c0a1637512280fc32e7084ec6fbef1d6dcc1b2c4338b007dae62f00754e5b"
+      "bytes": 7454,
+      "sha256": "c21ec9a145a5dfc5bd01510639fc252e25c0de2515a8f72146ab000dcd8d1c68"
     },
     {
       "name": "README.md",
-      "bytes": 1145,
-      "sha256": "0ae25c1ba0d9a5bdb8d536249cf837526959219470a405875169b1cd4f5d2749"
+      "bytes": 1240,
+      "sha256": "7d7810740b6a3d01fbe27f5df7cec50e1807576146398453a1c8a7c36f06b6ef"
     }
   ],
   "externalWrites": 0
