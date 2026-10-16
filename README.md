@@ -13,6 +13,7 @@ Tools > Na-Ryby Git Publisher and click Apply once after a new manifest.
 No article mutation on activation, Git pull, webhook or plugin update.
 Legacy schema v1 is immutable (posts 52975 and 118517 already applied).
 Schema v2 supports 1-25 reviewed source-SHA-bound internal guidance inserts.
+Schema v3 adds bounded context-specific decisions and plain-text factual corrections.
 Protected measurement IDs 38064 and 42671 are always excluded.
 
 Future content batches must have exact reviewed IDs, slugs and safe anchors.

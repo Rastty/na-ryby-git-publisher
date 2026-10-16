@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Na-Ryby.eu – Git Publisher
  * Description: Apply guarded Git-managed content manifests from wp-admin without WPVibe or outbound WordPress REST writes.
- * Version: 0.2.0
+ * Version: 0.3.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
@@ -23,7 +23,7 @@ final class NRY_Git_Publisher {
     // V1 is immutable legacy compatibility. New cohorts must use the
     // source-hash-bound, insert-only v2 contract.
     public static function validate_manifest($data) {
-        if (!is_array($data) || !in_array($data['schema_version'] ?? null, array(1, 2), true)
+        if (!is_array($data) || !in_array($data['schema_version'] ?? null, array(1, 2, 3), true)
             || ($data['site'] ?? '') !== 'https://na-ryby.eu'
             || !isset($data['batch_id'], $data['edits'])
             || !is_string($data['batch_id'])
@@ -33,7 +33,8 @@ final class NRY_Git_Publisher {
             return new WP_Error('manifest_invalid', 'Neplatný manifest změn.');
         }
         $v2 = $data['schema_version'] === 2;
-        if (!$v2 && (count($data['edits']) !== 2
+        $v3 = $data['schema_version'] === 3;
+        if (!$v2 && !$v3 && (count($data['edits']) !== 2
             || array_column($data['edits'], 'post_id') !== array(52975, 118517))) {
             return new WP_Error('legacy_scope', 'V1 povoluje jen historickou dvojici.');
         }
@@ -45,11 +46,11 @@ final class NRY_Git_Publisher {
                 || isset($seen[$e['post_id']])
                 || !is_string($e['slug']) || !preg_match('/^[a-z0-9-]{10,140}$/D', $e['slug'])
                 || !is_string($e['anchor'])
-                || !preg_match('~^<h[12](?:\s[^>]*)?>[^<]{8,280}</h[12]>$~uD', $e['anchor'])) {
+                || !preg_match($v3 ? '~^<h[23](?:\s[^>]*)?>[^<]{8,280}</h[23]>$~uD' : '~^<h[12](?:\s[^>]*)?>[^<]{8,280}</h[12]>$~uD', $e['anchor'])) {
                 return new WP_Error('invalid_item', 'Neschválená identita, kotva nebo chráněný článek.');
             }
             $seen[$e['post_id']] = true;
-            if (!$v2) {
+            if (!$v2 && !$v3) {
                 if (!isset($e['insert_html']) || !is_string($e['insert_html'])
                     || strpos($e['insert_html'], self::MARKER) === false
                     || substr_count($e['insert_html'], self::DESTINATION) !== 1
@@ -58,6 +59,44 @@ final class NRY_Git_Publisher {
                     || strlen($e['insert_html']) > 1400) {
                     return new WP_Error('legacy_item', 'Neplatná historická úprava.');
                 }
+                continue;
+            }
+            if ($v3) {
+                if (!isset($e['source_sha256'], $e['edit_id'], $e['lead'], $e['choices'], $e['caution'])
+                    || !is_string($e['source_sha256'])
+                    || !preg_match('/^[a-f0-9]{64}$/D', $e['source_sha256'])
+                    || !is_string($e['edit_id'])
+                    || !preg_match('/^[a-z0-9][a-z0-9-]{7,63}$/D', $e['edit_id'])
+                    || isset($markers[$e['edit_id']])
+                    || !self::editorial_text($e['lead'], 30, 1000)
+                    || !self::editorial_text($e['caution'], 25, 600)
+                    || !is_array($e['choices']) || count($e['choices']) < 2
+                    || count($e['choices']) > 4
+                    || !is_array($e['corrections'] ?? array())
+                    || count($e['corrections'] ?? array()) > 3
+                    || isset($e['insert_html'], $e['link_url'])) {
+                    return new WP_Error('v3_item', 'Neplatný redakční obsah nebo zdroj.');
+                }
+                foreach ($e['choices'] as $choice) {
+                    if (!is_array($choice) || !isset($choice['situation'], $choice['recommendation'], $choice['tradeoff'])
+                        || !self::editorial_text($choice['situation'], 8, 130)
+                        || !self::editorial_text($choice['recommendation'], 15, 330)
+                        || !self::editorial_text($choice['tradeoff'], 15, 330)) {
+                        return new WP_Error('v3_choices', 'Neplatné rozhodovací scénáře.');
+                    }
+                }
+                $correctionKeys = array();
+                foreach ($e['corrections'] ?? array() as $c) {
+                    if (!is_array($c) || !isset($c['old_text'], $c['new_text'])
+                        || !self::editorial_text($c['old_text'], 25, 750)
+                        || !self::editorial_text($c['new_text'], 25, 1200)
+                        || $c['old_text'] === $c['new_text']
+                        || isset($correctionKeys[$c['old_text']])) {
+                        return new WP_Error('v3_correction', 'Nepovolená textová oprava.');
+                    }
+                    $correctionKeys[$c['old_text']] = true;
+                }
+                $markers[$e['edit_id']] = true;
                 continue;
             }
             if (!isset($e['source_sha256'], $e['edit_id'], $e['intro'], $e['link_label'], $e['link_url'])
@@ -80,6 +119,100 @@ final class NRY_Git_Publisher {
         return $data;
     }
 
+    private static function editorial_text($value, $min, $max) {
+        return is_string($value) && strlen($value) >= $min && strlen($value) <= $max
+            && trim($value) === $value
+            && !preg_match('/[<>\[\]{}]/u', $value)
+            && !preg_match('~(?:https?://|www\.|data:|javascript:|&#|&[a-z]+;)~iu', $value)
+            && !preg_match('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', $value);
+    }
+
+    private static function render_v3($edit) {
+        $esc = function($value) {
+            return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        };
+        $html = '<section class="nry-editorial-decision" data-nry-editorial-edit="'
+            . $edit['edit_id'] . '"><h3>Rychlé rozhodnutí před nákupem</h3><p>'
+            . $esc($edit['lead']) . '</p><ul>';
+        foreach ($edit['choices'] as $choice) {
+            $html .= '<li><strong>' . $esc($choice['situation'])
+                . ':</strong> ' . $esc($choice['recommendation'])
+                . ' <em>' . $esc($choice['tradeoff']) . '</em></li>';
+        }
+        return $html . '</ul><p><strong>Na co si dát pozor:</strong> '
+            . $esc($edit['caution']) . '</p></section>';
+    }
+
+    private static function plain_text_span($html, $pos, $length) {
+        $prefix = substr($html, 0, $pos);
+        $lastLt = strrpos($prefix, '<');
+        $lastGt = strrpos($prefix, '>');
+        // Corrections must be literal visible text, never an HTML attribute.
+        if ($lastLt !== false && ($lastGt === false || $lastLt > $lastGt)) { return false; }
+        $windowStart = max(0, $pos - 2000);
+        $window = substr($html, $windowStart, $pos - $windowStart);
+        // Never alter shortcode parameters or anchor text.
+        $lastOpenShortcode = strrpos($window, '[');
+        $lastCloseShortcode = strrpos($window, ']');
+        if ($lastOpenShortcode !== false
+            && ($lastCloseShortcode === false || $lastOpenShortcode > $lastCloseShortcode)) {
+            return false;
+        }
+        $lastOpenAnchor = strripos($prefix, '<a ');
+        $lastCloseAnchor = strripos($prefix, '</a>');
+        if ($lastOpenAnchor !== false
+            && ($lastCloseAnchor === false || $lastOpenAnchor > $lastCloseAnchor)) {
+            return false;
+        }
+        return strpos(substr($html, $pos, $length), '<') === false;
+    }
+
+    private static function build_v3_candidate($source, $edit) {
+        $marker = 'data-nry-editorial-edit="' . $edit['edit_id'] . '"';
+        $panel = self::render_v3($edit);
+        if (substr_count($source, $marker) === 1
+            && substr_count($source, $panel) === 1) { return array('already' => true); }
+        if (strpos($source, $marker) !== false) { return array('error' => 'marker_conflict'); }
+        if (!hash_equals($edit['source_sha256'], hash('sha256', $source))) {
+            return array('error' => 'source_sha_drift');
+        }
+        if (substr_count($source, $edit['anchor']) !== 1) {
+            return array('error' => 'anchor_conflict');
+        }
+        $candidate = $source;
+        foreach ($edit['corrections'] ?? array() as $correction) {
+            $old = $correction['old_text'];
+            if (substr_count($candidate, $old) !== 1) {
+                return array('error' => 'correction_nonunique');
+            }
+            $pos = strpos($candidate, $old);
+            if (!self::plain_text_span($candidate, $pos, strlen($old))) {
+                return array('error' => 'correction_markup');
+            }
+            $candidate = substr_replace($candidate, htmlspecialchars($correction['new_text'],
+                ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), $pos, strlen($old));
+        }
+        if (substr_count($candidate, $edit['anchor']) !== 1
+            || strpos($candidate, $marker) !== false) {
+            return array('error' => 'anchor_changed');
+        }
+        $candidate = str_replace($edit['anchor'],
+            $edit['anchor'] . "\n" . $panel, $candidate);
+        if (substr_count($candidate, $marker) !== 1
+            || substr_count($candidate, $panel) !== 1) {
+            return array('error' => 'candidate_invalid');
+        }
+        // No external or internal href/image destination, iframe or shortcode may change.
+        $protected = '~(?:<a\b[^>]*>|<img\b[^>]*>|<iframe\b[^>]*>|'
+            . '\[[a-zA-Z][^\]]*\])~iu';
+        preg_match_all($protected, $source, $beforeTokens);
+        preg_match_all($protected, $candidate, $afterTokens);
+        if ($beforeTokens[0] !== $afterTokens[0]) {
+            return array('error' => 'protected_token_drift');
+        }
+        return array('candidate' => $candidate);
+    }
+
     private static function render_v2($edit) {
         $escape = function($value) {
             return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -98,6 +231,19 @@ final class NRY_Git_Publisher {
         $source = $post->post_content;
         if (!is_string($source) || strlen($source) < 1000 || strlen($source) > 350000) {
             return array('id' => $post->ID, 'status' => 'blocked', 'reason' => 'size');
+        }
+        if (isset($edit['choices'])) {
+            $built = self::build_v3_candidate($source, $edit);
+            if (isset($built['already'])) {
+                return array('id' => $post->ID, 'status' => 'already_applied');
+            }
+            if (isset($built['error'])) {
+                return array('id' => $post->ID, 'status' => 'blocked',
+                    'reason' => $built['error']);
+            }
+            return array('id' => $post->ID, 'status' => 'ready', 'source' => $source,
+                'candidate' => $built['candidate'], 'source_sha' => hash('sha256', $source),
+                'candidate_sha' => hash('sha256', $built['candidate']));
         }
         $v2 = isset($edit['source_sha256']);
         $marker = $v2 ? 'data-nry-git-edit="' . $edit['edit_id'] . '"' : self::MARKER;

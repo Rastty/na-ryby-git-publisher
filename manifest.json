@@ -1,17 +1,93 @@
 {
-  "schema_version": 2,
-  "batch_id": "buyer-teleskop-36350-canary-v2",
+  "schema_version": 3,
+  "batch_id": "buyer-decision-batch-20261016-v3",
   "site": "https://na-ryby.eu",
   "edits": [
     {
-      "post_id": 36350,
-      "slug": "nejlepsi-teleskopicke-pruty-na-trhu-porovnani-a-recenze",
-      "anchor": "<h2>Teleskopický prut: Nová generace rybářských prutů</h2>",
-      "source_sha256": "79b7d8447610b7b004cd6c82cc19ee5e6ec451adb3fb0300211bcd95966bdb3b",
-      "edit_id": "teleskop-36350-setup-01",
-      "intro": "Skladnost teleskopu je výhoda při převozu, ale správná délka, akce a sladění s navijákem závisí na způsobu lovu. Než koupíte samotný prut, porovnejte také potřeby celé sestavy.",
-      "link_label": "Sestavit výbavu podle způsobu lovu",
-      "link_url": "https://na-ryby.eu/poradce-vybavy/"
+      "post_id": 34654,
+      "slug": "jak-vybrat-rybarsky-prut-pro-zacatecniky-how-to-choose-a-fishing-rod-for-beginners",
+      "anchor": "<h3>Druhy rybářských prutů</h3>",
+      "source_sha256": "e6873e9712bc4b7857f65f0da81456b8c02bf59f7e8a9fc7c6eeaa4ea7a71d52",
+      "edit_id": "buyer-prut-zacatecnik-34654-v3",
+      "lead": "Nejdříve si určete způsob lovu, až potom vybírejte délku, akci a cenu prutu. Jeden univerzální model nemusí správně fungovat s odlišnými technikami ani nástrahami.",
+      "choices": [
+        {
+          "situation": "Chci začít s feederem",
+          "recommendation": "Vybírejte feederový prut podle vody a používaných krmítek.",
+          "tradeoff": "Počítejte s výměnnými špičkami a vhodným navijákem, nikoli s prutem pro každou techniku."
+        },
+        {
+          "situation": "Budu lovit kapry na položenou",
+          "recommendation": "Porovnejte kaprové pruty podle způsobu nahazování, prostoru u vody a přepravy.",
+          "tradeoff": "Delší prut může pomoci při manipulaci s vlascem, ale hůře se používá v úzkém porostu."
+        },
+        {
+          "situation": "Chci zkusit přívlač",
+          "recommendation": "Zvolte přívlačový prut podle hmotnosti konkrétních nástrah a cílových ryb.",
+          "tradeoff": "Příliš těžká sestava znesnadní práci s lehkou nástrahou."
+        }
+      ],
+      "caution": "Zkontrolujte společně prut, naviják, vlasec či šňůru a reálné podmínky lovu. Parametry konkrétního výrobku ověřte u prodejce; samotná cena nezaručuje vhodnost sestavy.",
+      "corrections": []
+    },
+    {
+      "post_id": 36442,
+      "slug": "jak-funguje-echolot-na-ryby-navod-pro-zacatecniky",
+      "anchor": "<h3>Jaký je rozdíl mezi 2D a 3D echolotem?</h3>",
+      "source_sha256": "59753f26b149e724598aa03f2e6f4c4bfc2269a09155d5d5e14cf8c072a67222",
+      "edit_id": "buyer-echolot-zacatecnik-36442-v3",
+      "lead": "Než porovnáte obrazovky nebo názvy sonarových režimů, zjistěte, odkud budete měřit a jak upevníte či napájíte sondu. Od toho se odvíjí, zda je echolot pro vaše použití praktický.",
+      "choices": [
+        {
+          "situation": "Chytám převážně ze břehu",
+          "recommendation": "Prověřte nahazovací bezdrátové sondy a kompatibilní mobilní aplikaci.",
+          "tradeoff": "Dosah spojení, doba provozu a možnost bezpečného vytažení sondy jsou zásadnější než efektní zobrazení."
+        },
+        {
+          "situation": "Jezdím na člunu",
+          "recommendation": "Řešte vhodné uchycení sondy a napájení celé sestavy.",
+          "tradeoff": "Před nákupem ověřte, zda spolu konkrétní displej, sonda a příslušenství komunikují."
+        },
+        {
+          "situation": "Vyrážím na kajaku či belly boatu",
+          "recommendation": "Upřednostněte kompaktní uchycení a bezpečné vedení kabelů.",
+          "tradeoff": "Hmotnost baterie a prostor na palubě mohou být důležitější než velikost obrazovky."
+        }
+      ],
+      "caution": "Odraz na displeji není jistý důkaz konkrétní ryby. Zobrazení ovlivňuje nastavení, podmínky vody a typ sondy. Dodržujte místní pravidla používání elektroniky.",
+      "corrections": []
+    },
+    {
+      "post_id": 34464,
+      "slug": "recenze-delphin-prut-stalx-300cm-325lb-telefix-kaprove-pruty",
+      "anchor": "<h2>Delphin Prut Stalx 300cm 3,25lb TeleFIX - Závěr</h2>",
+      "source_sha256": "5db5e4453fb3d5a28fe903782729213ea16b7db365312ea3defa76ee505c11a3",
+      "edit_id": "buyer-delphin-stalx-34464-v3",
+      "lead": "U modelu Delphin Stalx 300 cm / 3,25 lb TeleFIX oddělte ověřitelné technické údaje výrobce od marketingových příslibů. Délka a libraž samy o sobě nedokazují přesnost hodů ani kvalitu zpracování.",
+      "choices": [
+        {
+          "situation": "Potřebuji skladnější přepravu",
+          "recommendation": "Prověřte transportní délku, počet dílů a spolehlivost spojů uvedené u přesné varianty.",
+          "tradeoff": "Teleskopická konstrukce šetří místo, ale nemusí být nejlepší pro každý styl nahazování."
+        },
+        {
+          "situation": "Prioritou je delší nához",
+          "recommendation": "Nehodnoťte výkon pouze z čísla 3,25 lb a marketingového popisu.",
+          "tradeoff": "Rozhoduje souhra techniky, montáže, akce prutu a konkrétních podmínek."
+        },
+        {
+          "situation": "Hledám první kaprový prut",
+          "recommendation": "Porovnejte délku s prostorem na břehu, přepravou a použitým navijákem.",
+          "tradeoff": "Bez ověření parametrů a osobního vyzkoušení nelze prohlásit tento model za nejlepší univerzální volbu."
+        }
+      ],
+      "caution": "Parametry, cenu a dostupnost ověřte pro přesnou variantu u výrobce či prodejce. Tento přehled není výsledkem vlastního laboratorního ani dlouhodobého terénního testu.",
+      "corrections": [
+        {
+          "old_text": "Pokud hledáte kvalitní teleskopický prut pro lov na dlouhých vzdálenostech, je Delphin Prut Stalx 300cm 3,25lb TeleFIX tou správnou volbou. Tento prut je vyroben z nejkvalitnějších materiálů a je navržen tak, aby vám poskytl pohodlí a sílu, kterou potřebujete pro lov na dlouhé vzdálenosti.",
+          "new_text": "Delphin Stalx 300 cm / 3,25 lb TeleFIX je teleskopický kaprový prut, u kterého je vhodné ověřit údaje o konstrukci, transportní délce a doporučeném použití pro přesnou variantu. Bez doloženého srovnávacího testu nelze garantovat nadprůměrnou kvalitu materiálů ani výkon při dlouhém náhozu."
+        }
+      ]
     }
   ]
 }
