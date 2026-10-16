@@ -1,0 +1,28 @@
+{
+  "status": "PUBLIC_DEPLOYMENT_SOURCE_READY",
+  "destination": "dist/na-ryby-git-publisher-public-repo",
+  "site": "na-ryby.eu",
+  "branch": "main",
+  "editIds": [
+    52975,
+    118517
+  ],
+  "files": [
+    {
+      "name": "na-ryby-git-publisher.php",
+      "bytes": 9447,
+      "sha256": "78197a45ef44d2972e5c9d322ec5020e593e0353d02ece9fabfbe065d1150a0b"
+    },
+    {
+      "name": "manifest.json",
+      "bytes": 1702,
+      "sha256": "c233477d7c3f5ba5572a1093112efb845d90a2ec70b74ff6f93bc91ed8a81d33"
+    },
+    {
+      "name": "README.md",
+      "bytes": 925,
+      "sha256": "838544864d0f569caaa8049e886df2c6febd3c8bd558fbb155405480f5e2e1bd"
+    }
+  ],
+  "externalWrites": 0
+}
