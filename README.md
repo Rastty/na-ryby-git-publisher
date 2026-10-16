@@ -11,7 +11,9 @@ Deploying plugin code is NOT equivalent to editing the WordPress database.
 The plugin deliberately requires an admin to review the rows at
 Tools > Na-Ryby Git Publisher and click Apply once after a new manifest.
 No article mutation on activation, Git pull, webhook or plugin update.
-The original two-item cohort has already been confirmed applied by the owner.
+Legacy schema v1 is immutable (posts 52975 and 118517 already applied).
+Schema v2 supports 1-25 reviewed source-SHA-bound internal guidance inserts.
+Protected measurement IDs 38064 and 42671 are always excluded.
 
 Future content batches must have exact reviewed IDs, slugs and safe anchors.
 No public write endpoints or unattended editorial mutations are enabled.

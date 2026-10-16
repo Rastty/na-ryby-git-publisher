@@ -7,11 +7,12 @@
     52975,
     118517
   ],
+  "schemaVersion": 1,
   "files": [
     {
       "name": "na-ryby-git-publisher.php",
-      "bytes": 9447,
-      "sha256": "78197a45ef44d2972e5c9d322ec5020e593e0353d02ece9fabfbe065d1150a0b"
+      "bytes": 12529,
+      "sha256": "aa58e8a265e1bea953cb0640171bc1a0728c76d9a5b735a7c933e2b9f4898d5c"
     },
     {
       "name": "manifest.json",
@@ -20,8 +21,8 @@
     },
     {
       "name": "README.md",
-      "bytes": 925,
-      "sha256": "838544864d0f569caaa8049e886df2c6febd3c8bd558fbb155405480f5e2e1bd"
+      "bytes": 1059,
+      "sha256": "acb59126d088c01d51f3bde464a85dc2c7080d17b891879b0c463c58d3b306ac"
     }
   ],
   "externalWrites": 0

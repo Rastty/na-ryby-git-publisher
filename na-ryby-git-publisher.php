@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Na-Ryby.eu – Git Publisher
  * Description: Apply guarded Git-managed content manifests from wp-admin without WPVibe or outbound WordPress REST writes.
- * Version: 0.1.0
+ * Version: 0.2.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
@@ -17,28 +17,76 @@ final class NRY_Git_Publisher {
     public static function manifest() {
         $raw = @file_get_contents(__DIR__ . '/manifest.json');
         $data = $raw === false ? null : json_decode($raw, true);
-        if (!is_array($data) || ($data['schema_version'] ?? null) !== 1
+        return self::validate_manifest($data);
+    }
+
+    // V1 is immutable legacy compatibility. New cohorts must use the
+    // source-hash-bound, insert-only v2 contract.
+    public static function validate_manifest($data) {
+        if (!is_array($data) || !in_array($data['schema_version'] ?? null, array(1, 2), true)
             || ($data['site'] ?? '') !== 'https://na-ryby.eu'
-            || !isset($data['batch_id'], $data['edits']) || !is_array($data['edits'])
-            || count($data['edits']) < 1 || count($data['edits']) > 25) {
+            || !isset($data['batch_id'], $data['edits'])
+            || !is_string($data['batch_id'])
+            || !preg_match('/^[a-z0-9][a-z0-9-]{7,99}$/D', $data['batch_id'])
+            || !is_array($data['edits']) || count($data['edits']) < 1
+            || count($data['edits']) > 25) {
             return new WP_Error('manifest_invalid', 'Neplatný manifest změn.');
         }
-        $seen = array();
+        $v2 = $data['schema_version'] === 2;
+        if (!$v2 && (count($data['edits']) !== 2
+            || array_column($data['edits'], 'post_id') !== array(52975, 118517))) {
+            return new WP_Error('legacy_scope', 'V1 povoluje jen historickou dvojici.');
+        }
+        $seen = array(); $markers = array();
         foreach ($data['edits'] as $e) {
-            if (!is_array($e) || !isset($e['post_id'], $e['slug'], $e['anchor'], $e['insert_html'])
-                || !is_int($e['post_id']) || $e['post_id'] < 1 || isset($seen[$e['post_id']])
-                || !preg_match('/^[a-z0-9-]{10,140}$/D', $e['slug'])
-                || !preg_match('~^<h[12](?:\s[^>]*)?>[^<]{8,280}</h[12]>$~uD', $e['anchor'])
-                || strpos($e['insert_html'], self::MARKER) === false
-                || substr_count($e['insert_html'], self::DESTINATION) !== 1
-                || substr_count($e['insert_html'], '<a ') !== 1
-                || stripos($e['insert_html'], '<script') !== false
-                || strlen($e['insert_html']) > 1400) {
-                return new WP_Error('invalid_item', 'Neschválená změna nebo duplicitní článek.');
+            if (!is_array($e) || !isset($e['post_id'], $e['slug'], $e['anchor'])
+                || !is_int($e['post_id']) || $e['post_id'] < 1
+                || in_array($e['post_id'], array(38064, 42671), true)
+                || isset($seen[$e['post_id']])
+                || !is_string($e['slug']) || !preg_match('/^[a-z0-9-]{10,140}$/D', $e['slug'])
+                || !is_string($e['anchor'])
+                || !preg_match('~^<h[12](?:\s[^>]*)?>[^<]{8,280}</h[12]>$~uD', $e['anchor'])) {
+                return new WP_Error('invalid_item', 'Neschválená identita, kotva nebo chráněný článek.');
             }
             $seen[$e['post_id']] = true;
+            if (!$v2) {
+                if (!isset($e['insert_html']) || !is_string($e['insert_html'])
+                    || strpos($e['insert_html'], self::MARKER) === false
+                    || substr_count($e['insert_html'], self::DESTINATION) !== 1
+                    || substr_count($e['insert_html'], '<a ') !== 1
+                    || stripos($e['insert_html'], '<script') !== false
+                    || strlen($e['insert_html']) > 1400) {
+                    return new WP_Error('legacy_item', 'Neplatná historická úprava.');
+                }
+                continue;
+            }
+            if (!isset($e['source_sha256'], $e['edit_id'], $e['intro'], $e['link_label'], $e['link_url'])
+                || !is_string($e['source_sha256'])
+                || !preg_match('/^[a-f0-9]{64}$/D', $e['source_sha256'])
+                || !is_string($e['edit_id'])
+                || !preg_match('/^[a-z0-9][a-z0-9-]{7,63}$/D', $e['edit_id'])
+                || isset($markers[$e['edit_id']])
+                || !is_string($e['intro']) || trim($e['intro']) === ''
+                || strlen($e['intro']) > 1400
+                || !is_string($e['link_label']) || trim($e['link_label']) === ''
+                || strlen($e['link_label']) > 440
+                || !is_string($e['link_url'])
+                || !preg_match('~^https://na-ryby\.eu/(?:[a-z0-9_-]+/)+$~D', $e['link_url'])
+                || isset($e['insert_html'])) {
+                return new WP_Error('v2_item', 'Neplatný v2 záznam, SHA nebo interní odkaz.');
+            }
+            $markers[$e['edit_id']] = true;
         }
         return $data;
+    }
+
+    private static function render_v2($edit) {
+        $escape = function($value) {
+            return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        };
+        return '<aside class="nry-advisor-internal-link" data-nry-git-edit="' . $edit['edit_id']
+            . '"><p>' . $escape($edit['intro']) . ' <a href="' . $edit['link_url'] . '">'
+            . $escape($edit['link_label']) . '</a></p></aside>';
     }
 
     public static function inspect($edit) {
@@ -51,16 +99,26 @@ final class NRY_Git_Publisher {
         if (!is_string($source) || strlen($source) < 1000 || strlen($source) > 350000) {
             return array('id' => $post->ID, 'status' => 'blocked', 'reason' => 'size');
         }
-        if (substr_count($source, self::MARKER) === 1 && strpos($source, self::DESTINATION) !== false) {
+        $v2 = isset($edit['source_sha256']);
+        $marker = $v2 ? 'data-nry-git-edit="' . $edit['edit_id'] . '"' : self::MARKER;
+        $target = $v2 ? $edit['link_url'] : self::DESTINATION;
+        $insert = $v2 ? self::render_v2($edit) : $edit['insert_html'];
+        if ((!$v2 && substr_count($source, $marker) === 1
+                && strpos($source, $target) !== false)
+            || ($v2 && substr_count($source, $marker) === 1
+                && substr_count($source, $insert) === 1)) {
             return array('id' => $post->ID, 'status' => 'already_applied');
         }
-        if (strpos($source, self::MARKER) !== false || strpos($source, self::DESTINATION) !== false
+        if (strpos($source, $marker) !== false || strpos($source, 'href="' . $target . '"') !== false
             || substr_count($source, $edit['anchor']) !== 1) {
             return array('id' => $post->ID, 'status' => 'blocked', 'reason' => 'anchor_conflict');
         }
-        $candidate = str_replace($edit['anchor'], $edit['anchor'] . "\n" . $edit['insert_html'], $source);
-        if (substr_count($candidate, self::MARKER) !== 1 || substr_count($candidate, self::DESTINATION) !== 1
-            || str_replace($edit['anchor'] . "\n" . $edit['insert_html'], $edit['anchor'], $candidate) !== $source) {
+        if ($v2 && !hash_equals($edit['source_sha256'], hash('sha256', $source))) {
+            return array('id' => $post->ID, 'status' => 'blocked', 'reason' => 'source_sha_drift');
+        }
+        $candidate = str_replace($edit['anchor'], $edit['anchor'] . "\n" . $insert, $source);
+        if (substr_count($candidate, $marker) !== 1 || substr_count($candidate, $insert) !== 1
+            || str_replace($edit['anchor'] . "\n" . $insert, $edit['anchor'], $candidate) !== $source) {
             return array('id' => $post->ID, 'status' => 'blocked', 'reason' => 'candidate');
         }
         return array('id' => $post->ID, 'status' => 'ready', 'source' => $source,
