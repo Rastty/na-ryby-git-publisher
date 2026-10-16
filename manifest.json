@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "batch_id": "na-ryby-advisor-links-remaining-two-v1",
+  "site": "https://na-ryby.eu",
+  "edits": [
+    {
+      "post_id": 52975,
+      "slug": "ktere-kaprove-pruty-jsou-nejlepsi-na-trhu-srovnani-a-recenze",
+      "anchor": "<h1>Jak vybrat kaprový prut, který vám sedne: délka, akce, libraž i praktické tipy</h1>",
+      "insert_html": "<aside class=\"nry-advisor-internal-link\" data-nry-advisor-internal-link=\"cohort-01\" style=\"margin:18px 0 24px;padding:15px 18px;border-left:4px solid #0f766e;background:#f0fdfa;border-radius:8px\"><p style=\"margin:0\"><strong>Správný kaprový prut je jen část dobře vyvážené sestavy.</strong> <a href=\"https://na-ryby.eu/poradce-vybavy/\">Porovnat celou sestavu včetně navijáku</a>. Výsledek je orientační, cenu a dostupnost ověřte u obchodníka.</p></aside>"
+    },
+    {
+      "post_id": 118517,
+      "slug": "stalker-pruty-27-3-m-jak-vybrat-kratky-kaprovy-prut-tipy",
+      "anchor": "<h1 style=\"font-size: 34px; line-height: 1.2; margin: 0 0 18px 0; color: #0f172a;\">Stalker pruty (2,7 m – 3 m): Proč jsou krátké pruty hitem posledních let a které zvolit?</h1>",
+      "insert_html": "<aside class=\"nry-advisor-internal-link\" data-nry-advisor-internal-link=\"cohort-01\" style=\"margin:18px 0 24px;padding:15px 18px;border-left:4px solid #0f766e;background:#f0fdfa;border-radius:8px\"><p style=\"margin:0\"><strong>Krátký stalker prut je ideální, když potřebujete mobilní výbavu.</strong> <a href=\"https://na-ryby.eu/poradce-vybavy/\">Vybrat lehkou sestavu podle stylu lovu a přesunů</a>. Výsledek je orientační, cenu a dostupnost ověřte u obchodníka.</p></aside>"
+    }
+  ]
+}
