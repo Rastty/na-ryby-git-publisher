@@ -1,12 +1,17 @@
 # Na-Ryby Git Publisher
 
-Public deployment-only repository for the Na-Ryby.eu WordPress Git Publisher plugin.
+Source: curated release from the private Prometheus growth repository.
+This public repository contains only PHP plugin code and a bounded editorial manifest.
+No WordPress passwords, API tokens, publisher IDs, affiliate credentials or private project files.
 
-The reviewed source of truth remains in the private Prometheus project.
-Only approved WordPress plugin code, its bounded editorial manifest,
-and an integrity receipt will be mirrored here.
+Install/update this repository as a WordPress plugin using Deployer for Git.
+Branch: main; plugin folder: na-ryby-git-publisher.
 
-Installing or updating the plugin never edits WordPress articles automatically.
-New editorial changes require a WordPress administrator's explicit Apply action.
+Deploying plugin code is NOT equivalent to editing the WordPress database.
+The plugin deliberately requires an admin to review the rows at
+Tools > Na-Ryby Git Publisher and click Apply once after a new manifest.
+No article mutation on activation, Git pull, webhook or plugin update.
+The original two-item cohort has already been confirmed applied by the owner.
 
-No credentials, API keys, affiliate tokens or private Prometheus files belong here.
+Future content batches must have exact reviewed IDs, slugs and safe anchors.
+No public write endpoints or unattended editorial mutations are enabled.
