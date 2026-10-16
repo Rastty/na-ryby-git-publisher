@@ -1,91 +1,85 @@
 {
   "schema_version": 3,
-  "batch_id": "buyer-decision-batch-20261016-v3",
+  "batch_id": "buyer-safety-drag-boat-sonar-20261016-v3",
   "site": "https://na-ryby.eu",
   "edits": [
     {
-      "post_id": 34654,
-      "slug": "jak-vybrat-rybarsky-prut-pro-zacatecniky-how-to-choose-a-fishing-rod-for-beginners",
-      "anchor": "<h3>Druhy rybářských prutů</h3>",
-      "source_sha256": "e6873e9712bc4b7857f65f0da81456b8c02bf59f7e8a9fc7c6eeaa4ea7a71d52",
-      "edit_id": "buyer-prut-zacatecnik-34654-v3",
-      "lead": "Nejdříve si určete způsob lovu, až potom vybírejte délku, akci a cenu prutu. Jeden univerzální model nemusí správně fungovat s odlišnými technikami ani nástrahami.",
+      "post_id": 52057,
+      "slug": "navod-na-spravne-nastaveni-brzdy-na-navijaku-na-ryby",
+      "anchor": "<h3>Krok za krokem: Jak nastavit brzdu na navijáku?</h3>",
+      "source_sha256": "89f7a206f40953a7eaa5289b89eaa0a011bfba35ddc14710d2541acecf002229",
+      "edit_id": "brzda-navijaku-52057-safety-v3",
+      "lead": "Brzdu nastavte ještě před prvním náhozem. Při plynulém silnějším tahu by měla kontrolovaně vydávat vlasec nebo šňůru, aby nedošlo k přetížení sestavy. Nastavení vždy přizpůsobte nejslabší části udice a podmínkám lovu.",
       "choices": [
         {
-          "situation": "Chci začít s feederem",
-          "recommendation": "Vybírejte feederový prut podle vody a používaných krmítek.",
-          "tradeoff": "Počítejte s výměnnými špičkami a vhodným navijákem, nikoli s prutem pro každou techniku."
+          "situation": "Před prvním náhozem",
+          "recommendation": "Vyzkoušejte prokluz brzdy plynulým, bezpečně vedeným tahem, ne prudkým škubnutím.",
+          "tradeoff": "Příliš utažená brzda může způsobit přetržení vlasce nebo poškození návazce; příliš volná zhorší kontrolu nad rybou."
         },
         {
-          "situation": "Budu lovit kapry na položenou",
-          "recommendation": "Porovnejte kaprové pruty podle způsobu nahazování, prostoru u vody a přepravy.",
-          "tradeoff": "Delší prut může pomoci při manipulaci s vlascem, ale hůře se používá v úzkém porostu."
+          "situation": "Vlasec se při zátěži vůbec nepovoluje",
+          "recommendation": "Brzdu opatrně povolujte po malých krocích a vždy znovu ověřte její reakci.",
+          "tradeoff": "Nezaměňujte maximální brzdnou sílu navijáku s vhodným nastavením pro konkrétní vlasec a uzly."
         },
         {
-          "situation": "Chci zkusit přívlač",
-          "recommendation": "Zvolte přívlačový prut podle hmotnosti konkrétních nástrah a cílových ryb.",
-          "tradeoff": "Příliš těžká sestava znesnadní práci s lehkou nástrahou."
+          "situation": "Mám naviják s volnoběžným systémem",
+          "recommendation": "Rozlišujte nastavení hlavní zdolávací brzdy a režimu volnoběhu podle návodu daného modelu.",
+          "tradeoff": "Při přepnutí režimu se může odpor cívky změnit; před použitím vyzkoušejte jeho ovládání."
         }
       ],
-      "caution": "Zkontrolujte společně prut, naviják, vlasec či šňůru a reálné podmínky lovu. Parametry konkrétního výrobku ověřte u prodejce; samotná cena nezaručuje vhodnost sestavy.",
-      "corrections": []
-    },
-    {
-      "post_id": 36442,
-      "slug": "jak-funguje-echolot-na-ryby-navod-pro-zacatecniky",
-      "anchor": "<h3>Jaký je rozdíl mezi 2D a 3D echolotem?</h3>",
-      "source_sha256": "59753f26b149e724598aa03f2e6f4c4bfc2269a09155d5d5e14cf8c072a67222",
-      "edit_id": "buyer-echolot-zacatecnik-36442-v3",
-      "lead": "Než porovnáte obrazovky nebo názvy sonarových režimů, zjistěte, odkud budete měřit a jak upevníte či napájíte sondu. Od toho se odvíjí, zda je echolot pro vaše použití praktický.",
-      "choices": [
-        {
-          "situation": "Chytám převážně ze břehu",
-          "recommendation": "Prověřte nahazovací bezdrátové sondy a kompatibilní mobilní aplikaci.",
-          "tradeoff": "Dosah spojení, doba provozu a možnost bezpečného vytažení sondy jsou zásadnější než efektní zobrazení."
-        },
-        {
-          "situation": "Jezdím na člunu",
-          "recommendation": "Řešte vhodné uchycení sondy a napájení celé sestavy.",
-          "tradeoff": "Před nákupem ověřte, zda spolu konkrétní displej, sonda a příslušenství komunikují."
-        },
-        {
-          "situation": "Vyrážím na kajaku či belly boatu",
-          "recommendation": "Upřednostněte kompaktní uchycení a bezpečné vedení kabelů.",
-          "tradeoff": "Hmotnost baterie a prostor na palubě mohou být důležitější než velikost obrazovky."
-        }
-      ],
-      "caution": "Odraz na displeji není jistý důkaz konkrétní ryby. Zobrazení ovlivňuje nastavení, podmínky vody a typ sondy. Dodržujte místní pravidla používání elektroniky.",
-      "corrections": []
-    },
-    {
-      "post_id": 34464,
-      "slug": "recenze-delphin-prut-stalx-300cm-325lb-telefix-kaprove-pruty",
-      "anchor": "<h2>Delphin Prut Stalx 300cm 3,25lb TeleFIX - Závěr</h2>",
-      "source_sha256": "5db5e4453fb3d5a28fe903782729213ea16b7db365312ea3defa76ee505c11a3",
-      "edit_id": "buyer-delphin-stalx-34464-v3",
-      "lead": "U modelu Delphin Stalx 300 cm / 3,25 lb TeleFIX oddělte ověřitelné technické údaje výrobce od marketingových příslibů. Délka a libraž samy o sobě nedokazují přesnost hodů ani kvalitu zpracování.",
-      "choices": [
-        {
-          "situation": "Potřebuji skladnější přepravu",
-          "recommendation": "Prověřte transportní délku, počet dílů a spolehlivost spojů uvedené u přesné varianty.",
-          "tradeoff": "Teleskopická konstrukce šetří místo, ale nemusí být nejlepší pro každý styl nahazování."
-        },
-        {
-          "situation": "Prioritou je delší nához",
-          "recommendation": "Nehodnoťte výkon pouze z čísla 3,25 lb a marketingového popisu.",
-          "tradeoff": "Rozhoduje souhra techniky, montáže, akce prutu a konkrétních podmínek."
-        },
-        {
-          "situation": "Hledám první kaprový prut",
-          "recommendation": "Porovnejte délku s prostorem na břehu, přepravou a použitým navijákem.",
-          "tradeoff": "Bez ověření parametrů a osobního vyzkoušení nelze prohlásit tento model za nejlepší univerzální volbu."
-        }
-      ],
-      "caution": "Parametry, cenu a dostupnost ověřte pro přesnou variantu u výrobce či prodejce. Tento přehled není výsledkem vlastního laboratorního ani dlouhodobého terénního testu.",
+      "caution": "Pletenou šňůru nikdy nezkoušejte silným tahem holou rukou; může pořezat prsty. Udržujte kontrolu nad háčky a postupujte podle návodu ke konkrétnímu navijáku.",
       "corrections": [
         {
-          "old_text": "Pokud hledáte kvalitní teleskopický prut pro lov na dlouhých vzdálenostech, je Delphin Prut Stalx 300cm 3,25lb TeleFIX tou správnou volbou. Tento prut je vyroben z nejkvalitnějších materiálů a je navržen tak, aby vám poskytl pohodlí a sílu, kterou potřebujete pro lov na dlouhé vzdálenosti.",
-          "new_text": "Delphin Stalx 300 cm / 3,25 lb TeleFIX je teleskopický kaprový prut, u kterého je vhodné ověřit údaje o konstrukci, transportní délce a doporučeném použití pro přesnou variantu. Bez doloženého srovnávacího testu nelze garantovat nadprůměrnou kvalitu materiálů ani výkon při dlouhém náhozu."
+          "old_text": "Začněte uvolněním brzdy na maximum.",
+          "new_text": "Ještě před lovem nastavte brzdu tak, aby při bezpečně vyzkoušeném tahu kontrolovaně prokluzovala a chránila vlasec i návazec."
+        },
+        {
+          "old_text": "Poté, co se ryba chytí na návnadu, utáhneme brzdu, aby rybářský vlasec zůstal v napětí.",
+          "new_text": "Brzda má být přiměřeně nastavená už před záběrem; při zdolávání ji upravujte opatrně a podle situace, ne náhlým prudkým dotažením."
+        },
+        {
+          "old_text": "Po chvíli můžeme brzdu uvolnit tak, aby rybářský vlasec mohl být vytáhnut. Pokud je brzda stále příliš utažená, utáhneme ji ještě více, aby rybářský vlasec zůstal pod kontrolou.",
+          "new_text": "Jestliže brzda při silném tahu vůbec nepovoluje, postupně ji uvolněte. Příliš velký odpor může přetížit vlasec, návazec nebo prut."
+        }
+      ]
+    },
+    {
+      "post_id": 49275,
+      "slug": "jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun",
+      "anchor": "<h3>Jak správně používat echolot na lodi?</h3>",
+      "source_sha256": "322199f155add87c8e1e39234668c4804d3e1fe507ba2e03151ca3cb5ace3ac3",
+      "edit_id": "echolot-clun-49275-mounting-v3",
+      "lead": "Pro spolehlivé používání lodního echolotu nejdřív vyřešte bezpečné upevnění sondy a napájení. Sonda potřebuje správný směr a čisté proudění vody bez nadměrných bublin; samotná vysoká cena displeje špatnou montáž nevyřeší.",
+      "choices": [
+        {
+          "situation": "Malý člun s odnímatelnou výbavou",
+          "recommendation": "Prověřte snadno demontovatelný držák sondy, jištění kabelu a vhodný zdroj energie.",
+          "tradeoff": "Snadné převážení bývá vykoupeno delší přípravou před vyplutím a nutností bezpečného uchycení."
+        },
+        {
+          "situation": "Motorový člun s trvalou instalací",
+          "recommendation": "Sledujte montážní postup výrobce a vyberte místo s plynulým prouděním vody okolo sondy.",
+          "tradeoff": "Bubliny, turbulence od trupu či vrtule a nevhodný úhel sondy mohou zhoršit obraz i při správném nastavení přístroje."
+        },
+        {
+          "situation": "Potřebuji rozeznat detaily dna",
+          "recommendation": "Vyzkoušejte dostupné režimy a frekvence v rozsahu, který podporují konkrétní displej i sonda.",
+          "tradeoff": "Vyšší frekvence často zvýrazní detaily, nižší mohou lépe pronikat do hloubky; neexistuje univerzální hranice platná pro všechny sestavy."
+        }
+      ],
+      "caution": "Echolot zobrazuje odrazy zvuku, nikoli fotografii pod vodou. Z obrazu nelze s jistotou určit druh ani velikost ryby. Před vyplutím prověřte uchycení, kabeláž, napájení a místní pravidla plavby.",
+      "corrections": [
+        {
+          "old_text": "Echolot a sonar jsou oba zařízení, která se používají pro měření hloubky a na lokalizaci ryb a dalších předmětů pod hladinou. Rozdílem mezi nimi je, že echolot používá zvukové vlny s vysokou frekvencí a sonar používá zvukové vlny s nižší frekvencí.",
+          "new_text": "Echolot je typ sonarového zařízení: vysílá zvukové impulzy a vyhodnocuje jejich odrazy od dna a dalších objektů. Rozdíl mezi pojmy echolot a sonar nespočívá v pevné hranici frekvence; dostupné režimy závisejí na konkrétní sondě a přístroji."
+        },
+        {
+          "old_text": "Frekvence by měla být nižší pro hloubky nad 30 metrů a vyšší pro mělké vody. Dále je důležité správně umístit sondač do vody, aby se vyhnuli překážkám a turbulentním proudům.",
+          "new_text": "Vhodnou frekvenci vybírejte podle požadované hloubky, detailu a možností konkrétní sondy. Nižší frekvence mohou lépe pronikat do hloubky, vyšší mohou nabídnout detailnější obraz. Sondu umístěte podle montážního návodu do co nejklidnějšího proudění vody."
+        },
+        {
+          "old_text": "Obecně platí, že čím blíže k trupu, tím lépe.",
+          "new_text": "Vhodné místo sondy závisí na konstrukci plavidla; důležité je omezit turbulence a vzduchové bubliny a dodržet úhel i výšku montáže podle výrobce."
         }
       ]
     }
