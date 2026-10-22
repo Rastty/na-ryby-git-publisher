@@ -1,199 +1,275 @@
 {
   "schema_version": 3,
-  "batch_id": "practical-factual-five-20261022-v3",
+  "batch_id": "buyer10-practical-repair-20261022-v3",
   "site": "https://na-ryby.eu",
   "edits": [
     {
-      "post_id": 36594,
-      "slug": "podberak-na-kapry-jak-na-nej-nezapomenout-a-co-vse-potrebujete-vedet",
-      "anchor": "<h3>Jaký podběrák si vybrat?</h3>",
-      "source_sha256": "a022a41ae77422379c8a6cd747958e6d57e1019c1646b3ed6c1585d998f5c318",
-      "edit_id": "buyer-podberak-36594-practice-v3",
-      "lead": "Podběrák není jen doplněk. Musí odpovídat velikosti ryb, místu podebírání a způsobu přepravy; jemná síťovina a bezpečná manipulace jsou důležitější než marketingový název modelu.",
+      "post_id": 36702,
+      "slug": "pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu",
+      "source_sha256": "daa35fdcccc07273d859276aa1a378f3f65fd843c0064e306ccad8d2cc5d4ed5",
+      "anchor": "<h2>Pípáky na ryby pro profesionály: přehled nejlepších značek a modelů</h2>",
+      "edit_id": "buyer-problem-36702-20261022-v3",
+      "lead": "Neexistuje jeden nejlepší hlásič pro všechny rybáře. Důležitější než značka je citlivost, spolehlivost napájení, podpora příposlechu a ovládání při vašem typu lovu.",
+      "caution": "Názvy, ceny a parametry starších modelů berte jako historické; před nákupem ověřte aktuální specifikaci konkrétního výrobku.",
       "choices": [
         {
-          "situation": "Chytám kapry na volném břehu",
-          "recommendation": "Vyberte dostatečně prostornou síť s rameny vhodnými pro očekávanou velikost ryb.",
-          "tradeoff": "Velká síť usnadňuje podebrání, ale zabere více místa při transportu."
+          "situation": "Lovím krátce u prutů",
+          "recommendation": "Vyberte spolehlivý samostatný hlásič s jednoduchou regulací hlasitosti a citlivosti.",
+          "tradeoff": "Za nízkou cenu většinou nedostanete stejné pohodlí jako se sadou a příposlechem."
         },
         {
-          "situation": "Lovím z vysokého nebo zarostlého břehu",
-          "recommendation": "Zkontrolujte délku a pevnost rukojeti i bezpečný přístup k hladině.",
-          "tradeoff": "Delší rukojeť zvyšuje dosah, zároveň však může být méně pohodlná při manipulaci."
-        },
-        {
-          "situation": "Často vybavení přenáším",
-          "recommendation": "Prověřte skládání ramen, transportní rozměr a rychlost sestavení.",
-          "tradeoff": "Skladnost nikdy nesmí být na úkor dostatečné velikosti sítě a bezpečí ryby."
+          "situation": "Chodím na noční vícedenní výpravy",
+          "recommendation": "Uvažujte o kompatibilní sadě hlásičů a příposlechu s ověřeným dosahem a výdrží.",
+          "tradeoff": "Zkontrolujte příslušenství a napájení celé sestavy, nejen hlavní hlásič."
         }
       ],
-      "caution": "Rybu neponechávejte v podběráku zbytečně dlouho. Mějte připravenou navlhčenou podložku a řiďte se pravidly revíru.",
       "corrections": [
         {
-          "old_text": "Podběrák na kapry je rybářský nástroj, který se používá k zachycení kaprů a jiných ryb podvodní.",
-          "new_text": "Podběrák slouží k bezpečnému podebrání kapra a dalších ryb u hladiny. Důležitá je vhodná velikost sítě, jemná síťovina a šetrné zacházení."
+          "old_text": "Tento model od značky Fox je ideálním řešením pro každého profesionálního rybáře.",
+          "new_text": "O vhodnosti hlásiče Fox rozhodují funkce konkrétního modelu a potřeby rybáře; univerzální doporučení pro každého profesionála není podložené."
         },
         {
-          "old_text": "Pokud ji musíte mít delší dobu v podběráku, vybírejte podběrák s prodyšnou sítí, aby ryba měla stále přístup ke kyslíku.",
-          "new_text": "Rybu v podběráku zbytečně nezdržujte a při manipulaci minimalizujte dobu mimo vodu. Potřebné vybavení si připravte předem."
+          "old_text": "Tyto pípáky jsou vybaveny funkci \"Intelligent Sensing\", díky které jsou schopny rozpoznat, zda ryba pokojně saje nástrahu nebo ji snaží vyvrhnout.",
+          "new_text": "Elektronický hlásič sleduje pohyb nebo změny napětí vlasce; z běžné signalizace nelze spolehlivě poznat, jakým způsobem ryba přijímá či odmítá nástrahu."
         }
       ]
     },
     {
-      "post_id": 50581,
-      "slug": "jak-pouzivat-rybarsky-prut-pro-zacatecniky",
-      "anchor": "<h3>Tipy pro začátečníky</h3>",
-      "source_sha256": "873c254030202e492c3469c10764fd308b9b09b671cb8323d8e6b788fae6f451",
-      "edit_id": "buyer-zacatecnik-prut-50581-v3",
-      "lead": "První prut se nevybírá podle jedné univerzální délky. Nejdřív zvažte způsob lovu, cílovou rybu, prostor u vody a návaznost na naviják, vlasec nebo šňůru.",
+      "post_id": 60354,
+      "slug": "nejlepsi-rybarske-hlasice-a-signalizatory",
+      "source_sha256": "bd67974895ae90a3836ffb79310a29c0d8c80ebda98eaa390d51f72688a20a70",
+      "anchor": "<h2>Často kladené dotazy</h2>",
+      "edit_id": "buyer-problem-60354-20261022-v3",
+      "lead": "U starších žebříčků hlásičů neberte hvězdičky a slovo nejlepší jako nezávislý test. Vybírejte podle způsobu lovu, počtu prutů, nastavení citlivosti a kompatibility s příposlechem.",
+      "caution": "Bez vlastního srovnávacího měření nelze garantovat dosah, voděodolnost ani spolehlivost uvedených modelů; prověřte návod a nabídku prodejce.",
       "choices": [
         {
-          "situation": "Chci začít s přívlačí",
-          "recommendation": "Zaměřte se na prut odpovídající hmotnosti nástrah a na vyvážení s lehkým navijákem.",
-          "tradeoff": "Příliš tuhý a těžký prut zhoršuje práci s malými nástrahami."
+          "situation": "Chci hlídat jediný prut",
+          "recommendation": "Zkontrolujte samostatný hlásič a jeho možnost nastavení citlivosti podle proudění vody.",
+          "tradeoff": "Sada s přijímačem může být zbytečný výdaj."
         },
         {
-          "situation": "Chci vyzkoušet feeder",
-          "recommendation": "Slaďte feederový prut s hmotností krmítek, proudem a vhodným navijákem.",
-          "tradeoff": "Univerzální kaprový prut nemusí nabídnout stejně čitelnou citlivou špičku."
-        },
-        {
-          "situation": "Chci rekreačně lovit na položenou",
-          "recommendation": "Posuďte délku prutu podle břehu a bezpečného nahazování.",
-          "tradeoff": "Delší prut není automaticky praktičtější v hustém porostu."
+          "situation": "Chci dvě nebo tři udice a noc v bivaku",
+          "recommendation": "Upřednostněte kompatibilní systém s příposlechem a ověřeným způsobem napájení.",
+          "tradeoff": "Cenovka sady nemusí zahrnovat všechny baterie a další indikátory."
         }
       ],
-      "caution": "Před náhozem ověřte upevnění navijáku, nepoškozená očka, uzel a nastavení brzdy. Na místě dodržujte platný rybářský řád.",
       "corrections": [
         {
-          "old_text": "Pokud se chystáte lovit ryby létající ve vzduchu, je nutné zvolit delší a tužší prut.",
-          "new_text": "Délku a tuhost prutu pro lov ze břehu vybírejte podle konkrétní techniky a prostoru pro nahazování; delší či tužší prut nemusí být výhodnější."
+          "old_text": "V naší nabídce naleznete nejlepší rybářské hlásiče a signalizátory, které jsou vyrobené z kvalitních materiálů a disponují moderními funkcemi.",
+          "new_text": "Tento starší přehled představuje několik hlásičů a sad; jejich současnou dostupnost, funkce a kvalitu je potřeba ověřit pro konkrétní model."
         },
         {
-          "old_text": "Vlasec by měl být dostatečně pevný a měkký, tak aby se ryby neodrazily zpátky.",
-          "new_text": "Pevnost vlasce nebo šňůry přizpůsobte cílovým rybám, brzdě navijáku, typu nástrahy a nejslabšímu uzlu sestavy."
-        },
-        {
-          "old_text": "Nenechte vlasec volně viset ve vodě, ale držte ho pevně a pravidelně udělujte malé záběry.",
-          "new_text": "Napnutí vlasce a vedení nástrahy se liší podle techniky lovu. Při přívlači, plavané a položené neplatí stejný postup."
+          "old_text": "Spolehlivě signalizují záběr ryby a jsou vyrobeny z kvalitních materiálů.",
+          "new_text": "Vlastnosti hlásiče ověřte v aktuálním návodu výrobce; správné fungování závisí také na nastavení citlivosti a vedení vlasce."
         }
       ]
     },
     {
-      "post_id": 35713,
-      "slug": "jak-vyrobit-stojan-na-pruty-doma-v-ceske-kvalite",
-      "anchor": "<h3>Krok 1: Materiál</h3>",
-      "source_sha256": "9c6e69c9491817a4ebf7fa1c808748388d110f5b0a7691a02532fad8d0cdfd10",
-      "edit_id": "buyer-stojan-pruty-35713-safety-v3",
-      "lead": "U domácího stojanu je důležitá především stabilita, odolnost proti vlhkosti a šetrné opření prutů. Konstrukci vždy přizpůsobte výbavě, nepoškozujte samotné rybářské pruty.",
+      "post_id": 118316,
+      "slug": "baterie-do-signalizatoru-ktere-vydrzi-nejdele-a-proc-nekupovat-levne",
+      "source_sha256": "d2635341dc67b467df73ada56a702c3ea0b9c2ee1cfc012d9463b463336697dc",
+      "anchor": "<h2>Jaké typy baterií se v signalizátorech používají nejčastěji</h2>",
+      "edit_id": "buyer-problem-118316-20261022-v3",
+      "lead": "Nejdřív zjistěte přesný typ a napětí baterie v návodu hlásiče nebo příposlechu. Dražší článek automaticky neznamená delší výdrž v každém zařízení.",
+      "caution": "Nemíchejte staré a nové články ani různé chemické typy. Nabíjecí nebo lithiovou alternativu použijte pouze tehdy, když ji dovoluje výrobce.",
       "choices": [
         {
-          "situation": "Stojan používám doma",
-          "recommendation": "Navrhněte stabilní základnu a měkké opěrné body, aby se nepoškodily blanky a očka.",
-          "tradeoff": "Pevná konstrukce je odolná, ale hůře se převáží."
+          "situation": "Výrobce předepisuje 9V alkalickou baterii",
+          "recommendation": "Zvolte přesný předepsaný formát a před výpravou ověřte indikaci slabé baterie.",
+          "tradeoff": "Značka baterie nenahradí kontrolu kontaktů a správného uložení."
         },
         {
-          "situation": "Stojan vezmu k vodě",
-          "recommendation": "Zohledněte nerovný terén, kotvení a vlhkost materiálu.",
-          "tradeoff": "Lehké řešení se dobře nosí, ale může být méně stabilní ve větru."
-        },
-        {
-          "situation": "Rozhoduji se mezi výrobou a nákupem",
-          "recommendation": "Porovnejte cenu materiálu, spojů a povrchové ochrany s hotovým stojanem.",
-          "tradeoff": "Vlastní výroba dává smysl, pokud máte nářadí a umíte ověřit bezpečnou nosnost."
+          "situation": "Používám N, LR1 nebo jiný malý článek",
+          "recommendation": "Porovnejte označení na bateriovém prostoru s technickým návodem k přesnému modelu.",
+          "tradeoff": "Stejně vypadající články nemusejí mít shodné napětí ani použití."
         }
       ],
-      "caution": "Prut nikdy nezkracujte kvůli stojanu. Při vrtání a montáži používejte vhodné ochranné pomůcky a ověřte stabilitu bez zatížených prutů.",
       "corrections": [
         {
-          "old_text": "Pokud jsou pruty delší než stojan, je třeba je zastřihnout nebo nařezat na požadovanou délku.",
-          "new_text": "Stojan vždy rozměrově přizpůsobte rybářským prutům. Pruty kvůli stojanu nikdy nezkracujte ani neřežte."
-        },
-        {
-          "old_text": "Pomocí vrtáku a vrtáku si připravte otvory pro pruty.",
-          "new_text": "Vrtačkou a vhodným vrtákem připravte podle náčrtu otvory pro konstrukční spoje a opěrky prutů."
+          "old_text": "Levné baterie jsou v tomhle ohledu větší riziko pro kontakty i pro samotný prostor baterie.",
+          "new_text": "Riziko vytečení či poškození kontaktů závisí na konkrétní baterii, stáří a skladování; samotná nízká cena není spolehlivým technickým ukazatelem."
         }
       ]
     },
     {
-      "post_id": 42805,
-      "slug": "dulezite-informace-pro-zacatecniky-jak-spravne-cist-data-z-echolotu-lowrance-hds-5",
-      "anchor": "<h3>Krok 5: Čtení dat</h3>",
-      "source_sha256": "3af96d8f740b69ee64b4cfd738ed079fc328506110fa98987497c71711727a91",
-      "edit_id": "buyer-lowrance-hds5-42805-facts-v3",
-      "lead": "U staršího Lowrance HDS 5 je nutné odlišit obecné principy sonaru od funkcí přesné varianty a připojené sondy. Barvy na obrazovce nemají stejný význam v každé paletě.",
+      "post_id": 52458,
+      "slug": "signalizatory-zaberu-s-bluetooth-pripojenim-na-vasem-mobilu",
+      "source_sha256": "b93a4dfd34dc6e2e0024c0e450f9d6a3b10424bc241569f423461091c821886e",
+      "anchor": "<h2>Co je Bluetooth signalizátor záběru a proč ho rybáři řeší</h2>",
+      "edit_id": "buyer-problem-52458-20261022-v3",
+      "lead": "Pozor na označení bezdrátový: běžný příposlech může využívat vlastní rádiové spojení bez Bluetooth. Přímé notifikace do mobilu jsou možné pouze u modelů s výslovnou podporou.",
+      "caution": "Mobilní upozornění nikdy nenahrazuje dohled nad pruty a povinnosti rybáře podle místních pravidel. Dosah ověřte v terénu.",
       "choices": [
         {
-          "situation": "Na obrazovce nevidím dno",
-          "recommendation": "Zkontrolujte připojení sondy, nastavený rozsah hloubky a vhodný režim.",
-          "tradeoff": "Vyšší citlivost sama o sobě neodstraní špatný úhel sondy či bubliny při plavbě."
+          "situation": "Chci signál do klasického příposlechu",
+          "recommendation": "Hledejte párovanou sadu nebo kompatibilní přijímač stejné produktové řady.",
+          "tradeoff": "Proprietární přijímač zpravidla nepřipojíte automaticky k mobilní aplikaci."
         },
         {
-          "situation": "Chci odlišit překážky od odrazů ryb",
-          "recommendation": "Sledujte tvar odrazů, hloubkovou stupnici a strukturu dna v konkrétní paletě.",
-          "tradeoff": "Přístroj neurčí s jistotou druh ryby jen podle její barvy na displeji."
-        },
-        {
-          "situation": "Přístroj používám na člunu",
-          "recommendation": "Ověřte správné upevnění sondy, kabeláž a napájení podle návodu k dané verzi.",
-          "tradeoff": "Špatná montáž může znehodnotit obraz i při dobrém displeji."
+          "situation": "Chci upozornění skutečně do telefonu",
+          "recommendation": "Ověřte v návodu aplikaci, podporovaný operační systém, dosah a správu upozornění.",
+          "tradeoff": "Dosah spojení se může snížit za překážkami a při úsporném režimu telefonu."
         }
       ],
-      "caution": "Lowrance HDS 5 je starší řada; podporované režimy, mapové funkce a sondy se liší podle konkrétního modelu. Nepředpokládejte automaticky 3D ani živé sledování ryb.",
       "corrections": [
         {
-          "old_text": "Echolot Lowrance HDS 5 vytváří podrobnou 3D mapu dna a umožňuje sledovat pohyb ryb a dalších objektů pod hladinou v reálném čase.",
-          "new_text": "Zobrazení dna a odrazů závisí na přesné verzi jednotky Lowrance HDS 5, kompatibilní sondě a nastavení. Běžný sonarový obraz automaticky neznamená 3D mapu ani souvislé sledování každé ryby."
-        },
-        {
-          "old_text": "Zelené barvy indikují vodu, žlutá a červená znamenají překážky nebo ryby. Modrá barva indikuje změnu hloubky.",
-          "new_text": "Význam barev závisí na zvolené paletě sonaru. Při čtení obrazu sledujte hloubkovou stupnici, sílu a tvar odrazu i strukturu dna; samotná barva neurčuje druh ryby."
-        },
-        {
-          "old_text": "Pokud je váš echolot vodě odolný, můžete jej použít pro čtení dat v hloubkách.",
-          "new_text": "Údaje o hloubce získává sonda ponořená ve vodě. Voděodolnost zobrazovací jednotky neurčuje měřicí hloubku ani kvalitu sonarového obrazu."
+          "old_text": "Bluetooth signalizátor záběru je elektronický hlásič, který komunikuje s mobilním telefonem přes Bluetooth.",
+          "new_text": "Pouze některé signalizátory podporují skutečné Bluetooth propojení s mobilní aplikací; řada běžných bezdrátových sad komunikuje místo toho s vlastním příposlechem."
         }
       ]
     },
     {
-      "post_id": 34902,
-      "slug": "nejlepsi-pruty-na-dravce-pro-zacatecniky",
-      "anchor": "<h3>Vybíráme délku prutu</h3>",
-      "source_sha256": "5af3b198f62ec17f5c3d3df41b52f4a82e35b1fd640d0244ac3d2ff5296c1549",
-      "edit_id": "buyer-dravci-pruty-34902-types-v3",
-      "lead": "Prut na dravce vybírejte podle konkrétní techniky, hmotnosti nástrah a prostoru u vody. Neexistuje univerzální délka ani akce vhodná pro každého dravce a všechny typy nástrah.",
+      "post_id": 46343,
+      "slug": "jake-jsou-moznosti-aktualizace-map-a-softwaru-pro-echolot-lowrance-hook-5",
+      "source_sha256": "cbb99eb3ff0c9d30d31fc9c4c4c7e802b97ce7d64593d9006b12ce47362d30f9",
+      "anchor": "<h2>Co se u Lowrance Hook 5 dá vůbec aktualizovat</h2>",
+      "edit_id": "buyer-problem-46343-20261022-v3",
+      "lead": "Starý HOOK 5, HOOK Reveal a další varianty nejsou zaměnitelné. Před aktualizací zjistěte přesné označení jednotky i verzi softwaru v jejím systémovém menu.",
+      "caution": "Firmware stahujte výhradně z oficiální podpory pro správnou jednotku. Neinstalujte balíček pro jinou řadu a neodpojujte napájení během aktualizace.",
       "choices": [
         {
-          "situation": "Lovím okouny a menší dravce",
-          "recommendation": "Hledejte lehčí přívlačový prut podle hmotnosti drobných nástrah.",
-          "tradeoff": "Příliš silný blank omezuje cit pro vedení lehké nástrahy."
+          "situation": "Mám starší HOOK 5",
+          "recommendation": "Nejdřív si opište verzi systému a ověřte, zda výrobce stále nabízí správný soubor pro přesný model.",
+          "tradeoff": "Ne každá nová funkce z moderních řad je dostupná aktualizací starší jednotky."
         },
         {
-          "situation": "Cílím na štiky a větší nástrahy",
-          "recommendation": "Zohledněte vyšší hmotnost nástrahy, typ šňůry a rezervu blanku.",
-          "tradeoff": "Těžší sestava je méně pohodlná při celodenním aktivním nahazování."
-        },
-        {
-          "situation": "Chytám v zarostlém potoce",
-          "recommendation": "Posuďte kratší prut kvůli manipulaci a prostoru pro bezpečný nához.",
-          "tradeoff": "Na otevřeném břehu může delší prut nabídnout snazší vedení vlasce."
+          "situation": "Chci nové mapové podklady",
+          "recommendation": "Ověřte formát mapové karty a podporované oblasti ještě před nákupem.",
+          "tradeoff": "Aktualizace firmwaru sama o sobě nevytvoří nové mapové pokrytí."
         }
       ],
-      "caution": "Termíny tyčový prut a dendro nejsou vhodné univerzální kategorie pro porovnání přívlačových prutů. Vždy zkontrolujte rozsah vrhací zátěže a návaznost na nástrahu.",
       "corrections": [
         {
-          "old_text": "Existuje celá řada typů prutů na lov dravců. Pro začátek se však nejvíce osvědčují pruty spinningové, tyčové a dendro.",
-          "new_text": "Pro začátečnickou přívlač na dravce vybírejte přívlačový prut podle cílové ryby, hmotnosti nástrah a místa lovu. Označení tyčový prut nebo dendro zde nedává použitelné nákupní srovnání."
-        },
-        {
-          "old_text": "Dendro je další typ prutu, který je vhodný pro začátečníky.",
-          "new_text": "Pro pstruhy a menší dravce zvažte lehký přívlačový prut určený pro konkrétní hmotnost používaných nástrah."
-        },
-        {
-          "old_text": "Délka prutu na lov dravců by měla být v rozmezí 210-240 cm.",
-          "new_text": "Délka přívlačového prutu závisí na místě lovu a technice; kratší se snáze ovládá v porostu a delší může usnadnit vedení nástrahy na otevřeném břehu."
+          "old_text": "Dobrá zpráva je, že u Hooku 5 není aktualizace žádná věda.",
+          "new_text": "Aktualizace HOOK 5 vyžaduje ověřit konkrétní variantu, aktuální software, správný balíček od výrobce a kompatibilní paměťovou kartu."
         }
       ]
+    },
+    {
+      "post_id": 60637,
+      "slug": "jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare",
+      "source_sha256": "744887e331b2ba348f91a3f26541e65ec6b4b4796d87e062cb4bd515602d2490",
+      "anchor": "<h2>Co od echolotu na loď vlastně chcete</h2>",
+      "edit_id": "buyer-problem-60637-20261022-v3",
+      "lead": "Rozpočet plánujte na fungující sestavu, ne jen displej. Rozhoduje kompatibilní sonda, způsob montáže, napájení a funkce, které opravdu využijete na dané vodě.",
+      "caution": "Kupujte podle označení celé soupravy včetně sondy. Samotný displej nezaručuje SideScan, live sonar, mapové funkce ani kompatibilitu se vším příslušenstvím.",
+      "choices": [
+        {
+          "situation": "Potřebuji hlavně hloubku a profil dna",
+          "recommendation": "Vyberte přehledný základní sonar a vhodnou sondu pro svůj člun.",
+          "tradeoff": "Zbytečné pokročilé funkce mohou jen zvýšit cenu a spotřebu."
+        },
+        {
+          "situation": "Chci hledat struktury kolem lodi",
+          "recommendation": "Porovnejte konkrétní podporu SideScan nebo jiného bočního zobrazení a způsob uchycení sondy.",
+          "tradeoff": "Špatné umístění sondy může znehodnotit i dobrý zobrazovací režim."
+        }
+      ],
+      "corrections": [
+        {
+          "old_text": "Obvykle je lepší koupit o jednu úroveň lepší přístroj, než se po roce vracet do obchodu s pocitem, že jste narazili na strop schopností.",
+          "new_text": "Vyšší model kupujte jen tehdy, když skutečně potřebujete jeho podporované funkce a správnou sondu; jinak může být jednodušší a levnější sestava vhodnější."
+        }
+      ]
+    },
+    {
+      "post_id": 57294,
+      "slug": "kdy-a-jak-casto-menit-rybarske-vlasci-pro-zachovani-jejich-ucinnosti",
+      "source_sha256": "100e3178f0923c98ef566dd9c66cc3e1aaebb4af41f4ff08e6e5fc2f691919dc",
+      "anchor": "<h2>Jak dlouho rybářský vlasec vydrží v praxi</h2>",
+      "edit_id": "buyer-problem-57294-20261022-v3",
+      "lead": "Interval výměny vlasce neurčuje jen kalendář. Před každou výpravou kontrolujte oděr, ztvrdnutí, poškozené uzly a namáhaný úsek u koncové sestavy.",
+      "caution": "Podezřelý vlasec při lovu nespoléhejte na pouhé otočení na cívce. Poškozenou část odstraňte nebo vyměňte celý návin podle jeho stavu.",
+      "choices": [
+        {
+          "situation": "Lovím přes kameny a ostré hrany",
+          "recommendation": "Kontrolujte několik pracovních metrů vlasce po každém kontaktu s překážkou.",
+          "tradeoff": "I nově navinutý materiál se může rychle poškodit oděrem."
+        },
+        {
+          "situation": "Vybavení leželo dlouho na slunci",
+          "recommendation": "Ověřte pružnost, povrch, uzel i chování vlasce před prvním náhozem.",
+          "tradeoff": "Neviditelné stárnutí se nedá spolehlivě odhadnout jen podle data nákupu."
+        }
+      ],
+      "corrections": [
+        {
+          "old_text": "Výměna jednou za sezónu bývá u většiny rybářů rozumný základ.",
+          "new_text": "Jedna sezóna může být orientační interval pro kontrolu, ale výměnu rozhoduje především skutečné poškození a intenzita používání; při oděru vyměňte vlasec dříve."
+        }
+      ]
+    },
+    {
+      "post_id": 118218,
+      "slug": "nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu",
+      "source_sha256": "8787acba39b44056a6fbf3fff0afbf967e8502dda4db24571420cb21e619dbac",
+      "anchor": "<h2>Samostatný signalizátor, nebo sada s příposlechem?</h2>",
+      "edit_id": "buyer-problem-118218-20261022-v3",
+      "lead": "Rozhodněte se nejdřív podle počtu prutů a toho, kde budete při lovu sedět. U sad ověřte kompatibilitu přijímače, reálné napájení a potřebný rozsah nastavení.",
+      "caution": "Akční ceny a označení 1+1 nebo 2+1 se mohou měnit. Před nákupem ověřte přesné složení setu a zda obsahuje přijímač i baterie.",
+      "choices": [
+        {
+          "situation": "Sedím hned u jediného prutu",
+          "recommendation": "Začněte samostatným signalizátorem s čitelnou diodou a snadno upravitelnou citlivostí.",
+          "tradeoff": "Příposlech vám při krátkých vycházkách nemusí přinést úměrnou hodnotu."
+        },
+        {
+          "situation": "Chytám pravidelně na více prutů",
+          "recommendation": "Zvažte set s označením počtu hlásičů a přijímače a ověřte podporu jejich párování.",
+          "tradeoff": "Příslušenství různých výrobců nebývá automaticky kompatibilní."
+        }
+      ],
+      "corrections": []
+    },
+    {
+      "post_id": 38954,
+      "slug": "top-10-nejlepsich-znacek-navijaku-pro-rybare",
+      "source_sha256": "ffc58679b172d282ded7bd7e8dee4833b370c0ab3227937494948d07738e2744",
+      "anchor": "<h2>Jak poznat dobrou značku navijáku</h2>",
+      "edit_id": "buyer-problem-38954-20261022-v3",
+      "lead": "Seznam značek není žebříčkem spolehlivosti jednotlivých modelů. Naviják vybírejte podle techniky lovu, velikosti cívky, hmotnosti, brzdy a dostupných servisních dílů.",
+      "caution": "Bez srovnatelného testu nelze tvrdit, že nejlevnější model značky selže nebo že drahý model vydrží déle. Hodnoťte konkrétní model.",
+      "choices": [
+        {
+          "situation": "Hledám lehký naviják na přívlač",
+          "recommendation": "Porovnejte hmotnost a vyvážení s vaším prutem, chod brzdy a vhodnost vlasce.",
+          "tradeoff": "Velká cívka a robustní konstrukce nemusí být lepší pro lehké nástrahy."
+        },
+        {
+          "situation": "Hledám naviják na delší kaprové výpravy",
+          "recommendation": "Sledujte kapacitu cívky, ukládání vlasce a zátěžové podmínky podle technického listu.",
+          "tradeoff": "Oblíbená značka sama o sobě nezaručí vhodnou velikost ani servis."
+        }
+      ],
+      "corrections": [
+        {
+          "old_text": "Levný naviják se obvykle neprojeví hned, ale postupně: horší kladení vlasce, větší vůle v rotoru, horší brzda.",
+          "new_text": "Cenová hladina sama neprokazuje kvalitu navijáku; konkrétní model posuzujte podle konstrukce, chodu brzdy, uložení vlasce a zkušeností s jeho používáním."
+        }
+      ]
+    },
+    {
+      "post_id": 51600,
+      "slug": "jak-si-vybrat-spravnou-velikost-detskeho-rybarskeho-prutu-2",
+      "source_sha256": "9aad55ea41d708025b16815cec92d4255631f34454f4a2976545394cc3367aca",
+      "anchor": "<h2>Jaká velikost dětského prutu dává smysl jako první?</h2>",
+      "edit_id": "buyer-problem-51600-20261022-v3",
+      "lead": "Věk dítěte je jen orientační. Důležitější je, zda zvládne prut bezpečně držet, ovládat a nahodit na místě, kde budete opravdu chytat.",
+      "caution": "Rybářské náčiní dítěti vždy připravujte s dohledem dospělého. Před náhozem kontrolujte prostor, háčky a upevnění navijáku.",
+      "choices": [
+        {
+          "situation": "Dítě začíná u malého rybníka",
+          "recommendation": "Vyzkoušejte lehčí kratší sestavu, se kterou dítě zvládne manipulovat bez přetížení.",
+          "tradeoff": "Příliš těžký prut zhorší bezpečnost i radost z prvního chytání."
+        },
+        {
+          "situation": "Dítě už samostatně nahazuje",
+          "recommendation": "Zvažte délku podle výšky, techniky lovu a prostoru pro nahazování.",
+          "tradeoff": "Delší prut může pomoci při vedení vlasce, ale bývá těžší na kontrolu."
+        }
+      ],
+      "corrections": []
     }
   ]
 }

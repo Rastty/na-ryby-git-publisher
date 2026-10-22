@@ -4,11 +4,16 @@
   "site": "na-ryby.eu",
   "branch": "main",
   "editIds": [
-    36594,
-    50581,
-    35713,
-    42805,
-    34902
+    36702,
+    60354,
+    118316,
+    52458,
+    46343,
+    60637,
+    57294,
+    118218,
+    38954,
+    51600
   ],
   "schemaVersion": 3,
   "files": [
@@ -19,8 +24,8 @@
     },
     {
       "name": "manifest.json",
-      "bytes": 12387,
-      "sha256": "36c7d63dee9cac0dcb240224b10f861752e4638fd588f809828bb614b6dc70a0"
+      "bytes": 17254,
+      "sha256": "aa15aec46c95112ee4bb4fe58afe2f39bff70cacac9519341fa552f7dca7d13e"
     },
     {
       "name": "README.md",
