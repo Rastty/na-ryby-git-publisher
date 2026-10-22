@@ -1,174 +1,197 @@
 {
-  "schema_version": 4,
-  "batch_id": "structural-buyer-cleanup-13-20261016-v4",
+  "schema_version": 3,
+  "batch_id": "practical-factual-five-20261022-v3",
   "site": "https://na-ryby.eu",
   "edits": [
     {
-      "post_id": 118553,
-      "slug": "jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce",
-      "source_sha256": "9ebcfc1f6e3e350745d6c9136ca83b0cf01a2810219afd349165a67ee45f5654",
-      "candidate_sha256": "e53faedc69b7cbea9dad74a06c505476a912a87c5656d510e38df20b8e3c5b0a",
-      "edit_id": "bulk-cleanup-118553-v4",
-      "cleanup_ops": [
+      "post_id": 36594,
+      "slug": "podberak-na-kapry-jak-na-nej-nezapomenout-a-co-vse-potrebujete-vedet",
+      "anchor": "<h3>Jaký podběrák si vybrat?</h3>",
+      "source_sha256": "a022a41ae77422379c8a6cd747958e6d57e1019c1646b3ed6c1585d998f5c318",
+      "edit_id": "buyer-podberak-36594-practice-v3",
+      "lead": "Podběrák není jen doplněk. Musí odpovídat velikosti ryb, místu podebírání a způsobu přepravy; jemná síťovina a bezpečná manipulace jsou důležitější než marketingový název modelu.",
+      "choices": [
         {
-          "kind": "demote_body_h1",
-          "before": "<h1 style=\"font-size: 36px; line-height: 1.2; margin: 0 0 14px 0; color: #0f172a;\">Jak vybrat echolot pro rybaření: Kompletní průvodce funkcemi, typy sonaru a použitím v praxi</h1>"
+          "situation": "Chytám kapry na volném břehu",
+          "recommendation": "Vyberte dostatečně prostornou síť s rameny vhodnými pro očekávanou velikost ryb.",
+          "tradeoff": "Velká síť usnadňuje podebrání, ale zabere více místa při transportu."
+        },
+        {
+          "situation": "Lovím z vysokého nebo zarostlého břehu",
+          "recommendation": "Zkontrolujte délku a pevnost rukojeti i bezpečný přístup k hladině.",
+          "tradeoff": "Delší rukojeť zvyšuje dosah, zároveň však může být méně pohodlná při manipulaci."
+        },
+        {
+          "situation": "Často vybavení přenáším",
+          "recommendation": "Prověřte skládání ramen, transportní rozměr a rychlost sestavení.",
+          "tradeoff": "Skladnost nikdy nesmí být na úkor dostatečné velikosti sítě a bezpečí ryby."
+        }
+      ],
+      "caution": "Rybu neponechávejte v podběráku zbytečně dlouho. Mějte připravenou navlhčenou podložku a řiďte se pravidly revíru.",
+      "corrections": [
+        {
+          "old_text": "Podběrák na kapry je rybářský nástroj, který se používá k zachycení kaprů a jiných ryb podvodní.",
+          "new_text": "Podběrák slouží k bezpečnému podebrání kapra a dalších ryb u hladiny. Důležitá je vhodná velikost sítě, jemná síťovina a šetrné zacházení."
+        },
+        {
+          "old_text": "Pokud ji musíte mít delší dobu v podběráku, vybírejte podběrák s prodyšnou sítí, aby ryba měla stále přístup ke kyslíku.",
+          "new_text": "Rybu v podběráku zbytečně nezdržujte a při manipulaci minimalizujte dobu mimo vodu. Potřebné vybavení si připravte předem."
         }
       ]
     },
     {
-      "post_id": 37720,
-      "slug": "jak-spravne-nastavit-echolot-lowrance-pro-nejlepsi-vysledky",
-      "source_sha256": "e1d0ed474bbfc8a5f9d55793f0efaf7b349fa7c470b76fd1ca63bb5488d6e289",
-      "candidate_sha256": "aa5f2575b677bdc983f961ca02031bbe0828f0c93c1274a04bde7bb2776a82b3",
-      "edit_id": "bulk-cleanup-37720-v4",
-      "cleanup_ops": [
+      "post_id": 50581,
+      "slug": "jak-pouzivat-rybarsky-prut-pro-zacatecniky",
+      "anchor": "<h3>Tipy pro začátečníky</h3>",
+      "source_sha256": "873c254030202e492c3469c10764fd308b9b09b671cb8323d8e6b788fae6f451",
+      "edit_id": "buyer-zacatecnik-prut-50581-v3",
+      "lead": "První prut se nevybírá podle jedné univerzální délky. Nejdřív zvažte způsob lovu, cílovou rybu, prostor u vody a návaznost na naviják, vlasec nebo šňůru.",
+      "choices": [
         {
-          "kind": "demote_body_h1",
-          "before": "<h1>Jak správně nastavit echolot Lowrance pro lepší čtení vody i ryb</h1>"
+          "situation": "Chci začít s přívlačí",
+          "recommendation": "Zaměřte se na prut odpovídající hmotnosti nástrah a na vyvážení s lehkým navijákem.",
+          "tradeoff": "Příliš tuhý a těžký prut zhoršuje práci s malými nástrahami."
+        },
+        {
+          "situation": "Chci vyzkoušet feeder",
+          "recommendation": "Slaďte feederový prut s hmotností krmítek, proudem a vhodným navijákem.",
+          "tradeoff": "Univerzální kaprový prut nemusí nabídnout stejně čitelnou citlivou špičku."
+        },
+        {
+          "situation": "Chci rekreačně lovit na položenou",
+          "recommendation": "Posuďte délku prutu podle břehu a bezpečného nahazování.",
+          "tradeoff": "Delší prut není automaticky praktičtější v hustém porostu."
+        }
+      ],
+      "caution": "Před náhozem ověřte upevnění navijáku, nepoškozená očka, uzel a nastavení brzdy. Na místě dodržujte platný rybářský řád.",
+      "corrections": [
+        {
+          "old_text": "Pokud se chystáte lovit ryby létající ve vzduchu, je nutné zvolit delší a tužší prut.",
+          "new_text": "Délku a tuhost prutu pro lov ze břehu vybírejte podle konkrétní techniky a prostoru pro nahazování; delší či tužší prut nemusí být výhodnější."
+        },
+        {
+          "old_text": "Vlasec by měl být dostatečně pevný a měkký, tak aby se ryby neodrazily zpátky.",
+          "new_text": "Pevnost vlasce nebo šňůry přizpůsobte cílovým rybám, brzdě navijáku, typu nástrahy a nejslabšímu uzlu sestavy."
+        },
+        {
+          "old_text": "Nenechte vlasec volně viset ve vodě, ale držte ho pevně a pravidelně udělujte malé záběry.",
+          "new_text": "Napnutí vlasce a vedení nástrahy se liší podle techniky lovu. Při přívlači, plavané a položené neplatí stejný postup."
         }
       ]
     },
     {
-      "post_id": 118513,
-      "slug": "testovaci-krivka-prutu-v-librach-80-g-vs-120-g-olovo",
-      "source_sha256": "cfe9cf63de91610509241c6136a701b58a53d3a23076263530f61306132917ea",
-      "candidate_sha256": "8995044eebe4e8ff53c4a260329bce950e6fdcf0e24022e6b99bcd21e60d55e6",
-      "edit_id": "bulk-cleanup-118513-v4",
-      "cleanup_ops": [
+      "post_id": 35713,
+      "slug": "jak-vyrobit-stojan-na-pruty-doma-v-ceske-kvalite",
+      "anchor": "<h3>Krok 1: Materiál</h3>",
+      "source_sha256": "9c6e69c9491817a4ebf7fa1c808748388d110f5b0a7691a02532fad8d0cdfd10",
+      "edit_id": "buyer-stojan-pruty-35713-safety-v3",
+      "lead": "U domácího stojanu je důležitá především stabilita, odolnost proti vlhkosti a šetrné opření prutů. Konstrukci vždy přizpůsobte výbavě, nepoškozujte samotné rybářské pruty.",
+      "choices": [
         {
-          "kind": "demote_body_h1",
-          "before": "<h1 style=\"font-size: 34px; line-height: 1.2; margin: 0 0 14px 0; color: #0f172a;\">Testovací křivka v librách (lb): Jak vybrat správnou gramáž pro olovo 80 g vs. 120 g?</h1>"
+          "situation": "Stojan používám doma",
+          "recommendation": "Navrhněte stabilní základnu a měkké opěrné body, aby se nepoškodily blanky a očka.",
+          "tradeoff": "Pevná konstrukce je odolná, ale hůře se převáží."
+        },
+        {
+          "situation": "Stojan vezmu k vodě",
+          "recommendation": "Zohledněte nerovný terén, kotvení a vlhkost materiálu.",
+          "tradeoff": "Lehké řešení se dobře nosí, ale může být méně stabilní ve větru."
+        },
+        {
+          "situation": "Rozhoduji se mezi výrobou a nákupem",
+          "recommendation": "Porovnejte cenu materiálu, spojů a povrchové ochrany s hotovým stojanem.",
+          "tradeoff": "Vlastní výroba dává smysl, pokud máte nářadí a umíte ověřit bezpečnou nosnost."
+        }
+      ],
+      "caution": "Prut nikdy nezkracujte kvůli stojanu. Při vrtání a montáži používejte vhodné ochranné pomůcky a ověřte stabilitu bez zatížených prutů.",
+      "corrections": [
+        {
+          "old_text": "Pokud jsou pruty delší než stojan, je třeba je zastřihnout nebo nařezat na požadovanou délku.",
+          "new_text": "Stojan vždy rozměrově přizpůsobte rybářským prutům. Pruty kvůli stojanu nikdy nezkracujte ani neřežte."
+        },
+        {
+          "old_text": "Pomocí vrtáku a vrtáku si připravte otvory pro pruty.",
+          "new_text": "Vrtačkou a vhodným vrtákem připravte podle náčrtu otvory pro konstrukční spoje a opěrky prutů."
         }
       ]
     },
     {
-      "post_id": 41624,
-      "slug": "vlastni-vyroba-stojanu-na-pruty-rychle-a-bez-komplikaci",
-      "source_sha256": "589845b1a291289e1e0f186356c11ac937c1b248fc6614fe90ba3b642fa1abbb",
-      "candidate_sha256": "a566e30bda8cea05bdcbcd7c38c3a1e65f36699bde92d9ac71bc475085f5389e",
-      "edit_id": "bulk-cleanup-41624-v4",
-      "cleanup_ops": [
+      "post_id": 42805,
+      "slug": "dulezite-informace-pro-zacatecniky-jak-spravne-cist-data-z-echolotu-lowrance-hds-5",
+      "anchor": "<h3>Krok 5: Čtení dat</h3>",
+      "source_sha256": "3af96d8f740b69ee64b4cfd738ed079fc328506110fa98987497c71711727a91",
+      "edit_id": "buyer-lowrance-hds5-42805-facts-v3",
+      "lead": "U staršího Lowrance HDS 5 je nutné odlišit obecné principy sonaru od funkcí přesné varianty a připojené sondy. Barvy na obrazovce nemají stejný význam v každé paletě.",
+      "choices": [
         {
-          "kind": "demote_body_h1",
-          "before": "<h1>Vlastní výroba stojanu na pruty: jednoduchý návod, co dává smysl i v praxi</h1>"
+          "situation": "Na obrazovce nevidím dno",
+          "recommendation": "Zkontrolujte připojení sondy, nastavený rozsah hloubky a vhodný režim.",
+          "tradeoff": "Vyšší citlivost sama o sobě neodstraní špatný úhel sondy či bubliny při plavbě."
+        },
+        {
+          "situation": "Chci odlišit překážky od odrazů ryb",
+          "recommendation": "Sledujte tvar odrazů, hloubkovou stupnici a strukturu dna v konkrétní paletě.",
+          "tradeoff": "Přístroj neurčí s jistotou druh ryby jen podle její barvy na displeji."
+        },
+        {
+          "situation": "Přístroj používám na člunu",
+          "recommendation": "Ověřte správné upevnění sondy, kabeláž a napájení podle návodu k dané verzi.",
+          "tradeoff": "Špatná montáž může znehodnotit obraz i při dobrém displeji."
+        }
+      ],
+      "caution": "Lowrance HDS 5 je starší řada; podporované režimy, mapové funkce a sondy se liší podle konkrétního modelu. Nepředpokládejte automaticky 3D ani živé sledování ryb.",
+      "corrections": [
+        {
+          "old_text": "Echolot Lowrance HDS 5 vytváří podrobnou 3D mapu dna a umožňuje sledovat pohyb ryb a dalších objektů pod hladinou v reálném čase.",
+          "new_text": "Zobrazení dna a odrazů závisí na přesné verzi jednotky Lowrance HDS 5, kompatibilní sondě a nastavení. Běžný sonarový obraz automaticky neznamená 3D mapu ani souvislé sledování každé ryby."
+        },
+        {
+          "old_text": "Zelené barvy indikují vodu, žlutá a červená znamenají překážky nebo ryby. Modrá barva indikuje změnu hloubky.",
+          "new_text": "Význam barev závisí na zvolené paletě sonaru. Při čtení obrazu sledujte hloubkovou stupnici, sílu a tvar odrazu i strukturu dna; samotná barva neurčuje druh ryby."
+        },
+        {
+          "old_text": "Pokud je váš echolot vodě odolný, můžete jej použít pro čtení dat v hloubkách.",
+          "new_text": "Údaje o hloubce získává sonda ponořená ve vodě. Voděodolnost zobrazovací jednotky neurčuje měřicí hloubku ani kvalitu sonarového obrazu."
         }
       ]
     },
     {
-      "post_id": 87667,
-      "slug": "candatove-pruty-jak-vybrat-ty-spravne",
-      "source_sha256": "c78d51424b5c0ce09f694a3bf97a9bce60b8fe0274b156dae6488775421f944d",
-      "candidate_sha256": "11b946d3b42e0e245d5126dd659bb302c0795ebc6801a0600bd6ea0783bdc039",
-      "edit_id": "bulk-cleanup-87667-v4",
-      "cleanup_ops": [
+      "post_id": 34902,
+      "slug": "nejlepsi-pruty-na-dravce-pro-zacatecniky",
+      "anchor": "<h3>Vybíráme délku prutu</h3>",
+      "source_sha256": "5af3b198f62ec17f5c3d3df41b52f4a82e35b1fd640d0244ac3d2ff5296c1549",
+      "edit_id": "buyer-dravci-pruty-34902-types-v3",
+      "lead": "Prut na dravce vybírejte podle konkrétní techniky, hmotnosti nástrah a prostoru u vody. Neexistuje univerzální délka ani akce vhodná pro každého dravce a všechny typy nástrah.",
+      "choices": [
         {
-          "kind": "demote_body_h1",
-          "before": "<h1>Candátové pruty: jak vybrat ten správný prut na candáta</h1>"
+          "situation": "Lovím okouny a menší dravce",
+          "recommendation": "Hledejte lehčí přívlačový prut podle hmotnosti drobných nástrah.",
+          "tradeoff": "Příliš silný blank omezuje cit pro vedení lehké nástrahy."
+        },
+        {
+          "situation": "Cílím na štiky a větší nástrahy",
+          "recommendation": "Zohledněte vyšší hmotnost nástrahy, typ šňůry a rezervu blanku.",
+          "tradeoff": "Těžší sestava je méně pohodlná při celodenním aktivním nahazování."
+        },
+        {
+          "situation": "Chytám v zarostlém potoce",
+          "recommendation": "Posuďte kratší prut kvůli manipulaci a prostoru pro bezpečný nához.",
+          "tradeoff": "Na otevřeném břehu může delší prut nabídnout snazší vedení vlasce."
         }
-      ]
-    },
-    {
-      "post_id": 40381,
-      "slug": "nejlepsi-daiwa-pruty-pro-rybolov-v-cechach-recenze-a-navod-k-vyberu",
-      "source_sha256": "ad0c3366623ba2df862f8c2c18739e56a5330c2eb4932aaec2b3015f84410737",
-      "candidate_sha256": "48369bb9aeb26bc7f9d6815068cc571f1ca82cced6156275b93686d4ab174400",
-      "edit_id": "bulk-cleanup-40381-v4",
-      "cleanup_ops": [
+      ],
+      "caution": "Termíny tyčový prut a dendro nejsou vhodné univerzální kategorie pro porovnání přívlačových prutů. Vždy zkontrolujte rozsah vrhací zátěže a návaznost na nástrahu.",
+      "corrections": [
         {
-          "kind": "demote_body_h1",
-          "before": "<h1>Nejlepší Daiwa pruty pro rybolov v Čechách: jak vybrat správný model podle stylu lovu</h1>"
-        }
-      ]
-    },
-    {
-      "post_id": 118529,
-      "slug": "kaprove-pruty-pro-deti-a-mladez-jak-vybrat-spravne",
-      "source_sha256": "37b79039be952defae4444503507b0c9ea3900313c6b828920b15825ef226f9d",
-      "candidate_sha256": "7264b6e0ded5a4506e4543b270a7182eea5bc31dfbab451f17cbc6b1e53a8c9f",
-      "edit_id": "bulk-cleanup-118529-v4",
-      "cleanup_ops": [
+          "old_text": "Existuje celá řada typů prutů na lov dravců. Pro začátek se však nejvíce osvědčují pruty spinningové, tyčové a dendro.",
+          "new_text": "Pro začátečnickou přívlač na dravce vybírejte přívlačový prut podle cílové ryby, hmotnosti nástrah a místa lovu. Označení tyčový prut nebo dendro zde nedává použitelné nákupní srovnání."
+        },
         {
-          "kind": "demote_body_h1",
-          "before": "<h1 style=\"font-size: 34px; line-height: 1.2; margin: 0 0 14px 0; color: #0f172a;\">Kaprové pruty pro děti a mládež: Jaká délka a váha je ideální pro začátek?</h1>"
-        }
-      ]
-    },
-    {
-      "post_id": 45100,
-      "slug": "jak-vybrat-prut-pro-lov-na-uhore-rady-a-triky-od-zkusenych-rybaru",
-      "source_sha256": "8d64affb3c839c583df08c6940d07aea85067c433edda8b6b5408b4e48d3400c",
-      "candidate_sha256": "e497fd49ec9602c24d7206b20ff696296207f3462c916f94245ef4a08e6cb4ba",
-      "edit_id": "bulk-cleanup-45100-v4",
-      "cleanup_ops": [
+          "old_text": "Dendro je další typ prutu, který je vhodný pro začátečníky.",
+          "new_text": "Pro pstruhy a menší dravce zvažte lehký přívlačový prut určený pro konkrétní hmotnost používaných nástrah."
+        },
         {
-          "kind": "demote_body_h1",
-          "before": "<h1>Jak vybrat prut na úhoře: délka, akce, zátěž a praktické tipy z praxe</h1>"
-        }
-      ]
-    },
-    {
-      "post_id": 118336,
-      "slug": "pece-o-navijak-po-sezone-jak-ho-neznicit-spatnym-mazanim",
-      "source_sha256": "afd0da371f85049ad5576cfe1e4771bdcfb452451b717820fdcbf35adf4aaec4",
-      "candidate_sha256": "35950ca832c64abc7dc413e17a951c953c53323e9fa23df1ba9268a1fe4a4dfe",
-      "edit_id": "bulk-cleanup-118336-v4",
-      "cleanup_ops": [
-        {
-          "kind": "demote_body_h1",
-          "before": "<h1>Péče o naviják po sezóně: jak ho nezničit špatným mazáním?</h1>"
-        }
-      ]
-    },
-    {
-      "post_id": 118340,
-      "slug": "shimano-ultegra-vs-daiwa-emblem-ktery-kaprovy-navijak-vyhraje-souboj-roku-2026",
-      "source_sha256": "581214a6abcd3bc57e79840af1bd3d7c7fb12db50dbab4ca89ff685c8c8f0e18",
-      "candidate_sha256": "847c3d85750cf61e602759d96be4780d9fe2c7973d3f0c07bcc7b873b82cb8b4",
-      "edit_id": "bulk-cleanup-118340-v4",
-      "cleanup_ops": [
-        {
-          "kind": "demote_body_h1",
-          "before": "<h1>Shimano Ultegra vs. Daiwa Emblem: který kaprový naviják vyhraje souboj roku 2026?</h1>"
-        }
-      ]
-    },
-    {
-      "post_id": 118467,
-      "slug": "echolot-na-kajak-a-belly-boat-jak-vybrat-kompaktni-sonar",
-      "source_sha256": "788d798713186ba8e0ee4e922448fa6844789695a5b26e17953fa8e232b9d169",
-      "candidate_sha256": "0e8274f5d07a827074d86db2a96558e451fdb2af88cec04527a2f11073fa1ca6",
-      "edit_id": "bulk-cleanup-118467-v4",
-      "cleanup_ops": [
-        {
-          "kind": "demote_body_h1",
-          "before": "<h1 style=\"font-size: 34px; line-height: 1.2; margin: 0 0 18px 0; color: #0f172a;\">Echolot na kajak a belly boat: Kompaktní řešení s nízkou spotřebou</h1>"
-        }
-      ]
-    },
-    {
-      "post_id": 38381,
-      "slug": "jak-si-vyrobit-vlastni-stojan-na-sumcovy-prut-navod-krok-za-krokem",
-      "source_sha256": "44835fe030f3af03bcd3338ba5060895cfe484aa10b5d65276f32b9b452c9ed7",
-      "candidate_sha256": "7b44c529fedf2487a655833335721b76bef8ccb89d5fff7ffe45ea9565831993",
-      "edit_id": "bulk-cleanup-38381-v4",
-      "cleanup_ops": [
-        {
-          "kind": "dedupe_heading",
-          "html": "<h2>Jak si vyrobit vlastní stojan na sumcový prut: návod krok za krokem</h2>"
-        }
-      ]
-    },
-    {
-      "post_id": 50149,
-      "slug": "jak-vyrobit-vlastni-rybarsky-podberak-na-ryby-navod-krok-za-krokem",
-      "source_sha256": "c8587792c5932102458780634bb03e9de78bf1d173234451f2e77504ec949790",
-      "candidate_sha256": "8d48247e9b2dc5979658aaf6ce50d3ef3f6a3ebf2da44cfd13e09a1f75f68093",
-      "edit_id": "bulk-cleanup-50149-v4",
-      "cleanup_ops": [
-        {
-          "kind": "dedupe_heading",
-          "html": "<h2>Jak vyrobit vlastní rybářský podběrák na ryby - návod krok za krokem</h2>"
+          "old_text": "Délka prutu na lov dravců by měla být v rozmezí 210-240 cm.",
+          "new_text": "Délka přívlačového prutu závisí na místě lovu a technice; kratší se snáze ovládá v porostu a delší může usnadnit vedení nástrahy na otevřeném břehu."
         }
       ]
     }

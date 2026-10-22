@@ -4,21 +4,13 @@
   "site": "na-ryby.eu",
   "branch": "main",
   "editIds": [
-    118553,
-    37720,
-    118513,
-    41624,
-    87667,
-    40381,
-    118529,
-    45100,
-    118336,
-    118340,
-    118467,
-    38381,
-    50149
+    36594,
+    50581,
+    35713,
+    42805,
+    34902
   ],
-  "schemaVersion": 4,
+  "schemaVersion": 3,
   "files": [
     {
       "name": "na-ryby-git-publisher.php",
@@ -27,8 +19,8 @@
     },
     {
       "name": "manifest.json",
-      "bytes": 7454,
-      "sha256": "c21ec9a145a5dfc5bd01510639fc252e25c0de2515a8f72146ab000dcd8d1c68"
+      "bytes": 12387,
+      "sha256": "36c7d63dee9cac0dcb240224b10f861752e4638fd588f809828bb614b6dc70a0"
     },
     {
       "name": "README.md",
