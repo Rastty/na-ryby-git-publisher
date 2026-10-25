@@ -1,4 +1,4 @@
-name: Publisher V5-V6 PHP Contract
+name: Publisher V5-V7 PHP Contract
 on:
   pull_request:
     paths:
@@ -26,7 +26,9 @@ jobs:
           php -l na-ryby-git-publisher.php
           php -l tests/test-v5-native-release.php
           php -l tests/test-v6-chair-native-release.php
+          php -l tests/test-v7-chair-native-release.php
       - name: Source-bound and reversible v5 contract
         run: |
           php tests/test-v5-native-release.php
           php tests/test-v6-chair-native-release.php
+          php tests/test-v7-chair-native-release.php
