@@ -54,6 +54,8 @@ def main():
         "prior_controls_confirmed":sum(x["marker_seen"] for x in controls+v5),
         "v6_positive":new_count,
         "v6_expected":len(v6),
+        "v6_http_ok":sum(x["http"]==200 for x in v6),
+        "v6_exact_markers":[x["post_id"] for x in v6 if x["marker_seen"]],
         "interpretation":("NEW_V6_PUBLISHED_AND_PUBLICLY_VERIFIED" if new_count==len(v6)
            else ("V6_NOT_YET_ALL_PUBLIC_OR_CACHE_PENDING" if prior_ok
                  else "PUBLIC_READBACK_UNRELIABLE"))}
