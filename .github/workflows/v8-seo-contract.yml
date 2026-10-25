@@ -1,0 +1,28 @@
+name: Native Publisher SEO Metadata Pilot Contract
+on:
+  pull_request:
+    paths:
+      - 'seo-snippet-pilot.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-v8-seo-pipaky.php'
+      - '.github/workflows/v8-seo-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'seo-snippet-pilot.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-v8-seo-pipaky.php'
+      - '.github/workflows/v8-seo-contract.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint and run isolated metadata-only fail-closed contract
+        run: |
+          php -l na-ryby-git-publisher.php
+          php -l seo-snippet-pilot.php
+          php -l tests/test-v8-seo-pipaky.php
+          php tests/test-v8-seo-pipaky.php
