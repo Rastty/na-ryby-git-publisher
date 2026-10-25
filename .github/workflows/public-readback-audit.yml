@@ -1,0 +1,27 @@
+name: Na-Ryby Public Readback Audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/verify-public-markers.py'
+      - '.github/workflows/public-readback-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/verify-public-markers.py'
+      - '.github/workflows/public-readback-audit.yml'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch public pages and audit editor markers (no WP access)
+        run: python3 scripts/verify-public-markers.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: naryby-public-readback
+          path: public-readback-result.json
+          retention-days: 7
