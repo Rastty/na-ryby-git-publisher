@@ -99,3 +99,41 @@ Deployer for Git otevřete `/wp-admin/tools.php?page=nry-git-publisher`,
 ověřte čtyři stavy `ready`, potom pouze jednou stiskněte Apply.
 Dřívější v5/v6 dávky zůstávají nezměněné. Přesnou publikaci
 dokládá nový nezávislý public marker audit.
+
+## V0.8 — jeden měřitelný SEO snippet experiment bez WPVibe
+
+Nová samostatná obrazovka **Nástroje > Na-Ryby SEO CTR pilot**
+(`/wp-admin/tools.php?page=nry-seo-ctr-pilot`) je pevně svázána s post ID
+`42401` a slugem
+`jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne`.
+
+Podklad z aktuálního GSC (24. 7.–21. 10. 2026):
+799 page-level impressions / 1 click, průměrná pozice 8,22.
+Dominantní GSC query+page: „pípáky na ryby“ 383/0, „pipaky na ryby“
+103/0, „pípák na ryby“ 59/0; podrobnosti v issue
+`Rastty/prometheus-growth-os#997`. GSC query report neobsahuje
+anonymizované dotazy a nelze jeho počty zaměňovat za celkové.
+
+**Změna pouze Yoast SEO polí:**
+`_yoast_wpseo_title` na
+`Pípáky na ryby: jak vybrat, nastavit a používat` a
+`_yoast_wpseo_metadesc` na stručný věcný popis nastavení,
+citlivosti a sady s příposlechem. Žádná změna WordPress
+`post_title`, URL, `post_content`, canonical, obrázků ani href.
+
+Před zápisem přímou serverovou WP funkcí `get_post()` ověřit přesné
+post ID, slug, stav published, předchozí datum změny
+`2026-10-23 06:34:54`, původní Yoast meta hodnoty, typ a SHA
+obsahu. Před zápisem se uloží nezaměnitelná, neveřejná záloha původního
+obsahu (SHA) a metadat jako WP option s vypnutým autoloadem.
+Při neočekávaném stavu blokace nebo rollback.
+Opravdu nic se nepublikuje automaticky při GitHub merge ani deploy.
+
+Samostatný administrační formulář s capability `manage_options`
+a nonce spouští jednorázový Apply, potom zobrazuje
+`applied_and_verified` nebo přesný blokující stav.
+Opakované kliknutí je idempotentní. Dřívější HTML vydání v0.7
+zůstává beze změny. **Nezaměňujte GitHub CI/merge za skutečný
+SEO snippet na webu**: po Apply je nutno ověřit veřejné Yoast
+`yoast_head_json.title` / `description` a samotné renderované meta.
+Google může ve výsledcích zobrazit upravený vlastní snippet.
