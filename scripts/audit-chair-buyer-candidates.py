@@ -49,12 +49,40 @@ def extract(row):
         out["error"]="parse:"+str(exc)[:130]
     return out
 
+def audit_hub():
+    slug="nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby"
+    url=f"{SITE}/wp-json/wp/v2/posts?slug={slug}&_fields=id,slug,title,modified_gmt,status,link,content"
+    status,body=request(url)
+    out={"hub":"chair-buying", "http":status, "slug":slug}
+    if status!=200:
+        out["error"]=body[:200]
+        return out
+    try:
+        data=json.loads(body)
+        if len(data)!=1:
+            out["error"]="expected_exact_one"
+            out["resultCount"]=len(data)
+            return out
+        p=data[0]
+        rendered=p.get("content",{}).get("rendered","")
+        out.update({"postId":p["id"],"status":p.get("status"),
+            "modifiedGmt":p.get("modified_gmt"),"url":p.get("link"),
+            "claimsOwnProductionOrSales":"Naše společnost se specializuje na výrobu a prodej" in rendered,
+            "visibleKeywordStuffing":"klíčová slova:" in rendered.lower(),
+            "unverifiedRatingsStars":"⭐⭐⭐⭐⭐" in rendered,
+            "duplicateH2s":len(re.findall(r"<h2\\b",rendered,re.I)),
+            "contentLength":len(rendered)})
+    except Exception as exc:
+        out["error"]="parse:"+str(exc)[:200]
+    return out
+
 def main():
     with ThreadPoolExecutor(max_workers=8) as pool:
         result=list(pool.map(lambda post_id: extract({"id":post_id}),IDS))
-    print(json.dumps({"checkedAtUtc":datetime.now(timezone.utc).isoformat(),"results":result},ensure_ascii=False))
+    hub=audit_hub()
+    print(json.dumps({"checkedAtUtc":datetime.now(timezone.utc).isoformat(),"results":result,"hubAudit":hub},ensure_ascii=False))
     with open("chair-candidate-public-audit.json","w",encoding="utf-8") as f:
-        json.dump(result,f,ensure_ascii=False,indent=2)
+        json.dump({"chairCandidates":result,"hubAudit":hub},f,ensure_ascii=False,indent=2)
 
 if __name__=="__main__":
     main()
