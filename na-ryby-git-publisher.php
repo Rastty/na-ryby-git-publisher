@@ -197,13 +197,13 @@ final class NRY_Git_Publisher {
         $html = $edit['insert_html'];
         $marker = 'data-nry-editorial-edit="' . $edit['edit_id'] . '"';
         if (substr_count($source, $marker) === 1
-            && strpos($source, $html . "\\n") === 0) {
+            && strpos($source, $html . "\n") === 0) {
             return array('already' => true);
         }
         if (strpos($source, $marker) !== false) {
             return array('error' => 'marker_conflict');
         }
-        $candidate = $html . "\\n" . $source;
+        $candidate = $html . "\n" . $source;
         if (substr_count($candidate, $marker) !== 1
             || substr($candidate, strlen($html) + 1) !== $source) {
             return array('error' => 'append_only_reversibility');
