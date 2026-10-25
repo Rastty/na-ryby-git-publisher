@@ -15,6 +15,10 @@ PAGES = [
     ("34905", "https://na-ryby.eu/rybarske-kreslo-s-nosnosti-200-kg-pro-nadsence-lovu-na-tezkou-vahu/", "chair-200kg-rated-load-34905-v1", "new_v6"),
     ("34921", "https://na-ryby.eu/jak-vybrat-nejlepsi-rybarske-kreslo-s-podnozkou-pro-pohodlny-rybolov/", "chair-footrest-choice-34921-v1", "new_v6"),
     ("35026", "https://na-ryby.eu/vyhrivane-rybarske-kreslo-pro-zimni-rybolov/", "heated-chair-battery-safety-35026-v1", "new_v6"),
+    ("34913", "https://na-ryby.eu/rybarske-kreslo-pro-tezsi-rybare-s-nosnosti-120-kg/", "chair-rated-120kg-fit-34913-v1", "new_v7"),
+    ("34977", "https://na-ryby.eu/pohodlne-rybarske-kreslo-pro-tezsi-muze-s-nosnosti-160-kg/", "chair-rated-160kg-comfort-34977-v1", "new_v7"),
+    ("35003", "https://na-ryby.eu/kreslo-pro-rybare-s-vysokym-operadlem-nejlepsi-volba-pro-bezbolestne-rybareni/", "high-back-chair-ergonomics-35003-v1", "new_v7"),
+    ("35011", "https://na-ryby.eu/jak-vybrat-spravne-rybarske-kreslo-od-znacky-mivardi/", "mivardi-chair-exact-model-35011-v1", "new_v7"),
 ]
 
 def get(url):
@@ -48,6 +52,7 @@ def main():
     controls=[x for x in report if x["role"]=="previous_live_control"]
     v5=[x for x in report if x["role"]=="new_v5"]
     v6=[x for x in report if x["role"]=="new_v6"]
+    v7=[x for x in report if x["role"]=="new_v7"]
     prior_ok=all(x["marker_seen"] for x in controls+v5)
     new_count=sum(x["marker_seen"] for x in v6)
     summary={"checked_at_utc":datetime.now(timezone.utc).isoformat(),
@@ -56,6 +61,9 @@ def main():
         "v6_expected":len(v6),
         "v6_http_ok":sum(x["http"]==200 for x in v6),
         "v6_exact_markers":[x["post_id"] for x in v6 if x["marker_seen"]],
+        "v7_positive":sum(x["marker_seen"] for x in v7),
+        "v7_expected":len(v7),
+        "v7_exact_markers":[x["post_id"] for x in v7 if x["marker_seen"]],
         "interpretation":("NEW_V6_PUBLISHED_AND_PUBLICLY_VERIFIED" if new_count==len(v6)
            else ("V6_NOT_YET_ALL_PUBLIC_OR_CACHE_PENDING" if prior_ok
                  else "PUBLIC_READBACK_UNRELIABLE"))}
