@@ -76,3 +76,26 @@ ani GitHub test **nepíší do databáze WordPressu**.
 
 V4/V5 jsou zachovány pro zpětnou kompatibilitu. Unit testy regresí
 v5 a test nové v6 dávky se spouštějí v GitHub Actions.
+
+## V7 — čtyři další konkrétní nákupní situace (bez WPVibe)
+
+Pevně omezené post ID: 34913 (nosnost 120 kg), 34977 (nosnost 160 kg),
+35003 (vysoké opěradlo a příliš silné sliby o bolesti zad),
+35011 (Mivardi — přesná modelová řada a kompatibilita).
+Všechny čtyři byly zjištěny veřejným WordPress REST jako publikované,
+bez předchozího redakčního markeru, se změnou z roku 2023; historicky
+`UPDATE_EXPAND_REVIEW` podle ověřené route-specific evidence 9/2026.
+
+Schéma 7 používá stejné přísné on-server preflight, ochranu původního
+`post_content`, zpětnou obnovu a soukromou zálohu jako v6.
+Přesně kontroluje identitu, datum poslední změny a bezpečný interval
+velikosti zdroje. Jestli jediný článek neprojde, nepublikuje žádný.
+Interní prolinkování cílí na ověřené praktické průvodce místo
+historicky chráněného obchodního hubu, kde byly zjištěny neověřené
+výrobní/prodejní sliby. Žádná původní komerční URL není přepsána.
+
+**GitHub merge není publikování článků.** Po aktualizaci pluginu přes
+Deployer for Git otevřete `/wp-admin/tools.php?page=nry-git-publisher`,
+ověřte čtyři stavy `ready`, potom pouze jednou stiskněte Apply.
+Dřívější v5/v6 dávky zůstávají nezměněné. Přesnou publikaci
+dokládá nový nezávislý public marker audit.
