@@ -6,6 +6,7 @@ import urllib.request
 import urllib.error
 import html
 from datetime import datetime, timezone
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import quote
 
 IDS=[34882,34905,34913,34921,34977,35003,35011,35026]
@@ -49,7 +50,8 @@ def extract(row):
     return out
 
 def main():
-    result=[extract({"id":x}) for x in IDS]
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        result=list(pool.map(lambda post_id: extract({"id":post_id}),IDS))
     print(json.dumps({"checkedAtUtc":datetime.now(timezone.utc).isoformat(),"results":result},ensure_ascii=False))
     with open("chair-candidate-public-audit.json","w",encoding="utf-8") as f:
         json.dump(result,f,ensure_ascii=False,indent=2)
