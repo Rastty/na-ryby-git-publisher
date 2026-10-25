@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Na-Ryby.eu – Git Publisher
  * Description: Apply guarded Git-managed content manifests from wp-admin without WPVibe or outbound WordPress REST writes.
- * Version: 0.6.0
+ * Version: 0.7.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
@@ -23,7 +23,7 @@ final class NRY_Git_Publisher {
     // V1 is immutable legacy compatibility. New cohorts must use the
     // source-hash-bound, insert-only v2 contract.
     public static function validate_manifest($data) {
-        if (!is_array($data) || !in_array($data['schema_version'] ?? null, array(1, 2, 3, 4, 5, 6), true)
+        if (!is_array($data) || !in_array($data['schema_version'] ?? null, array(1, 2, 3, 4, 5, 6, 7), true)
             || ($data['site'] ?? '') !== 'https://na-ryby.eu'
             || !isset($data['batch_id'], $data['edits'])
             || !is_string($data['batch_id'])
@@ -37,7 +37,8 @@ final class NRY_Git_Publisher {
         $v4 = $data['schema_version'] === 4;
         $v5 = $data['schema_version'] === 5;
         $v6 = $data['schema_version'] === 6;
-        if (!$v2 && !$v3 && !$v4 && !$v5 && !$v6 && (count($data['edits']) !== 2
+        $v7 = $data['schema_version'] === 7;
+        if (!$v2 && !$v3 && !$v4 && !$v5 && !$v6 && !$v7 && (count($data['edits']) !== 2
             || array_column($data['edits'], 'post_id') !== array(52975, 118517))) {
             return new WP_Error('legacy_scope', 'V1 povoluje jen historickou dvojici.');
         }
@@ -48,11 +49,20 @@ final class NRY_Git_Publisher {
                 || in_array($e['post_id'], array(38064, 42671), true)
                 || isset($seen[$e['post_id']])
                 || !is_string($e['slug']) || !preg_match('/^[a-z0-9-]{10,140}$/D', $e['slug'])
-                || (!$v4 && !$v5 && !$v6 && (!isset($e['anchor']) || !is_string($e['anchor'])))
-                || (!$v4 && !$v5 && !$v6 && !preg_match($v3 ? '~^<h[23](?:\s[^>]*)?>[^<]{8,280}</h[23]>$~uD' : '~^<h[12](?:\s[^>]*)?>[^<]{8,280}</h[12]>$~uD', $e['anchor']))) {
+                || (!$v4 && !$v5 && !$v6 && !$v7 && (!isset($e['anchor']) || !is_string($e['anchor'])))
+                || (!$v4 && !$v5 && !$v6 && !$v7 && !preg_match($v3 ? '~^<h[23](?:\s[^>]*)?>[^<]{8,280}</h[23]>$~uD' : '~^<h[12](?:\s[^>]*)?>[^<]{8,280}</h[12]>$~uD', $e['anchor']))) {
                 return new WP_Error('invalid_item', 'Neschválená identita, kotva nebo chráněný článek.');
             }
             $seen[$e['post_id']] = true;
+            if ($v7) {
+                $check = self::validate_v6_edit($e);
+                if (is_wp_error($check)) { return $check; }
+                if (isset($markers[$e['edit_id']])) {
+                    return new WP_Error('v7_duplicate_marker', 'Opakované označení změny.');
+                }
+                $markers[$e['edit_id']] = true;
+                continue;
+            }
             if ($v6) {
                 $check = self::validate_v6_edit($e);
                 if (is_wp_error($check)) { return $check; }
@@ -148,6 +158,10 @@ final class NRY_Git_Publisher {
         if ($v5 && (count($data['edits']) !== 2
             || array_keys($seen) !== array(50011, 53630))) {
             return new WP_Error('v5_scope', 'V5 povoluje pouze schválenou dvojici.');
+        }
+        if ($v7 && (count($data['edits']) !== 4
+            || array_keys($seen) !== array(34913, 34977, 35003, 35011))) {
+            return new WP_Error('v7_scope', 'V7 povoluje pouze vybranou čtveřici.');
         }
         if ($v6 && (count($data['edits']) !== 4
             || array_keys($seen) !== array(34882, 34905, 34921, 35026))) {
@@ -530,7 +544,7 @@ final class NRY_Git_Publisher {
         }
         // Persist originals on WordPress itself before the first v5 write.
         // Never overwrite an older backup for the same immutable batch ID.
-        if (in_array($manifest['schema_version'] ?? null, array(5, 6), true)
+        if (in_array($manifest['schema_version'] ?? null, array(5, 6, 7), true)
             && count(array_filter($rows, function($r) { return $r['status'] === 'ready'; })) > 0) {
             $key = 'nry_gp_backup_' . md5($manifest['batch_id']);
             $snapshots = array();
