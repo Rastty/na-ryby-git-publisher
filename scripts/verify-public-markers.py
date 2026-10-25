@@ -44,6 +44,25 @@ def inspect(item):
         "cache_age":resp.get("age"),"cache_header":resp.get("cache"),
         "request_error":resp.get("error")}
 
+def inspect_ctr_pilot():
+    url="https://na-ryby.eu/wp-json/wp/v2/posts/42401?_fields=id,slug,status,link,yoast_head_json"
+    expected_title="Pípáky na ryby: jak vybrat, nastavit a používat"
+    expected_meta="Pípáky na ryby jednoduše: jak nastavit citlivost, kam hlásič umístit a kdy se vyplatí příposlech. Praktické rady i výběr správné sady."
+    response=get(url)
+    if response.get("http")!=200:
+        return {"post_id":42401,"status":"READER_UNAVAILABLE","http":response.get("http")}
+    try:
+        item=json.loads(response.get("html",""))
+        head=item.get("yoast_head_json") or {}
+        identity=item.get("id")==42401 and item.get("status")=="publish" and item.get("slug")=="jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne"
+        return {"post_id":42401,"http":200,"identity_ok":identity,
+            "public_title":head.get("title"),"public_description":head.get("description"),
+            "title_matches":head.get("title")==expected_title,
+            "description_matches":head.get("description")==expected_meta,
+            "status":("PUBLIC_YOAST_CTR_PILOT_VERIFIED" if identity and head.get("title")==expected_title and head.get("description")==expected_meta else "META_NOT_YET_PUBLIC_OR_BLOCKED")}
+    except (ValueError,TypeError) as err:
+        return {"post_id":42401,"status":"JSON_DECODE_OR_SCHEMA_ERROR","error":str(err)[:120]}
+
 def main():
     with ThreadPoolExecutor(max_workers=8) as pool:
         report=list(pool.map(inspect,PAGES))
@@ -68,9 +87,12 @@ def main():
         "interpretation":("V7_PUBLISHED_ALL_FOUR" if v7_count==len(v7)
            else ("V7_NOT_YET_APPLIED_OR_PUBLIC" if prior_ok
                  else "PUBLIC_READER_INCONCLUSIVE_OR_CONTROLS_MISSING"))}
+    seo_pilot=inspect_ctr_pilot()
+    summary["seo_ctr_pilot_status"]=seo_pilot["status"]
+    print("SEO_PILOT "+json.dumps(seo_pilot,ensure_ascii=False))
     print("SUMMARY "+json.dumps(summary,ensure_ascii=False))
     with open("public-readback-result.json","w",encoding="utf-8") as f:
-        json.dump({"summary":summary,"posts":report},f,ensure_ascii=False,indent=2)
+        json.dump({"summary":summary,"posts":report,"seo_ctr_pilot":seo_pilot},f,ensure_ascii=False,indent=2)
 
 if __name__=="__main__":
     main()
