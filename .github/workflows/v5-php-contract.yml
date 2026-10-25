@@ -1,0 +1,29 @@
+name: Publisher V5 PHP Contract
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'manifest.json'
+      - 'tests/**'
+      - '.github/workflows/v5-php-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'manifest.json'
+      - 'tests/**'
+      - '.github/workflows/v5-php-contract.yml'
+permissions:
+  contents: read
+jobs:
+  php-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP syntax
+        run: |
+          php -v
+          php -l na-ryby-git-publisher.php
+          php -l tests/test-v5-native-release.php
+      - name: Source-bound and reversible v5 contract
+        run: php tests/test-v5-native-release.php
