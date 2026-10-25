@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Na-Ryby.eu – Git Publisher
  * Description: Apply guarded Git-managed content manifests from wp-admin without WPVibe or outbound WordPress REST writes.
- * Version: 0.4.0
+ * Version: 0.5.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
@@ -23,7 +23,7 @@ final class NRY_Git_Publisher {
     // V1 is immutable legacy compatibility. New cohorts must use the
     // source-hash-bound, insert-only v2 contract.
     public static function validate_manifest($data) {
-        if (!is_array($data) || !in_array($data['schema_version'] ?? null, array(1, 2, 3, 4), true)
+        if (!is_array($data) || !in_array($data['schema_version'] ?? null, array(1, 2, 3, 4, 5), true)
             || ($data['site'] ?? '') !== 'https://na-ryby.eu'
             || !isset($data['batch_id'], $data['edits'])
             || !is_string($data['batch_id'])
@@ -35,7 +35,8 @@ final class NRY_Git_Publisher {
         $v2 = $data['schema_version'] === 2;
         $v3 = $data['schema_version'] === 3;
         $v4 = $data['schema_version'] === 4;
-        if (!$v2 && !$v3 && !$v4 && (count($data['edits']) !== 2
+        $v5 = $data['schema_version'] === 5;
+        if (!$v2 && !$v3 && !$v4 && !$v5 && (count($data['edits']) !== 2
             || array_column($data['edits'], 'post_id') !== array(52975, 118517))) {
             return new WP_Error('legacy_scope', 'V1 povoluje jen historickou dvojici.');
         }
@@ -46,11 +47,20 @@ final class NRY_Git_Publisher {
                 || in_array($e['post_id'], array(38064, 42671), true)
                 || isset($seen[$e['post_id']])
                 || !is_string($e['slug']) || !preg_match('/^[a-z0-9-]{10,140}$/D', $e['slug'])
-                || (!$v4 && (!isset($e['anchor']) || !is_string($e['anchor'])))
-                || (!$v4 && !preg_match($v3 ? '~^<h[23](?:\s[^>]*)?>[^<]{8,280}</h[23]>$~uD' : '~^<h[12](?:\s[^>]*)?>[^<]{8,280}</h[12]>$~uD', $e['anchor']))) {
+                || (!$v4 && !$v5 && (!isset($e['anchor']) || !is_string($e['anchor'])))
+                || (!$v4 && !$v5 && !preg_match($v3 ? '~^<h[23](?:\s[^>]*)?>[^<]{8,280}</h[23]>$~uD' : '~^<h[12](?:\s[^>]*)?>[^<]{8,280}</h[12]>$~uD', $e['anchor']))) {
                 return new WP_Error('invalid_item', 'Neschválená identita, kotva nebo chráněný článek.');
             }
             $seen[$e['post_id']] = true;
+            if ($v5) {
+                $check = self::validate_v5_edit($e);
+                if (is_wp_error($check)) { return $check; }
+                if (isset($markers[$e['edit_id']])) {
+                    return new WP_Error('v5_duplicate_marker', 'Opakované označení změny.');
+                }
+                $markers[$e['edit_id']] = true;
+                continue;
+            }
             if ($v4) {
                 $check = self::validate_v4_edit($e);
                 if (is_wp_error($check)) { return $check; }
@@ -123,7 +133,81 @@ final class NRY_Git_Publisher {
             }
             $markers[$e['edit_id']] = true;
         }
+        // This opt-in source-on-server schema is confined to the two reviewed
+        // buyer-guide rescue articles. Do not widen with generic post IDs.
+        if ($v5 && (count($data['edits']) !== 2
+            || array_keys($seen) !== array(50011, 53630))) {
+            return new WP_Error('v5_scope', 'V5 povoluje pouze schválenou dvojici.');
+        }
         return $data;
+    }
+
+    private static function validate_v5_edit($e) {
+        if (!isset($e['source_modified_gmt'], $e['source_bytes'], $e['edit_id'],
+                $e['insert_html'], $e['placement'])
+            || $e['placement'] !== 'prepend'
+            || !is_int($e['source_bytes']) || $e['source_bytes'] < 5000
+            || $e['source_bytes'] > 100000
+            || !is_string($e['source_modified_gmt'])
+            || !preg_match('/^20[0-9]{2}-[01][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/D',
+                $e['source_modified_gmt'])
+            || !is_string($e['edit_id'])
+            || !preg_match('/^[a-z0-9][a-z0-9-]{7,63}$/D', $e['edit_id'])
+            || !is_string($e['insert_html'])
+            || strlen($e['insert_html']) < 1000 || strlen($e['insert_html']) > 16000
+            || isset($e['source_sha256'], $e['cleanup_ops'], $e['corrections'])) {
+            return new WP_Error('v5_invalid', 'Neplatné parametry redakční změny.');
+        }
+        $html = $e['insert_html'];
+        $marker = 'data-nry-editorial-edit="' . $e['edit_id'] . '"';
+        if (substr_count($html, $marker) !== 1
+            || !preg_match('/^<section ' . preg_quote($marker, '/') . '>/u', $html)
+            || strpos($html, '</section>') === false
+            || preg_match('~(?:<\\?|<!--|--> |\\[[a-zA-Z][^\\]]*\\]|\\bon[a-z]+\\s*=|<(?:script|style|iframe|form|img|svg|object|embed)\\b)~iu', $html)) {
+            return new WP_Error('v5_unsafe_html', 'Neplatné HTML nebo nesprávná značka.');
+        }
+        $allowed = array(
+            'section' => array('data-nry-editorial-edit' => true),
+            'div' => array(), 'h2' => array(), 'h3' => array(),
+            'p' => array(), 'strong' => array(), 'em' => array(),
+            'small' => array(), 'ol' => array(), 'ul' => array(),
+            'li' => array(), 'table' => array(), 'thead' => array(),
+            'tbody' => array(), 'tr' => array(), 'th' => array(),
+            'td' => array(), 'a' => array('href' => true)
+        );
+        if (wp_kses($html, $allowed, array('https')) !== $html) {
+            return new WP_Error('v5_sanitize_drift', 'Vklad musí obsahovat jen schválené čisté HTML.');
+        }
+        preg_match_all('~<a\\b[^>]*href="([^"]+)"[^>]*>~iu', $html, $links);
+        preg_match_all('~<a\\b~iu', $html, $all_anchors);
+        if (count($links[1]) < 1 || count($links[1]) > 6
+            || count($links[1]) !== count($all_anchors[0])) {
+            return new WP_Error('v5_links', 'Chybné nebo přebytečné odkazy.');
+        }
+        foreach ($links[1] as $url) {
+            if (!preg_match('~^https://na-ryby\\.eu/[a-z0-9-]+/$~D', $url)) {
+                return new WP_Error('v5_external', 'Povoleny jsou pouze ověřené interní odkazy.');
+            }
+        }
+        return true;
+    }
+
+    private static function build_v5_candidate($source, $edit) {
+        $html = $edit['insert_html'];
+        $marker = 'data-nry-editorial-edit="' . $edit['edit_id'] . '"';
+        if (substr_count($source, $marker) === 1
+            && strpos($source, $html . "\\n") === 0) {
+            return array('already' => true);
+        }
+        if (strpos($source, $marker) !== false) {
+            return array('error' => 'marker_conflict');
+        }
+        $candidate = $html . "\\n" . $source;
+        if (substr_count($candidate, $marker) !== 1
+            || substr($candidate, strlen($html) + 1) !== $source) {
+            return array('error' => 'append_only_reversibility');
+        }
+        return array('candidate' => $candidate);
     }
 
 
@@ -321,6 +405,27 @@ final class NRY_Git_Publisher {
         if (!is_string($source) || strlen($source) < 1000 || strlen($source) > 350000) {
             return array('id' => $post->ID, 'status' => 'blocked', 'reason' => 'size');
         }
+        if (isset($edit['placement'])) {
+            // The source is captured on the actual WordPress server. No
+            // outbound REST authentication or WPVibe is needed.
+            $built = self::build_v5_candidate($source, $edit);
+            if (isset($built['already'])) {
+                return array('id' => $post->ID, 'status' => 'already_applied');
+            }
+            if ($post->post_modified_gmt !== $edit['source_modified_gmt']
+                || strlen($source) !== $edit['source_bytes']) {
+                return array('id' => $post->ID, 'status' => 'blocked',
+                    'reason' => 'source_modified_or_bytes_drift');
+            }
+            if (isset($built['error'])) {
+                return array('id' => $post->ID, 'status' => 'blocked',
+                    'reason' => $built['error']);
+            }
+            return array('id' => $post->ID, 'status' => 'ready', 'source' => $source,
+                'candidate' => $built['candidate'],
+                'source_sha' => hash('sha256', $source),
+                'candidate_sha' => hash('sha256', $built['candidate']));
+        }
         if (isset($edit['cleanup_ops'])) {
             $built = self::build_v4_candidate($source, $edit);
             if (isset($built['already'])) {
@@ -444,7 +549,7 @@ final class NRY_Git_Publisher {
         if (!current_user_can('manage_options')) { wp_die('Access denied'); }
         $rows = self::plan(self::manifest()); $last = get_option(self::RECEIPT, array());
         echo '<div class="wrap"><h1>Na-Ryby Git Publisher</h1>';
-        echo '<p>Schválené změny jsou v manifest.json dodaném z Gitu. Nic se nepublikuje automaticky. WordPress zapisuje přímo na serveru, nikoliv přes WPVibe.</p>';
+        echo '<p>Schválené změny jsou v manifest.json dodaném z Gitu. Nic se nepublikuje automaticky. WordPress zapisuje přímo na serveru, nikoliv přes WPVibe. Verze 5 porovnává identitu, datum úpravy a přesnou délku původního článku a kontroluje neměnný obsah při zápisu.</p>';
         if (is_wp_error($rows)) { echo '<p>' . esc_html($rows->get_error_message()) . '</p></div>'; return; }
         $blocked = false;
         echo '<table class="widefat striped"><thead><tr><th>Post ID</th><th>Kontrola</th></tr></thead><tbody>';
