@@ -155,7 +155,8 @@ final class NRY_Git_Publisher {
             || !preg_match('/^[a-z0-9][a-z0-9-]{7,63}$/D', $e['edit_id'])
             || !is_string($e['insert_html'])
             || strlen($e['insert_html']) < 1000 || strlen($e['insert_html']) > 16000
-            || isset($e['source_sha256'], $e['cleanup_ops'], $e['corrections'])) {
+            || isset($e['source_sha256']) || isset($e['cleanup_ops'])
+            || isset($e['corrections'])) {
             return new WP_Error('v5_invalid', 'Neplatné parametry redakční změny.');
         }
         $html = $e['insert_html'];
@@ -490,6 +491,29 @@ final class NRY_Git_Publisher {
         foreach ($rows as $row) {
             if ($row['status'] === 'blocked') {
                 return array('status' => 'blocked_no_writes', 'writes' => 0, 'rows' => self::safe_rows($rows));
+            }
+        }
+        // Persist originals on WordPress itself before the first v5 write.
+        // Never overwrite an older backup for the same immutable batch ID.
+        if (($manifest['schema_version'] ?? null) === 5
+            && count(array_filter($rows, function($r) { return $r['status'] === 'ready'; })) > 0) {
+            $key = 'nry_gp_backup_' . md5($manifest['batch_id']);
+            $snapshots = array();
+            foreach ($rows as $row) {
+                if ($row['status'] === 'ready') {
+                    $snapshots[] = array('id' => $row['id'],
+                        'source_sha' => $row['source_sha'],
+                        'source' => $row['source']);
+                }
+            }
+            if (!add_option($key, $snapshots, '', 'no')) {
+                // Existing backup is a hard stop if any original differs.
+                if (get_option($key, null) !== $snapshots) {
+                    return array('status' => 'backup_conflict_no_writes', 'writes' => 0);
+                }
+            }
+            if (get_option($key, null) !== $snapshots) {
+                return array('status' => 'backup_verification_failed_no_writes', 'writes' => 0);
             }
         }
         $done = array(); $failed = null;
