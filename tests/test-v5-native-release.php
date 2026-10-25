@@ -11,6 +11,17 @@ class WP_Error {
 }
 function is_wp_error($value) { return $value instanceof WP_Error; }
 function add_action($name, $callback) { return true; }
+$options = array();
+function add_option($key, $value, $deprecated = '', $autoload = 'yes') {
+    global $options;
+    if (array_key_exists($key, $options)) { return false; }
+    $options[$key] = $value;
+    return true;
+}
+function get_option($key, $default = false) {
+    global $options;
+    return $options[$key] ?? $default;
+}
 function wp_kses($html, $allowed, $protocols) { return $html; } // WP handles KSES in production.
 $posts = array();
 function get_post($id) { global $posts; return $posts[$id] ?? null; }
@@ -47,6 +58,11 @@ foreach ($rows as $i => $row) {
     check(hash('sha256', $row['candidate']) === $row['candidate_sha'], 'candidate SHA mismatch');
 }
 $receipt = NRY_Git_Publisher::execute($manifest);
+check(count($options) === 1, 'originals not stored as one immutable private backup');
+$backedUp = reset($options);
+check(count($backedUp) === 2, 'backup not covering both articles');
+check($backedUp[0]['source_sha'] === $rows[0]['source_sha'] &&
+    $backedUp[1]['source_sha'] === $rows[1]['source_sha'], 'backup hashes mismatch');
 check($receipt['status'] === 'applied_and_verified', 'verified server apply failed');
 check($receipt['writes'] === 2 && $receipt['changed'] === array(50011, 53630),
     'wrong number or IDs of writes');
