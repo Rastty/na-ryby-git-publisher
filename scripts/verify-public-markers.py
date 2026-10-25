@@ -53,8 +53,9 @@ def main():
     v5=[x for x in report if x["role"]=="new_v5"]
     v6=[x for x in report if x["role"]=="new_v6"]
     v7=[x for x in report if x["role"]=="new_v7"]
-    prior_ok=all(x["marker_seen"] for x in controls+v5)
+    prior_ok=all(x["marker_seen"] for x in controls+v5+v6)
     new_count=sum(x["marker_seen"] for x in v6)
+    v7_count=sum(x["marker_seen"] for x in v7)
     summary={"checked_at_utc":datetime.now(timezone.utc).isoformat(),
         "prior_controls_confirmed":sum(x["marker_seen"] for x in controls+v5),
         "v6_positive":new_count,
@@ -64,9 +65,9 @@ def main():
         "v7_positive":sum(x["marker_seen"] for x in v7),
         "v7_expected":len(v7),
         "v7_exact_markers":[x["post_id"] for x in v7 if x["marker_seen"]],
-        "interpretation":("NEW_V6_PUBLISHED_AND_PUBLICLY_VERIFIED" if new_count==len(v6)
-           else ("V6_NOT_YET_ALL_PUBLIC_OR_CACHE_PENDING" if prior_ok
-                 else "PUBLIC_READBACK_UNRELIABLE"))}
+        "interpretation":("V7_PUBLISHED_ALL_FOUR" if v7_count==len(v7)
+           else ("V7_NOT_YET_APPLIED_OR_PUBLIC" if prior_ok
+                 else "PUBLIC_READER_INCONCLUSIVE_OR_CONTROLS_MISSING"))}
     print("SUMMARY "+json.dumps(summary,ensure_ascii=False))
     with open("public-readback-result.json","w",encoding="utf-8") as f:
         json.dump({"summary":summary,"posts":report},f,ensure_ascii=False,indent=2)
