@@ -1,67 +1,25 @@
 {
-  "schema_version": 2,
-  "batch_id": "bite-alarm-link-first-20261022-v2",
+  "schema_version": 5,
+  "batch_id": "buyer-rescue-two-50011-53630-20261025-v1",
   "site": "https://na-ryby.eu",
   "edits": [
     {
-      "post_id": 42401,
-      "slug": "jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne",
-      "anchor": "<h2>Jaký typ signalizátoru dává smysl</h2>",
-      "source_sha256": "41969587af01bf4ba73756cea7bacb41de99b1aed6be1a98a51dfdc16575f7a7",
-      "edit_id": "bite-alarm-path-42401-v2",
-      "intro": "Správné nastavení pomůže, ale při výběru přístroje rozhoduje také citlivost, příposlech a kompatibilita celé sestavy.",
-      "link_label": "Jak vybrat hlásič nebo sadu",
-      "link_url": "https://na-ryby.eu/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/"
+      "post_id": 50011,
+      "slug": "nejlepsi-kaprove-pruty-pro-zacatecniky-recenze-a-doporuceni-pro-rok-2020",
+      "source_modified_gmt": "2023-05-25 11:20:39",
+      "source_bytes": 10582,
+      "edit_id": "kaprove-pruty-2020-50011-archive-clarity-v1",
+      "placement": "prepend",
+      "insert_html": "<section data-nry-editorial-edit=\"kaprove-pruty-2020-50011-archive-clarity-v1\">\n  <div>\n    <strong>Důležité upozornění pro nákup:</strong> Tento článek vznikl jako přehled kaprových prutů pro rok 2020. Jména modelů a staré odkazy níže ponecháváme jako historický kontext, nikoli jako potvrzení, že se tyto pruty v roce 2026 prodávají, že mají aktuálně uvedené parametry nebo že jde o náš vlastní test. Pro dnešní rozhodnutí nejprve použijte níže uvedená kritéria a pak ověřte konkrétní variantu přímo u prodejce.\n  </div>\n  <h2>Jak vybrat první kaprový prut dnes: podle místa a sestavy, ne podle seznamu z roku 2020</h2>\n  <p><strong>Krátká odpověď:</strong> Pokud chytáte převážně na běžném rybníku a teprve začínáte, jako výchozí bod zkuste dvoudílný kaprový prut o délce přibližně 3,6 m (12 ft) s testovací křivkou zhruba 2,75–3 lb. Není to univerzální volba: u překážek a kratších hodů může lépe sedět prut kolem 3 m, při častém cestování rozhoduje hlavně transportní délka. Konkrétní zátěž pro nához a práci blanku vždy ověřte v doporučení výrobce.</p>\n  <div>\n    <table>\n      <thead><tr><th>Vaše situace</th><th>Co upřednostnit</th><th>Kdy hledat jinam</th></tr></thead>\n      <tbody>\n        <tr><td>První výbava na rybník a střední vzdálenosti</td><td>Prut kolem 3,6 m; pohodlné zdolávání, přiměřeně univerzální blank</td><td>Pokud kvůli stromům nemáte prostor pro bezpečný švih nebo prut nedokážete při náhozu kontrolovat</td></tr>\n        <tr><td>Menší lokalita, lov u břehu nebo stalking</td><td>Kratší varianta přibližně 2,7–3,0 m; obratnost a kontrola v omezeném prostoru</td><td>Pokud pravidelně potřebujete delší odhozy z otevřeného břehu</td></tr>\n        <tr><td>Otevřená velká voda a časté delší hody</td><td>Dostatek prostoru pro nahazování, správná kombinace prutu, montáže, vlasce a techniky</td><td>Pokud teprve začínáte: samotný delší a tužší prut větší vzdálenost nezaručí</td></tr>\n        <tr><td>Malé auto nebo cesta s batohem</td><td>Transportní délka a kvalitní spojky, vhodná vícedílná nebo transportně kompaktní varianta</td><td>Pokud se sestava do auta nevejde nebo kvůli uskladnění hrozí poškození oček a špičky</td></tr>\n      </tbody>\n    </table>\n  </div>\n  <h3>Pět kontrol před zaplacením</h3>\n  <ol>\n    <li><strong>Ověřte přesný model a generaci:</strong> značka a obchodní název nemusí stačit. Starý seznam prutů z roku 2020 není důkazem současné dostupnosti.</li>\n    <li><strong>Nezaměňujte libráž za nosnost:</strong> označení 3 lb je testovací křivka, nikoli povolená hmotnost ryby nebo olova. Pro nához platí limity výrobce a technika rybáře.</li>\n    <li><strong>Podívejte se na rozložený komplet:</strong> rukojeť, vyvážení s navijákem a spojka blanku jsou při několika hodinách lovu důležitější než marketingový žebříček.</li>\n    <li><strong>Zkontrolujte transport:</strong> délku jednotlivých dílů, ochranu špičky a oček a kompatibilitu s vaším obalem.</li>\n    <li><strong>Projděte skutečný obsah nabídky:</strong> pokud obchod neuvádí délku, testovací křivku a modelové označení, vyžádejte si je před objednáním; ceny a skladovost se mění.</li>\n  </ol>\n  <p><strong>Další krok:</strong> pro podrobnější vysvětlení použijte <a href=\"https://na-ryby.eu/vse-o-kaprovych-prutech-jak-vybrat-delku-akci-a-libraz/\">aktuální průvodce délkou, akcí a libráží kaprových prutů</a>. S omezeným rozpočtem pokračujte na <a href=\"https://na-ryby.eu/nejlepsi-kaprove-pruty-do-3-000-kc-srovnani-a-vyber/\">srovnání kaprových prutů do 3 000 Kč</a> a u každé nabídky ověřte konkrétní provedení a aktuální cenu.</p>\n  <p><small>Redakční rozhodovací pomůcka. Nejde o nový osobní test výrobků, potvrzení starých cen, dostupnosti ani doporučení neověřeného affiliate produktu. Historické odkazy ve zbytku článku vyžadují samostatnou kontrolu jejich funkčnosti a relevance.</small></p>\n</section>"
     },
     {
-      "post_id": 35755,
-      "slug": "pipaky-na-ryby-prakticke-rady-pro-zacatecniky",
-      "anchor": "<h2>Jak pípák funguje bez zbytečné teorie</h2>",
-      "source_sha256": "4bdd6f974437bde92c2be18ba9bbc09a561edfad8b70a1d6df6e728dc07c30c2",
-      "edit_id": "bite-alarm-path-35755-v2",
-      "intro": "Po zvládnutí základů přejděte k výběru hlásiče podle způsobu lovu, napájení a skutečné potřeby příposlechu.",
-      "link_label": "Praktický výběr signalizátoru záběru",
-      "link_url": "https://na-ryby.eu/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/"
-    },
-    {
-      "post_id": 118308,
-      "slug": "proc-mi-signalizator-pipa-bez-zaberu-5-nejcastejsich-pricin-a-jak-je-vyresit",
-      "anchor": "<h2>3. Moc vysoká citlivost ve větru, vlnách nebo při špatně napnutém vlasci</h2>",
-      "source_sha256": "9db17d85db370c79c0c4db37fed176c18d56d3d6c455245add56d0bd7232023f",
-      "edit_id": "bite-alarm-path-118308-v2",
-      "intro": "Pokud pípák reaguje na vítr nebo pohyb vlasce, ověřte kromě příčiny také vedení vlasce a základní nastavení hlásiče.",
-      "link_label": "Návod na správné používání pípáků",
-      "link_url": "https://na-ryby.eu/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/"
-    },
-    {
-      "post_id": 36702,
-      "slug": "pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu",
-      "anchor": "<h2>Pípáky na ryby pro profesionály: přehled nejlepších značek a modelů</h2>",
-      "source_sha256": "73eec9d5023f7808a68ebe1c10d01b5cf299bd2ec713b5c49244799ecb8eed38",
-      "edit_id": "bite-alarm-path-36702-v2",
-      "intro": "Samotný seznam značek nestačí. Pro konkrétní nákup porovnejte funkce hlásiče, kompatibilitu přijímače a praktické kompromisy.",
-      "link_label": "Výběr hlásiče nebo sady podle použití",
-      "link_url": "https://na-ryby.eu/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/"
-    },
-    {
-      "post_id": 60354,
-      "slug": "nejlepsi-rybarske-hlasice-a-signalizatory",
-      "anchor": "<h2>Často kladené dotazy</h2>",
-      "source_sha256": "93f5ad99b413854654cdfc87f34eaca9e129d0cc1549dc18b44a79b17a5c8957",
-      "edit_id": "bite-alarm-path-60354-v2",
-      "intro": "Starší výběrové seznamy jsou orientační. Rozhodnutí usnadní srovnání samostatného hlásiče a sady s příposlechem.",
-      "link_label": "Podle čeho vybrat hlásič záběru",
-      "link_url": "https://na-ryby.eu/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/"
-    },
-    {
-      "post_id": 118218,
-      "slug": "nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu",
-      "anchor": "<h2>Samostatný signalizátor, nebo sada s příposlechem?</h2>",
-      "source_sha256": "96959493866906e5ff73d59fb1c681d9a43f5659788ec875231f44b3e0b3f2f2",
-      "edit_id": "bite-alarm-path-118218-v2",
-      "intro": "Ne každý bezdrátový příposlech podporuje mobil. Před nákupem ověřte, zda jde skutečně o Bluetooth s aplikací.",
-      "link_label": "Rozdíl mezi Bluetooth a příposlechem",
-      "link_url": "https://na-ryby.eu/signalizatory-zaberu-s-bluetooth-pripojenim-na-vasem-mobilu/"
+      "post_id": 53630,
+      "slug": "jak-vybrat-ten-spravny-ruzovy-prut-na-ryby",
+      "source_modified_gmt": "2023-06-09 16:27:51",
+      "source_bytes": 9471,
+      "edit_id": "ruzovy-prut-53630-skutecny-vyber-v1",
+      "placement": "prepend",
+      "insert_html": "<section data-nry-editorial-edit=\"ruzovy-prut-53630-skutecny-vyber-v1\">\n  <h2>Růžový rybářský prut: co je důležité kromě barvy</h2>\n  <p><strong>Nejdůležitější odpověď:</strong> Růžová barva je vzhledová varianta, ne zvláštní rybářská technika. Sama o sobě neurčuje vrhací zátěž, citlivost, pevnost ani vhodnost pro děti. Nejprve vyberte prut pro konkrétní použití a až potom hledejte oblíbenou barvu v odpovídajících parametrech. V obchodě srovnávejte přesné modelové označení; stejný design může existovat v několika výrazně odlišných délkách a gramážích.</p>\n  <div>\n    <table>\n      <thead><tr><th>Komu prut kupujete</th><th>Co rozhoduje</th><th>Na co si dát pozor</th></tr></thead>\n      <tbody>\n        <tr><td>Dárek pro dospělého začátečníka</td><td>Zda chce lovit na přívlač, plavanou nebo položenou; délka prutu a pohodlný úchop</td><td>Nevybírejte jen podle fotky barvy: nesprávná technika rybolovu může udělat i hezký dárek nepoužitelným</td></tr>\n        <tr><td>Lehká přívlač na menší vodě</td><td>Hmotnost celé sestavy, rozsah vrhací zátěže vůči skutečné nástraze a prostor pro nahození</td><td>Příliš silný prut nepracuje dobře s drobnými nástrahami, příliš krátký nebo dlouhý nemusí sedět lokalitě</td></tr>\n        <tr><td>První prut pro dítě</td><td>Bezpečné držení, přiměřená délka, nízká hmotnost a jednoduchá manipulace s pomocí dospělého</td><td>Dětský motiv ani barva nejsou zárukou vhodné velikosti; dítě si má prut pokud možno samo podržet</td></tr>\n        <tr><td>Prut pro zkušeného rybáře, který chce konkrétní barvu</td><td>Stejná vrhací zátěž, akce, kvalita oček a kompatibilita s navijákem jako u stávajícího prutu</td><td>Nepřecházejte na jinou kategorii blanku jen kvůli designu nebo sezónní edici</td></tr>\n      </tbody>\n    </table>\n  </div>\n  <h3>Jak ověřit vhodný model před objednávkou</h3>\n  <ol>\n    <li><strong>Zeptejte se na způsob lovu:</strong> přívlačový a kaprový prut nemají zaměnitelnou funkci, ani když mají stejnou barvu.</li>\n    <li><strong>Porovnejte délku a transportní rozměry:</strong> zvlášť při nákupu pro dítě, na malou řeku nebo do omezeného prostoru.</li>\n    <li><strong>Zkontrolujte deklarované parametry:</strong> gramáž nástrah a olov, doporučení výrobce, akci a kvalitu spojů; nespoléhejte na obecný popisek „univerzální“.</li>\n    <li><strong>Sestavte prut s navijákem:</strong> i příjemně lehký prut může být nevyvážený s příliš těžkým navijákem.</li>\n    <li><strong>U dárku ověřte možnost výměny:</strong> když neznáte rybolovnou techniku a rozměry uživatele, vhodnější může být společný výběr nebo poukaz.</li>\n  </ol>\n  <p><strong>Praktická cesta dál:</strong> pro první přívlačový komplet použijte <a href=\"https://na-ryby.eu/nejlepsi-prut-na-privlac-pro-zacatecniky-v-ceske-republice/\">průvodce výběrem přívlačového prutu pro začátečníky</a>; pro lov kaprů si nejprve projděte <a href=\"https://na-ryby.eu/vse-o-kaprovych-prutech-jak-vybrat-delku-akci-a-libraz/\">vysvětlení délky, akce a libráže</a>. Jakmile znáte parametry vhodného prutu, vyberte z nabídek odpovídající růžovou variantu – bez kompromisu v použitelnosti.</p>\n  <p><small>Nejde o osobní test, doporučení konkrétní modelové řady ani tvrzení, že růžový prut má zvláštní technické vlastnosti. Konkrétní prodejní nabídky a dostupnost je třeba ověřit zvlášť.</small></p>\n</section>"
     }
   ]
 }
