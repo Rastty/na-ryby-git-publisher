@@ -36,7 +36,7 @@ function wp_update_post($change, $returnError = false) {
 function check($condition, $message) { if (!$condition) { throw new RuntimeException($message); } }
 
 require dirname(__DIR__) . '/na-ryby-git-publisher.php';
-$manifest = NRY_Git_Publisher::manifest();
+$manifest = NRY_Git_Publisher::validate_manifest(json_decode(file_get_contents(__DIR__ . '/v5-fixture-manifest.json'), true));
 check(!is_wp_error($manifest), 'v5 public manifest rejected');
 check($manifest['schema_version'] === 5, 'wrong manifest schema');
 check(array_column($manifest['edits'], 'post_id') === array(50011, 53630), 'unexpected scope');
