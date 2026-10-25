@@ -50,3 +50,29 @@ obě položky `already_applied`. Při `blocked` nezkoušejte vynucený zápis;
 nejdřív zkontrolujte změnu původního článku a schválený manifest.
 
 Zveřejnění v této verzi je úmyslně podmíněno jediným kliknutím administrátora.
+
+## V6 — čtyři odlišné nákupní otázky k rybářským křeslům
+
+Manifest `chair-decision-four-20261025-v1` je pevně omezen na články:
+`34882` feederové křeslo, `34905` ověřená nosnost 200 kg, `34921`
+podnožka proti samostatnému lehátku a `35026` bezpečné elektrické vyhřívání.
+Žádné již publikované články z předchozích dávek ani ochranné kohorty nejsou součástí.
+
+Získání původního `post_content` a zápis probíhají pouze uvnitř WordPressu.
+Veřejný REST poskytuje jen renderovaný obsah, ne věrohodný přesný počet bytů
+původního HTML. Proto v6 místo uhodnutého `source_bytes` používá
+identitu + přesné `post_modified_gmt` z veřejného WordPress API +
+předem určený bezpečný interval 6000–25000 bytů; samotný původní obsah
+a jeho SHA se uloží při serverovém preflightu a znovu ověří bezprostředně
+před každým zápisem. Záloha do neveřejné WordPress option je povinná
+a musí se ověřit před prvním zápisem. Všechny čtyři články se
+odmítnou jako celek, pokud jediný nesplní preflight.
+
+Nový obsah se jen předřazuje na začátek, původní odkazy, obrázky,
+shortcodes i obchodní tracking zůstávají beze změny. Editor smí vkládat
+pouze bezpečné HTML s interními odkazy. Publikaci nadále spouští
+správce na `Nástroje > Na-Ryby Git Publisher`; samotný merge/deploy
+ani GitHub test **nepíší do databáze WordPressu**.
+
+V4/V5 jsou zachovány pro zpětnou kompatibilitu. Unit testy regresí
+v5 a test nové v6 dávky se spouštějí v GitHub Actions.
