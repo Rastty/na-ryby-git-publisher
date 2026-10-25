@@ -1,0 +1,22 @@
+name: Chair Buyer Candidate Public Audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit-chair-buyer-candidates.py'
+      - '.github/workflows/chair-candidates-readonly.yml'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Query eight published WP public REST pages, no credentials
+        run: python3 scripts/audit-chair-buyer-candidates.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chair-candidate-public-readonly
+          path: chair-candidate-public-audit.json
+          retention-days: 7
