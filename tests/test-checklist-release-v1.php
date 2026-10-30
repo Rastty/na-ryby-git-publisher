@@ -5,11 +5,28 @@ define('OBJECT', 'OBJECT');
 $GLOBALS['nry_test_options'] = array();
 $GLOBALS['nry_test_origin'] = 'https://na-ryby.eu/';
 $GLOBALS['nry_test_collision'] = false;
+$GLOBALS['nry_test_collision_kind'] = '';
+$GLOBALS['nry_test_last_query'] = null;
 function add_action() {}
 function status_header($status) { if ($status !== 200) { throw new RuntimeException('Wrong HTTP status'); } }
 function home_url($path = '/') { return $GLOBALS['nry_test_origin']; }
 function get_page_by_path() { return $GLOBALS['nry_test_collision'] ? (object) array('ID' => 123) : null; }
-function get_posts() { return $GLOBALS['nry_test_collision'] ? array((object) array('ID' => 123)) : array(); }
+function get_post_types() {
+    return array('post' => 'post', 'page' => 'page', 'attachment' => 'attachment', 'private_doc' => 'private_doc');
+}
+function get_post_stati() {
+    return array('publish' => 'publish', 'private' => 'private', 'inherit' => 'inherit', 'trash' => 'trash');
+}
+function get_posts($args = array()) {
+    $GLOBALS['nry_test_last_query'] = $args;
+    if ($GLOBALS['nry_test_collision']) { return array(123); }
+    $kind = $GLOBALS['nry_test_collision_kind'];
+    if ($kind === 'attachment' && in_array('attachment', $args['post_type'], true)
+        && in_array('inherit', $args['post_status'], true)) { return array(456); }
+    if ($kind === 'trashed_private' && in_array('private_doc', $args['post_type'], true)
+        && in_array('trash', $args['post_status'], true)) { return array(789); }
+    return array();
+}
 function get_option($key, $default = false) { return $GLOBALS['nry_test_options'][$key] ?? $default; }
 function check($condition, $label) {
     if (!$condition) { throw new RuntimeException('FAIL: ' . $label); }
@@ -40,6 +57,15 @@ $GLOBALS['nry_test_collision'] = true;
 check(!NRY_Checklist_Release_V1::inspection()['ready'], 'existing WP slug collision blocks');
 check(!NRY_Checklist_Release_V1::inspection()['approved'], 'collision overrides approval');
 $GLOBALS['nry_test_collision'] = false;
+$GLOBALS['nry_test_collision_kind'] = 'attachment';
+check(!NRY_Checklist_Release_V1::inspection()['ready'], 'attachment with inherited status blocks route');
+check(!NRY_Checklist_Release_V1::inspection()['approved'], 'attachment collision overrides SHA approval');
+$GLOBALS['nry_test_collision_kind'] = 'trashed_private';
+check(!NRY_Checklist_Release_V1::inspection()['ready'], 'trashed private custom post blocks route');
+check($GLOBALS['nry_test_last_query']['name'] === 'co-sbalit-na-ryby', 'exact slug scoped query');
+check($GLOBALS['nry_test_last_query']['fields'] === 'ids', 'bounded collision query');
+check($GLOBALS['nry_test_last_query']['suppress_filters'] === true, 'collision query resists content filters');
+$GLOBALS['nry_test_collision_kind'] = '';
 $GLOBALS['nry_test_origin'] = 'https://wrong.example/';
 check(!NRY_Checklist_Release_V1::inspection()['ready'], 'wrong WordPress origin blocks');
 $GLOBALS['nry_test_origin'] = 'https://na-ryby.eu/';
