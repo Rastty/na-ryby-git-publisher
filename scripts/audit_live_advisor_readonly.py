@@ -48,26 +48,42 @@ class AdvisorMarkupParser(HTMLParser):
         self.engine_element = False
         self.scripts = []
         self._script_chunks = None
+        self._inert_depth = 0
 
     def handle_comment(self, data):
-        if data.strip() == "nry-advisor-live-v1":
+        if not self._inert_depth and data.strip() == "nry-advisor-live-v1":
             self.marker_comment = True
 
     def handle_starttag(self, tag, attrs):
-        if any(k == "data-nry-engine" and v == "nry-advisor-live-v1"
-               for k, v in attrs):
-            self.engine_element = True
+        if tag in ("template", "noscript"):
+            self._inert_depth += 1
+            return
+        if self._inert_depth:
+            return
+        attributes = dict(attrs)
+        executable_script = False
         if tag == "script":
-            self._script_chunks = []
+            script_type = (attributes.get("type") or "").strip().lower()
+            # Inline text is ignored by browsers when src is present. JSON,
+            # import maps and other script data blocks are not executable JS.
+            executable_script = ("src" not in attributes and script_type in (
+                "", "text/javascript", "application/javascript", "module"
+            ))
+            self._script_chunks = [] if executable_script else None
+        if attributes.get("data-nry-engine") == "nry-advisor-live-v1":
+            if tag != "script" or executable_script:
+                self.engine_element = True
 
     def handle_data(self, data):
-        if self._script_chunks is not None:
+        if self._script_chunks is not None and not self._inert_depth:
             self._script_chunks.append(data)
 
     def handle_endtag(self, tag):
         if tag == "script" and self._script_chunks is not None:
             self.scripts.append("".join(self._script_chunks))
             self._script_chunks = None
+        if tag in ("template", "noscript") and self._inert_depth:
+            self._inert_depth -= 1
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
