@@ -1,0 +1,42 @@
+name: Na-Ryby Checklist V1 Admin-Apply Release Contract
+on:
+  pull_request:
+    paths:
+      - 'assets/checklist-standalone.html'
+      - 'checklist-release-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-checklist-release-v1.php'
+      - '.github/workflows/checklist-v1-release-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/checklist-standalone.html'
+      - 'checklist-release-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-checklist-release-v1.php'
+      - '.github/workflows/checklist-v1-release-contract.yml'
+permissions:
+  contents: read
+jobs:
+  fail-closed-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: PHP lint and fail-closed WordPress approval contract
+        run: |
+          set -euo pipefail
+          php -l na-ryby-git-publisher.php
+          php -l checklist-release-v1.php
+          php -l tests/test-checklist-release-v1.php
+          php tests/test-checklist-release-v1.php
+      - name: Approved route returns exactly the version-bound asset
+        run: |
+          set -euo pipefail
+          php tests/test-checklist-release-v1.php serve > /tmp/checklist-served.html
+          cmp assets/checklist-standalone.html /tmp/checklist-served.html
+          grep -F 'data-nry-checklist-rc="v1"' /tmp/checklist-served.html >/dev/null
+          grep -F 'rel="canonical" href="https://na-ryby.eu/co-sbalit-na-ryby/"' /tmp/checklist-served.html >/dev/null
+          sha256sum assets/checklist-standalone.html

@@ -137,3 +137,48 @@ zůstává beze změny. **Nezaměňujte GitHub CI/merge za skutečný
 SEO snippet na webu**: po Apply je nutno ověřit veřejné Yoast
 `yoast_head_json.title` / `description` a samotné renderované meta.
 Google může ve výsledcích zobrazit upravený vlastní snippet.
+
+## V0.9 — samostatný checklist (nová URL, explicitní admin Apply)
+
+**Release candidate, not live until verified.** Product source: private
+`Rastty/prometheus-growth-os` merged PR #1085; technical handoff #1086.
+The self-contained HTML is pinned by SHA-256 **at the time of admin approval**.
+The page is served at `https://na-ryby.eu/co-sbalit-na-ryby/` only after the
+administrator approves its exact installed bytes.
+
+The publisher v0.9 adds `checklist-release-v1.php` and
+`assets/checklist-standalone.html`. There is **no WordPress post write**,
+theme change, affiliate change, homepage replacement, automatic activation
+or REST write. Existing editorial manifest and admin Apply remain unchanged.
+No new route is exposed on Git pull until explicit approval.
+
+Release checklist (technical owner only, not permission to skip gates):
+
+1. Review and merge only with all required CI green. Install/update plugin
+   through the existing **authorized** Deployer for Git path, not via
+   ad-hoc REST retries. Check plugin v0.9 is actually active.
+2. Confirm that neither WP pages nor posts own the slug
+   `co-sbalit-na-ryby`, and the installed origin is exactly
+   `https://na-ryby.eu`. The server-side preflight blocks a collision.
+3. In WordPress, open **Tools → Na-Ryby Checklist Release**
+   (`/wp-admin/tools.php?page=nry-checklist-release`). Review the displayed
+   SHA-256, absence of collision, and exact target. Administrator
+   `manage_options` + nonce must click **Apply**. No scheduled job,
+   webhook, Git merge or remote REST call may impersonate this step.
+4. The admin receipt after Apply is **approved_pending_public_readback**,
+   *not* deployed/verified. Independently request the public URL and
+   compare the `X-NRY-Checklist-Asset-SHA256` header to the approved SHA,
+   HTML marker, canonical, script integrity, and a real browser at
+   360/390/768/1280. Test storage, print, share query, keyboard and
+   accessibility. Only then issue a dated production receipt.
+5. If public verification fails, use **Rollback: vypnout checklist URL**
+   on the same admin screen; check the route is no longer served and record
+   the receipt. The rollback does not touch existing posts or affiliate links.
+
+An update to the HTML changes its SHA and **automatically fails closed**
+until rollback and a new admin Apply. Route interception is exact-path only,
+including optional share query parameters; existing URLs remain untouched.
+The response disallows network requests and external scripts via CSP and
+does not collect email or transmit fishing location. This release is separate
+from editorial batches and does not clear intermittent REST 401 issue #865.
+

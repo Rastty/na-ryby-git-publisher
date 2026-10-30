@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="Praktický seznam na rybářskou výpravu. Vyber způsob lovu, délku a dopravu, odškrtni výbavu a sdílej seznam. Bez účtu.">
+<title>Co sbalit na ryby? | Na-ryby.eu</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#173a33;background:#f2f1e8;--green:#174c40;--deep:#0b342e;--amber:#e6a55e;--line:#d8e1d7;--muted:#4d655e}
+*{box-sizing:border-box}body{margin:0;line-height:1.5}button,select{font:inherit}button{cursor:pointer}a{color:inherit}:focus-visible{outline:3px solid #ba681e;outline-offset:3px}
+.shell{max-width:1120px;margin:auto;padding:0 20px}.preview{background:#e6eadf;text-align:center;padding:9px 16px;font-size:.84rem}.header{background:#fffdf6;border-bottom:1px solid var(--line)}.nav{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:74px}.logo{font-weight:900;font-size:1.35rem;text-decoration:none}.logo span{color:#b5752c}.nav a:last-child{font-weight:700}
+.hero{background:var(--deep);color:#fff;padding:58px 0 65px}.hero-grid{display:grid;grid-template-columns:1.4fr .6fr;gap:36px;align-items:center}.eyebrow{font-size:.83rem;letter-spacing:.14em;text-transform:uppercase;color:#f3c58e;font-weight:800}.hero h1{font-size:clamp(2.2rem,5vw,4.3rem);line-height:1.08;letter-spacing:-.045em;margin:14px 0}.hero p{font-size:1.08rem;color:#d6e8de;max-width:610px}.art{border-radius:22px;min-height:195px;background:linear-gradient(155deg,#47796b 0 35%,#306255 35% 54%,#1b5148 54% 100%);position:relative;overflow:hidden;box-shadow:0 20px 50px #0003}.art:before{content:"";width:100px;height:100px;border-radius:50%;background:#e6c28d;position:absolute;right:20%;top:10%}.art:after{content:"";position:absolute;bottom:0;width:100%;height:46%;background:repeating-linear-gradient(175deg,#2f776b 0 3px,#155347 4px 14px);opacity:.8}
+main{padding:0 0 65px}.card{background:#fffefa;border:1px solid var(--line);border-radius:22px;box-shadow:0 12px 28px #16372e0a}.config{padding:25px;margin-top:-27px;position:relative}.config h2{margin:0 0 8px;font-size:1.4rem}.config p{margin:0 0 18px;color:var(--muted)}.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.field{display:grid;gap:7px;font-weight:750}.field select{width:100%;border:1px solid #9eb3a8;background:white;border-radius:11px;min-height:48px;padding:9px;color:#173a33}
+.status{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:15px;margin:31px 0 18px}.status h2{font-size:1.65rem;margin:0}.status p{margin:4px 0;color:var(--muted)}.actions{display:flex;flex-wrap:wrap;gap:9px}.action{border:1px solid #a9bdb2;background:#fffefa;color:var(--green);font-weight:800;border-radius:11px;padding:11px 15px;min-height:44px}.action.primary{background:var(--green);color:#fff;border-color:var(--green)}.action:hover{filter:brightness(.95)}.action[hidden]{display:none}
+.progress{height:10px;border-radius:20px;background:#d8e5dc;overflow:hidden;margin-bottom:20px}.progress span{display:block;height:100%;background:#3d8467;width:0;transition:width .2s}.sections{display:grid;gap:20px}.section{padding:23px}.section h3{margin:0 0 7px;font-size:1.3rem}.section-lead{font-size:.9rem;color:var(--muted);margin:0 0 16px}.items{display:grid;gap:10px}.item{border:1px solid #dfe7de;border-radius:14px;padding:15px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;background:#fff}.item.is-packed{background:#f1f8f0}.item.is-missing{background:#fff8ed;border-color:#e8d2b5}.item h4{margin:0;font-size:1.04rem}.item p{margin:4px 0 0;color:var(--muted);font-size:.89rem}.toggles{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}.check{display:inline-flex;gap:7px;align-items:center;white-space:nowrap;font-size:.9rem;font-weight:650;cursor:pointer}.check input{accent-color:#19614e;width:19px;height:19px;cursor:pointer}.check input:disabled{cursor:not-allowed}.note{border-left:4px solid #c68d4b;background:#fff9ed;border-radius:0 13px 13px 0;padding:17px 20px;margin-top:22px}.note h3{margin:0 0 6px}.note p{margin:0;color:#4e6258}.empty-state{padding:22px;background:#eef6ed;border:1px solid #a7c3af;border-radius:14px;font-weight:700;color:#194d3b}.shared-preview{margin-top:20px;padding:20px;border:2px solid #b58a53;border-radius:14px;background:#fff7e9}.shared-preview[hidden]{display:none}.shared-preview h2{margin:0 0 6px;font-size:1.2rem}.shared-preview p{margin:0 0 12px;color:#40564e}.shared-preview .actions{margin:0}.share-feedback{font-size:.92rem;color:#14553e;min-height:24px}.share-fallback{width:100%;border:1px solid #a9bdb2;padding:11px;border-radius:9px}.hidden{display:none}.footer{border-top:1px solid var(--line);padding:26px 0;color:var(--muted);font-size:.9rem}
+@media(max-width:800px){.hero-grid{grid-template-columns:1fr}.art{min-height:140px}.controls{grid-template-columns:1fr}.item{grid-template-columns:1fr}.toggles{justify-content:flex-start}.hero{padding:42px 0 57px}.section{padding:18px}}
+@media(prefers-reduced-motion:reduce){.progress span{transition:none}}
+@media print{.preview,.header,.art,.actions,.config,.share-feedback,.share-fallback{display:none!important}.hero{background:none;color:#000;padding:12px 0}.hero p,.eyebrow{color:#000}.shell{max-width:none}.card,.item{box-shadow:none;break-inside:avoid}.section{padding:12px;border:0}.status{margin:8px 0}.note{border:1px solid #aaa}}
+</style>
+<link rel="canonical" href="https://na-ryby.eu/co-sbalit-na-ryby/">
+<!-- Version-bound site-native candidate. Publication requires admin Apply and public verification. -->
+</head>
+<body>
+
+<header class="header"><div class="shell nav"><a class="logo" href="https://na-ryby.eu/">Na<span>•</span>ryby.eu</a><a href="https://na-ryby.eu/poradce-vybavy/">Poradce vybavení →</a></div></header>
+<section class="hero" aria-labelledby="hero-title"><div class="shell hero-grid"><div>
+  <div class="eyebrow">Na cestu k vodě</div><h1 id="hero-title">Co sbalit na ryby?</h1>
+  <p>Vyber, jak a na jak dlouho vyrážíš. Připravíme přehledný seznam, ve kterém označíš, co už máš a co je sbalené. Bez registrace a bez zbytečných nákupů.</p>
+</div><div class="art" role="img" aria-label="Dekorativní ilustrace vody a okolních kopců"></div></div></section>
+<main class="shell" data-nry-checklist-rc="v1">
+<section class="card config" aria-labelledby="settings-title">
+  <h2 id="settings-title">Jaká bude výprava?</h2><p>Seznam se upraví podle tvého výběru. Vše zůstává v tomto prohlížeči, dokud se nerozhodneš sdílet odkaz.</p>
+  <div class="controls">
+    <label class="field" for="method">Způsob lovu<select id="method" name="method"><option value="kaprarina">Kaprařina</option><option value="feeder">Feeder</option><option value="privlac">Přívlač</option></select></label>
+    <label class="field" for="duration">Délka výpravy<select id="duration" name="duration"><option value="den">Přes den</option><option value="noc">Přes noc</option></select></label>
+    <label class="field" for="transport">Jak se přesouváš?<select id="transport" name="transport"><option value="pesky">Pěšky</option><option value="auto">Autem</option></select></label>
+  </div>
+</section>
+<section class="shared-preview" id="shared-preview" aria-labelledby="shared-title" hidden>
+  <h2 id="shared-title">Prohlížíš sdílený seznam</h2>
+  <p>Tvůj vlastní uložený seznam se nezmění, dokud si tento výslovně nepřevezmeš. Změny ve sdíleném náhledu zůstávají jen na této stránce.</p>
+  <div class="actions"><button class="action primary" id="adopt-shared" type="button">Převzít tento seznam</button><button class="action" id="restore-own" type="button">Zpět k mému seznamu</button></div>
+</section>
+<div class="status">
+  <div><h2>Tvůj seznam</h2><p id="summary" role="status" aria-live="polite">Připravujeme položky…</p></div>
+  <div class="actions">
+    <button class="action" id="remaining" type="button" aria-pressed="false">Jen nesbalené</button>
+    <button class="action primary" id="share" type="button">Sdílet seznam</button>
+    <button class="action" id="print" type="button">Vytisknout</button>
+    <button class="action" id="reset" type="button">Vymazat označení</button>
+    <button class="action" id="undo-reset" type="button" hidden>Vrátit označení</button>
+  </div>
+</div>
+<div class="progress" role="progressbar" aria-label="Sbalená výbava" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress"><span id="progress-fill"></span></div>
+<p class="share-feedback" id="share-feedback" role="status" aria-live="polite"></p>
+<input class="share-fallback hidden" id="share-fallback" type="text" aria-label="Odkaz ke zkopírování" readonly>
+<div class="sections" id="sections"></div>
+<aside class="note" aria-labelledby="pretrip-title">
+  <h3 id="pretrip-title">Než vyrazíš: dvě důležité kontroly</h3>
+  <p>Seznam výbavy nenahrazuje platná pravidla ani kontrolu bezpečnosti. Podmínky si ověř pro konkrétní vodu a den výpravy:</p>
+  <ul>
+    <li><a href="https://www.rybsvaz.cz/seznam-reviru">Najít revír a jeho pravidla v seznamu ČRS</a> — seznam nepokrývá jiné svazy ani soukromé vody. U těch ověř pravidla přímo u správce.</li>
+    <li><a href="https://www.chmi.cz/predpoved-pocasi/rizika">Zkontrolovat aktuální výstrahy ČHMÚ</a> — sleduj také vítr, bouřky a bezpečný návrat.</li>
+  </ul>
+  <p>Tyto odkazy vedou na oficiální zdroje. Nezobrazujeme vlastní živé údaje o revírech ani počasí.</p>
+</aside>
+</main>
+<footer class="footer"><div class="shell">Na-ryby.eu · Pomáháme vyrazit připraveně. Bez účtu, bez sledování polohy a bez produktových nabídek.</div></footer>
+<script type="module">
+// Na-Ryby.eu trip checklist V1: local, privacy-preserving rules. No commerce or WP calls.
+const METHODS=['kaprarina','feeder','privlac'];
+const DURATIONS=['den','noc'];
+const TRANSPORTS=['pesky','auto'];
+const DEFAULTS=Object.freeze({method:'kaprarina',duration:'den',transport:'pesky'});
+const rows=[
+  ['povoleni','Doklady a povolení','Ověř si oprávnění k lovu a místní pravidla.','pred','all'],
+  ['pravidla','Pravidla konkrétního revíru','Před cestou ověř aktuální podmínky u správce revíru.','pred','all'],
+  ['pocasi','Předpověď a bezpečnost','Zkontroluj vítr, bouřky, teplotu a možnost bezpečného návratu.','pred','all'],
+  ['telefon','Nabitý telefon','Pro nouzový kontakt a návrat; nespoléhej jen na mobilní signál.','pred','all'],
+  ['voda','Pitná voda a jídlo','Množství uprav podle počasí a délky výpravy.','osobni','all'],
+  ['lekarnicka','Malá lékárnička','Základní ošetření drobných poranění.','osobni','all'],
+  ['odpadky','Sáček na odpad','Místo po sobě zanech čisté.','osobni','all'],
+  ['vrstvy','Vhodné oblečení a obuv','Podle terénu a aktuálního počasí.','osobni','all'],
+  ['prut','Prut a vhodný naviják','Ověř sestavu podle způsobu lovu.','vybava','all'],
+  ['vlasec','Vlasec nebo šňůra','Zkontroluj stav a návazce.','vybava','all'],
+  ['hacky','Háčky a návazce','Velikost a použití přizpůsob revíru a metodě.','vybava','all'],
+  ['podberak','Podběrák','Připrav šetrnou manipulaci s rybou.','vybava','all'],
+  ['pean','Peán nebo vhodné vyprošťovací kleště','Pro bezpečné vyproštění háčku.','vybava','all'],
+  ['krmeni','Návnada a nástrahy','Vhodné pro konkrétní způsob lovu a místní pravidla.','vybava',['kaprarina','feeder']],
+  ['podlozka','Podložka pod rybu','Zvaž podle cílových ryb a pravidel revíru.','vybava',['kaprarina']],
+  ['vidlicky','Vidličky nebo stojan','Stabilní uložení prutu podle místa.','vybava',['kaprarina','feeder']],
+  ['krmitko','Krmítka a vhodné montáže','Zkontroluj gramáž vzhledem k proudu a prutu.','vybava',['feeder']],
+  ['spicky','Náhradní feederová špička','Dobrovolná rezerva podle použitého prutu.','vybava',['feeder']],
+  ['umele','Umělé nástrahy','Zvol podle cílové ryby, vody a povolených metod.','vybava',['privlac']],
+  ['kleste','Kleště na výměnu nástrah','Pomůcka pro manipulaci s háčky.','vybava',['privlac']],
+  ['svetlo','Čelovka a náhradní zdroj','Zkontroluj světlo ještě za dne.','noc',['noc']],
+  ['teplo','Teplá záložní vrstva','V noci může být výrazně chladněji.','noc',['noc']],
+  ['odpocinek','Bezpečné místo pro odpočinek','Ověř povolení pobytu a podmínky na místě.','noc',['noc']],
+  ['batoh','Batoh nebo pohodlné přenášení','Zvaž hmotnost a délku cesty.','doprava',['pesky']],
+  ['vozidlo','Bezpečné uložení výbavy v autě','Výbava nesmí překážet při řízení.','doprava',['auto']],
+];
+const ITEMS=Object.freeze(rows.map(([id,title,note,section,when])=>Object.freeze({id,title,note,section,when})));
+const SECTIONS=Object.freeze([
+  ['pred','Před odjezdem'],['osobni','Pro sebe a bezpečí'],['vybava','K vodě'],['noc','Na noc'],['doprava','Přesun']
+]);
+const ids=new Set(ITEMS.map(x=>x.id));
+function normalizeOptions(raw={}){
+  return {
+    method:METHODS.includes(raw.method)?raw.method:DEFAULTS.method,
+    duration:DURATIONS.includes(raw.duration)?raw.duration:DEFAULTS.duration,
+    transport:TRANSPORTS.includes(raw.transport)?raw.transport:DEFAULTS.transport
+  };
+}
+function getItems(raw={}){
+  const opts=normalizeOptions(raw);
+  return ITEMS.filter(x=>x.when==='all'||x.when.includes(opts.method)||x.when.includes(opts.duration)||x.when.includes(opts.transport));
+}
+function normalizeState(raw={}){
+  const packed=Array.isArray(raw.packed)?raw.packed.filter(x=>ids.has(x)):[];
+  const missing=Array.isArray(raw.missing)?raw.missing.filter(x=>ids.has(x)):[];
+  return {packed:[...new Set(packed)].filter(x=>!missing.includes(x)),missing:[...new Set(missing)]};
+}
+function getCounts(options,state){
+  const rows=getItems(options),clean=normalizeState(state);
+  return {total:rows.length,packed:rows.filter(x=>clean.packed.includes(x.id)).length,
+    missing:rows.filter(x=>clean.missing.includes(x.id)).length};
+}
+// Share only bounded selections, never user identifiers, GPS coordinates or private trip notes.
+function encodeShare(options,state){
+  const opts=normalizeOptions(options),clean=normalizeState(state);
+  const q=new URLSearchParams({m:opts.method,d:opts.duration,t:opts.transport});
+  if(clean.packed.length)q.set('p',clean.packed.join(','));
+  if(clean.missing.length)q.set('n',clean.missing.join(','));
+  return q.toString();
+}
+function decodeShare(search=''){
+  const q=new URLSearchParams(String(search).slice(0,2048).replace(/^\?/,''));
+  const opts=normalizeOptions({method:q.get('m'),duration:q.get('d'),transport:q.get('t')});
+  const split=k=>(q.get(k)||'').slice(0,500).split(',').filter(Boolean);
+  return {options:opts,state:normalizeState({packed:split('p'),missing:split('n')})};
+}
+
+const storageKey='na-ryby-trip-checklist-v1';
+const fields=['method','duration','transport'];
+const el=id=>document.getElementById(id);
+let saved=null;
+try {saved=JSON.parse(localStorage.getItem(storageKey)||'null');} catch { /* private mode, blocked storage or invalid legacy data */ }
+// Ordinary query parameters (e.g. UTM) are not checklist shares.
+const shareParams=new URLSearchParams(location.search);
+const isSharedLink=METHODS.includes(shareParams.get('m'))&&DURATIONS.includes(shareParams.get('d'))&&TRANSPORTS.includes(shareParams.get('t'));
+const shared=isSharedLink?decodeShare(location.search):null;
+let sharedPreview=Boolean(shared);
+let options=normalizeOptions(shared?.options||saved?.options||DEFAULTS);
+let state=normalizeState(shared?.state||saved?.state||{});
+let showRemainingOnly=false;
+let resetSnapshot=null;
+// An in-flight clipboard permission request belongs only to its original list revision.
+let shareRevision=0;
+el('shared-preview').hidden=!sharedPreview;
+function hideUndo(){
+  resetSnapshot=null;
+  el('undo-reset').hidden=true;
+}
+function persist(){
+  // Opening or editing another angler's shared link must never overwrite my local list.
+  if(sharedPreview)return;
+  try {localStorage.setItem(storageKey,JSON.stringify({options,state}));} catch { /* checklist still works without storage */ }
+}
+function element(tag,cls,text){
+  const node=document.createElement(tag);
+  if(cls)node.className=cls;
+  if(text!==undefined)node.textContent=text;
+  return node;
+}
+function makeToggle(item,kind,label,checked,disabled=false){
+  const wrapper=element('label','check');
+  const box=element('input');
+  box.type='checkbox';box.dataset.id=item.id;box.dataset.kind=kind;box.checked=checked;box.disabled=disabled;
+  // Every repeated checkbox must identify its own gear item for screen-reader users.
+  box.setAttribute('aria-label',label+': '+item.title);
+  wrapper.append(box,document.createTextNode(label));
+  return wrapper;
+}
+function clearSharedLink(){
+  // A previously generated fallback URL must never be copied after the list changes.
+  const fallback=el('share-fallback');
+  fallback.value='';
+  fallback.classList.add('hidden');
+}
+function render({focusId=null,focusKind=null,focusIndex=-1}={}){
+  shareRevision++;
+  clearSharedLink();
+  for(const key of fields)el(key).value=options[key];
+  const root=el('sections');root.replaceChildren();
+  const all=getItems(options),packed=new Set(state.packed),missing=new Set(state.missing);
+  const visible=showRemainingOnly?all.filter(item=>!packed.has(item.id)):all;
+  for(const [key,title] of SECTIONS){
+    const items=visible.filter(x=>x.section===key);
+    if(!items.length)continue;
+    const section=element('section','card section');
+    const heading=element('h3','',title);
+    const list=element('div','items');
+    for(const item of items){
+      const row=element('div','item'+(packed.has(item.id)?' is-packed':'')+(missing.has(item.id)?' is-missing':''));
+      const copy=element('div');copy.append(element('h4','',item.title),element('p','',item.note));
+      const toggles=element('div','toggles');
+      toggles.append(makeToggle(item,'owned','Mám doma',!missing.has(item.id)),makeToggle(item,'packed','Sbaleno',packed.has(item.id),missing.has(item.id)));
+      row.append(copy,toggles);list.append(row);
+    }
+    section.append(heading,list);root.append(section);
+  }
+  if(showRemainingOnly&&!visible.length){
+    root.append(element('p','empty-state','Všechno máš sbalené. Před odjezdem ještě ověř počasí a pravidla revíru.'));
+  }
+  // Replacing all rows must not discard keyboard focus after a checkbox change.
+  if(focusId&&focusKind){
+    const target=root.querySelector('input[data-id="'+focusId+'"][data-kind="'+focusKind+'"]');
+    // In "Jen nesbalené", checking an item removes its row. Keep focus on
+    // the nearest remaining unpacked checkbox instead of jumping to the toolbar.
+    const next=showRemainingOnly&&focusIndex>=0
+      ? (visible.slice(focusIndex).find(x=>!missing.has(x.id))
+        ||visible.slice(0,focusIndex).reverse().find(x=>!missing.has(x.id)))
+      : null;
+    const nextToggle=next?root.querySelector('input[data-id="'+next.id+'"][data-kind="packed"]'):null;
+    (target||nextToggle||el('remaining')).focus({preventScroll:true});
+  }
+  const c=getCounts(options,state),percentage=c.total?Math.round(c.packed/c.total*100):0;
+  el('summary').textContent=c.packed+' z '+c.total+' položek sbaleno · '+c.missing+' zatím nemáš doma.';
+  el('progress').setAttribute('aria-valuenow',String(percentage));
+  el('progress-fill').style.width=percentage+'%';
+  persist();
+}
+for(const key of fields)el(key).addEventListener('change',()=>{
+  hideUndo();
+  options=normalizeOptions(Object.fromEntries(fields.map(k=>[k,el(k).value])));
+  el('share-feedback').textContent='';render();
+});
+el('sections').addEventListener('change',event=>{
+  const input=event.target;
+  if(!(input instanceof HTMLInputElement)||!input.dataset.id)return;
+  hideUndo();
+  el('share-feedback').textContent='';
+  const id=input.dataset.id,kind=input.dataset.kind;
+  const before=getItems(options).filter(x=>!showRemainingOnly||!state.packed.includes(x.id));
+  const focusIndex=before.findIndex(x=>x.id===id);
+  const packed=new Set(state.packed),missing=new Set(state.missing);
+  if(kind==='owned'){
+    if(input.checked)missing.delete(id);else {missing.add(id);packed.delete(id);}
+  }else if(kind==='packed'&&!missing.has(id)){
+    if(input.checked)packed.add(id);else packed.delete(id);
+  }
+  state=normalizeState({packed:[...packed],missing:[...missing]});render({focusId:id,focusKind:kind,focusIndex});
+});
+el('remaining').addEventListener('click',()=>{
+  el('share-feedback').textContent='';
+  showRemainingOnly=!showRemainingOnly;
+  el('remaining').setAttribute('aria-pressed',String(showRemainingOnly));
+  render();
+});
+el('reset').addEventListener('click',()=>{
+  const clean=normalizeState(state);
+  if(!clean.packed.length&&!clean.missing.length){
+    el('share-feedback').textContent='Seznam už nemá žádné označení.';
+    return;
+  }
+  // Keep a one-step, in-memory undo for accidental resets; no remote storage.
+  resetSnapshot={options:{...options},state:clean};
+  state=normalizeState();
+  el('undo-reset').hidden=false;
+  el('share-feedback').textContent='Označení bylo vymazáno. Můžeš je vrátit.';
+  render();
+});
+el('undo-reset').addEventListener('click',()=>{
+  if(!resetSnapshot)return;
+  options=normalizeOptions(resetSnapshot.options);
+  state=normalizeState(resetSnapshot.state);
+  hideUndo();
+  el('share-feedback').textContent='Předchozí označení bylo obnoveno.';
+  render();
+});
+function closeSharedPreview(){
+  sharedPreview=false;
+  el('shared-preview').hidden=true;
+  hideUndo();
+  // A reload must not silently re-import the old shared query parameters.
+  history.replaceState(null,'',location.pathname+location.hash);
+}
+el('adopt-shared').addEventListener('click',()=>{
+  closeSharedPreview();
+  clearSharedLink();
+  persist();
+  el('share-feedback').textContent='Sdílený seznam je teď uložený jako tvůj vlastní.';
+});
+el('restore-own').addEventListener('click',()=>{
+  closeSharedPreview();
+  options=normalizeOptions(saved?.options||DEFAULTS);
+  state=normalizeState(saved?.state||{});
+  showRemainingOnly=false;
+  el('remaining').setAttribute('aria-pressed','false');
+  render();
+  el('share-feedback').textContent='Tvůj původní seznam je zpět.';
+});
+el('print').addEventListener('click',()=>window.print());
+el('share').addEventListener('click',async()=>{
+  const requestedRevision=++shareRevision;
+  const url=location.origin+location.pathname+'?'+encodeShare(options,state);
+  try{
+    if(!navigator.clipboard?.writeText)throw Error('clipboard_unavailable');
+    await navigator.clipboard.writeText(url);
+    if(requestedRevision!==shareRevision)return; // The list or a newer share request changed.
+    el('share-feedback').textContent='Odkaz na tento seznam je zkopírovaný.';
+    el('share-fallback').classList.add('hidden');
+  }catch{
+    if(requestedRevision!==shareRevision)return; // Never show an obsolete fallback URL.
+    const field=el('share-fallback');field.value=url;field.classList.remove('hidden');field.focus();field.select();
+    el('share-feedback').textContent='Zkopíruj označený odkaz. Obsahuje pouze nastavení a zaškrtnuté položky.';
+  }
+});
+render();
+</script>
+</body>
+</html>
