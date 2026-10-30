@@ -104,7 +104,10 @@ def fetch_public(url, limit):
                     "content_type": response.headers.get("Content-Type", ""),
                     "body": response.read(limit + 1)}
     except urllib.error.HTTPError as exc:
-        return {"status": exc.code, "url": url, "content_type": "",
+        # Preserve only the public MIME hint, never challenge bodies, cookies
+        # or headers containing identifiers. This is not WAF root-cause proof.
+        return {"status": exc.code, "url": url,
+                "content_type": exc.headers.get("Content-Type", "") if exc.headers else "",
                 "body": b""}
     except (urllib.error.URLError, TimeoutError, OSError):
         return {"status": 0, "url": url, "content_type": "", "body": b""}
@@ -116,9 +119,36 @@ def readable(response, url, mime, limit):
             and len(response.get("body", b"")) <= limit)
 
 
+def reader_diagnostic(response, url, mime, limit):
+    """Sanitized HTTP/MIME hint for investigating intermittent public 401s.
+
+    An HTML 401 may originate at an edge, security plugin or WordPress;
+    a JSON 401 may be an application REST error. Neither proves a cause.
+    No response bodies, server names, request identifiers or cookies leak.
+    """
+    status = response.get("status", 0)
+    content_type = response.get("content_type", "").lower()
+    if status == 0:
+        return "NETWORK_OR_TIMEOUT"
+    if status != 200:
+        family = ("JSON" if content_type.startswith("application/json")
+                  else "HTML" if content_type.startswith("text/html")
+                  else "OTHER_OR_UNKNOWN")
+        return f"HTTP_{status}_{family}_RESPONSE"
+    if response.get("url") != url:
+        return "UNEXPECTED_FINAL_URL"
+    if not content_type.startswith(mime):
+        return "UNEXPECTED_CONTENT_TYPE"
+    if len(response.get("body", b"")) > limit:
+        return "OVERSIZED_BODY"
+    return "NONE"
+
+
 def audit_rest(response):
     result = {"http_status": response.get("status", 0),
-              "state": "READER_UNAVAILABLE", "modified_gmt": None}
+              "state": "READER_UNAVAILABLE", "modified_gmt": None,
+              "reader_diagnostic": reader_diagnostic(
+                  response, REST_URL, "application/json", MAX_REST_BYTES)}
     if not readable(response, REST_URL, "application/json", MAX_REST_BYTES):
         return result
     try:
@@ -126,6 +156,7 @@ def audit_rest(response):
         if not isinstance(page, dict):
             raise ValueError("not an object")
     except (ValueError, UnicodeDecodeError):
+        result["reader_diagnostic"] = "MALFORMED_JSON_200"
         return result
     result["modified_gmt"] = page.get("modified_gmt")
     if (page.get("id") == 119865 and page.get("slug") == "poradce-vybavy"
@@ -163,7 +194,10 @@ def valid_cj_route(value):
 def audit_html(response):
     result = {
         "http_status": response.get("status", 0),
-        "state": "READER_UNAVAILABLE", "marker_present": False,
+        "state": "READER_UNAVAILABLE",
+        "reader_diagnostic": reader_diagnostic(
+            response, PUBLIC_URL, "text/html", MAX_HTML_BYTES),
+        "marker_present": False,
         "missing_event_tokens": list(EXPECTED_EVENTS),
         "cj_route_count": None, "cj_route_shape_ok": False,
         "price_expiry_policy_present": False,
@@ -227,6 +261,7 @@ def build_report(rest_response, html_response, checked_at):
             "CJ URL shape does not prove final merchant redirect, stock or commission.",
             "Expired 2026-10-21 price snapshot needs runtime browser check.",
             "A 401/503 reader failure is not evidence that the page is unpublished.",
+            "Error MIME class is only a diagnostic hint, not proof of WAF or WP root cause.",
         ],
     }
 
