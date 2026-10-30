@@ -35,7 +35,7 @@ jobs:
           php -l tests/test-checklist-release-v1.php
           php tests/test-checklist-release-v1.php
       - name: Offline public readback fail-closed regressions
-        run: python3 -m unittest discover -s tests -p 'test-checklist-public-readback.py' -v
+        run: python3 tests/test-checklist-public-readback.py -v
       - name: Approved route returns exactly the version-bound asset
         run: |
           set -euo pipefail
