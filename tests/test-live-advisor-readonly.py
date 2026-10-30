@@ -89,6 +89,30 @@ class AdvisorAuditTests(unittest.TestCase):
             "www.chytapust.cz", "www.other-shop.cz"
         )))
 
+    def test_event_name_substring_does_not_certify_actual_token(self):
+        page = html()
+        page["body"] = page["body"].replace(
+            b"nry_advisor_product_click",
+            b"nry_advisor_product_click_disabled"
+        ).replace(
+            b"nry_advisor_result", b"legacy_nry_advisor_result"
+        )
+        result = audit_html(page)
+        self.assertIn("nry_advisor_product_click", result["missing_event_tokens"])
+        self.assertIn("nry_advisor_result", result["missing_event_tokens"])
+        self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
+
+    def test_multiple_affiliate_maps_fail_closed(self):
+        page = html()
+        page["body"] += (
+            b'<script>const AFFILIATE_LINKS = Object.freeze('
+            + json.dumps(routes()).encode("utf-8") + b');</script>'
+        )
+        result = audit_html(page)
+        self.assertIsNone(result["cj_route_count"])
+        self.assertFalse(result["cj_route_shape_ok"])
+        self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
+
     def test_missing_funnel_token_fails_without_inventing_ga4_counts(self):
         page = html()
         page["body"] = page["body"].replace(b"nry_advisor_product_click", b"removed")
