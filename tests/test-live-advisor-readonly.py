@@ -92,6 +92,42 @@ class AdvisorAuditTests(unittest.TestCase):
         self.assertIn("nry_advisor_product_click", result["missing_event_tokens"])
         self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
 
+    def test_commented_out_javascript_cannot_fake_live_advisor(self):
+        source = html()["body"].decode("utf-8").replace(
+            "<!-- nry-advisor-live-v1 -->", ""
+        )
+        page = html()
+        page["body"] = (
+            '<!-- nry-advisor-live-v1 -->'
+            '<div data-nry-engine="nry-advisor-live-v1"></div>'
+            '<!-- ' + source + ' -->'
+        ).encode("utf-8")
+        result = audit_html(page)
+        self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
+        self.assertFalse(result["price_expiry_policy_present"])
+        self.assertEqual(result["cj_route_count"], None)
+        self.assertEqual(result["missing_event_tokens"], list(EXPECTED_EVENTS))
+
+    def test_comment_text_cannot_fake_engine_element(self):
+        page = html()
+        page["body"] = page["body"].replace(
+            b'data-nry-engine="nry-advisor-live-v1"',
+            b'data-inert-engine="nry-advisor-live-v1"'
+        ) + b'<!-- data-nry-engine="nry-advisor-live-v1" -->'
+        self.assertFalse(audit_html(page)["marker_present"])
+        self.assertEqual(audit_html(page)["state"], "PUBLIC_STRUCTURE_DRIFT")
+
+    def test_plain_html_event_tokens_are_not_executable_wiring(self):
+        page = html()
+        tokens = ";".join(EXPECTED_EVENTS).encode("utf-8")
+        page["body"] = page["body"].replace(
+            b"<script>" + tokens + b"</script>",
+            b"<p>" + tokens + b"</p>"
+        )
+        result = audit_html(page)
+        self.assertEqual(result["missing_event_tokens"], list(EXPECTED_EVENTS))
+        self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
+
     def test_price_expiry_change_fails(self):
         page = html()
         page["body"] = page["body"].replace(

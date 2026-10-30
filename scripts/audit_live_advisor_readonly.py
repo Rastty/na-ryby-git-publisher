@@ -13,6 +13,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 from pathlib import Path
 
 PUBLIC_URL = "https://na-ryby.eu/poradce-vybavy/"
@@ -32,6 +33,41 @@ PRICE_EXPIRY = "const PRICE_VISIBLE_UNTIL='2026-10-21T00:00:00Z'"
 MAP_PATTERN = re.compile(
     r"const AFFILIATE_LINKS\s*=\s*Object\.freeze\((\{[^\n]+\})\);"
 )
+
+
+class AdvisorMarkupParser(HTMLParser):
+    """Collect only executable inline script text and real HTML markers.
+
+    Text in HTML comments, ordinary page copy or attribute strings cannot
+    independently certify advisor JS wiring. This is static source QA only.
+    """
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.marker_comment = False
+        self.engine_element = False
+        self.scripts = []
+        self._script_chunks = None
+
+    def handle_comment(self, data):
+        if data.strip() == "nry-advisor-live-v1":
+            self.marker_comment = True
+
+    def handle_starttag(self, tag, attrs):
+        if any(k == "data-nry-engine" and v == "nry-advisor-live-v1"
+               for k, v in attrs):
+            self.engine_element = True
+        if tag == "script":
+            self._script_chunks = []
+
+    def handle_data(self, data):
+        if self._script_chunks is not None:
+            self._script_chunks.append(data)
+
+    def handle_endtag(self, tag):
+        if tag == "script" and self._script_chunks is not None:
+            self.scripts.append("".join(self._script_chunks))
+            self._script_chunks = None
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -122,14 +158,15 @@ def audit_html(response):
     if not readable(response, PUBLIC_URL, "text/html", MAX_HTML_BYTES):
         return result
     html = response["body"].decode("utf-8", "replace")
-    result["marker_present"] = (
-        "<!-- nry-advisor-live-v1 -->" in html
-        and 'data-nry-engine="nry-advisor-live-v1"' in html
-    )
+    parser = AdvisorMarkupParser()
+    parser.feed(html)
+    parser.close()
+    inline_js = "\n".join(parser.scripts)
+    result["marker_present"] = parser.marker_comment and parser.engine_element
     result["missing_event_tokens"] = [name for name in EXPECTED_EVENTS
-                                      if name not in html]
-    result["price_expiry_policy_present"] = PRICE_EXPIRY in html
-    match = MAP_PATTERN.search(html)
+                                      if name not in inline_js]
+    result["price_expiry_policy_present"] = PRICE_EXPIRY in inline_js
+    match = MAP_PATTERN.search(inline_js)
     if match:
         try:
             mapping = json.loads(match.group(1))
