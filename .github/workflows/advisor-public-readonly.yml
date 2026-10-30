@@ -57,7 +57,7 @@ jobs:
           else:
               lines.append('Audit artifact missing: execution failed before receipt')
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
-              summary.write('\\n\\n'.join(lines) + '\\n')
+              summary.write('\n\n'.join(lines) + '\n')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
