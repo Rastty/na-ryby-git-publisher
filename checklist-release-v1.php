@@ -38,10 +38,21 @@ final class NRY_Checklist_Release_V1 {
     public static function collision() {
         // Never shadow a real WordPress page, post, attachment or other content.
         if (get_page_by_path(self::SLUG, OBJECT, 'page')) { return true; }
+        // WordPress 'any' excludes attachments and some non-public types;
+        // status 'any' also excludes trash and auto-drafts. Check registered
+        // types/statuses explicitly so an approved tool never shadows content
+        // that already owns this slug (including private and inherited items).
+        $types = array_values(get_post_types(array(), 'names'));
+        $statuses = array_values(get_post_stati(array(), 'names'));
+        if (!$types || !$statuses) { return true; } // fail closed
         $posts = get_posts(array(
-            'name' => self::SLUG, 'post_type' => 'any',
-            'post_status' => 'any', 'numberposts' => 1,
-            'suppress_filters' => false,
+            'name' => self::SLUG,
+            'post_type' => $types,
+            'post_status' => $statuses,
+            'numberposts' => 1,
+            'fields' => 'ids',
+            'no_found_rows' => true,
+            'suppress_filters' => true,
         ));
         return !empty($posts);
     }
