@@ -217,7 +217,7 @@ def audit_html(response):
     # e.g. nry_advisor_product_click_disabled, as the expected event token.
     result["missing_event_tokens"] = [
         name for name in EXPECTED_EVENTS
-        if not re.search(r"(?<![\\w$])" + re.escape(name) + r"(?![\\w$])",
+        if not re.search(r"(?<![\w$])" + re.escape(name) + r"(?![\w$])",
                          inline_js)
     ]
     result["price_expiry_policy_present"] = PRICE_EXPIRY in inline_js
