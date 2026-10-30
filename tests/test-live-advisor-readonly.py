@@ -3,13 +3,17 @@
 import json
 import sys
 import unittest
+from io import BytesIO
+from unittest.mock import patch
+from urllib.error import HTTPError
 from pathlib import Path
 from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from audit_live_advisor_readonly import (
     EXPECTED_EVENTS, PUBLIC_URL, REST_URL,
-    audit_html, audit_rest, build_report, valid_cj_route,
+    MAX_REST_BYTES, audit_html, audit_rest, build_report, fetch_public,
+    valid_cj_route,
 )
 
 
@@ -186,6 +190,40 @@ class AdvisorAuditTests(unittest.TestCase):
             self.assertEqual(build_report(
                 rest(), response(PUBLIC_URL, b"", "text/html", code), "t"
             )["state"], "READER_UNAVAILABLE")
+
+    def test_http_401_diagnostic_distinguishes_public_mime_without_waf_claim(self):
+        json_error = response(REST_URL, b"", "application/json", 401)
+        html_error = response(REST_URL, b"", "text/html", 401)
+        self.assertEqual(audit_rest(json_error)["reader_diagnostic"],
+                         "HTTP_401_JSON_RESPONSE")
+        self.assertEqual(audit_rest(html_error)["reader_diagnostic"],
+                         "HTTP_401_HTML_RESPONSE")
+        self.assertEqual(audit_html(response(
+            PUBLIC_URL, b"", "text/html", 503))["reader_diagnostic"],
+            "HTTP_503_HTML_RESPONSE")
+        self.assertEqual(audit_rest(response(
+            REST_URL, b"", "", 0))["reader_diagnostic"], "NETWORK_OR_TIMEOUT")
+        self.assertEqual(build_report(
+            html_error, html(), "2026-10-30T22:00:00Z")["state"],
+            "READER_UNAVAILABLE")
+
+    def test_http_error_preserves_only_content_type_for_safe_diagnostics(self):
+        error = HTTPError(REST_URL, 401, "Unauthorized",
+                          {"Content-Type": "text/html; charset=UTF-8",
+                           "Set-Cookie": "sensitive=value"},
+                          BytesIO(b"<html>challenge</html>"))
+        with patch("audit_live_advisor_readonly.urllib.request.build_opener") as opener:
+            opener.return_value.open.side_effect = error
+            fetched = fetch_public(REST_URL, MAX_REST_BYTES)
+        self.assertEqual(fetched["status"], 401)
+        self.assertEqual(fetched["content_type"], "text/html; charset=UTF-8")
+        self.assertEqual(fetched["body"], b"")
+        self.assertNotIn("Set-Cookie", fetched)
+
+    def test_malformed_200_json_is_not_reported_as_wordpress_identity(self):
+        result = audit_rest(response(REST_URL, "{bad", "application/json"))
+        self.assertEqual(result["state"], "READER_UNAVAILABLE")
+        self.assertEqual(result["reader_diagnostic"], "MALFORMED_JSON_200")
 
     def test_redirect_is_never_treated_as_public_success(self):
         page = html()

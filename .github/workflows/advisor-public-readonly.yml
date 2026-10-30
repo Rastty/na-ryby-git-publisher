@@ -51,7 +51,9 @@ jobs:
                   f"Checked (UTC): {report['checked_at_utc']}",
                   f"Overall: {report['state']}",
                   f"Public REST: {report['rest']['state']}",
+                  f"REST reader diagnostic: {report['rest']['reader_diagnostic']}",
                   f"Public HTML: {report['html']['state']}",
+                  f"HTML reader diagnostic: {report['html']['reader_diagnostic']}",
                   'Browser price hiding, GA4 receipt, CJ sales: UNKNOWN',
               ])
           else:
