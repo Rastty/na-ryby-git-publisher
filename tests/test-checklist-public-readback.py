@@ -14,7 +14,10 @@ HEADERS = {
     "Content-Type": "text/html; charset=UTF-8",
     "X-NRY-Checklist-Asset-SHA256": hashlib.sha256(BODY).hexdigest(),
     "Cache-Control": "no-store",
-    "Content-Security-Policy": "default-src 'none'; connect-src 'none'; form-action 'none'",
+    "Content-Security-Policy": ("default-src 'none'; script-src 'unsafe-inline'; "
+                                "style-src 'unsafe-inline'; img-src data:; "
+                                "connect-src 'none'; base-uri 'none'; "
+                                "form-action 'none'; frame-ancestors 'none'"),
     "X-Content-Type-Options": "nosniff",
 }
 
@@ -39,6 +42,36 @@ class PublicReadbackContract(unittest.TestCase):
                       verify_response(200, "https://elsewhere.invalid/", HEADERS, BODY, BODY))
         self.assertIn("http_status_not_200",
                       verify_response(302, URL, HEADERS, BODY, BODY))
+
+    def test_broadened_connect_src_is_rejected(self):
+        # 'none' combined with another source does not block connections.
+        headers = dict(HEADERS)
+        headers["Content-Security-Policy"] = HEADERS["Content-Security-Policy"].replace(
+            "connect-src 'none'", "connect-src 'none' https:"
+        )
+        self.assertIn("restrictive_csp_missing",
+                      verify_response(200, URL, headers, BODY, BODY))
+
+    def test_duplicate_or_broadened_script_src_is_rejected(self):
+        for suffix in ("; script-src https:", "; connect-src https:"):
+            headers = dict(HEADERS)
+            headers["Content-Security-Policy"] += suffix
+            self.assertIn("restrictive_csp_missing",
+                          verify_response(200, URL, headers, BODY, BODY))
+        headers = dict(HEADERS)
+        headers["Content-Security-Policy"] = headers["Content-Security-Policy"].replace(
+            "script-src 'unsafe-inline'", "script-src 'unsafe-inline' https:"
+        )
+        self.assertIn("restrictive_csp_missing",
+                      verify_response(200, URL, headers, BODY, BODY))
+
+    def test_missing_frame_ancestors_is_rejected(self):
+        headers = dict(HEADERS)
+        headers["Content-Security-Policy"] = headers["Content-Security-Policy"].replace(
+            "; frame-ancestors 'none'", ""
+        )
+        self.assertIn("restrictive_csp_missing",
+                      verify_response(200, URL, headers, BODY, BODY))
 
     def test_missing_security_and_cache_headers_fail(self):
         headers = dict(HEADERS)

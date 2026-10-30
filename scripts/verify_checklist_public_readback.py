@@ -36,8 +36,31 @@ def verify_response(status, final_url, headers, body, expected):
         errors.append("approval_sha_header_missing_or_wrong")
     if "no-store" not in h.get("cache-control", "").lower():
         errors.append("cache_no_store_missing")
+    # Exact allowlist, not substring matching: "connect-src 'none' https:"
+    # contains the old check's text but permits outbound connections in CSP.
+    # Duplicate directives or added sources are likewise rejected.
     csp = h.get("content-security-policy", "").lower()
-    if not all(rule in csp for rule in ("default-src 'none'", "connect-src 'none'", "form-action 'none'")):
+    expected_csp = {
+        "default-src": ("'none'",),
+        "script-src": ("'unsafe-inline'",),
+        "style-src": ("'unsafe-inline'",),
+        "img-src": ("data:",),
+        "connect-src": ("'none'",),
+        "base-uri": ("'none'",),
+        "form-action": ("'none'",),
+        "frame-ancestors": ("'none'",),
+    }
+    actual_csp = {}
+    valid_csp = True
+    for directive in csp.split(";"):
+        tokens = directive.split()
+        if not tokens:
+            continue
+        if tokens[0] in actual_csp:
+            valid_csp = False
+            break
+        actual_csp[tokens[0]] = tuple(tokens[1:])
+    if not valid_csp or actual_csp != expected_csp:
         errors.append("restrictive_csp_missing")
     if h.get("x-content-type-options", "").lower() != "nosniff":
         errors.append("nosniff_missing")
