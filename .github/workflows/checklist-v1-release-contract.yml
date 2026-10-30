@@ -6,6 +6,8 @@ on:
       - 'checklist-release-v1.php'
       - 'na-ryby-git-publisher.php'
       - 'tests/test-checklist-release-v1.php'
+      - 'tests/test-checklist-public-readback.py'
+      - 'scripts/verify_checklist_public_readback.py'
       - '.github/workflows/checklist-v1-release-contract.yml'
   push:
     branches: [main]
@@ -32,6 +34,8 @@ jobs:
           php -l checklist-release-v1.php
           php -l tests/test-checklist-release-v1.php
           php tests/test-checklist-release-v1.php
+      - name: Offline public readback fail-closed regressions
+        run: python3 -m unittest discover -s tests -p 'test-checklist-public-readback.py' -v
       - name: Approved route returns exactly the version-bound asset
         run: |
           set -euo pipefail
