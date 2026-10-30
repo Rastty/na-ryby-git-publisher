@@ -6,6 +6,7 @@ $GLOBALS['nry_test_options'] = array();
 $GLOBALS['nry_test_origin'] = 'https://na-ryby.eu/';
 $GLOBALS['nry_test_collision'] = false;
 function add_action() {}
+function status_header($status) { if ($status !== 200) { throw new RuntimeException('Wrong HTTP status'); } }
 function home_url($path = '/') { return $GLOBALS['nry_test_origin']; }
 function get_page_by_path() { return $GLOBALS['nry_test_collision'] ? (object) array('ID' => 123) : null; }
 function get_posts() { return $GLOBALS['nry_test_collision'] ? array((object) array('ID' => 123)) : array(); }
