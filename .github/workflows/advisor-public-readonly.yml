@@ -1,0 +1,42 @@
+name: Na-Ryby Advisor Public Read-only Audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_live_advisor_readonly.py'
+      - 'tests/test-live-advisor-readonly.py'
+      - '.github/workflows/advisor-public-readonly.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/audit_live_advisor_readonly.py'
+      - 'tests/test-live-advisor-readonly.py'
+      - '.github/workflows/advisor-public-readonly.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax and offline fail-closed tests (no production traffic)
+        run: |
+          python3 -m py_compile scripts/audit_live_advisor_readonly.py
+          python3 tests/test-live-advisor-readonly.py -v
+  live-readonly:
+    if: github.event_name == 'workflow_dispatch'
+    needs: offline-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Independent public HTML + REST readback, no WP credentials or writes
+        run: python3 scripts/audit_live_advisor_readonly.py --output advisor-live-audit-result.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: na-ryby-advisor-public-readonly
+          path: advisor-live-audit-result.json
+          if-no-files-found: warn
+          retention-days: 7
