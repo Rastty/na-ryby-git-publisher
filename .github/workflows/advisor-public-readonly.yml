@@ -23,7 +23,7 @@ jobs:
       - name: Python syntax and offline fail-closed tests (no production traffic)
         run: |
           python3 -m py_compile scripts/audit_live_advisor_readonly.py
-          python3 -m unittest discover -s tests -p 'test-live-advisor-readonly.py' -v
+          python3 tests/test-live-advisor-readonly.py -v
   live-readonly:
     if: github.event_name == 'workflow_dispatch'
     needs: offline-contract
