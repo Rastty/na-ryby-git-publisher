@@ -12,6 +12,9 @@ on:
       - 'tests/test-live-advisor-readonly.py'
       - '.github/workflows/advisor-public-readonly.yml'
   workflow_dispatch:
+  # UTC; four bounded public GET-only audits per day, independent of PR activity.
+  schedule:
+    - cron: '17 2,8,14,20 * * *'
 permissions:
   contents: read
 jobs:
@@ -25,7 +28,7 @@ jobs:
           python3 -m py_compile scripts/audit_live_advisor_readonly.py
           python3 tests/test-live-advisor-readonly.py -v
   live-readonly:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     needs: offline-contract
     runs-on: ubuntu-latest
     timeout-minutes: 4
@@ -33,6 +36,29 @@ jobs:
       - uses: actions/checkout@v4
       - name: Independent public HTML + REST readback, no WP credentials or writes
         run: python3 scripts/audit_live_advisor_readonly.py --output advisor-live-audit-result.json
+      - name: Public evidence summary (no claims of GA4 or CJ conversions)
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          path = Path('advisor-live-audit-result.json')
+          lines = ['## Na-Ryby public advisor read-only audit', 'WordPress writes: 0']
+          if path.exists():
+              report = json.loads(path.read_text(encoding='utf-8'))
+              lines.extend([
+                  f"Checked (UTC): {report['checked_at_utc']}",
+                  f"Overall: {report['state']}",
+                  f"Public REST: {report['rest']['state']}",
+                  f"Public HTML: {report['html']['state']}",
+                  'Browser price hiding, GA4 receipt, CJ sales: UNKNOWN',
+              ])
+          else:
+              lines.append('Audit artifact missing: execution failed before receipt')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
+              summary.write('\n\n'.join(lines) + '\n')
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
