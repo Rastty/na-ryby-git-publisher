@@ -213,13 +213,20 @@ def audit_html(response):
     parser.close()
     inline_js = "\n".join(parser.scripts)
     result["marker_present"] = parser.marker_comment and parser.engine_element
-    result["missing_event_tokens"] = [name for name in EXPECTED_EVENTS
-                                      if name not in inline_js]
+    # Substring matching incorrectly accepted suffixed/prefixed identifiers,
+    # e.g. nry_advisor_product_click_disabled, as the expected event token.
+    result["missing_event_tokens"] = [
+        name for name in EXPECTED_EVENTS
+        if not re.search(r"(?<![\\w$])" + re.escape(name) + r"(?![\\w$])",
+                         inline_js)
+    ]
     result["price_expiry_policy_present"] = PRICE_EXPIRY in inline_js
-    match = MAP_PATTERN.search(inline_js)
-    if match:
+    # A second declaration can shadow or break the first; do not certify the
+    # first apparently valid map while ignoring another map in the page.
+    maps = MAP_PATTERN.findall(inline_js)
+    if len(maps) == 1:
         try:
-            mapping = json.loads(match.group(1))
+            mapping = json.loads(maps[0])
             if isinstance(mapping, dict):
                 routes = list(mapping.values())
                 result["cj_route_count"] = len(routes)
