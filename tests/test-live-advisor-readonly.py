@@ -128,6 +128,41 @@ class AdvisorAuditTests(unittest.TestCase):
         self.assertEqual(result["missing_event_tokens"], list(EXPECTED_EVENTS))
         self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
 
+    def test_non_executable_json_script_cannot_certify_live_wiring(self):
+        page = html()
+        page["body"] = page["body"].replace(
+            b'<script data-nry-engine="nry-advisor-live-v1">',
+            b'<script type="application/json" data-nry-engine="nry-advisor-live-v1">'
+        ).replace(
+            b"<script>" + ";".join(EXPECTED_EVENTS).encode("utf-8") + b"</script>",
+            b'<script type="application/ld+json">' +
+            ";".join(EXPECTED_EVENTS).encode("utf-8") + b"</script>"
+        )
+        result = audit_html(page)
+        self.assertFalse(result["marker_present"])
+        self.assertFalse(result["price_expiry_policy_present"])
+        self.assertIsNone(result["cj_route_count"])
+        self.assertEqual(result["missing_event_tokens"], list(EXPECTED_EVENTS))
+
+    def test_external_src_disables_ignored_inline_script(self):
+        page = html()
+        page["body"] = page["body"].replace(
+            b'<script data-nry-engine="nry-advisor-live-v1">',
+            b'<script src="https://example.invalid/a.js" data-nry-engine="nry-advisor-live-v1">'
+        )
+        result = audit_html(page)
+        self.assertFalse(result["marker_present"])
+        self.assertFalse(result["price_expiry_policy_present"])
+        self.assertIsNone(result["cj_route_count"])
+
+    def test_inert_template_cannot_impersonate_public_advisor(self):
+        page = html()
+        page["body"] = b"<template>" + page["body"] + b"</template>"
+        result = audit_html(page)
+        self.assertFalse(result["marker_present"])
+        self.assertEqual(result["missing_event_tokens"], list(EXPECTED_EVENTS))
+        self.assertIsNone(result["cj_route_count"])
+
     def test_price_expiry_change_fails(self):
         page = html()
         page["body"] = page["body"].replace(
