@@ -141,6 +141,11 @@ def classify(snapshot, now):
     # when another request was blocked: do not mask that concrete evidence.
     if type(snapshot.get("blocked_dynamic_get")) is not int or snapshot["blocked_dynamic_get"] != 0:
         return "RUNTIME_UNVERIFIABLE"
+    # Synthetic form submissions must never create a network request, even
+    # one disguised as a versioned first-party static asset. A blocked
+    # dependency means the runtime cannot be certified as safe.
+    if type(snapshot.get("blocked_synthetic_requests")) is not int or snapshot["blocked_synthetic_requests"] != 0:
+        return "RUNTIME_UNVERIFIABLE"
     # Synthetic form submissions must exercise the local event wiring without
     # sending events to GA4. These counters are NOT measured GA4 deliveries.
     funnel = snapshot.get("synthetic_funnel_events")
@@ -158,7 +163,7 @@ def classify(snapshot, now):
 def inspect_browser():
     from playwright.sync_api import sync_playwright
 
-    blocked = {"third_party": 0, "non_get": 0, "dynamic_get": 0}
+    blocked = {"third_party": 0, "non_get": 0, "dynamic_get": 0, "synthetic_requests": 0}
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
         try:
@@ -188,8 +193,15 @@ def inspect_browser():
                 writable: false, configurable: false
               });
             })();""")
+            synthetic_phase = False
             def guard(route):
                 request = route.request
+                # Initial page assets may load; synthetic form submissions
+                # may not send any request, including static-looking pixels.
+                if synthetic_phase:
+                    blocked["synthetic_requests"] += 1
+                    route.abort()
+                    return
                 decision = request_policy(request.url, request.method)
                 if decision == "allow":
                     route.continue_()
@@ -203,6 +215,7 @@ def inspect_browser():
             if response is None or response.status != 200 or page.url != PUBLIC_URL:
                 raise RuntimeError("PUBLIC_PAGE_NOT_EXACT_200")
             page.locator(".nry-setup form").first.wait_for(timeout=15000)
+            page.wait_for_load_state("load", timeout=15000)
             snapshot = page.evaluate("""() => {
               const scripts = [...document.querySelectorAll('script[data-nry-engine="nry-advisor-live-v1"]')];
               const source = scripts.length === 1 ? scripts[0].textContent : '';
@@ -267,6 +280,7 @@ def inspect_browser():
                 }
               };
             }""")
+            synthetic_phase = True
             page.locator(".nry-setup form button[type=submit]").first.click(timeout=12000)
             panel = page.locator(".nry-setup [data-nry-results]").first
             snapshot["form_result_visible"] = panel.is_visible()
@@ -440,6 +454,7 @@ def main():
     try:
         snapshot, blocked = inspect_browser()
         snapshot["blocked_dynamic_get"] = blocked["dynamic_get"]
+        snapshot["blocked_synthetic_requests"] = blocked["synthetic_requests"]
         report["runtime"] = snapshot
         report["blocked_requests"] = blocked
         report["state"] = classify(snapshot, now)
