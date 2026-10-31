@@ -45,7 +45,7 @@ def classify(snapshot, now):
     # All 108 form submissions must also produce useful, offer-free DOM output.
     for key in ("rendered_scenario_count", "rendered_scenarios_with_guidance",
                 "rendered_scenarios_matching_engine", "rendered_scenarios_matching_guides",
-                "rendered_scenarios_with_cards",
+                "rendered_scenarios_with_unapproved_links", "rendered_scenarios_with_cards",
                 "rendered_scenarios_with_external_clickouts",
                 "rendered_scenario_errors"):
         value = snapshot.get(key)
@@ -66,6 +66,10 @@ def classify(snapshot, now):
             or snapshot["rendered_cards"] > 0
             or snapshot["rendered_external_clickouts"] > 0):
         return "EXPIRED_OFFERS_EXPOSED"
+    if snapshot["rendered_scenarios_with_unapproved_links"] > 0:
+        # Same-origin redirects can be commercial too. Only exact approved
+        # supporting guides are allowed after offer evidence expires.
+        return "UNAPPROVED_RESULT_LINKS"
     return "EXPIRED_OFFERS_SUPPRESSED"
 
 
@@ -177,7 +181,7 @@ def inspect_browser():
               const panel = root?.querySelector('[data-nry-results]');
               const engine = window.NaRybySetupEngine;
               const keys = ['style', 'water', 'travel', 'experience', 'budget'];
-              let count = 0, guidance = 0, matching = 0, matchingGuides = 0, cards = 0, external = 0, errors = 0;
+              let count = 0, guidance = 0, matching = 0, matchingGuides = 0, unexpectedLinks = 0, cards = 0, external = 0, errors = 0;
               if (!form || !panel || !engine?.OPTIONS) {
                 return {rendered_scenario_count: 0, rendered_scenario_errors: 1};
               }
@@ -241,6 +245,12 @@ def inspect_browser():
                         } catch (_) { return false; }
                       });
                     if (guidesMatch) matchingGuides++;
+                    // The result may contain a same-origin affiliate redirect
+                    // outside the guide section. External-origin checks alone
+                    // cannot detect it. All result links must be exact guides.
+                    const allResultLinks = [...panel.querySelectorAll("a[href]")];
+                    if (allResultLinks.length !== actualGuides.length
+                        || allResultLinks.some(link => !actualGuides.includes(link))) unexpectedLinks++;
                     if (matches && guidesMatch && panel.textContent.trim().length > 100) guidance++;
                     if (panel.querySelector('.nry-offer, .nry-offer__cta')) cards++;
                     if ([...panel.querySelectorAll('a[href]')].some(a => {
@@ -262,6 +272,7 @@ def inspect_browser():
                 rendered_scenarios_with_guidance: guidance,
                 rendered_scenarios_matching_engine: matching,
                 rendered_scenarios_matching_guides: matchingGuides,
+                rendered_scenarios_with_unapproved_links: unexpectedLinks,
                 rendered_scenarios_with_cards: cards,
                 rendered_scenarios_with_external_clickouts: external,
                 rendered_scenario_errors: errors
