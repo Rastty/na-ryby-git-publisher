@@ -23,6 +23,8 @@ def safe():
         "visible_cards": 0,
         "visible_clickouts": 0,
         "visible_external_clickouts": 0,
+        "rendered_cards": 0,
+        "rendered_external_clickouts": 0,
         "visible_guidance": True,
     }
 
@@ -47,6 +49,13 @@ class BrowserAuditContractTests(unittest.TestCase):
         snapshot["visible_external_clickouts"] = 1
         self.assertEqual(classify(snapshot, NOW), "EXPIRED_OFFERS_EXPOSED")
 
+    def test_hidden_stale_product_cards_or_external_links_are_incident(self):
+        # A CSS-hidden offer still exists in the DOM and may be revealed later.
+        for key in ("rendered_cards", "rendered_external_clickouts"):
+            snapshot = safe()
+            snapshot[key] = 1
+            self.assertEqual(classify(snapshot, NOW), "EXPIRED_OFFERS_EXPOSED")
+
     def test_no_useful_noncommercial_guidance_is_not_safe(self):
         for key, value in (("scenarios_with_guidance", 107),
                            ("scenarios_with_guidance", None),
@@ -60,6 +69,7 @@ class BrowserAuditContractTests(unittest.TestCase):
             ("scenario_count", 107), ("engine_errors", 1),
             ("form_result_visible", False), ("engine_marker_present", False),
             ("visible_clickouts", None), ("visible_external_clickouts", None),
+            ("rendered_cards", None), ("rendered_external_clickouts", None),
             ("scenarios_with_offers", True),
         ):
             snapshot = safe()
