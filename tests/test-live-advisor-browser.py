@@ -26,6 +26,11 @@ def safe():
         "rendered_cards": 0,
         "rendered_external_clickouts": 0,
         "visible_guidance": True,
+        "rendered_scenario_count": 108,
+        "rendered_scenarios_with_guidance": 108,
+        "rendered_scenarios_with_cards": 0,
+        "rendered_scenarios_with_external_clickouts": 0,
+        "rendered_scenario_errors": 0,
     }
 
 
@@ -55,6 +60,26 @@ class BrowserAuditContractTests(unittest.TestCase):
             snapshot = safe()
             snapshot[key] = 1
             self.assertEqual(classify(snapshot, NOW), "EXPIRED_OFFERS_EXPOSED")
+
+    def test_all_108_rendered_scenarios_must_be_safe(self):
+        # A correct engine alone cannot certify the form's actual HTML output.
+        for key in ("rendered_scenarios_with_cards",
+                    "rendered_scenarios_with_external_clickouts"):
+            snapshot = safe()
+            snapshot[key] = 1
+            self.assertEqual(classify(snapshot, NOW), "EXPIRED_OFFERS_EXPOSED")
+
+    def test_incomplete_or_broken_rendered_form_fails_closed(self):
+        for key, value in (
+            ("rendered_scenario_count", 107),
+            ("rendered_scenarios_with_guidance", 107),
+            ("rendered_scenario_errors", 1),
+            ("rendered_scenarios_with_cards", None),
+            ("rendered_scenarios_with_external_clickouts", True),
+        ):
+            snapshot = safe()
+            snapshot[key] = value
+            self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
 
     def test_no_useful_noncommercial_guidance_is_not_safe(self):
         for key, value in (("scenarios_with_guidance", 107),
@@ -96,6 +121,8 @@ class BrowserAuditContractTests(unittest.TestCase):
         self.assertIn('request.method != "GET"', source)
         self.assertIn('route.abort()', source)
         self.assertIn('merchant_clicks": 0', source)
+        self.assertIn('window.gtag = () => {}', source)
+        self.assertIn("form.dispatchEvent(new Event('submit'", source)
         self.assertNotIn("Authorization:", source)
         self.assertNotIn("wp_update_post", source)
 
