@@ -156,6 +156,10 @@ final class NRY_Checklist_Release_V1 {
     public static function serve() {
         // An exact public path is the only supported route. Query parameters
         // remain available for the checklist's local sharing functionality.
+        // Only safe retrieval methods may serve this allowlisted static asset.
+        // Never hijack a POST/PUT/DELETE request to the same WordPress path.
+        $method = isset($_SERVER['REQUEST_METHOD']) ? (string) $_SERVER['REQUEST_METHOD'] : '';
+        if ($method !== 'GET' && $method !== 'HEAD') { return; }
         $request = isset($_SERVER['REQUEST_URI']) ? (string) $_SERVER['REQUEST_URI'] : '';
         $path = parse_url($request, PHP_URL_PATH);
         if ($path !== '/' . self::SLUG && $path !== '/' . self::SLUG . '/') { return; }
@@ -171,7 +175,8 @@ final class NRY_Checklist_Release_V1 {
         header("Content-Security-Policy: default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'");
         header('Cache-Control: no-store');
         header('X-NRY-Checklist-Asset-SHA256: ' . $state['asset_sha']);
-        readfile($file);
+        // HEAD has the same verified headers as GET but no response body.
+        if ($method === 'GET') { readfile($file); }
         exit;
     }
 }
