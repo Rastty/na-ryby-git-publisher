@@ -92,6 +92,33 @@ class BrowserAuditContractTests(unittest.TestCase):
             snapshot["blocked_channel_apis"] = malformed
             self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
 
+    def test_confirmed_expired_offer_not_masked_by_broken_scenario_or_guidance(self):
+        # Partial or failed browser QA must not downgrade a positive incident.
+        for key in ("scenarios_with_offers", "visible_cards", "visible_clickouts",
+                    "visible_external_clickouts", "rendered_cards",
+                    "rendered_external_clickouts", "rendered_scenarios_with_cards",
+                    "rendered_scenarios_with_external_clickouts"):
+            with self.subTest(key=key):
+                snapshot = safe()
+                snapshot[key] = 1
+                snapshot["scenario_count"] = 107
+                snapshot["engine_errors"] = 1
+                snapshot["rendered_scenario_count"] = 0
+                snapshot["visible_guidance"] = False
+                snapshot["blocked_dynamic_get"] = 1
+                self.assertEqual(classify(snapshot, NOW), "EXPIRED_OFFERS_EXPOSED")
+
+    def test_unverified_expiry_and_boolean_do_not_fake_confirmed_exposure(self):
+        snapshot = safe()
+        snapshot["scenarios_with_offers"] = True
+        snapshot["engine_errors"] = 1
+        self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
+        snapshot["scenarios_with_offers"] = 1
+        snapshot["price_visible_until"] = "unknown"
+        self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
+        snapshot["price_visible_until"] = "2026-12-31T00:00:00Z"
+        self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
+
     def test_expired_snapshot_with_all_108_empty_and_no_ui_links_is_safe(self):
         self.assertEqual(classify(safe(), NOW), "EXPIRED_OFFERS_SUPPRESSED")
 
