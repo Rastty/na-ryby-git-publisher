@@ -11,7 +11,7 @@ from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from audit_live_advisor_readonly import (
-    EXPECTED_EVENTS, PUBLIC_URL, REST_URL,
+    EXPECTED_EVENTS, EXPECTED_MERCHANT_URLS, PUBLIC_URL, REST_URL,
     MAX_REST_BYTES, audit_html, audit_rest, build_report, fetch_public,
     valid_cj_route,
 )
@@ -19,10 +19,9 @@ from audit_live_advisor_readonly import (
 
 def routes():
     return {
-        "product-" + str(i):
-        "https://www.anrdoezrs.net/click-8287231-15734253?url="
-        + quote("https://www.chytapust.cz/produkt-" + str(i), safe="")
-        for i in range(14)
+        product_id: "https://www.anrdoezrs.net/click-8287231-15734253?url="
+        + quote(merchant, safe="")
+        for product_id, merchant in EXPECTED_MERCHANT_URLS.items()
     }
 
 
@@ -58,14 +57,15 @@ class AdvisorAuditTests(unittest.TestCase):
         self.assertEqual(report["wordpress_writes"], 0)
         self.assertEqual(report["html"]["cj_route_count"], 14)
         self.assertTrue(report["html"]["cj_route_shape_ok"])
+        self.assertTrue(report["html"]["cj_exact_merchant_match"])
         self.assertEqual(report["html"]["ga4_delivery"],
                          "UNKNOWN_REQUIRES_ANALYTICS")
         self.assertNotIn("anrdoezrs.net", json.dumps(report))
-        self.assertNotIn("produkt-1", json.dumps(report))
+        self.assertNotIn("Delphin-Prut-Capri", json.dumps(report))
 
     def test_cj_wrong_property_fails(self):
         mapping = routes()
-        mapping["product-0"] = mapping["product-0"].replace(
+        mapping["capri"] = mapping["capri"].replace(
             "click-8287231-", "click-9999999-"
         )
         self.assertEqual(audit_html(html(mapping))["state"],
@@ -73,13 +73,13 @@ class AdvisorAuditTests(unittest.TestCase):
 
     def test_duplicate_and_missing_cj_routes_fail(self):
         mapping = routes()
-        mapping["product-0"] = mapping["product-1"]
+        mapping["capri"] = mapping["alcon"]
         self.assertFalse(audit_html(html(mapping))["cj_route_shape_ok"])
-        mapping.pop("product-0")
+        mapping.pop("capri")
         self.assertFalse(audit_html(html(mapping))["cj_route_shape_ok"])
 
     def test_unapproved_redirect_or_tracking_param_fails(self):
-        url = routes()["product-0"]
+        url = routes()["capri"]
         self.assertTrue(valid_cj_route(url))
         self.assertFalse(valid_cj_route(url + "&subid=visitor"))
         self.assertFalse(valid_cj_route(url.replace(
@@ -88,6 +88,41 @@ class AdvisorAuditTests(unittest.TestCase):
         self.assertFalse(valid_cj_route(url.replace(
             "www.chytapust.cz", "www.other-shop.cz"
         )))
+
+    def test_wrong_exact_variant_fails_even_when_all_14_cj_shapes_are_valid(self):
+        mapping = routes()
+        old = quote(EXPECTED_MERCHANT_URLS["capri"], safe="")
+        wrong = quote(EXPECTED_MERCHANT_URLS["capri"].replace(
+            "360cm-3-5lbs-3-dil", "360cm-3-5lbs-2-dil"), safe="")
+        mapping["capri"] = mapping["capri"].replace(old, wrong)
+        result = audit_html(html(mapping))
+        self.assertEqual(result["cj_route_count"], 14)
+        self.assertTrue(result["cj_route_shape_ok"])
+        self.assertFalse(result["cj_exact_merchant_match"])
+        self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
+
+    def test_swapped_product_ids_fail_even_when_routes_are_unique(self):
+        mapping = routes()
+        mapping["capri"], mapping["alcon"] = mapping["alcon"], mapping["capri"]
+        result = audit_html(html(mapping))
+        self.assertTrue(result["cj_route_shape_ok"])
+        self.assertFalse(result["cj_exact_merchant_match"])
+        self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
+
+    def test_unknown_key_and_merchant_query_cannot_be_certified(self):
+        mapping = routes()
+        mapping["unknown"], mapping["capri"] = mapping.pop("capri"), None
+        mapping.pop("capri")
+        result = audit_html(html(mapping))
+        self.assertTrue(result["cj_route_shape_ok"])
+        self.assertFalse(result["cj_exact_merchant_match"])
+        mapping = routes()
+        old = quote(EXPECTED_MERCHANT_URLS["capri"], safe="")
+        query_variant = quote(EXPECTED_MERCHANT_URLS["capri"] + "?variant=other", safe="")
+        mapping["capri"] = mapping["capri"].replace(old, query_variant)
+        result = audit_html(html(mapping))
+        self.assertTrue(result["cj_route_shape_ok"])
+        self.assertFalse(result["cj_exact_merchant_match"])
 
     def test_event_name_substring_does_not_certify_actual_token(self):
         page = html()
