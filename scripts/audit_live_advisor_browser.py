@@ -41,7 +41,22 @@ def classify(snapshot, now):
         value = snapshot.get(key)
         if type(value) is not int or value < 0:
             return "RUNTIME_UNVERIFIABLE"
+    # Engine-only enumeration cannot certify the rendered visitor experience.
+    # All 108 form submissions must also produce useful, offer-free DOM output.
+    for key in ("rendered_scenario_count", "rendered_scenarios_with_guidance",
+                "rendered_scenarios_with_cards",
+                "rendered_scenarios_with_external_clickouts",
+                "rendered_scenario_errors"):
+        value = snapshot.get(key)
+        if type(value) is not int or value < 0:
+            return "RUNTIME_UNVERIFIABLE"
+    if (snapshot["rendered_scenario_count"] != EXPECTED_SCENARIOS
+            or snapshot["rendered_scenarios_with_guidance"] != EXPECTED_SCENARIOS
+            or snapshot["rendered_scenario_errors"] != 0):
+        return "RUNTIME_UNVERIFIABLE"
     if (snapshot["scenarios_with_offers"] > 0
+            or snapshot["rendered_scenarios_with_cards"] > 0
+            or snapshot["rendered_scenarios_with_external_clickouts"] > 0
             or snapshot["visible_cards"] > 0
             or snapshot["visible_clickouts"] > 0
             or snapshot["visible_external_clickouts"] > 0
@@ -146,6 +161,62 @@ def inspect_browser():
                 }).length"""
             )
             snapshot["visible_guidance"] = len(panel.inner_text().strip()) > 100
+            # Exercise the actual visitor renderer for every option combination,
+            # not only the deterministic engine. No merchant clicks or WP writes.
+            # Suppress synthetic GA4 events so this QA cannot pollute funnels.
+            rendered = page.evaluate("""() => {
+              window.gtag = () => {};
+              const root = document.querySelector('.nry-setup');
+              const form = root?.querySelector('form');
+              const panel = root?.querySelector('[data-nry-results]');
+              const engine = window.NaRybySetupEngine;
+              const keys = ['style', 'water', 'travel', 'experience', 'budget'];
+              let count = 0, guidance = 0, cards = 0, external = 0, errors = 0;
+              if (!form || !panel || !engine?.OPTIONS) {
+                return {rendered_scenario_count: 0, rendered_scenario_errors: 1};
+              }
+              // Prevent a native navigation if the UI submit handler regresses.
+              form.addEventListener('submit', e => e.preventDefault(), {capture: true});
+              const visit = (index, answers) => {
+                if (index === keys.length) {
+                  count++;
+                  try {
+                    for (const key of keys) {
+                      const field = form.elements.namedItem(key);
+                      if (!field) throw Error('MISSING_FIELD');
+                      field.value = answers[key];
+                      if (field.value !== answers[key]) throw Error('INVALID_OPTION');
+                    }
+                    form.dispatchEvent(new Event('change', {bubbles: true}));
+                    form.dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}));
+                    if (panel.hidden || !panel.querySelector('.nry-result__title')) {
+                      errors++; return;
+                    }
+                    if (panel.textContent.trim().length > 100) guidance++;
+                    if (panel.querySelector('.nry-offer, .nry-offer__cta')) cards++;
+                    if ([...panel.querySelectorAll('a[href]')].some(a => {
+                      try { return new URL(a.href, location.href).origin !== location.origin; }
+                      catch (_) { return true; }
+                    })) external++;
+                  } catch (_) { errors++; }
+                  return;
+                }
+                const key = keys[index], options = engine.OPTIONS[key];
+                if (!Array.isArray(options) || !options.length || options.length > 12) {
+                  errors++; return;
+                }
+                for (const option of options) visit(index + 1, {...answers, [key]: option});
+              };
+              visit(0, {});
+              return {
+                rendered_scenario_count: count,
+                rendered_scenarios_with_guidance: guidance,
+                rendered_scenarios_with_cards: cards,
+                rendered_scenarios_with_external_clickouts: external,
+                rendered_scenario_errors: errors
+              };
+            }""")
+            snapshot.update(rendered)
             context.close()
             return snapshot, blocked
         finally:
