@@ -23,8 +23,23 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 def verify_response(status, final_url, headers, body, expected):
     """Return a list of explicit failed gates; empty means verified."""
-    h = {str(k).lower(): str(v) for k, v in headers.items()}
+    # HTTPMessage.items() preserves repeated fields. Converting it straight to
+    # a dict silently drops duplicates, so a forged SHA/CSP header could pass
+    # this release check while an intermediary/browser sees ambiguous values.
+    h = {}
+    duplicates = set()
+    for key, value in headers.items():
+        name = str(key).lower()
+        if name in h:
+            duplicates.add(name)
+        h[name] = str(value)
     errors = []
+    critical = {
+        "content-type", "x-nry-checklist-asset-sha256", "cache-control",
+        "content-security-policy", "x-content-type-options",
+    }
+    if duplicates & critical:
+        errors.append("duplicate_release_or_security_header")
     sha = hashlib.sha256(expected).hexdigest()
     if status != 200:
         errors.append("http_status_not_200")

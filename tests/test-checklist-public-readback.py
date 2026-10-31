@@ -73,6 +73,31 @@ class PublicReadbackContract(unittest.TestCase):
         self.assertIn("restrictive_csp_missing",
                       verify_response(200, URL, headers, BODY, BODY))
 
+    def test_duplicate_release_or_security_headers_fail_closed(self):
+        # email.message.HTTPMessage can expose duplicate HTTP fields through
+        # .items(); a plain dict fixture would hide this production edge case.
+        class RepeatedHeaders:
+            def __init__(self, pairs):
+                self.pairs = pairs
+
+            def items(self):
+                return self.pairs
+
+        for key in ("Content-Type", "X-NRY-Checklist-Asset-SHA256",
+                    "Cache-Control", "Content-Security-Policy",
+                    "X-Content-Type-Options"):
+            with self.subTest(header=key):
+                pairs = list(HEADERS.items()) + [(key.lower(), HEADERS[key])]
+                failures = verify_response(200, URL, RepeatedHeaders(pairs), BODY, BODY)
+                self.assertIn("duplicate_release_or_security_header", failures)
+
+    def test_noncritical_duplicate_does_not_mask_valid_release(self):
+        class RepeatedHeaders:
+            def items(self):
+                return list(HEADERS.items()) + [("X-Debug", "a"), ("x-debug", "b")]
+
+        self.assertEqual(verify_response(200, URL, RepeatedHeaders(), BODY, BODY), [])
+
     def test_missing_security_and_cache_headers_fail(self):
         headers = dict(HEADERS)
         headers.pop("Content-Security-Policy")
