@@ -16,6 +16,9 @@ def safe():
         "engine_marker_present": True,
         "blocked_dynamic_get": 0,
         "blocked_channel_apis": {"websocket": 0, "eventsource": 0, "beacon": 0},
+        "synthetic_funnel_events": {
+            "start": 1, "result": 109, "offer_view": 0, "product_click": 0,
+        },
         "price_visible_until": "2026-10-21T00:00:00Z",
         "scenario_count": 108,
         "engine_errors": 0,
@@ -118,6 +121,29 @@ class BrowserAuditContractTests(unittest.TestCase):
         self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
         snapshot["price_visible_until"] = "2026-12-31T00:00:00Z"
         self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
+
+    def test_synthetic_funnel_wiring_is_required_but_not_ga4_delivery(self):
+        # One real submit plus 108 synthetic form submissions; no product click.
+        for key, value in (
+            ("start", 0), ("start", 2), ("result", 108),
+            ("result", 110), ("offer_view", 1), ("product_click", 1),
+            ("result", True), ("result", -1),
+        ):
+            with self.subTest(key=key, value=value):
+                snapshot = safe()
+                snapshot["synthetic_funnel_events"][key] = value
+                self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
+        for invalid in (None, {}, {"start": 1, "result": 109},
+                        {"start": 1, "result": 109, "offer_view": 0,
+                         "product_click": 0, "email": 1}):
+            snapshot = safe()
+            snapshot["synthetic_funnel_events"] = invalid
+            self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
+        snapshot = safe()
+        snapshot["synthetic_funnel_events"] = None
+        snapshot["scenarios_with_offers"] = 1
+        self.assertEqual(classify(snapshot, NOW), "EXPIRED_OFFERS_EXPOSED",
+                         "a confirmed expired offer incident must still win")
 
     def test_expired_snapshot_with_all_108_empty_and_no_ui_links_is_safe(self):
         self.assertEqual(classify(safe(), NOW), "EXPIRED_OFFERS_SUPPRESSED")
@@ -245,7 +271,10 @@ class BrowserAuditContractTests(unittest.TestCase):
         self.assertIn("Object.defineProperty(navigator, 'sendBeacon'", source)
         self.assertIn('snapshot["blocked_channel_apis"] = page.evaluate(', source)
         self.assertIn('merchant_clicks": 0', source)
-        self.assertIn('window.gtag = () => {}', source)
+        self.assertIn('window.__nryAuditSyntheticFunnel = {', source)
+        self.assertIn('window.gtag = (kind, name) => {', source)
+        self.assertIn('snapshot["synthetic_funnel_events"] = page.evaluate(', source)
+        self.assertNotIn('window.gtag = () => {}', source)
         self.assertIn("form.dispatchEvent(new Event('submit'", source)
         self.assertIn("rendered_scenarios_matching_engine", source)
         self.assertIn("rendered_scenarios_matching_guides", source)
@@ -253,7 +282,7 @@ class BrowserAuditContractTests(unittest.TestCase):
         self.assertIn("allResultLinks.some(link => !actualGuides.includes(link))", source)
         self.assertIn("rendered_scenarios_with_unapproved_actions: unexpectedActions", source)
         self.assertIn('[onclick], [data-href], [data-url], form', source)
-        self.assertLess(source.index('page.evaluate("() => { window.gtag = () => {}; }")'),
+        self.assertLess(source.index('page.evaluate("""() => {'),
                         source.index('page.locator(".nry-setup form button[type=submit]").first.click'))
         self.assertIn("sectionText('Doporučený prut')", source)
         self.assertNotIn("Authorization:", source)
