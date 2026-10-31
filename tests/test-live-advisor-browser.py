@@ -282,7 +282,7 @@ class BrowserAuditContractTests(unittest.TestCase):
         self.assertIn("allResultLinks.some(link => !actualGuides.includes(link))", source)
         self.assertIn("rendered_scenarios_with_unapproved_actions: unexpectedActions", source)
         self.assertIn('[onclick], [data-href], [data-url], form', source)
-        self.assertLess(source.index('page.evaluate("""() => {'),
+        self.assertLess(source.index('window.__nryAuditSyntheticFunnel = {'),
                         source.index('page.locator(".nry-setup form button[type=submit]").first.click'))
         self.assertIn("sectionText('Doporučený prut')", source)
         self.assertNotIn("Authorization:", source)
