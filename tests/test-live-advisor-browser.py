@@ -19,8 +19,11 @@ def safe():
         "engine_errors": 0,
         "form_result_visible": True,
         "scenarios_with_offers": 0,
+        "scenarios_with_guidance": 108,
         "visible_cards": 0,
         "visible_clickouts": 0,
+        "visible_external_clickouts": 0,
+        "visible_guidance": True,
     }
 
 
@@ -39,11 +42,25 @@ class BrowserAuditContractTests(unittest.TestCase):
             snapshot[key] = 1
             self.assertEqual(classify(snapshot, NOW), "EXPIRED_OFFERS_EXPOSED")
 
+    def test_expired_external_buy_link_without_offer_css_class_is_incident(self):
+        snapshot = safe()
+        snapshot["visible_external_clickouts"] = 1
+        self.assertEqual(classify(snapshot, NOW), "EXPIRED_OFFERS_EXPOSED")
+
+    def test_no_useful_noncommercial_guidance_is_not_safe(self):
+        for key, value in (("scenarios_with_guidance", 107),
+                           ("scenarios_with_guidance", None),
+                           ("visible_guidance", False)):
+            snapshot = safe()
+            snapshot[key] = value
+            self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
+
     def test_missing_browser_or_engine_evidence_fails_closed(self):
         for key, value in (
             ("scenario_count", 107), ("engine_errors", 1),
             ("form_result_visible", False), ("engine_marker_present", False),
-            ("visible_clickouts", None), ("scenarios_with_offers", True),
+            ("visible_clickouts", None), ("visible_external_clickouts", None),
+            ("scenarios_with_offers", True),
         ):
             snapshot = safe()
             snapshot[key] = value
