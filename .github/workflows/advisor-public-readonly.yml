@@ -27,8 +27,11 @@ jobs:
         run: |
           python3 -m py_compile scripts/audit_live_advisor_readonly.py
           python3 tests/test-live-advisor-readonly.py -v
+  # PRs stay deterministic/offline; a main-branch audit change also gets
+  # a real public GET receipt, even when GitHub's cron is delayed or skipped.
+  # Push is path-filtered above; this never runs on unrelated site changes.
   live-readonly:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'push'
     needs: offline-contract
     runs-on: ubuntu-latest
     timeout-minutes: 4

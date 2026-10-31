@@ -49,6 +49,28 @@ def html(mapping=None):
     return response(PUBLIC_URL, body, "text/html; charset=UTF-8")
 
 
+class AdvisorWorkflowSafetyTests(unittest.TestCase):
+    def test_main_push_audit_fallback_remains_bounded_and_read_only(self):
+        # A scheduled audit can be delayed/missed by GitHub. Audit-code
+        # merges must still yield a real, independently timestamped public
+        # GET receipt; PRs must remain offline and deterministic.
+        workflow = (Path(__file__).resolve().parents[1] /
+                    ".github/workflows/advisor-public-readonly.yml").read_text(
+                        encoding="utf-8")
+        self.assertIn("branches: [main]", workflow)
+        self.assertIn("'scripts/audit_live_advisor_readonly.py'", workflow)
+        self.assertIn("permissions:\n  contents: read", workflow)
+        self.assertIn(
+            "if: github.event_name == 'workflow_dispatch' || "
+            "github.event_name == 'schedule' || github.event_name == 'push'",
+            workflow)
+        self.assertIn("needs: offline-contract", workflow)
+        self.assertIn("run: python3 scripts/audit_live_advisor_readonly.py "
+                      "--output advisor-live-audit-result.json", workflow)
+        self.assertIn("if: always()", workflow)
+        self.assertIn("actions/upload-artifact@v4", workflow)
+
+
 class AdvisorAuditTests(unittest.TestCase):
     def test_valid_public_structure_is_not_claimed_as_ga4_or_revenue(self):
         report = build_report(rest(), html(), "2026-10-30T17:00:00Z")
