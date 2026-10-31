@@ -44,7 +44,7 @@ def classify(snapshot, now):
     # Engine-only enumeration cannot certify the rendered visitor experience.
     # All 108 form submissions must also produce useful, offer-free DOM output.
     for key in ("rendered_scenario_count", "rendered_scenarios_with_guidance",
-                "rendered_scenarios_with_cards",
+                "rendered_scenarios_matching_engine", "rendered_scenarios_with_cards",
                 "rendered_scenarios_with_external_clickouts",
                 "rendered_scenario_errors"):
         value = snapshot.get(key)
@@ -52,6 +52,7 @@ def classify(snapshot, now):
             return "RUNTIME_UNVERIFIABLE"
     if (snapshot["rendered_scenario_count"] != EXPECTED_SCENARIOS
             or snapshot["rendered_scenarios_with_guidance"] != EXPECTED_SCENARIOS
+            or snapshot["rendered_scenarios_matching_engine"] != EXPECTED_SCENARIOS
             or snapshot["rendered_scenario_errors"] != 0):
         return "RUNTIME_UNVERIFIABLE"
     if (snapshot["scenarios_with_offers"] > 0
@@ -171,7 +172,7 @@ def inspect_browser():
               const panel = root?.querySelector('[data-nry-results]');
               const engine = window.NaRybySetupEngine;
               const keys = ['style', 'water', 'travel', 'experience', 'budget'];
-              let count = 0, guidance = 0, cards = 0, external = 0, errors = 0;
+              let count = 0, guidance = 0, matching = 0, cards = 0, external = 0, errors = 0;
               if (!form || !panel || !engine?.OPTIONS) {
                 return {rendered_scenario_count: 0, rendered_scenario_errors: 1};
               }
@@ -187,12 +188,36 @@ def inspect_browser():
                       field.value = answers[key];
                       if (field.value !== answers[key]) throw Error('INVALID_OPTION');
                     }
+                    const expected = engine.resolve(answers);
+                    if (!expected || !Array.isArray(expected.essentials)) {
+                      errors++; return;
+                    }
                     form.dispatchEvent(new Event('change', {bubbles: true}));
                     form.dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}));
                     if (panel.hidden || !panel.querySelector('.nry-result__title')) {
                       errors++; return;
                     }
-                    if (panel.textContent.trim().length > 100) guidance++;
+                    // A generic/static response for all 108 forms is not useful advice.
+                    // Compare the visitor DOM to the engine decision for this selection.
+                    // Never persist selected answers or result text.
+                    const sections = [...panel.querySelectorAll('.nry-result__section')];
+                    const sectionText = title => {
+                      const block = sections.find(node =>
+                        node.querySelector('h4')?.textContent.trim() === title);
+                      return block ? [...block.querySelectorAll('p,li')]
+                        .map(node => node.textContent.trim()) : null;
+                    };
+                    const essentials = sectionText('Nejdřív pořiďte');
+                    const rod = sectionText('Doporučený prut');
+                    const reel = sectionText('Doporučený naviják');
+                    const matches = panel.querySelector('.nry-result__title')?.textContent.trim() === expected.title
+                      && panel.querySelector('.nry-result__intro')?.textContent.trim() === expected.subtitle
+                      && rod?.length === 1 && rod[0] === expected.rod
+                      && reel?.length === 1 && reel[0] === expected.reel
+                      && essentials?.length === expected.essentials.length
+                      && essentials.every((text, index) => text === expected.essentials[index]);
+                    if (matches) matching++;
+                    if (matches && panel.textContent.trim().length > 100) guidance++;
                     if (panel.querySelector('.nry-offer, .nry-offer__cta')) cards++;
                     if ([...panel.querySelectorAll('a[href]')].some(a => {
                       try { return new URL(a.href, location.href).origin !== location.origin; }
@@ -211,6 +236,7 @@ def inspect_browser():
               return {
                 rendered_scenario_count: count,
                 rendered_scenarios_with_guidance: guidance,
+                rendered_scenarios_matching_engine: matching,
                 rendered_scenarios_with_cards: cards,
                 rendered_scenarios_with_external_clickouts: external,
                 rendered_scenario_errors: errors
