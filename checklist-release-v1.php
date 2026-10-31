@@ -162,7 +162,7 @@ final class NRY_Checklist_Release_V1 {
         if ($method !== 'GET' && $method !== 'HEAD') { return; }
         // A canonical WordPress home_url alone does not constrain the incoming
         // Host header: aliases and alternate virtual hosts must not serve this
-        // SHA-approved asset. Allow only the canonical HTTPS authority.
+        // SHA-approved asset. Allow only the canonical host or its :443 port.
         $host = isset($_SERVER['HTTP_HOST']) ? strtolower((string) $_SERVER['HTTP_HOST']) : '';
         if ($host !== 'na-ryby.eu' && $host !== 'na-ryby.eu:443') { return; }
         $request = isset($_SERVER['REQUEST_URI']) ? (string) $_SERVER['REQUEST_URI'] : '';
