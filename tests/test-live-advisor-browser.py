@@ -81,6 +81,19 @@ class BrowserAuditContractTests(unittest.TestCase):
     def test_expired_snapshot_with_all_108_empty_and_no_ui_links_is_safe(self):
         self.assertEqual(classify(safe(), NOW), "EXPIRED_OFFERS_SUPPRESSED")
 
+    def test_blocked_dynamic_get_does_not_mask_observed_expired_offers(self):
+        snapshot = safe()
+        snapshot["blocked_dynamic_get"] = 2
+        snapshot["scenarios_with_offers"] = 108
+        snapshot["rendered_scenarios_with_cards"] = 108
+        self.assertEqual(classify(snapshot, NOW), "EXPIRED_OFFERS_EXPOSED")
+
+    def test_blocked_dynamic_get_does_not_mask_observed_unapproved_links(self):
+        snapshot = safe()
+        snapshot["blocked_dynamic_get"] = 2
+        snapshot["rendered_scenarios_with_unapproved_links"] = 108
+        self.assertEqual(classify(snapshot, NOW), "UNAPPROVED_RESULT_LINKS")
+
     def test_any_expired_engine_offer_is_a_release_incident(self):
         snapshot = safe()
         snapshot["scenarios_with_offers"] = 1
