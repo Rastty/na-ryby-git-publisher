@@ -39,6 +39,8 @@ check(NRY_Checklist_Release_V1::inspection()['ready'], 'ready without slug colli
 check(!NRY_Checklist_Release_V1::inspection()['approved'], 'git checkout is NOT publication');
 check(!NRY_Checklist_Release_V1::inspection()['approval_conflict'], 'no initial approval conflict');
 
+// Simulate the canonical incoming request authority, not only WP home_url.
+$_SERVER['HTTP_HOST'] = 'na-ryby.eu';
 if (isset($argv[1]) && in_array($argv[1], array('serve', 'head'), true)) {
     $GLOBALS['nry_test_options'][NRY_Checklist_Release_V1::APPROVAL] =
         array('sha256' => $sha, 'approved_at_utc' => '2026-10-30T13:00:00Z');
@@ -77,6 +79,14 @@ foreach (array('POST', 'PUT', 'PATCH', 'DELETE', '') as $method) {
         'non-GET/HEAD request must not intercept approved route: ' . $method);
 }
 $_SERVER['REQUEST_METHOD'] = 'GET';
+$_SERVER['REQUEST_URI'] = '/co-sbalit-na-ryby/';
+foreach (array('', 'alias.example', 'na-ryby.eu.attacker.invalid',
+               'na-ryby.eu:8443') as $host) {
+    $_SERVER['HTTP_HOST'] = $host;
+    check(NRY_Checklist_Release_V1::serve() === null,
+        'noncanonical request host must not serve approved asset: ' . $host);
+}
+$_SERVER['HTTP_HOST'] = 'na-ryby.eu';
 $_SERVER['REQUEST_URI'] = '/not-our-path/';
 check(NRY_Checklist_Release_V1::serve() === null, 'unrelated routes remain untouched');
 echo "Checklist release contract PASS: SHA approval, drift, origin, collision, route\n";
