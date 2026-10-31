@@ -46,3 +46,8 @@ jobs:
           grep -F 'data-nry-checklist-rc="v1"' /tmp/checklist-served.html >/dev/null
           grep -F 'rel="canonical" href="https://na-ryby.eu/co-sbalit-na-ryby/"' /tmp/checklist-served.html >/dev/null
           sha256sum assets/checklist-standalone.html
+      - name: HEAD returns approved headers without an HTML body
+        run: |
+          set -euo pipefail
+          php tests/test-checklist-release-v1.php head > /tmp/checklist-head.html
+          test ! -s /tmp/checklist-head.html
