@@ -113,6 +113,49 @@ class AdvisorAuditTests(unittest.TestCase):
         self.assertFalse(result["cj_route_shape_ok"])
         self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
 
+    def test_javascript_comments_cannot_fake_event_wiring(self):
+        page = html()
+        tokens = ";".join(EXPECTED_EVENTS).encode("utf-8")
+        page["body"] = page["body"].replace(
+            b"<script>" + tokens + b"</script>",
+            b"<script>/* " + tokens + b" */</script>"
+        )
+        result = audit_html(page)
+        self.assertEqual(result["missing_event_tokens"], list(EXPECTED_EVENTS))
+        self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
+
+    def test_javascript_comments_cannot_fake_price_expiry(self):
+        page = html()
+        expiry = b"const PRICE_VISIBLE_UNTIL='2026-10-21T00:00:00Z';"
+        page["body"] = page["body"].replace(expiry, b"/*" + expiry + b"*/")
+        result = audit_html(page)
+        self.assertFalse(result["price_expiry_policy_present"])
+        self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
+
+    def test_javascript_comments_cannot_fake_affiliate_map(self):
+        page = html()
+        declaration = (b"const AFFILIATE_LINKS = Object.freeze("
+                       + json.dumps(routes()).encode("utf-8") + b");")
+        page["body"] = page["body"].replace(
+            declaration, b"/*" + declaration + b"*/"
+        )
+        result = audit_html(page)
+        self.assertIsNone(result["cj_route_count"])
+        self.assertFalse(result["cj_route_shape_ok"])
+        self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
+
+    def test_commented_second_map_does_not_shadow_real_map(self):
+        page = html()
+        page["body"] += (
+            b"<script>// const AFFILIATE_LINKS = Object.freeze("
+            + json.dumps(routes()).encode("utf-8") + b");\n</script>"
+        )
+        result = audit_html(page)
+        self.assertEqual(result["cj_route_count"], 14)
+        self.assertTrue(result["cj_route_shape_ok"])
+        self.assertEqual(result["state"],
+                         "STRUCTURE_PRESENT_RUNTIME_UNVERIFIED")
+
     def test_missing_funnel_token_fails_without_inventing_ga4_counts(self):
         page = html()
         page["body"] = page["body"].replace(b"nry_advisor_product_click", b"removed")
