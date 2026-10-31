@@ -59,7 +59,7 @@ class AdvisorWorkflowSafetyTests(unittest.TestCase):
                         encoding="utf-8")
         self.assertIn("branches: [main]", workflow)
         self.assertIn("'scripts/audit_live_advisor_readonly.py'", workflow)
-        self.assertIn("permissions:\\n  contents: read".replace("\\\\n", "\\n"), workflow)
+        self.assertIn("permissions:\n  contents: read", workflow)
         self.assertIn(
             "if: github.event_name == 'workflow_dispatch' || "
             "github.event_name == 'schedule' || github.event_name == 'push'",
