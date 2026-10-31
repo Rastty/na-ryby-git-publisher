@@ -28,6 +28,7 @@ def safe():
         "visible_guidance": True,
         "rendered_scenario_count": 108,
         "rendered_scenarios_with_guidance": 108,
+        "rendered_scenarios_matching_engine": 108,
         "rendered_scenarios_with_cards": 0,
         "rendered_scenarios_with_external_clickouts": 0,
         "rendered_scenario_errors": 0,
@@ -73,6 +74,8 @@ class BrowserAuditContractTests(unittest.TestCase):
         for key, value in (
             ("rendered_scenario_count", 107),
             ("rendered_scenarios_with_guidance", 107),
+            ("rendered_scenarios_matching_engine", 107),
+            ("rendered_scenarios_matching_engine", None),
             ("rendered_scenario_errors", 1),
             ("rendered_scenarios_with_cards", None),
             ("rendered_scenarios_with_external_clickouts", True),
@@ -123,6 +126,8 @@ class BrowserAuditContractTests(unittest.TestCase):
         self.assertIn('merchant_clicks": 0', source)
         self.assertIn('window.gtag = () => {}', source)
         self.assertIn("form.dispatchEvent(new Event('submit'", source)
+        self.assertIn("rendered_scenarios_matching_engine", source)
+        self.assertIn("sectionText('Doporučený prut')", source)
         self.assertNotIn("Authorization:", source)
         self.assertNotIn("wp_update_post", source)
 
