@@ -396,7 +396,10 @@ def inspect_browser():
                     // An expired offer can also be exposed as a button, inline
                     // handler or data-driven navigation without an anchor href.
                     // The approved result currently has only guide anchors.
-                    if (panel.querySelector('button, input[type="submit"], input[type="button"], [role="button"], [role="link"], [onclick], [data-href], [data-url], form')) unexpectedActions++;
+                    // Even an approved guide href can carry a hidden ping POST,
+                    // trigger a download, or override a form submission target.
+                    // Do not certify those side effects as safe visitor guidance.
+                    if (panel.querySelector('button, input[type="submit"], input[type="button"], [role="button"], [role="link"], [onclick], [data-href], [data-url], [ping], [download], [formaction], form')) unexpectedActions++;
                     if (matches && guidesMatch && panel.textContent.trim().length > 100) guidance++;
                     if (panel.querySelector('.nry-offer, .nry-offer__cta')) cards++;
                     if ([...panel.querySelectorAll('a[href]')].some(a => {
