@@ -29,6 +29,27 @@ CJ_HOSTS = frozenset((
     "www.kqzyfj.com", "www.tkqlhce.com", "www.jdoqocy.com",
     "www.dpbolvw.net", "www.anrdoezrs.net",
 ))
+# Approved exact merchant URLs from the 14-product V3 release source:
+# Rastty/prometheus-growth-os/apps/na-ryby-poradce/engine.js (2026-10-31)
+# and the source-bound 14/14 redirect release in issue #825/#854.
+# These are identity pins, NOT evidence of current stock, price, variant supply,
+# merchant feed entitlement or actual CJ commissions. No tracking is rewritten.
+EXPECTED_MERCHANT_URLS = {
+    "capri": "https://www.chytapust.cz/Kaprove-delene-pruty/Delphin-Prut-Capri-NXT-360cm-3-5lbs-3-dil",
+    "alcon": "https://www.chytapust.cz/Kaprove-delene-pruty/Mivardi-Prut-Alcon-Carp-MK2-360H-3-6m-3lb-AKCE-1-1-90129",
+    "atomium": "https://www.chytapust.cz/Kaprove-delene-pruty/Mivardi-Prut-Atomium-360SH-3-3-6m-3-5lb",
+    "bingo": "https://www.chytapust.cz/Volnobezna-brzda-203/Delphin-Navijak-Bingo-6T-DP-6000",
+    "magix": "https://www.chytapust.cz/Predni-brzda-211/Delphin-Navijak-Magix-6T-DP-6000",
+    "titanus": "https://www.chytapust.cz/Predni-brzda-211/Mivardi-Navijak-Titanus-DX",
+    "wasabi": "https://www.chytapust.cz/Feederove-pruty-1620/Delphin-Prut-Wasabi-Feeder-NXT-270cm-80g",
+    "yakuza": "https://www.chytapust.cz/Feederove-pruty-1620/Delphin-Feederovy-set-Yakuza-330-3-3m-100g-3dil",
+    "magma": "https://www.chytapust.cz/Feederove-pruty-1620/Delphin-Prut-Magma-Legend4ry-Medium-360cm-120g-3dily",
+    "venox": "https://www.chytapust.cz/Predni-brzda-211/Delphin-Navijak-Venox-6T-SH-6000",
+    "technix": "https://www.chytapust.cz/Predni-brzda-211/Delphin-Navijak-Technix-2T-DP-2000",
+    "zfish": "https://www.chytapust.cz/Klasicke-privlacove-pruty/Zfish-Prut-Skynet-2-10m-2-10g",
+    "sema": "https://www.chytapust.cz/Klasicke-privlacove-pruty/Sema-Prut-Zuul-Spinning-L-2-4m-5-25g",
+    "elixir3": "https://www.chytapust.cz/Predni-brzda-211/Delphin-Navijak-Elixir-3T-3000",
+}
 PRICE_EXPIRY = "const PRICE_VISIBLE_UNTIL='2026-10-21T00:00:00Z'"
 MAP_PATTERN = re.compile(
     r"const AFFILIATE_LINKS\s*=\s*Object\.freeze\((\{[^\n]+\})\);"
@@ -174,7 +195,7 @@ def audit_rest(response):
     return result
 
 
-def valid_cj_route(value):
+def valid_cj_route(value, expected_merchant=None):
     if not isinstance(value, str):
         return False
     try:
@@ -188,11 +209,13 @@ def valid_cj_route(value):
         if len(params) != 1 or params[0][0] != "url":
             return False
         merchant = urllib.parse.urlsplit(params[0][1])
-        return (merchant.scheme == "https"
-                and merchant.netloc == "www.chytapust.cz"
-                and bool(merchant.path.strip("/"))
-                and not merchant.username and not merchant.password
-                and not merchant.fragment)
+        valid_merchant = (merchant.scheme == "https"
+                          and merchant.netloc == "www.chytapust.cz"
+                          and bool(merchant.path.strip("/"))
+                          and not merchant.username and not merchant.password
+                          and not merchant.fragment)
+        return (valid_merchant and (expected_merchant is None or
+                                    merchant.geturl() == expected_merchant))
     except ValueError:
         return False
 
@@ -254,6 +277,7 @@ def audit_html(response):
         "marker_present": False,
         "missing_event_tokens": list(EXPECTED_EVENTS),
         "cj_route_count": None, "cj_route_shape_ok": False,
+        "cj_exact_merchant_match": False,
         "price_expiry_policy_present": False,
         "runtime_price_visibility": "UNKNOWN_REQUIRES_BROWSER",
         "ga4_delivery": "UNKNOWN_REQUIRES_ANALYTICS",
@@ -296,12 +320,23 @@ def audit_html(response):
                     len(routes) == 14 and len(set(routes)) == 14
                     and all(valid_cj_route(route) for route in routes)
                 )
+                # Shape-only checks accepted a wrong size/variant or a swapped
+                # SKU even when every CJ link looked syntactically valid.
+                # Fail closed against the approved product-id -> merchant URL.
+                result["cj_exact_merchant_match"] = (
+                    result["cj_route_shape_ok"]
+                    and set(mapping) == set(EXPECTED_MERCHANT_URLS)
+                    and all(valid_cj_route(mapping[product_id], merchant)
+                            for product_id, merchant in
+                            EXPECTED_MERCHANT_URLS.items())
+                )
         except (ValueError, TypeError):
             pass
     result["state"] = (
         "STRUCTURE_PRESENT_RUNTIME_UNVERIFIED"
         if result["marker_present"] and not result["missing_event_tokens"]
         and result["price_expiry_policy_present"] and result["cj_route_shape_ok"]
+        and result["cj_exact_merchant_match"]
         else "PUBLIC_STRUCTURE_DRIFT"
     )
     return result
