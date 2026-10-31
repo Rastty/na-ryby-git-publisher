@@ -30,6 +30,7 @@ def safe():
         "rendered_scenarios_with_guidance": 108,
         "rendered_scenarios_matching_engine": 108,
         "rendered_scenarios_matching_guides": 108,
+        "rendered_scenarios_with_unapproved_links": 0,
         "rendered_scenarios_with_cards": 0,
         "rendered_scenarios_with_external_clickouts": 0,
         "rendered_scenario_errors": 0,
@@ -71,6 +72,12 @@ class BrowserAuditContractTests(unittest.TestCase):
             snapshot[key] = 1
             self.assertEqual(classify(snapshot, NOW), "EXPIRED_OFFERS_EXPOSED")
 
+    def test_extra_same_origin_result_link_is_not_certified_as_safe(self):
+        # An internal /go/ redirect is not an external link or known CTA class.
+        snapshot = safe()
+        snapshot["rendered_scenarios_with_unapproved_links"] = 1
+        self.assertEqual(classify(snapshot, NOW), "UNAPPROVED_RESULT_LINKS")
+
     def test_incomplete_or_broken_rendered_form_fails_closed(self):
         for key, value in (
             ("rendered_scenario_count", 107),
@@ -80,6 +87,8 @@ class BrowserAuditContractTests(unittest.TestCase):
             ("rendered_scenarios_matching_guides", 107),
             ("rendered_scenarios_matching_guides", None),
             ("rendered_scenarios_matching_guides", True),
+            ("rendered_scenarios_with_unapproved_links", None),
+            ("rendered_scenarios_with_unapproved_links", True),
             ("rendered_scenario_errors", 1),
             ("rendered_scenarios_with_cards", None),
             ("rendered_scenarios_with_external_clickouts", True),
@@ -133,6 +142,7 @@ class BrowserAuditContractTests(unittest.TestCase):
         self.assertIn("rendered_scenarios_matching_engine", source)
         self.assertIn("rendered_scenarios_matching_guides", source)
         self.assertIn("actualGuides[index].href === target.href", source)
+        self.assertIn("allResultLinks.some(link => !actualGuides.includes(link))", source)
         self.assertLess(source.index('page.evaluate("() => { window.gtag = () => {}; }")'),
                         source.index('page.locator(".nry-setup form button[type=submit]").first.click'))
         self.assertIn("sectionText('Doporučený prut')", source)
