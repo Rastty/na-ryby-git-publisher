@@ -39,9 +39,10 @@ check(NRY_Checklist_Release_V1::inspection()['ready'], 'ready without slug colli
 check(!NRY_Checklist_Release_V1::inspection()['approved'], 'git checkout is NOT publication');
 check(!NRY_Checklist_Release_V1::inspection()['approval_conflict'], 'no initial approval conflict');
 
-if (isset($argv[1]) && $argv[1] === 'serve') {
+if (isset($argv[1]) && in_array($argv[1], array('serve', 'head'), true)) {
     $GLOBALS['nry_test_options'][NRY_Checklist_Release_V1::APPROVAL] =
         array('sha256' => $sha, 'approved_at_utc' => '2026-10-30T13:00:00Z');
+    $_SERVER['REQUEST_METHOD'] = $argv[1] === 'head' ? 'HEAD' : 'GET';
     $_SERVER['REQUEST_URI'] = '/co-sbalit-na-ryby/?method=feeder';
     NRY_Checklist_Release_V1::serve();
     throw new RuntimeException('approved exact route must exit after output');
@@ -69,6 +70,13 @@ $GLOBALS['nry_test_collision_kind'] = '';
 $GLOBALS['nry_test_origin'] = 'https://wrong.example/';
 check(!NRY_Checklist_Release_V1::inspection()['ready'], 'wrong WordPress origin blocks');
 $GLOBALS['nry_test_origin'] = 'https://na-ryby.eu/';
+$_SERVER['REQUEST_URI'] = '/co-sbalit-na-ryby/';
+foreach (array('POST', 'PUT', 'PATCH', 'DELETE', '') as $method) {
+    $_SERVER['REQUEST_METHOD'] = $method;
+    check(NRY_Checklist_Release_V1::serve() === null,
+        'non-GET/HEAD request must not intercept approved route: ' . $method);
+}
+$_SERVER['REQUEST_METHOD'] = 'GET';
 $_SERVER['REQUEST_URI'] = '/not-our-path/';
 check(NRY_Checklist_Release_V1::serve() === null, 'unrelated routes remain untouched');
 echo "Checklist release contract PASS: SHA approval, drift, origin, collision, route\n";
