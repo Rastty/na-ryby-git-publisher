@@ -22,6 +22,8 @@ def classify(snapshot, now):
     if (snapshot.get("scenario_count") != EXPECTED_SCENARIOS
             or snapshot.get("engine_errors") != 0
             or snapshot.get("form_result_visible") is not True
+            or snapshot.get("visible_guidance") is not True
+            or snapshot.get("scenarios_with_guidance") != EXPECTED_SCENARIOS
             or snapshot.get("engine_marker_present") is not True):
         return "RUNTIME_UNVERIFIABLE"
     try:
@@ -33,13 +35,15 @@ def classify(snapshot, now):
     if now < expiry:
         # A new timestamp alone cannot establish current SKU, stock or license.
         return "FUTURE_EVIDENCE_WINDOW_REQUIRES_SOURCE_REVIEW"
-    for key in ("scenarios_with_offers", "visible_cards", "visible_clickouts"):
+    for key in ("scenarios_with_offers", "visible_cards", "visible_clickouts",
+                "visible_external_clickouts"):
         value = snapshot.get(key)
         if type(value) is not int or value < 0:
             return "RUNTIME_UNVERIFIABLE"
     if (snapshot["scenarios_with_offers"] > 0
             or snapshot["visible_cards"] > 0
-            or snapshot["visible_clickouts"] > 0):
+            or snapshot["visible_clickouts"] > 0
+            or snapshot["visible_external_clickouts"] > 0):
         return "EXPIRED_OFFERS_EXPOSED"
     return "EXPIRED_OFFERS_SUPPRESSED"
 
@@ -82,14 +86,21 @@ def inspect_browser():
                 return {engine_marker_present: scripts.length === 1, engine_errors: 1};
               }
               const keys = ['style', 'water', 'travel', 'experience', 'budget'];
-              let scenarioCount = 0, withOffers = 0, errors = 0;
+              let scenarioCount = 0, withOffers = 0, withGuidance = 0, errors = 0;
               const visit = (index, answers) => {
                 if (index === keys.length) {
                   scenarioCount++;
                   try {
                     const result = engine.resolve(answers);
                     if (!result || !Array.isArray(result.offers)) errors++;
-                    else if (result.offers.length > 0) withOffers++;
+                    else {
+                      if (result.offers.length > 0) withOffers++;
+                      if (typeof result.rod === "string" && result.rod.trim().length > 12
+                          && typeof result.reel === "string" && result.reel.trim().length > 12
+                          && Array.isArray(result.essentials) && result.essentials.length >= 3
+                          && typeof result.guide?.url === "string"
+                          && result.guide.url.startsWith("https://na-ryby.eu/")) withGuidance++;
+                    }
                   } catch (_) { errors++; }
                   return;
                 }
@@ -105,6 +116,7 @@ def inspect_browser():
                 price_visible_until: match ? match[1] : null,
                 scenario_count: scenarioCount,
                 scenarios_with_offers: withOffers,
+                scenarios_with_guidance: withGuidance,
                 engine_errors: errors
               };
             }""")
@@ -113,6 +125,15 @@ def inspect_browser():
             snapshot["form_result_visible"] = panel.is_visible()
             snapshot["visible_cards"] = panel.locator(".nry-offer:visible").count()
             snapshot["visible_clickouts"] = panel.locator(".nry-offer__cta:visible").count()
+            # Detect external buy links even if their CSS class changes.
+            # Store only a count; never persist destinations or tracking data.
+            snapshot["visible_external_clickouts"] = panel.locator("a:visible").evaluate_all(
+                """nodes => nodes.filter(a => {
+                  try { return new URL(a.href).origin !== location.origin; }
+                  catch (_) { return true; }
+                }).length"""
+            )
+            snapshot["visible_guidance"] = len(panel.inner_text().strip()) > 100
             context.close()
             return snapshot, blocked
         finally:
