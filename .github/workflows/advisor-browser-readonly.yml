@@ -29,7 +29,8 @@ jobs:
   live-browser:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'push'
     needs: offline-contract
-    runs-on: ubuntu-latest
+    # Playwright 1.56 does not support ubuntu26.04; pin the browser runner.
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
