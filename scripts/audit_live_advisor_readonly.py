@@ -282,8 +282,11 @@ def audit_html(response):
     result["price_expiry_policy_present"] = PRICE_EXPIRY in engine_js
     # A second declaration can shadow or break the first; do not certify the
     # first apparently valid map while ignoring another map in the page.
+    # Reject conflicting declarations anywhere in executable inline JS,
+    # while requiring the single approved declaration inside the engine.
     maps = MAP_PATTERN.findall(engine_js)
-    if len(maps) == 1:
+    all_maps = MAP_PATTERN.findall(inline_js)
+    if len(maps) == 1 and len(all_maps) == 1:
         try:
             mapping = json.loads(maps[0])
             if isinstance(mapping, dict):
