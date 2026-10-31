@@ -191,6 +191,54 @@ def valid_cj_route(value):
         return False
 
 
+def strip_js_comments(source):
+    """Mask JS comments without deleting string-literal URLs or event names.
+
+    This is deliberately conservative static QA, not a JavaScript parser.
+    Strings (including backtick strings) remain intact, and malformed
+    comment syntax cannot create a false positive for required declarations.
+    """
+    output = []
+    i = 0
+    quote = None
+    while i < len(source):
+        char = source[i]
+        next_char = source[i + 1] if i + 1 < len(source) else ""
+        if quote is not None:
+            output.append(char)
+            if char == "\\" and next_char:
+                output.append(next_char)
+                i += 2
+                continue
+            if char == quote:
+                quote = None
+        elif char in ("'", '"', "`"):
+            quote = char
+            output.append(char)
+        elif char == "/" and next_char == "/":
+            end = source.find("\n", i + 2)
+            if end == -1:
+                output.append(" " * (len(source) - i))
+                break
+            output.append(" " * (end - i))
+            i = end
+            continue
+        elif char == "/" and next_char == "*":
+            end = source.find("*/", i + 2)
+            if end == -1:
+                # An unterminated comment cannot certify later JS.
+                output.append(" " * (len(source) - i))
+                break
+            chunk = source[i:end + 2]
+            output.append("".join("\n" if c == "\n" else " " for c in chunk))
+            i = end + 2
+            continue
+        else:
+            output.append(char)
+        i += 1
+    return "".join(output)
+
+
 def audit_html(response):
     result = {
         "http_status": response.get("status", 0),
@@ -211,7 +259,7 @@ def audit_html(response):
     parser = AdvisorMarkupParser()
     parser.feed(html)
     parser.close()
-    inline_js = "\n".join(parser.scripts)
+    inline_js = "\n".join(strip_js_comments(script) for script in parser.scripts)
     result["marker_present"] = parser.marker_comment and parser.engine_element
     # Substring matching incorrectly accepted suffixed/prefixed identifiers,
     # e.g. nry_advisor_product_click_disabled, as the expected event token.
