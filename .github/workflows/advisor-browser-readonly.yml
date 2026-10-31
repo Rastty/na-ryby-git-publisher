@@ -1,0 +1,69 @@
+name: Na-Ryby Advisor Expired Offers Browser Read-only
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_live_advisor_browser.py'
+      - 'tests/test-live-advisor-browser.py'
+      - '.github/workflows/advisor-browser-readonly.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/audit_live_advisor_browser.py'
+      - 'tests/test-live-advisor-browser.py'
+      - '.github/workflows/advisor-browser-readonly.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '47 4,16 * * *'
+permissions:
+  contents: read
+jobs:
+  offline-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and fail-closed tests (no production requests)
+        run: |
+          python3 -m py_compile scripts/audit_live_advisor_browser.py
+          python3 tests/test-live-advisor-browser.py -v
+  live-browser:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'push'
+    needs: offline-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Chromium browser test dependency
+        run: |
+          python3 -m pip install playwright==1.56.0
+          python3 -m playwright install chromium
+      - name: Anonymous GET-only 108-scenario expiry and visible clickout audit
+        run: python3 scripts/audit_live_advisor_browser.py --output advisor-browser-audit-result.json
+      - name: Evidence summary (no GA4 or CJ conversion claim)
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          path=Path('advisor-browser-audit-result.json')
+          lines=['## Na-Ryby advisor browser expiry audit', 'WordPress writes: 0', 'Merchant clicks: 0']
+          if path.exists():
+              r=json.loads(path.read_text(encoding='utf-8'))
+              lines += [f"Checked (UTC): {r['checked_at_utc']}", f"State: {r['state']}"]
+              if 'runtime' in r:
+                  s=r['runtime']
+                  lines += [f"Scenarios: {s.get('scenario_count','UNKNOWN')}",
+                            f"Scenarios exposing offers: {s.get('scenarios_with_offers','UNKNOWN')}",
+                            f"Visible product clickouts: {s.get('visible_clickouts','UNKNOWN')}"]
+          else:
+              lines += ['Browser audit receipt missing']
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
+              f.write('\n\n'.join(lines)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: na-ryby-advisor-browser-readonly
+          path: advisor-browser-audit-result.json
+          if-no-files-found: warn
+          retention-days: 7
