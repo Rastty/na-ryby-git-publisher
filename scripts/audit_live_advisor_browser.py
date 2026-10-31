@@ -51,6 +51,25 @@ def classify(snapshot, now):
     """Fail closed on missing runtime evidence; do not certify future prices."""
     if not isinstance(snapshot, dict):
         return "RUNTIME_UNVERIFIABLE"
+    # A positive observation of expired product cards is an incident even if
+    # another scenario or the guidance renderer is broken. Incomplete evidence
+    # can never certify safety, but it must not hide a confirmed exposure.
+    try:
+        observed_expiry = datetime.fromisoformat(
+            snapshot["price_visible_until"].replace("Z", "+00:00"))
+    except (KeyError, ValueError, AttributeError, TypeError):
+        observed_expiry = None
+    if (observed_expiry is not None and observed_expiry.tzinfo is not None
+            and now >= observed_expiry):
+        exposed_keys = (
+            "scenarios_with_offers", "visible_cards", "visible_clickouts",
+            "visible_external_clickouts", "rendered_cards",
+            "rendered_external_clickouts", "rendered_scenarios_with_cards",
+            "rendered_scenarios_with_external_clickouts",
+        )
+        if any(type(snapshot.get(key)) is int and snapshot[key] > 0
+               for key in exposed_keys):
+            return "EXPIRED_OFFERS_EXPOSED"
     if (snapshot.get("scenario_count") != EXPECTED_SCENARIOS
             or snapshot.get("engine_errors") != 0
             or snapshot.get("form_result_visible") is not True
