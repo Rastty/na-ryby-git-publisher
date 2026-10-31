@@ -135,6 +135,15 @@ def classify(snapshot, now):
             or any(type(count) is not int or count < 0 for count in channels.values())
             or any(channels.values())):
         return "RUNTIME_UNVERIFIABLE"
+    # Initial-load third-party and non-GET requests are also blocked. They
+    # could carry telemetry or load merchant offers that the real visitor sees;
+    # a browser with those dependencies quarantined cannot certify that
+    # expired offers are suppressed on the unrestricted live page.
+    # Positive observations of expired offers above still take precedence.
+    for key in ("blocked_third_party", "blocked_non_get"):
+        value = snapshot.get(key)
+        if type(value) is not int or value != 0:
+            return "RUNTIME_UNVERIFIABLE"
     # Dynamic GETs are blocked to prevent synthetic QA telemetry. Their
     # absence from the page may hide a dependency, so never certify safety.
     # But an independently observed expired card is still an incident even
@@ -453,6 +462,8 @@ def main():
     }
     try:
         snapshot, blocked = inspect_browser()
+        snapshot["blocked_third_party"] = blocked["third_party"]
+        snapshot["blocked_non_get"] = blocked["non_get"]
         snapshot["blocked_dynamic_get"] = blocked["dynamic_get"]
         snapshot["blocked_synthetic_requests"] = blocked["synthetic_requests"]
         report["runtime"] = snapshot

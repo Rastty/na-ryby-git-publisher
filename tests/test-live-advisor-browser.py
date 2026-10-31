@@ -14,6 +14,8 @@ NOW = datetime(2026, 10, 31, 5, 0, tzinfo=timezone.utc)
 def safe():
     return {
         "engine_marker_present": True,
+        "blocked_third_party": 0,
+        "blocked_non_get": 0,
         "blocked_dynamic_get": 0,
         "blocked_synthetic_requests": 0,
         "blocked_channel_apis": {"websocket": 0, "eventsource": 0, "beacon": 0},
@@ -82,6 +84,21 @@ class BrowserAuditContractTests(unittest.TestCase):
         self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
         snapshot["blocked_dynamic_get"] = False
         self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
+
+    def test_blocked_initial_network_dependencies_cannot_certify_suppression(self):
+        # A merchant API or first-party POST might populate offers for actual
+        # visitors; blocking it during QA must not create a false green result.
+        for key in ("blocked_third_party", "blocked_non_get"):
+            for value in (1, None, True, -1):
+                with self.subTest(key=key, value=value):
+                    snapshot = safe()
+                    snapshot[key] = value
+                    self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
+                    snapshot["scenarios_with_offers"] = 108
+                    self.assertEqual(classify(snapshot, NOW), "EXPIRED_OFFERS_EXPOSED")
+            snapshot = safe()
+            del snapshot[key]
+            self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
 
     def test_synthetic_requests_are_quarantined_even_when_static_looking(self):
         # The browser route must block every request after the first submit,
@@ -279,6 +296,8 @@ class BrowserAuditContractTests(unittest.TestCase):
                   "scripts/audit_live_advisor_browser.py").read_text(encoding="utf-8")
         self.assertIn('if method != "GET"', source)
         self.assertIn('decision = request_policy(request.url, request.method)', source)
+        self.assertIn('snapshot["blocked_third_party"] = blocked["third_party"]', source)
+        self.assertIn('snapshot["blocked_non_get"] = blocked["non_get"]', source)
         self.assertIn('snapshot["blocked_dynamic_get"] = blocked["dynamic_get"]', source)
         self.assertIn('snapshot["blocked_synthetic_requests"] = blocked["synthetic_requests"]', source)
         self.assertIn('if synthetic_phase:', source)
