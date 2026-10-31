@@ -45,7 +45,8 @@ def classify(snapshot, now):
     # All 108 form submissions must also produce useful, offer-free DOM output.
     for key in ("rendered_scenario_count", "rendered_scenarios_with_guidance",
                 "rendered_scenarios_matching_engine", "rendered_scenarios_matching_guides",
-                "rendered_scenarios_with_unapproved_links", "rendered_scenarios_with_cards",
+                "rendered_scenarios_with_unapproved_links", "rendered_scenarios_with_unapproved_actions",
+                "rendered_scenarios_with_cards",
                 "rendered_scenarios_with_external_clickouts",
                 "rendered_scenario_errors"):
         value = snapshot.get(key)
@@ -70,6 +71,10 @@ def classify(snapshot, now):
         # Same-origin redirects can be commercial too. Only exact approved
         # supporting guides are allowed after offer evidence expires.
         return "UNAPPROVED_RESULT_LINKS"
+    if snapshot["rendered_scenarios_with_unapproved_actions"] > 0:
+        # Buttons, inline handlers and synthetic links may navigate without href.
+        # Do not certify unreviewed actions as safe after merchant evidence expires.
+        return "UNAPPROVED_RESULT_ACTIONS"
     return "EXPIRED_OFFERS_SUPPRESSED"
 
 
@@ -181,7 +186,7 @@ def inspect_browser():
               const panel = root?.querySelector('[data-nry-results]');
               const engine = window.NaRybySetupEngine;
               const keys = ['style', 'water', 'travel', 'experience', 'budget'];
-              let count = 0, guidance = 0, matching = 0, matchingGuides = 0, unexpectedLinks = 0, cards = 0, external = 0, errors = 0;
+              let count = 0, guidance = 0, matching = 0, matchingGuides = 0, unexpectedLinks = 0, unexpectedActions = 0, cards = 0, external = 0, errors = 0;
               if (!form || !panel || !engine?.OPTIONS) {
                 return {rendered_scenario_count: 0, rendered_scenario_errors: 1};
               }
@@ -251,6 +256,10 @@ def inspect_browser():
                     const allResultLinks = [...panel.querySelectorAll("a[href]")];
                     if (allResultLinks.length !== actualGuides.length
                         || allResultLinks.some(link => !actualGuides.includes(link))) unexpectedLinks++;
+                    // An expired offer can also be exposed as a button, inline
+                    // handler or data-driven navigation without an anchor href.
+                    // The approved result currently has only guide anchors.
+                    if (panel.querySelector('button, input[type="submit"], input[type="button"], [role="button"], [role="link"], [onclick], [data-href], [data-url], form')) unexpectedActions++;
                     if (matches && guidesMatch && panel.textContent.trim().length > 100) guidance++;
                     if (panel.querySelector('.nry-offer, .nry-offer__cta')) cards++;
                     if ([...panel.querySelectorAll('a[href]')].some(a => {
@@ -273,6 +282,7 @@ def inspect_browser():
                 rendered_scenarios_matching_engine: matching,
                 rendered_scenarios_matching_guides: matchingGuides,
                 rendered_scenarios_with_unapproved_links: unexpectedLinks,
+                rendered_scenarios_with_unapproved_actions: unexpectedActions,
                 rendered_scenarios_with_cards: cards,
                 rendered_scenarios_with_external_clickouts: external,
                 rendered_scenario_errors: errors
