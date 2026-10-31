@@ -15,6 +15,7 @@ def safe():
     return {
         "engine_marker_present": True,
         "blocked_dynamic_get": 0,
+        "blocked_synthetic_requests": 0,
         "blocked_channel_apis": {"websocket": 0, "eventsource": 0, "beacon": 0},
         "synthetic_funnel_events": {
             "start": 1, "result": 109, "offer_view": 0, "product_click": 0,
@@ -80,6 +81,20 @@ class BrowserAuditContractTests(unittest.TestCase):
         del snapshot["blocked_dynamic_get"]
         self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
         snapshot["blocked_dynamic_get"] = False
+        self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
+
+    def test_synthetic_requests_are_quarantined_even_when_static_looking(self):
+        # The browser route must block every request after the first submit,
+        # including versioned static asset URLs used as covert tracking pixels.
+        for value in (1, 2, None, True, -1):
+            with self.subTest(value=value):
+                snapshot = safe()
+                snapshot["blocked_synthetic_requests"] = value
+                self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
+                snapshot["scenarios_with_offers"] = 108
+                self.assertEqual(classify(snapshot, NOW), "EXPIRED_OFFERS_EXPOSED")
+        snapshot = safe()
+        del snapshot["blocked_synthetic_requests"]
         self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
 
     def test_channel_guard_fail_closed_without_masking_expired_offers(self):
@@ -265,6 +280,11 @@ class BrowserAuditContractTests(unittest.TestCase):
         self.assertIn('if method != "GET"', source)
         self.assertIn('decision = request_policy(request.url, request.method)', source)
         self.assertIn('snapshot["blocked_dynamic_get"] = blocked["dynamic_get"]', source)
+        self.assertIn('snapshot["blocked_synthetic_requests"] = blocked["synthetic_requests"]', source)
+        self.assertIn('if synthetic_phase:', source)
+        self.assertIn('synthetic_phase = True', source)
+        self.assertLess(source.index('synthetic_phase = True'),
+                        source.index('page.locator(".nry-setup form button[type=submit]").first.click'))
         self.assertIn('route.abort()', source)
         self.assertIn('context.add_init_script', source)
         self.assertIn("Object.defineProperty(window, api", source)
