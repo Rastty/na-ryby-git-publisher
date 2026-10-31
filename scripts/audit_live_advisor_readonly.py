@@ -45,9 +45,10 @@ class AdvisorMarkupParser(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.marker_comment = False
-        self.engine_element = False
+        self.engine_scripts = []
         self.scripts = []
         self._script_chunks = None
+        self._script_is_engine = False
         self._inert_depth = 0
 
     def handle_comment(self, data):
@@ -70,9 +71,10 @@ class AdvisorMarkupParser(HTMLParser):
                 "", "text/javascript", "application/javascript", "module"
             ))
             self._script_chunks = [] if executable_script else None
-        if attributes.get("data-nry-engine") == "nry-advisor-live-v1":
-            if tag != "script" or executable_script:
-                self.engine_element = True
+            self._script_is_engine = (
+                executable_script and
+                attributes.get("data-nry-engine") == "nry-advisor-live-v1"
+            )
 
     def handle_data(self, data):
         if self._script_chunks is not None and not self._inert_depth:
@@ -80,8 +82,12 @@ class AdvisorMarkupParser(HTMLParser):
 
     def handle_endtag(self, tag):
         if tag == "script" and self._script_chunks is not None:
-            self.scripts.append("".join(self._script_chunks))
+            script = "".join(self._script_chunks)
+            self.scripts.append(script)
+            if self._script_is_engine:
+                self.engine_scripts.append(script)
             self._script_chunks = None
+            self._script_is_engine = False
         if tag in ("template", "noscript") and self._inert_depth:
             self._inert_depth -= 1
 
@@ -260,7 +266,12 @@ def audit_html(response):
     parser.feed(html)
     parser.close()
     inline_js = "\n".join(strip_js_comments(script) for script in parser.scripts)
-    result["marker_present"] = parser.marker_comment and parser.engine_element
+    # Price expiry and merchant map must belong to exactly one executable
+    # advisor engine, not unrelated scripts or a decorative HTML element.
+    engine_js = (strip_js_comments(parser.engine_scripts[0])
+                 if len(parser.engine_scripts) == 1 else "")
+    result["marker_present"] = (parser.marker_comment and
+                                len(parser.engine_scripts) == 1)
     # Substring matching incorrectly accepted suffixed/prefixed identifiers,
     # e.g. nry_advisor_product_click_disabled, as the expected event token.
     result["missing_event_tokens"] = [
@@ -268,10 +279,10 @@ def audit_html(response):
         if not re.search(r"(?<![\w$])" + re.escape(name) + r"(?![\w$])",
                          inline_js)
     ]
-    result["price_expiry_policy_present"] = PRICE_EXPIRY in inline_js
+    result["price_expiry_policy_present"] = PRICE_EXPIRY in engine_js
     # A second declaration can shadow or break the first; do not certify the
     # first apparently valid map while ignoring another map in the page.
-    maps = MAP_PATTERN.findall(inline_js)
+    maps = MAP_PATTERN.findall(engine_js)
     if len(maps) == 1:
         try:
             mapping = json.loads(maps[0])
