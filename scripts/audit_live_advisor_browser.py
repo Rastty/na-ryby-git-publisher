@@ -9,15 +9,52 @@ import argparse
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import parse_qsl, urlsplit
 
 PUBLIC_URL = "https://na-ryby.eu/poradce-vybavy/"
 EXPECTED_SCENARIOS = 108
+
+# A GET can still send analytics data to a first-party collection endpoint.
+# Browser QA needs only the canonical document and static WordPress assets.
+# Do not allow dynamic REST, AJAX, redirect or telemetry GET endpoints.
+STATIC_PREFIXES = ("/wp-content/", "/wp-includes/")
+STATIC_EXTENSIONS = (
+    ".css", ".js", ".mjs", ".png", ".jpg", ".jpeg", ".webp",
+    ".gif", ".svg", ".ico", ".woff", ".woff2", ".ttf", ".otf",
+)
+
+
+def request_policy(url, method):
+    """Classify requests without persisting URL, query, visitor or event data."""
+    if method != "GET":
+        return "non_get"
+    try:
+        parsed = urlsplit(url)
+        if (parsed.scheme != "https" or parsed.hostname != "na-ryby.eu"
+                or parsed.username or parsed.password or parsed.port is not None):
+            return "third_party"
+        if url == PUBLIC_URL:
+            return "allow"
+        if (parsed.path.startswith(STATIC_PREFIXES)
+                and parsed.path.lower().endswith(STATIC_EXTENSIONS)
+                and not parsed.fragment
+                and all(key == "ver" and bool(value)
+                        for key, value in parse_qsl(
+                            parsed.query, keep_blank_values=True))):
+            return "allow"
+    except ValueError:
+        return "dynamic_get"
+    return "dynamic_get"
 
 
 def classify(snapshot, now):
     """Fail closed on missing runtime evidence; do not certify future prices."""
     if not isinstance(snapshot, dict):
+        return "RUNTIME_UNVERIFIABLE"
+    # Blocking a dynamic same-origin GET may hide a dependency of the live
+    # advisor. Never report safe until the real visitor path is independently
+    # checked without such blocked dependencies.
+    if type(snapshot.get("blocked_dynamic_get")) is not int or snapshot["blocked_dynamic_get"] != 0:
         return "RUNTIME_UNVERIFIABLE"
     if (snapshot.get("scenario_count") != EXPECTED_SCENARIOS
             or snapshot.get("engine_errors") != 0
@@ -81,7 +118,7 @@ def classify(snapshot, now):
 def inspect_browser():
     from playwright.sync_api import sync_playwright
 
-    blocked = {"third_party": 0, "non_get": 0}
+    blocked = {"third_party": 0, "non_get": 0, "dynamic_get": 0}
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
         try:
@@ -91,15 +128,12 @@ def inspect_browser():
             )
             def guard(route):
                 request = route.request
-                parsed = urlsplit(request.url)
-                if request.method != "GET":
-                    blocked["non_get"] += 1
-                    route.abort()
-                elif parsed.scheme != "https" or parsed.hostname != "na-ryby.eu":
-                    blocked["third_party"] += 1
-                    route.abort()
-                else:
+                decision = request_policy(request.url, request.method)
+                if decision == "allow":
                     route.continue_()
+                else:
+                    blocked[decision] += 1
+                    route.abort()
 
             context.route("**/*", guard)
             page = context.new_page()
@@ -316,6 +350,7 @@ def main():
     }
     try:
         snapshot, blocked = inspect_browser()
+        snapshot["blocked_dynamic_get"] = blocked["dynamic_get"]
         report["runtime"] = snapshot
         report["blocked_requests"] = blocked
         report["state"] = classify(snapshot, now)
