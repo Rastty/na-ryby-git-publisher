@@ -234,6 +234,39 @@ class AdvisorAuditTests(unittest.TestCase):
         self.assertEqual(result["missing_event_tokens"], list(EXPECTED_EVENTS))
         self.assertIsNone(result["cj_route_count"])
 
+    def test_decorative_div_cannot_impersonate_executable_engine(self):
+        page = html()
+        page["body"] = page["body"].replace(
+            b'<script data-nry-engine="nry-advisor-live-v1">',
+            b'<script>'
+        ) + b'<div data-nry-engine="nry-advisor-live-v1"></div>'
+        result = audit_html(page)
+        self.assertFalse(result["marker_present"])
+        self.assertFalse(result["price_expiry_policy_present"])
+        self.assertIsNone(result["cj_route_count"])
+        self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
+
+    def test_unrelated_script_cannot_supply_engine_price_and_cj_map(self):
+        page = html()
+        page["body"] = page["body"].replace(
+            b'<script data-nry-engine="nry-advisor-live-v1">',
+            b'<script data-nry-engine="nry-advisor-live-v1"></script><script>'
+        )
+        result = audit_html(page)
+        self.assertTrue(result["marker_present"])
+        self.assertFalse(result["price_expiry_policy_present"])
+        self.assertIsNone(result["cj_route_count"])
+        self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
+
+    def test_duplicate_executable_engine_markers_fail_closed(self):
+        page = html()
+        page["body"] += b'<script data-nry-engine="nry-advisor-live-v1"></script>'
+        result = audit_html(page)
+        self.assertFalse(result["marker_present"])
+        self.assertFalse(result["price_expiry_policy_present"])
+        self.assertIsNone(result["cj_route_count"])
+        self.assertEqual(result["state"], "PUBLIC_STRUCTURE_DRIFT")
+
     def test_price_expiry_change_fails(self):
         page = html()
         page["body"] = page["body"].replace(
