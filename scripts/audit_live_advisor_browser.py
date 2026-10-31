@@ -51,11 +51,6 @@ def classify(snapshot, now):
     """Fail closed on missing runtime evidence; do not certify future prices."""
     if not isinstance(snapshot, dict):
         return "RUNTIME_UNVERIFIABLE"
-    # Blocking a dynamic same-origin GET may hide a dependency of the live
-    # advisor. Never report safe until the real visitor path is independently
-    # checked without such blocked dependencies.
-    if type(snapshot.get("blocked_dynamic_get")) is not int or snapshot["blocked_dynamic_get"] != 0:
-        return "RUNTIME_UNVERIFIABLE"
     if (snapshot.get("scenario_count") != EXPECTED_SCENARIOS
             or snapshot.get("engine_errors") != 0
             or snapshot.get("form_result_visible") is not True
@@ -112,6 +107,12 @@ def classify(snapshot, now):
         # Buttons, inline handlers and synthetic links may navigate without href.
         # Do not certify unreviewed actions as safe after merchant evidence expires.
         return "UNAPPROVED_RESULT_ACTIONS"
+    # Dynamic GETs are blocked to prevent synthetic QA telemetry. Their
+    # absence from the page may hide a dependency, so never certify safety.
+    # But an independently observed expired card is still an incident even
+    # when another request was blocked: do not mask that concrete evidence.
+    if type(snapshot.get("blocked_dynamic_get")) is not int or snapshot["blocked_dynamic_get"] != 0:
+        return "RUNTIME_UNVERIFIABLE"
     return "EXPIRED_OFFERS_SUPPRESSED"
 
 
