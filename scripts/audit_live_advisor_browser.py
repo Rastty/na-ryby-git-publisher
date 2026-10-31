@@ -44,7 +44,8 @@ def classify(snapshot, now):
     # Engine-only enumeration cannot certify the rendered visitor experience.
     # All 108 form submissions must also produce useful, offer-free DOM output.
     for key in ("rendered_scenario_count", "rendered_scenarios_with_guidance",
-                "rendered_scenarios_matching_engine", "rendered_scenarios_with_cards",
+                "rendered_scenarios_matching_engine", "rendered_scenarios_matching_guides",
+                "rendered_scenarios_with_cards",
                 "rendered_scenarios_with_external_clickouts",
                 "rendered_scenario_errors"):
         value = snapshot.get(key)
@@ -53,6 +54,7 @@ def classify(snapshot, now):
     if (snapshot["rendered_scenario_count"] != EXPECTED_SCENARIOS
             or snapshot["rendered_scenarios_with_guidance"] != EXPECTED_SCENARIOS
             or snapshot["rendered_scenarios_matching_engine"] != EXPECTED_SCENARIOS
+            or snapshot["rendered_scenarios_matching_guides"] != EXPECTED_SCENARIOS
             or snapshot["rendered_scenario_errors"] != 0):
         return "RUNTIME_UNVERIFIABLE"
     if (snapshot["scenarios_with_offers"] > 0
@@ -139,6 +141,9 @@ def inspect_browser():
                 engine_errors: errors
               };
             }""")
+            # Suppress synthetic funnel events before the FIRST form submission.
+            # Third-party/network guards still enforce no GA4 delivery.
+            page.evaluate("() => { window.gtag = () => {}; }")
             page.locator(".nry-setup form button[type=submit]").first.click(timeout=12000)
             panel = page.locator(".nry-setup [data-nry-results]").first
             snapshot["form_result_visible"] = panel.is_visible()
@@ -172,7 +177,7 @@ def inspect_browser():
               const panel = root?.querySelector('[data-nry-results]');
               const engine = window.NaRybySetupEngine;
               const keys = ['style', 'water', 'travel', 'experience', 'budget'];
-              let count = 0, guidance = 0, matching = 0, cards = 0, external = 0, errors = 0;
+              let count = 0, guidance = 0, matching = 0, matchingGuides = 0, cards = 0, external = 0, errors = 0;
               if (!form || !panel || !engine?.OPTIONS) {
                 return {rendered_scenario_count: 0, rendered_scenario_errors: 1};
               }
@@ -217,7 +222,26 @@ def inspect_browser():
                       && essentials?.length === expected.essentials.length
                       && essentials.every((text, index) => text === expected.essentials[index]);
                     if (matches) matching++;
-                    if (matches && panel.textContent.trim().length > 100) guidance++;
+                    // Supporting guides are part of the actual useful result.
+                    // Check every rendered link against the exact decision,
+                    // including duplicate suppression and same-origin safety.
+                    const expectedGuides = [expected.guide, expected.secondGuide]
+                      .filter((item, index, all) => item &&
+                        all.findIndex(candidate => candidate?.url === item.url) === index);
+                    const actualGuides = [...panel.querySelectorAll('.nry-result__links a[href]')];
+                    const guidesMatch = expectedGuides.length > 0
+                      && actualGuides.length === expectedGuides.length
+                      && expectedGuides.every((item, index) => {
+                        try {
+                          const target = new URL(item.url);
+                          return target.origin === location.origin
+                            && !target.search && !target.hash
+                            && actualGuides[index].href === target.href
+                            && actualGuides[index].textContent.trim() === item.label + ' →';
+                        } catch (_) { return false; }
+                      });
+                    if (guidesMatch) matchingGuides++;
+                    if (matches && guidesMatch && panel.textContent.trim().length > 100) guidance++;
                     if (panel.querySelector('.nry-offer, .nry-offer__cta')) cards++;
                     if ([...panel.querySelectorAll('a[href]')].some(a => {
                       try { return new URL(a.href, location.href).origin !== location.origin; }
@@ -237,6 +261,7 @@ def inspect_browser():
                 rendered_scenario_count: count,
                 rendered_scenarios_with_guidance: guidance,
                 rendered_scenarios_matching_engine: matching,
+                rendered_scenarios_matching_guides: matchingGuides,
                 rendered_scenarios_with_cards: cards,
                 rendered_scenarios_with_external_clickouts: external,
                 rendered_scenario_errors: errors
