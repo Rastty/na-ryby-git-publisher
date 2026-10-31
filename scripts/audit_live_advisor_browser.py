@@ -141,6 +141,17 @@ def classify(snapshot, now):
     # when another request was blocked: do not mask that concrete evidence.
     if type(snapshot.get("blocked_dynamic_get")) is not int or snapshot["blocked_dynamic_get"] != 0:
         return "RUNTIME_UNVERIFIABLE"
+    # Synthetic form submissions must exercise the local event wiring without
+    # sending events to GA4. These counters are NOT measured GA4 deliveries.
+    funnel = snapshot.get("synthetic_funnel_events")
+    if (not isinstance(funnel, dict)
+            or set(funnel) != {"start", "result", "offer_view", "product_click"}
+            or any(type(value) is not int or value < 0 for value in funnel.values())
+            or funnel["start"] != 1
+            or funnel["result"] != EXPECTED_SCENARIOS + 1
+            or funnel["offer_view"] != 0
+            or funnel["product_click"] != 0):
+        return "RUNTIME_UNVERIFIABLE"
     return "EXPIRED_OFFERS_SUPPRESSED"
 
 
@@ -237,7 +248,25 @@ def inspect_browser():
             }""")
             # Suppress synthetic funnel events before the FIRST form submission.
             # Third-party/network guards still enforce no GA4 delivery.
-            page.evaluate("() => { window.gtag = () => {}; }")
+            page.evaluate("""() => {
+              // Local-only interception: count event NAMES, never properties,
+              // visitor answers, URLs or product IDs. No analytics delivery.
+              window.__nryAuditSyntheticFunnel = {
+                start: 0, result: 0, offer_view: 0, product_click: 0
+              };
+              window.gtag = (kind, name) => {
+                if (kind !== 'event') return;
+                const names = {
+                  nry_advisor_start: 'start',
+                  nry_advisor_result: 'result',
+                  nry_advisor_offer_view: 'offer_view',
+                  nry_advisor_product_click: 'product_click'
+                };
+                if (Object.prototype.hasOwnProperty.call(names, name)) {
+                  window.__nryAuditSyntheticFunnel[names[name]]++;
+                }
+              };
+            }""")
             page.locator(".nry-setup form button[type=submit]").first.click(timeout=12000)
             panel = page.locator(".nry-setup [data-nry-results]").first
             snapshot["form_result_visible"] = panel.is_visible()
@@ -265,7 +294,7 @@ def inspect_browser():
             # not only the deterministic engine. No merchant clicks or WP writes.
             # Suppress synthetic GA4 events so this QA cannot pollute funnels.
             rendered = page.evaluate("""() => {
-              window.gtag = () => {};
+              // Keep the local-only gtag counter installed for all 108 forms.
               const root = document.querySelector('.nry-setup');
               const form = root?.querySelector('form');
               const panel = root?.querySelector('[data-nry-results]');
@@ -374,6 +403,10 @@ def inspect_browser():
               };
             }""")
             snapshot.update(rendered)
+            # Counts only; no event properties or personal inputs leave browser QA.
+            snapshot["synthetic_funnel_events"] = page.evaluate(
+                "() => window.__nryAuditSyntheticFunnel || null"
+            )
             # No destinations, event payloads or visitor answers in the receipt.
             snapshot["blocked_channel_apis"] = page.evaluate(
                 "() => window.__nryAuditChannelGuard || null"
@@ -401,6 +434,7 @@ def main():
             "A browser result is not a CJ feed or GA4 receipt.",
             "Third-party requests are blocked; no merchant link is clicked.",
             "This verifies current runtime behavior, not future price or stock.",
+            "Synthetic funnel counters verify local wiring only, not GA4 ingestion.",
         ],
     }
     try:
