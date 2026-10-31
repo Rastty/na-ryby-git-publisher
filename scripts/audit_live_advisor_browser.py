@@ -36,14 +36,17 @@ def classify(snapshot, now):
         # A new timestamp alone cannot establish current SKU, stock or license.
         return "FUTURE_EVIDENCE_WINDOW_REQUIRES_SOURCE_REVIEW"
     for key in ("scenarios_with_offers", "visible_cards", "visible_clickouts",
-                "visible_external_clickouts"):
+                "visible_external_clickouts", "rendered_cards",
+                "rendered_external_clickouts"):
         value = snapshot.get(key)
         if type(value) is not int or value < 0:
             return "RUNTIME_UNVERIFIABLE"
     if (snapshot["scenarios_with_offers"] > 0
             or snapshot["visible_cards"] > 0
             or snapshot["visible_clickouts"] > 0
-            or snapshot["visible_external_clickouts"] > 0):
+            or snapshot["visible_external_clickouts"] > 0
+            or snapshot["rendered_cards"] > 0
+            or snapshot["rendered_external_clickouts"] > 0):
         return "EXPIRED_OFFERS_EXPOSED"
     return "EXPIRED_OFFERS_SUPPRESSED"
 
@@ -124,10 +127,19 @@ def inspect_browser():
             panel = page.locator(".nry-setup [data-nry-results]").first
             snapshot["form_result_visible"] = panel.is_visible()
             snapshot["visible_cards"] = panel.locator(".nry-offer:visible").count()
+            # CSS hiding is not removal: stale product cards and links must not
+            # remain in the result DOM for later reveal or assistive tooling.
+            snapshot["rendered_cards"] = panel.locator(".nry-offer").count()
             snapshot["visible_clickouts"] = panel.locator(".nry-offer__cta:visible").count()
             # Detect external buy links even if their CSS class changes.
             # Store only a count; never persist destinations or tracking data.
             snapshot["visible_external_clickouts"] = panel.locator("a:visible").evaluate_all(
+                """nodes => nodes.filter(a => {
+                  try { return new URL(a.href).origin !== location.origin; }
+                  catch (_) { return true; }
+                }).length"""
+            )
+            snapshot["rendered_external_clickouts"] = panel.locator("a[href]").evaluate_all(
                 """nodes => nodes.filter(a => {
                   try { return new URL(a.href).origin !== location.origin; }
                   catch (_) { return true; }
