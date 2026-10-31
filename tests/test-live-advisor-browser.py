@@ -236,6 +236,21 @@ class BrowserAuditContractTests(unittest.TestCase):
         snapshot["rendered_scenarios_with_unapproved_actions"] = 1
         self.assertEqual(classify(snapshot, NOW), "UNAPPROVED_RESULT_ACTIONS")
 
+    def test_guide_link_side_effect_attributes_are_not_certified(self):
+        # A visually correct internal guide href may still issue a hidden
+        # ping POST, force a download or override a form action on activation.
+        # All three must count as unapproved actions in every rendered result.
+        source = (Path(__file__).resolve().parents[1] /
+                  "scripts/audit_live_advisor_browser.py").read_text(encoding="utf-8")
+        for attribute in ("[ping]", "[download]", "[formaction]"):
+            with self.subTest(attribute=attribute):
+                self.assertIn(attribute, source)
+                snapshot = safe()
+                snapshot["rendered_scenarios_with_unapproved_actions"] = 1
+                self.assertEqual(classify(snapshot, NOW), "UNAPPROVED_RESULT_ACTIONS")
+                snapshot["blocked_dynamic_get"] = 2
+                self.assertEqual(classify(snapshot, NOW), "UNAPPROVED_RESULT_ACTIONS")
+
     def test_incomplete_or_broken_rendered_form_fails_closed(self):
         for key, value in (
             ("rendered_scenario_count", 107),
