@@ -107,6 +107,15 @@ def classify(snapshot, now):
         # Buttons, inline handlers and synthetic links may navigate without href.
         # Do not certify unreviewed actions as safe after merchant evidence expires.
         return "UNAPPROVED_RESULT_ACTIONS"
+    # HTTP routing does not intercept WebSocket/EventSource channels. The
+    # init-script guard blocks those and sendBeacon before any site script runs.
+    # A blocked channel might hide a runtime dependency; it cannot certify safe.
+    channels = snapshot.get("blocked_channel_apis")
+    if (not isinstance(channels, dict)
+            or set(channels) != {"websocket", "eventsource", "beacon"}
+            or any(type(count) is not int or count < 0 for count in channels.values())
+            or any(channels.values())):
+        return "RUNTIME_UNVERIFIABLE"
     # Dynamic GETs are blocked to prevent synthetic QA telemetry. Their
     # absence from the page may hide a dependency, so never certify safety.
     # But an independently observed expired card is still an incident even
@@ -127,6 +136,28 @@ def inspect_browser():
                 viewport={"width": 390, "height": 844},
                 service_workers="block", accept_downloads=False,
             )
+            # Playwright HTTP routing does NOT catch WebSocket handshakes.
+            # Prevent synthetic advisor QA from sending any channel telemetry.
+            # Install before creating the page, and record counts only.
+            context.add_init_script("""(() => {
+              const counts = {websocket: 0, eventsource: 0, beacon: 0};
+              Object.defineProperty(window, '__nryAuditChannelGuard', {
+                value: counts, writable: false, configurable: false
+              });
+              for (const [api, key] of [['WebSocket', 'websocket'], ['EventSource', 'eventsource']]) {
+                if (typeof window[api] !== 'function') continue;
+                Object.defineProperty(window, api, {
+                  value: function() {
+                    counts[key]++;
+                    throw new Error('NRY_AUDIT_CHANNEL_BLOCKED');
+                  }, writable: false, configurable: false
+                });
+              }
+              Object.defineProperty(navigator, 'sendBeacon', {
+                value: function() { counts.beacon++; return false; },
+                writable: false, configurable: false
+              });
+            })();""")
             def guard(route):
                 request = route.request
                 decision = request_policy(request.url, request.method)
@@ -324,6 +355,10 @@ def inspect_browser():
               };
             }""")
             snapshot.update(rendered)
+            # No destinations, event payloads or visitor answers in the receipt.
+            snapshot["blocked_channel_apis"] = page.evaluate(
+                "() => window.__nryAuditChannelGuard || null"
+            )
             context.close()
             return snapshot, blocked
         finally:

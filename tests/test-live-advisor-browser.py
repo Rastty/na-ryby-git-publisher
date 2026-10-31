@@ -15,6 +15,7 @@ def safe():
     return {
         "engine_marker_present": True,
         "blocked_dynamic_get": 0,
+        "blocked_channel_apis": {"websocket": 0, "eventsource": 0, "beacon": 0},
         "price_visible_until": "2026-10-21T00:00:00Z",
         "scenario_count": 108,
         "engine_errors": 0,
@@ -77,6 +78,19 @@ class BrowserAuditContractTests(unittest.TestCase):
         self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
         snapshot["blocked_dynamic_get"] = False
         self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
+
+    def test_channel_guard_fail_closed_without_masking_expired_offers(self):
+        for channel in ("websocket", "eventsource", "beacon"):
+            snapshot = safe()
+            snapshot["blocked_channel_apis"][channel] = 1
+            self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
+            snapshot["scenarios_with_offers"] = 108
+            self.assertEqual(classify(snapshot, NOW), "EXPIRED_OFFERS_EXPOSED")
+        for malformed in (None, {}, {"websocket": False, "eventsource": 0, "beacon": 0},
+                          {"websocket": -1, "eventsource": 0, "beacon": 0}):
+            snapshot = safe()
+            snapshot["blocked_channel_apis"] = malformed
+            self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
 
     def test_expired_snapshot_with_all_108_empty_and_no_ui_links_is_safe(self):
         self.assertEqual(classify(safe(), NOW), "EXPIRED_OFFERS_SUPPRESSED")
@@ -199,6 +213,10 @@ class BrowserAuditContractTests(unittest.TestCase):
         self.assertIn('decision = request_policy(request.url, request.method)', source)
         self.assertIn('snapshot["blocked_dynamic_get"] = blocked["dynamic_get"]', source)
         self.assertIn('route.abort()', source)
+        self.assertIn('context.add_init_script', source)
+        self.assertIn("Object.defineProperty(window, api", source)
+        self.assertIn("Object.defineProperty(navigator, 'sendBeacon'", source)
+        self.assertIn('snapshot["blocked_channel_apis"] = page.evaluate(', source)
         self.assertIn('merchant_clicks": 0', source)
         self.assertIn('window.gtag = () => {}', source)
         self.assertIn("form.dispatchEvent(new Event('submit'", source)
