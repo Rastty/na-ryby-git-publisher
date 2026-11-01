@@ -42,7 +42,7 @@ def request_policy(url, method):
         path = parsed.path
         segments = path.split("/")
         unambiguous_path = (
-            "%" not in path and "\\\\" not in path and "//" not in path
+            "%" not in path and "\\" not in path and "//" not in path
             and all(segment not in (".", "..") for segment in segments)
         )
         # Only an ordinary numeric WordPress asset version is permitted.
@@ -50,7 +50,7 @@ def request_policy(url, method):
         # ?ver=<event payload>); blocked dependencies prevent a green audit.
         version_ok = (
             not parsed.query
-            or re.fullmatch(r"ver=\\d+(?:\\.\\d+){0,5}", parsed.query) is not None
+            or re.fullmatch(r"ver=\d+(?:\.\d+){0,5}", parsed.query) is not None
         )
         if (unambiguous_path and version_ok
                 and path.startswith(STATIC_PREFIXES)
