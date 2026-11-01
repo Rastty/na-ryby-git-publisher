@@ -27,7 +27,9 @@ $c='NRY_Advisor_Existing_Page_Release_V1';
 ok($c::inspect()['reason']==='reviewed_manifest_or_candidate_not_staged','missing candidate blocks');
 $original='<!-- wp:html --><div data-nry-affiliate-disclosure="advisor-v3" data-nry-results>'.
     'https://na-ryby.eu/click-8287231-15734253</div><!-- nry-advisor-live-v1 -->'.
-    '<script>const PRICE_VISIBLE_UNTIL="2026-10-21";</script>'.str_repeat('Source guidance ',700);
+    '<script>const PRICE_VISIBLE_UNTIL="2026-10-21";</script>'.
+    '<span data-link="/click-8287231-15734253?url=exact">tracked</span>'.
+    str_repeat('Source guidance ',700);
 $candidate=str_replace('Source guidance ','Better guidance ',$original);
 $GLOBALS['post']->post_content=$original;
 $assetDir=$fixtureDir.'/assets';mkdir($assetDir);
@@ -60,6 +62,13 @@ $manifest['candidate_sha256']=hash('sha256',$modified);
 $manifest['offer_safety']['candidate_sha256']=hash('sha256',$modified);
 file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
 ok($c::inspect()['reason']==='external_destination_drift','tracking destination drift blocks');
+// Relative CJ route changes must also be refused even when absolute URLs match.
+$relativeChanged=str_replace('?url=exact','?url=wrong',$candidate);
+file_put_contents($assetDir.'/advisor-existing-page-v1.html',$relativeChanged);
+$manifest['candidate_sha256']=hash('sha256',$relativeChanged);
+$manifest['offer_safety']['candidate_sha256']=hash('sha256',$relativeChanged);
+file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
+ok($c::inspect()['reason']==='cj_route_or_property_drift','relative CJ route drift blocked');
 file_put_contents($assetDir.'/advisor-existing-page-v1.html',$candidate);
 $manifest['candidate_sha256']=hash('sha256',$candidate);
 $manifest['offer_safety']['candidate_sha256']=hash('sha256',$candidate);
