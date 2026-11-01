@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Offline verification tests
-        run: python3 -m unittest discover -s tests -p 'test-auto-public-readback.py' -v
+        run: python3 tests/test-auto-public-readback.py -v
       - name: Public HTTP readback of exact current manifest
         if: github.event_name != 'pull_request'
         run: python3 scripts/verify-current-manifest-public.py manifest.json
