@@ -32,7 +32,14 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         // introduce unreviewed executable code without changing any URL list.
         $decoded = html_entity_decode($body, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         return preg_match('~<script\\b[^>]*\\bsrc\\s*=~i', $decoded) === 1
-            || preg_match('~<a\\b[^>]*\\bhref\\s*=\\s*(?:"\\s*|\\x27\\s*|)(?:javascript|data)\\s*:~i', $decoded) === 1;
+            || preg_match('~<a\\b[^>]*\\bhref\\s*=\\s*(?:"\\s*|\\x27\\s*|)(?:javascript|data)\\s*:~i', $decoded) === 1
+            // Do not allow active HTML to bypass the reviewed inline advisor.
+            // Even an exact SHA-bound candidate can introduce an unreviewed
+            // event handler, embedded document or form submission endpoint.
+            || preg_match('~<\s*(?:iframe|object|embed|form|base|meta|link|svg|math)\b~i', $decoded) === 1
+            || preg_match('~<[^>]*\s+on[a-z][a-z0-9_-]*\s*=~i', $decoded) === 1
+            || preg_match('~<[^>]*\s+srcdoc\s*=~i', $decoded) === 1
+            || preg_match('~<[^>]*\s+(?:src|action|formaction|xlink:href)\s*=\s*(?:"\s*|\x27\s*|)(?:javascript|data)\s*:~i', $decoded) === 1;
     }
     private static function identity($post) {
         return is_object($post) && (int)($post->ID ?? 0) === self::ID
