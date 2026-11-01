@@ -58,6 +58,32 @@ class BrowserAuditContractTests(unittest.TestCase):
             with self.subTest(url=url):
                 self.assertEqual(request_policy(url, "GET"), "allow")
 
+    def test_static_asset_routes_reject_ambiguous_paths_and_tracking_queries(self):
+        # The initial document load may use only unambiguous, versioned
+        # WordPress static assets. Synthetic interactions are blocked entirely.
+        disguised = (
+            "https://na-ryby.eu/wp-content/../wp-json/collect.js?ver=1",
+            "https://na-ryby.eu/wp-content/%2e%2e/wp-json/collect.js?ver=1",
+            "https://na-ryby.eu/wp-content/%2fwp-json/collect.js?ver=1",
+            "https://na-ryby.eu/wp-content//plugins/app.js?ver=1",
+            "https://na-ryby.eu/wp-content/plugins/app\\\\.js?ver=1",
+            "https://na-ryby.eu/wp-content/plugins/app.js?ver=nry_advisor_result",
+            "https://na-ryby.eu/wp-content/plugins/app.js?ver=1&ver=2",
+            "https://na-ryby.eu/wp-content/plugins/app.js?ver=1&en=click",
+            "https://na-ryby.eu/wp-content/plugins/app.js?ver=1%26en%3Dclick",
+            "https://na-ryby.eu/wp-content/plugins/app.js?ver=1;en=click",
+            "https://na-ryby.eu/wp-content/plugins/app.js?ver=1#event",
+            "https://na-ryby.eu/wp-content/plugins/app.js?ver=",
+        )
+        for url in disguised:
+            with self.subTest(url=url):
+                self.assertEqual(request_policy(url, "GET"), "dynamic_get")
+        for version in ("1", "1.2.3", "20261101", "6.8.12"):
+            with self.subTest(version=version):
+                self.assertEqual(request_policy(
+                    f"https://na-ryby.eu/wp-includes/js/wp-embed.js?ver={version}",
+                    "GET"), "allow")
+
     def test_first_party_telemetry_and_dynamic_get_are_blocked(self):
         dynamic = (
             "https://na-ryby.eu/g/collect?v=2&en=nry_advisor_result",
