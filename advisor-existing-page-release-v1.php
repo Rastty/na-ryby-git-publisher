@@ -41,13 +41,13 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         // protocol-relative destinations (//host). Compare these HTML
         // destinations against the exact source before any admin Apply.
         $decoded = html_entity_decode($body, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        preg_match_all('~\\b(?:href|src|srcset|action|formaction|xlink:href|poster)\\s*=\\s*(?:"([^"]*)"|\\'([^\\']*)\\'|([^\\s>]+))~i',
+        preg_match_all('~\b(?:href|src|srcset|action|formaction|xlink:href|poster)\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+))~i',
             $decoded, $attributes, PREG_SET_ORDER);
         $destinations = array();
         foreach ($attributes as $attribute) {
             $value = ($attribute[1] ?? '') !== '' ? $attribute[1]
                 : ((($attribute[2] ?? '') !== '') ? $attribute[2] : ($attribute[3] ?? ''));
-            $normalized = preg_replace('/[\\x00-\\x20\\x7f]+/', '', $value);
+            $normalized = preg_replace('/[\x00-\x20\x7f]+/', '', $value);
             if (preg_match('~(?:^|,)(?:https?://|//)~i', $normalized)) {
                 $destinations[] = $normalized;
             }
