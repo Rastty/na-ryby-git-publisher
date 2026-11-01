@@ -18,6 +18,8 @@ function update_option($key,$value,$autoload=false){$GLOBALS['options'][$key]=$v
 function delete_option($key){unset($GLOBALS['options'][$key]);return true;}
 function wp_update_post($args,$error=false){$GLOBALS['mutations']++;$GLOBALS['post']->post_content=$args['post_content'];$GLOBALS['post']->post_modified_gmt='2026-11-01 16:00:00';return $args['ID'];}
 function is_wp_error($x){return false;}
+$GLOBALS['can_edit']=true;
+function current_user_can($cap,$id=null){return $GLOBALS['can_edit'];}
 function add_action($x,$y){}
 function ok($value,$label){if(!$value){fwrite(STDERR,"FAIL $label\n");exit(1);}}
 require $fixtureDir.'/advisor-existing-page-release-v1.php';
@@ -62,6 +64,10 @@ file_put_contents($assetDir.'/advisor-existing-page-v1.html',$candidate);
 $manifest['candidate_sha256']=hash('sha256',$candidate);
 $manifest['offer_safety']['candidate_sha256']=hash('sha256',$candidate);
 file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
+$GLOBALS['can_edit']=false;
+ok($c::execute()['reason']==='missing_unfiltered_editor_capability','unprivileged apply blocked');
+ok($GLOBALS['mutations']===0,'no unauthorized WordPress writes');
+$GLOBALS['can_edit']=true;
 add_option($c::LOCK,'other-admin');
 ok($c::execute()['reason']==='writer_lock','concurrent writer blocks');
 ok($GLOBALS['mutations']===0,'zero pre-approval writes');
