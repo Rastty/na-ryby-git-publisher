@@ -3,7 +3,7 @@
 **Not active merely by merging or deploying.** The new Tools → Na-Ryby Auto Publisher page must be explicitly enabled by a WordPress administrator after the plugin deployment, smoke checks and release authorization.
 
 - WordPress-local WP-Cron, hourly (traffic dependent). No public unauthenticated write endpoint, new token, or GitHub REST write to WordPress.
-- Only already reviewed Git manifests using existing schemas **5, 6 or 7**, at most **4** edits per batch; all other schemas fail closed. No auto publishing of new pages, Yoast metadata or checklist.
+- Only already reviewed Git manifests using existing schemas **5, 6, 7 or 8**, at most **4** edits per batch; all other schemas fail closed. No auto publishing of new pages, Yoast metadata or checklist.
 - Only manifest rows with `ready` or `already_applied` are accepted.
 - Existing `NRY_Git_Publisher::execute` enforces the precise source identity, guarded backups, SHA readback, and rollback.
 - Batch ID deduplication, 10-minute lock, last receipt in non-autoloaded WP options.
