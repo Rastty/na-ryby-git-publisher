@@ -178,6 +178,11 @@ final class NRY_Checklist_Release_V1 {
         // Never hijack a POST/PUT/DELETE request to the same WordPress path.
         $method = isset($_SERVER['REQUEST_METHOD']) ? (string) $_SERVER['REQUEST_METHOD'] : '';
         if ($method !== 'GET' && $method !== 'HEAD') { return; }
+        // Never serve the admin-approved HTML over plain HTTP. A canonical
+        // HTTPS home_url does not prove the incoming request used TLS.
+        // WordPress is_ssl() must be correctly configured behind any proxy;
+        // ambiguous proxy TLS state fails closed rather than downgrading.
+        if (!is_ssl()) { return; }
         // A canonical WordPress home_url alone does not constrain the incoming
         // Host header: aliases and alternate virtual hosts must not serve this
         // SHA-approved asset. Allow only the canonical host or its :443 port.

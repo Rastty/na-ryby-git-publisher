@@ -4,12 +4,14 @@ define('ABSPATH', __DIR__);
 define('OBJECT', 'OBJECT');
 $GLOBALS['nry_test_options'] = array();
 $GLOBALS['nry_test_origin'] = 'https://na-ryby.eu/';
+$GLOBALS['nry_test_ssl'] = true;
 $GLOBALS['nry_test_collision'] = false;
 $GLOBALS['nry_test_collision_kind'] = '';
 $GLOBALS['nry_test_last_query'] = null;
 function add_action() {}
 function status_header($status) { if ($status !== 200) { throw new RuntimeException('Wrong HTTP status'); } }
 function home_url($path = '/') { return $GLOBALS['nry_test_origin']; }
+function is_ssl() { return $GLOBALS['nry_test_ssl']; }
 function get_page_by_path() { return $GLOBALS['nry_test_collision'] ? (object) array('ID' => 123) : null; }
 function get_post_types() {
     return array('post' => 'post', 'page' => 'page', 'attachment' => 'attachment', 'private_doc' => 'private_doc');
@@ -94,6 +96,14 @@ foreach (array('', 'alias.example', 'na-ryby.eu.attacker.invalid',
         'noncanonical request host must not serve approved asset: ' . $host);
 }
 $_SERVER['HTTP_HOST'] = 'na-ryby.eu';
+$_SERVER['REQUEST_URI'] = '/co-sbalit-na-ryby/';
+$GLOBALS['nry_test_ssl'] = false;
+foreach (array('GET', 'HEAD') as $method) {
+    $_SERVER['REQUEST_METHOD'] = $method;
+    check(NRY_Checklist_Release_V1::serve() === null,
+        'HTTP request must not serve the approved asset: ' . $method);
+}
+$GLOBALS['nry_test_ssl'] = true;
 $_SERVER['REQUEST_URI'] = '/not-our-path/';
 check(NRY_Checklist_Release_V1::serve() === null, 'unrelated routes remain untouched');
 echo "Checklist release contract PASS: SHA approval, drift, origin, collision, route\n";
