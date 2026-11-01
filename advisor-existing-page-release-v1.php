@@ -15,6 +15,22 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
     private static function valid_sha($value) {
         return is_string($value) && preg_match('/^[a-f0-9]{64}$/D', $value);
     }
+    private static function unsafe_url_attributes($decoded) {
+        // Browsers discard ASCII tabs/newlines in URI schemes. Reject encoded
+        // or literal control-character obfuscation (java&#10;script: etc.)
+        // before an otherwise source-bound candidate reaches WordPress.
+        preg_match_all('~\b(?:href|src|srcset|action|formaction|xlink:href|poster)\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+))~i',
+            $decoded, $attributes, PREG_SET_ORDER);
+        foreach ($attributes as $attribute) {
+            $value = ($attribute[1] ?? '') !== '' ? $attribute[1]
+                : ((($attribute[2] ?? '') !== '') ? $attribute[2] : ($attribute[3] ?? ''));
+            $normalized = preg_replace('/[\x00-\x20\x7f]+/', '', $value);
+            if (preg_match('/(?:^|,)(?:javascript|data|vbscript):/i', $normalized)) {
+                return true;
+            }
+        }
+        return false;
+    }
     private static function urls($body) {
         // Preserve every literal external destination, including CJ tracking.
         preg_match_all("~https?://[^\\s\"'<>]+~i", $body, $matches);
@@ -39,7 +55,7 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
             || preg_match('~<\s*(?:iframe|object|embed|form|base|meta|link|svg|math)\b~i', $decoded) === 1
             || preg_match('~<[^>]*\s+on[a-z][a-z0-9_-]*\s*=~i', $decoded) === 1
             || preg_match('~<[^>]*\s+srcdoc\s*=~i', $decoded) === 1
-            || preg_match('~<[^>]*\s+(?:src|action|formaction|xlink:href)\s*=\s*(?:"\s*|\x27\s*|)(?:javascript|data)\s*:~i', $decoded) === 1;
+            || self::unsafe_url_attributes($decoded);
     }
     private static function identity($post) {
         return is_object($post) && (int)($post->ID ?? 0) === self::ID
