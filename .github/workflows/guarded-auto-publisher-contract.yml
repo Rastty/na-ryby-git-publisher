@@ -1,0 +1,23 @@
+name: Guarded auto publisher contract
+on:
+  pull_request:
+    paths:
+      - 'guarded-auto-publisher.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/guarded-auto-publisher-contract.php'
+      - '.github/workflows/guarded-auto-publisher-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP lint
+        run: |
+          php -l guarded-auto-publisher.php
+          php -l na-ryby-git-publisher.php
+          php -l tests/guarded-auto-publisher-contract.php
+      - name: Mocked WordPress safety contract
+        run: php tests/guarded-auto-publisher-contract.php
