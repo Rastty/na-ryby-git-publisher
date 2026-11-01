@@ -39,6 +39,7 @@ jobs:
           php tests/test-v5-native-release.php
           php tests/test-v6-chair-native-release.php
           php tests/test-v7-chair-native-release.php
+          php tests/test-v8-generic-auto-release.php
           python3 tests/test-auto-public-readback.py -v
   deploy:
     needs: verify
