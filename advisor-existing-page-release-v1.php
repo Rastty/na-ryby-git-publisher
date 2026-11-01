@@ -26,6 +26,14 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         preg_match_all("~/click-[0-9]+-[0-9]+[^\\s\"'<>]*~i", $body, $matches);
         return $matches[0];
     }
+    private static function unsafe_active_markup($body) {
+        // Whitespace and case variants of script src bypass a literal
+        // "<script src=" check. A relative src is unsafe too: it could
+        // introduce unreviewed executable code without changing any URL list.
+        $decoded = html_entity_decode($body, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return preg_match('~<script\\b[^>]*\\bsrc\\s*=~i', $decoded) === 1
+            || preg_match('~<a\\b[^>]*\\bhref\\s*=\\s*(?:"\\s*|\\x27\\s*|)(?:javascript|data)\\s*:~i', $decoded) === 1;
+    }
     private static function identity($post) {
         return is_object($post) && (int)($post->ID ?? 0) === self::ID
             && ($post->post_type ?? '') === 'page'
@@ -74,7 +82,7 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
             || strpos($candidate,'data-nry-results') === false
             || strpos($candidate,'data-nry-affiliate-disclosure="advisor-v3"') === false
             || strpos($candidate,'<script') === false
-            || stripos($candidate,'<script src=') !== false) {
+            || self::unsafe_active_markup($candidate)) {
             return $blocked('candidate_hash_or_structure');
         }
         $post = get_post(self::ID);
