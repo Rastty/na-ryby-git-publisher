@@ -36,6 +36,24 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         preg_match_all("~https?://[^\\s\"'<>]+~i", $body, $matches);
         return $matches[0];
     }
+    private static function external_attribute_destinations($body) {
+        // Literal URL extraction alone misses entity-encoded schemes and
+        // protocol-relative destinations (//host). Compare these HTML
+        // destinations against the exact source before any admin Apply.
+        $decoded = html_entity_decode($body, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        preg_match_all('~\\b(?:href|src|srcset|action|formaction|xlink:href|poster)\\s*=\\s*(?:"([^"]*)"|\\'([^\\']*)\\'|([^\\s>]+))~i',
+            $decoded, $attributes, PREG_SET_ORDER);
+        $destinations = array();
+        foreach ($attributes as $attribute) {
+            $value = ($attribute[1] ?? '') !== '' ? $attribute[1]
+                : ((($attribute[2] ?? '') !== '') ? $attribute[2] : ($attribute[3] ?? ''));
+            $normalized = preg_replace('/[\\x00-\\x20\\x7f]+/', '', $value);
+            if (preg_match('~(?:^|,)(?:https?://|//)~i', $normalized)) {
+                $destinations[] = $normalized;
+            }
+        }
+        return $destinations;
+    }
     private static function cj_routes($body) {
         // Include relative /click-* routes which a generic external URL
         // extractor would miss. Never silently rewrite the CJ property.
@@ -125,6 +143,10 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         }
         if (self::urls($post->post_content) !== self::urls($candidate)) {
             return $blocked('external_destination_drift');
+        }
+        if (self::external_attribute_destinations($post->post_content)
+            !== self::external_attribute_destinations($candidate)) {
+            return $blocked('external_attribute_destination_drift');
         }
         $source_routes = self::cj_routes($post->post_content);
         if (!$source_routes || $source_routes !== self::cj_routes($candidate)
