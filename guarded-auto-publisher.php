@@ -100,6 +100,10 @@ final class NRY_Guarded_Auto_Publisher {
                 'batch_id' => $batch, 'writes' => (int) ($result['writes'] ?? 0)
             ));
             // Local WP readback is not a substitute for independent public verification.
+        } catch (\Throwable $e) {
+            // A PHP exception cannot be treated as a verified rollback.
+            // Pause for manual examination before any further batch.
+            self::stop('unexpected_exception_manual_review');
         } finally {
             $held = get_option(self::LOCK, null);
             if (is_array($held) && ($held['token'] ?? null) === $token) {
