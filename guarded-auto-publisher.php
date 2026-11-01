@@ -62,7 +62,7 @@ final class NRY_Guarded_Auto_Publisher {
             $manifest = NRY_Git_Publisher::manifest();
             if (is_wp_error($manifest)) { self::stop('invalid_manifest'); return; }
             // Restrict auto apply to existing bounded, source-protected contracts.
-            if (!in_array($manifest['schema_version'] ?? null, array(5, 6, 7), true)
+            if (!in_array($manifest['schema_version'] ?? null, array(5, 6, 7, 8), true)
                 || count($manifest['edits']) < 1 || count($manifest['edits']) > 4) {
                 self::stop('schema_or_batch_limit'); return;
             }
@@ -122,7 +122,7 @@ final class NRY_Guarded_Auto_Publisher {
         $enabled = get_option(self::ENABLED, 'no') === 'yes';
         $last = get_option(self::RECEIPT, array());
         echo '<div class="wrap"><h1>Na-Ryby Auto Publisher</h1>';
-        echo '<p>Automatické aplikování pouze pro již schválené Git manifesty schématu 5–7 (max. 4 články). Záloha, kontrola zdroje a SHA readback probíhají uvnitř WordPressu. Při chybě se automatika zastaví. WP-Cron závisí na provozu webu. Veřejné ověření je samostatný krok.</p>';
+        echo '<p>Automatické aplikování pouze pro již schválené Git manifesty schématu 5–8 (max. 4 články). Záloha, kontrola zdroje a SHA readback probíhají uvnitř WordPressu. Při chybě se automatika zastaví. WP-Cron závisí na provozu webu. Veřejné ověření je samostatný krok.</p>';
         echo '<p>Stav: <strong>' . esc_html($enabled ? 'ZAPNUTO' : 'VYPNUTO') . '</strong></p>';
         echo '<p>Poslední dávka: ' . esc_html((string) get_option(self::LAST_BATCH, 'žádná')) . '</p>';
         if (get_option(self::LOCK, false)) {
