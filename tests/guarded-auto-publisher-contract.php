@@ -69,8 +69,21 @@ ok((bool) wp_next_scheduled(NRY_Guarded_Auto_Publisher::EVENT), 'enabled schedul
 NRY_Guarded_Auto_Publisher::tick();
 ok($GLOBALS['exec_calls'] === 1, 'eligible bounded approved manifest executes once');
 ok(get_option(NRY_Guarded_Auto_Publisher::LAST_BATCH) === 'auto-canary-batch-0001', 'receipt saves last processed batch');
+ok(get_option(NRY_Guarded_Auto_Publisher::RECEIPT)['status'] === 'applied_and_verified_local',
+    'positive writes retain truthful local-only applied receipt');
 NRY_Guarded_Auto_Publisher::tick();
 ok($GLOBALS['exec_calls'] === 1, 'duplicate batch is idempotently skipped');
+reset_case();
+NRY_Git_Publisher::$rows = array(array('status' => 'already_applied'));
+NRY_Git_Publisher::$result = array('status' => 'applied_and_verified', 'writes' => 0);
+NRY_Guarded_Auto_Publisher::tick();
+$zero = get_option(NRY_Guarded_Auto_Publisher::RECEIPT);
+ok($GLOBALS['exec_calls'] === 1 && $zero['status'] === 'already_applied_no_new_writes'
+    && $zero['writes'] === 0, 'idempotent zero-write batch never reports new publication');
+ok(get_option(NRY_Guarded_Auto_Publisher::LAST_BATCH) === 'auto-canary-batch-0001',
+    'zero-write idempotent batch remains marked processed');
+NRY_Guarded_Auto_Publisher::tick();
+ok($GLOBALS['exec_calls'] === 1, 'zero-write idempotent batch is not re-executed');
 reset_case(8);
 NRY_Guarded_Auto_Publisher::tick();
 ok($GLOBALS['exec_calls'] === 1

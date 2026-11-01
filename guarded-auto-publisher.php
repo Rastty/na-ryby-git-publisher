@@ -96,8 +96,11 @@ final class NRY_Guarded_Auto_Publisher {
             }
             update_option(self::LAST_MANIFEST_SHA, $digest, false);
             update_option(self::LAST_BATCH, $batch, false);
-            self::receipt('applied_and_verified_local', array(
-                'batch_id' => $batch, 'writes' => (int) ($result['writes'] ?? 0)
+            $writes = (int) ($result['writes'] ?? 0);
+            // An idempotent replay with zero writes is not a newly published batch.
+            // Local verification also never implies independent public LIVE readback.
+            self::receipt($writes > 0 ? 'applied_and_verified_local' : 'already_applied_no_new_writes', array(
+                'batch_id' => $batch, 'writes' => $writes
             ));
             // Local WP readback is not a substitute for independent public verification.
         } catch (\Throwable $e) {
