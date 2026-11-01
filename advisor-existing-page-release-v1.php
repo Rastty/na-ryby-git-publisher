@@ -178,7 +178,10 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         if (isset($state['candidate_sha256'])) { echo '<p>Kandidát SHA: <code>'.esc_html($state['candidate_sha256']).'</code></p>'; }
         if (isset($last['status'])) { echo '<p>Poslední akce: '.esc_html($last['status']).'</p>'; }
         if ($state['status'] === 'ready') { self::form('nry_advisor_existing_apply','Apply: aktualizovat pouze poradce #119865'); }
-        if ($state['status'] === 'already_applied_pending_public_readback') {
+        // Keep rollback reachable even if a later Git deploy removes the
+        // candidate asset/manifest. The rollback itself still requires an
+        // exact candidate SHA match and will not overwrite concurrent edits.
+        if (is_array(get_option(self::BACKUP,false))) {
             self::form('nry_advisor_existing_rollback','Rollback: obnovit přesnou zálohu poradce');
         }
         echo '</div>';
