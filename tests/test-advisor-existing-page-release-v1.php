@@ -96,6 +96,23 @@ foreach (array(
     file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
     ok($c::inspect()['reason']==='candidate_hash_or_structure',$case[1].' blocked before WP write');
 }
+// An encoded external scheme or protocol-relative URL is invisible to the
+// legacy literal https?:// extractor; reject new outbound HTML destinations.
+foreach (array(
+    '<a href="//unreviewed.example/offer">unreviewed</a>',
+    '<a href="&#47;&#47;unreviewed.example/offer">encoded slashes</a>',
+    '<a href="https&#58;//unreviewed.example/offer">encoded scheme</a>',
+    '<img srcset="//unreviewed.example/pic.png 1x">',
+    '<video poster="https&#58;//unreviewed.example/cover.png"></video>'
+) as $newDestination) {
+    $unsafe=$candidate.$newDestination;
+    file_put_contents($assetDir.'/advisor-existing-page-v1.html',$unsafe);
+    $manifest['candidate_sha256']=hash('sha256',$unsafe);
+    $manifest['offer_safety']['candidate_sha256']=hash('sha256',$unsafe);
+    file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
+    ok($c::inspect()['reason']==='external_attribute_destination_drift',
+        'new encoded/protocol-relative outbound destination blocked');
+}
 file_put_contents($assetDir.'/advisor-existing-page-v1.html',$candidate);
 $manifest['candidate_sha256']=hash('sha256',$candidate);
 $manifest['offer_safety']['candidate_sha256']=hash('sha256',$candidate);
