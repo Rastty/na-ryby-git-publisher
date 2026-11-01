@@ -1,0 +1,86 @@
+name: Na-Ryby Guarded Deployer Push-to-Deploy
+on:
+  pull_request:
+    paths:
+      - 'manifest.json'
+      - 'na-ryby-git-publisher.php'
+      - 'guarded-auto-publisher.php'
+      - '.github/workflows/guarded-deployer-push.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'manifest.json'
+      - 'na-ryby-git-publisher.php'
+      - 'guarded-auto-publisher.php'
+      - 'seo-snippet-pilot.php'
+      - 'checklist-release-v1.php'
+      - 'assets/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: nry-guarded-deployer-live
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Syntax and rollback contract
+        run: |
+          set -euo pipefail
+          php -l na-ryby-git-publisher.php
+          php -l guarded-auto-publisher.php
+          php -l seo-snippet-pilot.php
+          php -l checklist-release-v1.php
+          php tests/guarded-auto-publisher-contract.php
+          php tests/test-v5-native-release.php
+          php tests/test-v6-chair-native-release.php
+          php tests/test-v7-chair-native-release.php
+          php tests/test-v8-generic-auto-release.php
+          python3 tests/test-auto-public-readback.py -v
+  deploy:
+    needs: verify
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.NRY_AUTO_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: na-ryby-production
+    steps:
+      - name: Validate exact approved Deployer destination
+        env:
+          NRY_DFG_DEPLOY_URL: ${{ secrets.NRY_DFG_DEPLOY_URL }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, sys
+          from urllib.parse import urlparse, parse_qs
+          secret_url=os.environ.get("NRY_DFG_DEPLOY_URL","")
+          p=urlparse(secret_url)
+          q=parse_qs(p.query)
+          valid=(p.scheme=="https" and p.netloc=="na-ryby.eu"
+                 and p.path=="/wp-json/dfg/v1/package_update"
+                 and q.get("type")==["plugin"]
+                 and q.get("package")==["na-ryby-git-publisher"]
+                 and len(q.get("secret",[]))==1 and bool(q["secret"][0])
+                 and not p.username and not p.password and not p.fragment)
+          if not valid:
+              print("BLOCKED: Deployer URL secret is missing or points outside exact approved target")
+              sys.exit(1)
+          print("Approved site, plugin slug and Deployer endpoint verified")
+          PY
+      - name: Request WordPress Deployer pull of reviewed main
+        env:
+          NRY_DFG_DEPLOY_URL: ${{ secrets.NRY_DFG_DEPLOY_URL }}
+        run: |
+          set -euo pipefail
+          http_code="$(curl --silent --show-error --max-time 75 --max-redirs 0 \
+            --output /tmp/nry-deployer-response.json \
+            --write-out '%{http_code}' "$NRY_DFG_DEPLOY_URL")"
+          echo "Deployer HTTP status: $http_code"
+          if [ "$http_code" != "200" ]; then
+              echo "BLOCKED: Deployer request did not receive HTTP 200. Inspect private WordPress deployment logs."
+              exit 1
+          fi
+          echo "Deployer request accepted; LIVE code state and WordPress post writes NOT yet verified."

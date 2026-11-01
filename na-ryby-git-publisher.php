@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Na-Ryby.eu – Git Publisher
  * Description: Apply guarded Git-managed content manifests from wp-admin without WPVibe or outbound WordPress REST writes.
- * Version: 0.9.0
+ * Version: 0.10.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
@@ -10,6 +10,7 @@
 if (!defined('ABSPATH')) { exit; }
 require_once __DIR__ . '/seo-snippet-pilot.php';
 require_once __DIR__ . '/checklist-release-v1.php';
+require_once __DIR__ . '/guarded-auto-publisher.php';
 
 final class NRY_Git_Publisher {
     const MARKER = 'data-nry-advisor-internal-link="cohort-01"';
@@ -25,7 +26,7 @@ final class NRY_Git_Publisher {
     // V1 is immutable legacy compatibility. New cohorts must use the
     // source-hash-bound, insert-only v2 contract.
     public static function validate_manifest($data) {
-        if (!is_array($data) || !in_array($data['schema_version'] ?? null, array(1, 2, 3, 4, 5, 6, 7), true)
+        if (!is_array($data) || !in_array($data['schema_version'] ?? null, array(1, 2, 3, 4, 5, 6, 7, 8), true)
             || ($data['site'] ?? '') !== 'https://na-ryby.eu'
             || !isset($data['batch_id'], $data['edits'])
             || !is_string($data['batch_id'])
@@ -40,7 +41,8 @@ final class NRY_Git_Publisher {
         $v5 = $data['schema_version'] === 5;
         $v6 = $data['schema_version'] === 6;
         $v7 = $data['schema_version'] === 7;
-        if (!$v2 && !$v3 && !$v4 && !$v5 && !$v6 && !$v7 && (count($data['edits']) !== 2
+        $v8 = $data['schema_version'] === 8;
+        if (!$v2 && !$v3 && !$v4 && !$v5 && !$v6 && !$v7 && !$v8 && (count($data['edits']) !== 2
             || array_column($data['edits'], 'post_id') !== array(52975, 118517))) {
             return new WP_Error('legacy_scope', 'V1 povoluje jen historickou dvojici.');
         }
@@ -51,11 +53,31 @@ final class NRY_Git_Publisher {
                 || in_array($e['post_id'], array(38064, 42671), true)
                 || isset($seen[$e['post_id']])
                 || !is_string($e['slug']) || !preg_match('/^[a-z0-9-]{10,140}$/D', $e['slug'])
-                || (!$v4 && !$v5 && !$v6 && !$v7 && (!isset($e['anchor']) || !is_string($e['anchor'])))
-                || (!$v4 && !$v5 && !$v6 && !$v7 && !preg_match($v3 ? '~^<h[23](?:\s[^>]*)?>[^<]{8,280}</h[23]>$~uD' : '~^<h[12](?:\s[^>]*)?>[^<]{8,280}</h[12]>$~uD', $e['anchor']))) {
+                || (!$v4 && !$v5 && !$v6 && !$v7 && !$v8 && (!isset($e['anchor']) || !is_string($e['anchor'])))
+                || (!$v4 && !$v5 && !$v6 && !$v7 && !$v8 && !preg_match($v3 ? '~^<h[23](?:\s[^>]*)?>[^<]{8,280}</h[23]>$~uD' : '~^<h[12](?:\s[^>]*)?>[^<]{8,280}</h[12]>$~uD', $e['anchor']))) {
                 return new WP_Error('invalid_item', 'Neschválená identita, kotva nebo chráněný článek.');
             }
             $seen[$e['post_id']] = true;
+            if ($v8) {
+                if (count($data['edits']) > 4 || in_array($e['post_id'], array(44102), true)) {
+                    return new WP_Error('v8_scope', 'Neplatný rozsah automatické dávky.');
+                }
+                if (!isset($e['source_sha256']) || !is_string($e['source_sha256'])
+                    || !preg_match('/^[a-f0-9]{64}$/D', $e['source_sha256'])) {
+                    return new WP_Error('v8_source_hash', 'Chybí přesný otisk původního obsahu.');
+                }
+                // Preserve v6 source-size and safe HTML rules. Only v8 allows
+                // a source SHA, which must also match actual WordPress data.
+                $proxy = $e;
+                unset($proxy['source_sha256']);
+                $check = self::validate_v6_edit($proxy);
+                if (is_wp_error($check)) { return $check; }
+                if (isset($markers[$e['edit_id']])) {
+                    return new WP_Error('v8_duplicate_marker', 'Opakovaná značka.');
+                }
+                $markers[$e['edit_id']] = true;
+                continue;
+            }
             if ($v7) {
                 $check = self::validate_v6_edit($e);
                 if (is_wp_error($check)) { return $check; }
@@ -465,7 +487,9 @@ final class NRY_Git_Publisher {
                     && strlen($source) >= $edit['source_min_bytes']
                     && strlen($source) <= $edit['source_max_bytes']);
             if ($post->post_modified_gmt !== $edit['source_modified_gmt']
-                || !$sizeMatches) {
+                || !$sizeMatches
+                || (isset($edit['source_sha256']) && !hash_equals(
+                    $edit['source_sha256'], hash('sha256', $source)))) {
                 return array('id' => $post->ID, 'status' => 'blocked',
                     'reason' => 'source_modified_or_bytes_drift');
             }
@@ -546,7 +570,7 @@ final class NRY_Git_Publisher {
         }
         // Persist originals on WordPress itself before the first v5 write.
         // Never overwrite an older backup for the same immutable batch ID.
-        if (in_array($manifest['schema_version'] ?? null, array(5, 6, 7), true)
+        if (in_array($manifest['schema_version'] ?? null, array(5, 6, 7, 8), true)
             && count(array_filter($rows, function($r) { return $r['status'] === 'ready'; })) > 0) {
             $key = 'nry_gp_backup_' . md5($manifest['batch_id']);
             $snapshots = array();
@@ -623,8 +647,12 @@ final class NRY_Git_Publisher {
     public static function page() {
         if (!current_user_can('manage_options')) { wp_die('Access denied'); }
         $rows = self::plan(self::manifest()); $last = get_option(self::RECEIPT, array());
+        $autoEnabled = get_option('nry_gp_auto_enabled_v1', 'no') === 'yes';
         echo '<div class="wrap"><h1>Na-Ryby Git Publisher</h1>';
-        echo '<p>Schválené změny jsou v manifest.json dodaném z Gitu. Nic se nepublikuje automaticky. WordPress zapisuje přímo na serveru, nikoliv přes WPVibe. Verze 5/6 porovnává identitu a datum úpravy; v5 přesnou délku, v6 bezpečný rozsah délky. Obě varianty zálohují původní text a kontrolují SHA během zápisu.</p>';
+        echo '<p>Schválené změny jsou v manifest.json dodaném z Gitu. WordPress zapisuje přímo na serveru, nikoliv přes WPVibe. Verze 5/6 porovnává identitu a datum úpravy; v5 přesnou délku, v6 bezpečný rozsah délky. Obě varianty zálohují původní text a kontrolují SHA během zápisu.</p>';
+        echo $autoEnabled
+            ? '<p><strong>Automatika je zapnutá</strong> pro omezené dávky v5–v8. Ruční Apply je při zapnuté automatice vypnuto. Stav a vypnutí: Nástroje → Na-Ryby Auto Publisher.</p>'
+            : '<p>Nic se nepublikuje automaticky. Omezenou automatiku lze aktivovat v Nástroje → Na-Ryby Auto Publisher.</p>';
         if (is_wp_error($rows)) { echo '<p>' . esc_html($rows->get_error_message()) . '</p></div>'; return; }
         $blocked = false;
         echo '<table class="widefat striped"><thead><tr><th>Post ID</th><th>Kontrola</th></tr></thead><tbody>';
@@ -634,17 +662,20 @@ final class NRY_Git_Publisher {
         if (is_array($last) && isset($last['status'])) {
             echo '<p>Poslední běh: <strong>' . esc_html($last['status']) . '</strong></p>';
         }
-        if (!$blocked) {
+        if (!$blocked && !$autoEnabled) {
             echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
             echo '<input type="hidden" name="action" value="nry_git_publisher_apply">';
             wp_nonce_field('nry_git_publisher_apply');
             submit_button('Zapsat ověřené změny do WordPressu'); echo '</form>';
-        } else { echo '<p>Nelze pokračovat: některý článek se mezitím změnil.</p>'; }
+        } elseif ($blocked) { echo '<p>Nelze pokračovat: některý článek se mezitím změnil.</p>'; }
         echo '</div>';
     }
     public static function handle_apply() {
         if (!current_user_can('manage_options')) { wp_die('Access denied'); }
         check_admin_referer('nry_git_publisher_apply');
+        if (get_option('nry_gp_auto_enabled_v1', 'no') === 'yes') {
+            wp_die('Nejprve vypněte automatiku v Nástroje → Na-Ryby Auto Publisher.');
+        }
         $receipt = self::execute(self::manifest());
         update_option(self::RECEIPT, is_wp_error($receipt) ? array('status' => 'manifest_invalid') : $receipt, false);
         wp_safe_redirect(admin_url('tools.php?page=nry-git-publisher')); exit;
