@@ -32,6 +32,23 @@ $original='<!-- wp:html --><div data-nry-affiliate-disclosure="advisor-v3" data-
     str_repeat('Source guidance ',700);
 $candidate=str_replace('Source guidance ','Better guidance ',$original);
 $GLOBALS['post']->post_content=$original;
+// Read-only exact source export preflight works WITHOUT a staged manifest,
+// never changes WordPress, and refuses unauthorized or mismatched pages.
+$source=$c::source_snapshot();
+ok($source['status']==='ready','admin-only source snapshot available');
+ok($source['content']===$original,'source export preserves exact post_content bytes');
+ok($source['source_sha256']===hash('sha256',$original),'source export SHA matches bytes');
+ok($source['source_modified_gmt']==='2026-10-14 12:00:00','source modified timestamp exact');
+ok($source['source_bytes']===strlen($original),'source byte length exact');
+ok($source['cj_route_count']===2,'source CJ route occurrence count explicit');
+ok($GLOBALS['mutations']===0,'source capture performs no WordPress writes');
+$GLOBALS['can_edit']=false;
+ok($c::source_snapshot()['reason']==='missing_source_capture_capability',
+    'unprivileged source capture refused');
+$GLOBALS['can_edit']=true;
+$GLOBALS['post']->post_name='wrong-slug';
+ok($c::source_snapshot()['reason']==='page_identity','wrong page identity blocks source export');
+$GLOBALS['post']->post_name='poradce-vybavy';
 $assetDir=$fixtureDir.'/assets';mkdir($assetDir);
 $manifest=array('schema'=>1,'page_id'=>119865,'slug'=>'poradce-vybavy',
     'source_sha256'=>hash('sha256',$original),'candidate_sha256'=>hash('sha256',$candidate),
