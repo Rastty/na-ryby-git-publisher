@@ -7,9 +7,10 @@ never visitor answers, product URLs, cookies or analytics payloads.
 """
 import argparse
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import parse_qsl, urlsplit
+from urllib.parse import urlsplit
 
 PUBLIC_URL = "https://na-ryby.eu/poradce-vybavy/"
 EXPECTED_SCENARIOS = 108
@@ -35,12 +36,26 @@ def request_policy(url, method):
             return "third_party"
         if url == PUBLIC_URL:
             return "allow"
-        if (parsed.path.startswith(STATIC_PREFIXES)
-                and parsed.path.lower().endswith(STATIC_EXTENSIONS)
-                and not parsed.fragment
-                and all(key == "ver" and bool(value)
-                        for key, value in parse_qsl(
-                            parsed.query, keep_blank_values=True))):
+        # A first-party dynamic collector can be disguised as a static asset
+        # using encoded path separators, traversal, or a tracking payload in
+        # the cache-busting query. Fail closed instead of issuing that GET.
+        path = parsed.path
+        segments = path.split("/")
+        unambiguous_path = (
+            "%" not in path and "\\\\" not in path and "//" not in path
+            and all(segment not in (".", "..") for segment in segments)
+        )
+        # Only an ordinary numeric WordPress asset version is permitted.
+        # Reject repeated, encoded or arbitrary query parameters (including
+        # ?ver=<event payload>); blocked dependencies prevent a green audit.
+        version_ok = (
+            not parsed.query
+            or re.fullmatch(r"ver=\\d+(?:\\.\\d+){0,5}", parsed.query) is not None
+        )
+        if (unambiguous_path and version_ok
+                and path.startswith(STATIC_PREFIXES)
+                and path.lower().endswith(STATIC_EXTENSIONS)
+                and not parsed.fragment):
             return "allow"
     except ValueError:
         return "dynamic_get"
