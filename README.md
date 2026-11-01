@@ -225,3 +225,25 @@ release needs a separately reviewed versioned plan.
 The old HTTP-401 blocker and merchant feed/GA4 unknowns remain; this is an
 on-server guarded path, not an authorization to publish or a claim that the
 expired-offer problem has been fixed in production.
+
+## V0.11 — read-only exact source capture (no WordPress write)
+
+The existing-advisor admin page at `Tools → Na-Ryby Advisor Release`
+(`tools.php?page=nry-advisor-existing-release`) now shows a **read-only**
+source SHA-256, `post_modified_gmt`, byte length and CJ route occurrence count
+even when no reviewed replacement candidate/manifest is staged. An administrator
+with `manage_options`, `edit_post(119865)` and `unfiltered_html` can
+download the **exact raw `post_content` bytes** via a nonce-protected
+`admin-post.php` action. It is not a public REST endpoint, has no automatic
+writer, sends no secrets to GitHub and does not persist a backup or receipt.
+The download is private source material: do not paste it into a public PR,
+issue, Actions log or third-party service without separate review.
+
+The source SHA, modified timestamp and bytes are a **capture**, not a
+publication authorization. Build a separately reviewed exact full-content
+candidate and a candidate-bound 108-scenario zero-expired-clickout receipt;
+preserve all CJ routes and external destinations. At explicit admin Apply the
+plugin checks the live source SHA and modified timestamp again and blocks on
+drift. No new release is considered live until independent authenticated REST,
+public HTML, browser and rollback verification. The historical REST HTTP 401
+root cause is not resolved by this export path.
