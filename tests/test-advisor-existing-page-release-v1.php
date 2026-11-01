@@ -81,6 +81,12 @@ foreach (array(
     array('<form action="/submit"><input name="email"></form>','unreviewed form submission'),
     array('<svg onload="alert(1)"></svg>','inline svg execution'),
     array('<img src="data:text/html,unsafe">','data URI image source'),
+    array('<a href="java&#10;script:alert(1)">unsafe</a>','entity-encoded newline in javascript scheme'),
+    array('<a href="java&#x09;script:alert(1)">unsafe</a>','entity-encoded tab in javascript scheme'),
+    array("<a href=\"java\nscript:alert(1)\">unsafe</a>",'literal newline in javascript scheme'),
+    array('<img srcset="data:text/html,unsafe">','data URI srcset'),
+    array('<a href="vbscript:msgbox(1)">unsafe</a>','vbscript scheme'),
+    array('<video poster="da&#x09;ta:text/html,unsafe"></video>','obfuscated data poster'),
     array('<button formaction="javascript:alert(1)">go</button>','javascript form action')
 ) as $case) {
     $unsafe=$candidate.$case[0];
