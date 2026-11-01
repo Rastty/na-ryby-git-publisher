@@ -20,6 +20,12 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         preg_match_all("~https?://[^\\s\"'<>]+~i", $body, $matches);
         return $matches[0];
     }
+    private static function cj_routes($body) {
+        // Include relative /click-* routes which a generic external URL
+        // extractor would miss. Never silently rewrite the CJ property.
+        preg_match_all("~/click-[0-9]+-[0-9]+[^\\s\"'<>]*~i", $body, $matches);
+        return $matches[0];
+    }
     private static function identity($post) {
         return is_object($post) && (int)($post->ID ?? 0) === self::ID
             && ($post->post_type ?? '') === 'page'
@@ -88,6 +94,13 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         }
         if (self::urls($post->post_content) !== self::urls($candidate)) {
             return $blocked('external_destination_drift');
+        }
+        $source_routes = self::cj_routes($post->post_content);
+        if (!$source_routes || $source_routes !== self::cj_routes($candidate)
+            || count(array_filter($source_routes, function($url) {
+                return strpos($url, '/click-8287231-') !== 0;
+            })) > 0) {
+            return $blocked('cj_route_or_property_drift');
         }
         if (hash_equals($current_sha, $manifest['candidate_sha256'])) {
             return $blocked('source_equals_candidate_without_backup');
