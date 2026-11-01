@@ -162,6 +162,46 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
             'candidate_sha256'=>$manifest['candidate_sha256'],
             'modified_gmt'=>$post->post_modified_gmt,'candidate'=>$candidate);
     }
+    /**
+     * Read-only, administrator-scoped source capture for an exact release.
+     * No manifest is needed; never expose post_content to public REST or logs.
+     * The exported bytes must be reviewed and freshly rechecked at Apply.
+     */
+    public static function source_snapshot() {
+        if (!current_user_can('manage_options') || !current_user_can('edit_post',self::ID)
+            || !current_user_can('unfiltered_html')) {
+            return array('status'=>'blocked','reason'=>'missing_source_capture_capability');
+        }
+        if (rtrim(home_url('/'), '/') !== 'https://na-ryby.eu') {
+            return array('status'=>'blocked','reason'=>'site_origin');
+        }
+        $post = get_post(self::ID);
+        if (!self::identity($post)) {
+            return array('status'=>'blocked','reason'=>'page_identity');
+        }
+        return array('status'=>'ready','page_id'=>self::ID,
+            'source_sha256'=>hash('sha256',$post->post_content),
+            'source_modified_gmt'=>$post->post_modified_gmt,
+            'source_bytes'=>strlen($post->post_content),
+            'cj_route_count'=>count(self::cj_routes($post->post_content)),
+            'content'=>$post->post_content);
+    }
+    public static function handle_source_export() {
+        if (!current_user_can('manage_options') || !current_user_can('edit_post',self::ID)
+            || !current_user_can('unfiltered_html')) { wp_die('Access denied'); }
+        check_admin_referer('nry_advisor_existing_source_export');
+        $source = self::source_snapshot();
+        if ($source['status'] !== 'ready' || headers_sent()) {
+            wp_die('Source capture blocked; no file exported.');
+        }
+        nocache_headers();
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="na-ryby-advisor-119865-source-'.gmdate('Ymd-His').'.html"');
+        header('Content-Length: '.$source['source_bytes']);
+        header('X-Content-Type-Options: nosniff');
+        echo $source['content'];
+        exit;
+    }
     private static function acquire() {
         // Atomic add_option blocks concurrent admin writes; stale lock fails closed.
         return add_option(self::LOCK, gmdate('c'), '', false);
@@ -251,6 +291,21 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         if (isset($state['source_sha256'])) { echo '<p>Zdroj SHA: <code>'.esc_html($state['source_sha256']).'</code></p>'; }
         if (isset($state['candidate_sha256'])) { echo '<p>Kandidát SHA: <code>'.esc_html($state['candidate_sha256']).'</code></p>'; }
         if (isset($last['status'])) { echo '<p>Poslední akce: '.esc_html($last['status']).'</p>'; }
+        // Source export is a separate read-only admin action even when no
+        // reviewed replacement/manifest is staged. Never display raw HTML.
+        $source = self::source_snapshot();
+        if ($source['status'] === 'ready') {
+            echo '<h2>Aktuální zdroj pro samostatné review (jen správce)</h2>';
+            echo '<p>SHA-256: <code>'.esc_html($source['source_sha256']).'</code></p>';
+            echo '<p>post_modified_gmt: <code>'.esc_html($source['source_modified_gmt']).'</code>; '
+                .'bajtů: '.esc_html((string)$source['source_bytes']).'; '
+                .'výskytů CJ route: '.esc_html((string)$source['cj_route_count']).'</p>';
+            echo '<p>Soukromý export obsahuje přesné post_content. Nevkládejte jej do veřejného issue ani logu. '
+                .'Před Apply je povinná nová kontrola SHA a času změny.</p>';
+            self::form('nry_advisor_existing_source_export','Stáhnout přesný aktuální zdroj (bez zápisu)');
+        } else {
+            echo '<p>Export zdroje blokován: '.esc_html($source['reason']).'</p>';
+        }
         if ($state['status'] === 'ready') { self::form('nry_advisor_existing_apply','Apply: aktualizovat pouze poradce #119865'); }
         // Keep rollback reachable even if a later Git deploy removes the
         // candidate asset/manifest. The rollback itself still requires an
@@ -279,5 +334,6 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
     }
 }
 add_action('admin_menu',array('NRY_Advisor_Existing_Page_Release_V1','menu'));
+add_action('admin_post_nry_advisor_existing_source_export',array('NRY_Advisor_Existing_Page_Release_V1','handle_source_export'));
 add_action('admin_post_nry_advisor_existing_apply',array('NRY_Advisor_Existing_Page_Release_V1','handle_apply'));
 add_action('admin_post_nry_advisor_existing_rollback',array('NRY_Advisor_Existing_Page_Release_V1','handle_rollback'));
