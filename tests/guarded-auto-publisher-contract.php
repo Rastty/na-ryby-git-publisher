@@ -4,12 +4,21 @@ define('ABSPATH', __DIR__);
 define('MINUTE_IN_SECONDS', 60);
 $GLOBALS['options'] = array();
 $GLOBALS['transients'] = array();
+$GLOBALS['uuid_counter'] = 0;
 $GLOBALS['events'] = array();
 $GLOBALS['actions'] = array();
 $GLOBALS['exec_calls'] = 0;
 function add_action($name, $cb) { $GLOBALS['actions'][$name] = $cb; }
 function get_option($k, $default = false) { return array_key_exists($k, $GLOBALS['options']) ? $GLOBALS['options'][$k] : $default; }
 function update_option($k, $v, $autoload = null) { $GLOBALS['options'][$k] = $v; return true; }
+function add_option($k, $v, $deprecated = '', $autoload = 'yes') {
+    if (array_key_exists($k, $GLOBALS['options'])) { return false; }
+    $GLOBALS['options'][$k] = $v;
+    return true;
+}
+function delete_option($k) { unset($GLOBALS['options'][$k]); return true; }
+function wp_generate_uuid4() { return 'test-uuid-' . (++$GLOBALS['uuid_counter']); }
+function wp_json_encode($data) { return json_encode($data); }
 function get_transient($k) { return $GLOBALS['transients'][$k] ?? false; }
 function set_transient($k, $v, $ttl = 0) { $GLOBALS['transients'][$k] = $v; return true; }
 function delete_transient($k) { unset($GLOBALS['transients'][$k]); }
@@ -71,9 +80,25 @@ NRY_Git_Publisher::$result = array('status' => 'uncertain');
 NRY_Guarded_Auto_Publisher::tick();
 ok($GLOBALS['exec_calls'] === 1 && get_option(NRY_Guarded_Auto_Publisher::ENABLED) === 'no', 'uncertain write disables automation');
 reset_case();
-$GLOBALS['transients'][NRY_Guarded_Auto_Publisher::LOCK] = '1';
+$GLOBALS['options'][NRY_Guarded_Auto_Publisher::LOCK] = array('token' => 'other-worker', 'expires' => time() + 300);
 NRY_Guarded_Auto_Publisher::tick();
-ok($GLOBALS['exec_calls'] === 0, 'active lock prevents overlapping execution');
+ok($GLOBALS['exec_calls'] === 0 && get_option(NRY_Guarded_Auto_Publisher::ENABLED) === 'yes',
+    'existing atomic lock prevents overlapping execution without disabling a healthy publisher');
+reset_case();
+$GLOBALS['options'][NRY_Guarded_Auto_Publisher::LOCK] = array('token' => 'abandoned-worker', 'expires' => time() - 1);
+NRY_Guarded_Auto_Publisher::tick();
+ok($GLOBALS['exec_calls'] === 0 && get_option(NRY_Guarded_Auto_Publisher::ENABLED) === 'no',
+    'expired lock fail-closes without stealing a potentially live lock');
+ok(get_option(NRY_Guarded_Auto_Publisher::LOCK) !== false, 'stale lock preserved for manual investigation');
+reset_case();
+NRY_Guarded_Auto_Publisher::tick();
+ok(get_option(NRY_Guarded_Auto_Publisher::LOCK) === false, 'successful run releases owned lock');
+NRY_Guarded_Auto_Publisher::tick();
+ok($GLOBALS['exec_calls'] === 1, 'second tick does not write duplicate batch');
+NRY_Git_Publisher::$manifest['edits'][0]['post_id'] = 555;
+NRY_Guarded_Auto_Publisher::tick();
+ok($GLOBALS['exec_calls'] === 1 && get_option(NRY_Guarded_Auto_Publisher::ENABLED) === 'no',
+    'reused batch ID with changed manifest fails closed');
 reset_case();
 NRY_Git_Publisher::$manifest = new WP_Error();
 NRY_Guarded_Auto_Publisher::tick();
