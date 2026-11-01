@@ -69,6 +69,20 @@ $manifest['candidate_sha256']=hash('sha256',$relativeChanged);
 $manifest['offer_safety']['candidate_sha256']=hash('sha256',$relativeChanged);
 file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
 ok($c::inspect()['reason']==='cj_route_or_property_drift','relative CJ route drift blocked');
+// A local script src with whitespace bypassed the old literal check while
+// preserving all tracked URLs. The exact-candidate manifest alone is insufficient.
+foreach (array(
+    array('<script data-extra="x" src = "/unreviewed.js"></script>','relative script src'),
+    array('<a href="javascript:alert(1)">unsafe</a>','javascript href'),
+    array('<a href="jav&#x61;script:alert(1)">unsafe</a>','entity-encoded javascript href')
+) as $case) {
+    $unsafe=$candidate.$case[0];
+    file_put_contents($assetDir.'/advisor-existing-page-v1.html',$unsafe);
+    $manifest['candidate_sha256']=hash('sha256',$unsafe);
+    $manifest['offer_safety']['candidate_sha256']=hash('sha256',$unsafe);
+    file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
+    ok($c::inspect()['reason']==='candidate_hash_or_structure',$case[1].' blocked before WP write');
+}
 file_put_contents($assetDir.'/advisor-existing-page-v1.html',$candidate);
 $manifest['candidate_sha256']=hash('sha256',$candidate);
 $manifest['offer_safety']['candidate_sha256']=hash('sha256',$candidate);
