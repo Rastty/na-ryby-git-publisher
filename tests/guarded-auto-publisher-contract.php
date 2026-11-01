@@ -31,9 +31,14 @@ final class NRY_Git_Publisher {
     public static $manifest = array();
     public static $rows = array();
     public static $result = array('status' => 'applied_and_verified', 'writes' => 1);
+    public static $throw_execute = false;
     public static function manifest() { return self::$manifest; }
     public static function plan($m) { return self::$rows; }
-    public static function execute($m) { $GLOBALS['exec_calls']++; return self::$result; }
+    public static function execute($m) {
+        $GLOBALS['exec_calls']++;
+        if (self::$throw_execute) { throw new RuntimeException('simulated_failure'); }
+        return self::$result;
+    }
 }
 require __DIR__ . '/../guarded-auto-publisher.php';
 function ok($test, $description) {
@@ -50,6 +55,7 @@ function reset_case($schema = 7, $count = 1) {
         'edits' => array_fill(0, $count, array('post_id' => 123)));
     NRY_Git_Publisher::$rows = array_fill(0, $count, array('status' => 'ready'));
     NRY_Git_Publisher::$result = array('status' => 'applied_and_verified', 'writes' => $count);
+    NRY_Git_Publisher::$throw_execute = false;
 }
 // Auto disabled by default, including when plugin is deployed.
 $GLOBALS['options'] = array();
@@ -103,4 +109,12 @@ reset_case();
 NRY_Git_Publisher::$manifest = new WP_Error();
 NRY_Guarded_Auto_Publisher::tick();
 ok($GLOBALS['exec_calls'] === 0 && get_option(NRY_Guarded_Auto_Publisher::ENABLED) === 'no', 'invalid manifest stops before writing');
+reset_case();
+NRY_Git_Publisher::$throw_execute = true;
+NRY_Guarded_Auto_Publisher::tick();
+ok($GLOBALS['exec_calls'] === 1 && get_option(NRY_Guarded_Auto_Publisher::ENABLED) === 'no',
+    'exception fail closes instead of retrying an uncertain batch');
+ok(get_option(NRY_Guarded_Auto_Publisher::LOCK) === false,
+    'exception releases owned atomic lock');
+
 echo "Guarded auto publisher tests successful.\n";
