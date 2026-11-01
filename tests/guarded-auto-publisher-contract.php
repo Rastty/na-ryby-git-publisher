@@ -71,6 +71,11 @@ ok($GLOBALS['exec_calls'] === 1, 'eligible bounded approved manifest executes on
 ok(get_option(NRY_Guarded_Auto_Publisher::LAST_BATCH) === 'auto-canary-batch-0001', 'receipt saves last processed batch');
 NRY_Guarded_Auto_Publisher::tick();
 ok($GLOBALS['exec_calls'] === 1, 'duplicate batch is idempotently skipped');
+reset_case(8);
+NRY_Guarded_Auto_Publisher::tick();
+ok($GLOBALS['exec_calls'] === 1
+    && get_option(NRY_Guarded_Auto_Publisher::LAST_BATCH) === 'auto-canary-batch-0001',
+    'new approved v8 schema may auto-apply after source-bound preflight');
 reset_case(4);
 NRY_Guarded_Auto_Publisher::tick();
 ok($GLOBALS['exec_calls'] === 0 && get_option(NRY_Guarded_Auto_Publisher::ENABLED) === 'no', 'unsupported schema stops without write');
