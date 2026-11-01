@@ -101,6 +101,10 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         return add_option(self::LOCK, gmdate('c'), '', false);
     }
     public static function execute() {
+        if (!current_user_can('manage_options') || !current_user_can('edit_post',self::ID)
+            || !current_user_can('unfiltered_html')) {
+            return array('status'=>'blocked','reason'=>'missing_unfiltered_editor_capability');
+        }
         if (!self::acquire()) { return array('status'=>'blocked','reason'=>'writer_lock'); }
         try {
             $pre = self::inspect();
@@ -143,6 +147,10 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         } finally { delete_option(self::LOCK); }
     }
     public static function rollback() {
+        if (!current_user_can('manage_options') || !current_user_can('edit_post',self::ID)
+            || !current_user_can('unfiltered_html')) {
+            return array('status'=>'blocked','reason'=>'missing_unfiltered_editor_capability');
+        }
         if (!self::acquire()) { return array('status'=>'blocked','reason'=>'writer_lock'); }
         try {
             $backup = get_option(self::BACKUP,false);
