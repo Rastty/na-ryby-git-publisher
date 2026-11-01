@@ -74,7 +74,14 @@ ok($c::inspect()['reason']==='cj_route_or_property_drift','relative CJ route dri
 foreach (array(
     array('<script data-extra="x" src = "/unreviewed.js"></script>','relative script src'),
     array('<a href="javascript:alert(1)">unsafe</a>','javascript href'),
-    array('<a href="jav&#x61;script:alert(1)">unsafe</a>','entity-encoded javascript href')
+    array('<a href="jav&#x61;script:alert(1)">unsafe</a>','entity-encoded javascript href'),
+    array('<img src="/image.png" onerror="alert(1)">','event handler on image'),
+    array('<div onclick="alert(1)">unsafe</div>','event handler on div'),
+    array('<iframe srcdoc="<script>alert(1)</script>"></iframe>','embedded iframe document'),
+    array('<form action="/submit"><input name="email"></form>','unreviewed form submission'),
+    array('<svg onload="alert(1)"></svg>','inline svg execution'),
+    array('<img src="data:text/html,unsafe">','data URI image source'),
+    array('<button formaction="javascript:alert(1)">go</button>','javascript form action')
 ) as $case) {
     $unsafe=$candidate.$case[0];
     file_put_contents($assetDir.'/advisor-existing-page-v1.html',$unsafe);
