@@ -14,3 +14,21 @@
 - The Fleet's own read-only dispatch remains unchanged. Changes must still be reviewed and promoted to the authorized Git mirror through the existing process.
 
 Emergency stop: Tools → Na-Ryby Auto Publisher → Vypnout automatiku. If an applied post must be restored, use guarded saved source and WordPress revisions, never blindly force overwrite after concurrent edits.
+
+## Additional protections (PR #48 hardening)
+
+- The scheduler uses an **atomic database option lock**, not a non-atomic transient check/set. An abandoned/invalid lock permanently pauses automation until an administrator confirms the old worker is gone and resets the option.
+- Completed batch ID **and canonical decoded manifest digest** are persisted. Reusing an already processed batch ID with different contents disables automation, rather than silently skipping unexpected content.
+- An unexpected PHP exception stops subsequent automatic publication, preserves the reason and releases the lock owned by that worker. It does **not** claim that earlier writes were rolled back.
+- Each successful local batch returns `applied_and_verified_local`. This must never be shown as external LIVE proof.
+- The separate workflow `guarded-auto-public-readback.yml` performs **independent scheduled public HTTP checks** against the exact current manifest, writes an evidence artifact, and fails visibly if expected markers are missing. Missing public markers may mean cache lag, undeployed manifest or an actual publication fault; investigate rather than force a rewrite.
+- The public HTTP monitor is a **reader**, not a deployment or approval mechanism.
+
+## Known end-to-end blockers (verified 2026-11-01)
+
+1. The owner's production screenshot shows active **v0.8.0**, whereas public repo main currently has **v0.9.0**. PR v0.10.0 is a candidate and is **not installed**. A controlled Deployer for Git update and public smoke check are mandatory.
+2. The existing private Prometheus public mirror exporter `ops/build-na-ryby-public-deployer-release-v1.mjs` still accepts only schemas **1–4** and a fixed `Version: 0.4.0`; its sync helper assumes **exactly four files**. **It cannot promote new schema 5–7 editorial batches or this modern multi-file plugin without a separate reviewed migration.** Do not change it by simply bypassing integrity checks.
+3. The WordPress plugin offers an **Update with Git** action. Automated push-to-deploy for new manifest revisions is **not verified**. Even after WP-Cron is enabled, no new batch can auto-publish until its manifest is safely delivered to WordPress.
+4. The central Fleet is independently configured for **read-only dispatch**. This PR does not change Fleet production authorization or unilaterally grant publishing privileges.
+
+**Production readiness requires proving each hop:** reviewed manifest in Git → authenticated Deployer Git update → current plugin/manifest readback → guarded WordPress-local apply → independent public HTTP proof → immutable release receipt. Do not merge/enable this PR as a shortcut around missing transport or release authorization.
