@@ -19,5 +19,8 @@ jobs:
           php -l guarded-auto-publisher.php
           php -l na-ryby-git-publisher.php
           php -l tests/guarded-auto-publisher-contract.php
+          php -l tests/test-v8-generic-auto-release.php
       - name: Mocked WordPress safety contract
-        run: php tests/guarded-auto-publisher-contract.php
+        run: |
+          php tests/guarded-auto-publisher-contract.php
+          php tests/test-v8-generic-auto-release.php
