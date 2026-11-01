@@ -10,6 +10,7 @@
 if (!defined('ABSPATH')) { exit; }
 require_once __DIR__ . '/seo-snippet-pilot.php';
 require_once __DIR__ . '/checklist-release-v1.php';
+require_once __DIR__ . '/guarded-auto-publisher.php';
 
 final class NRY_Git_Publisher {
     const MARKER = 'data-nry-advisor-internal-link="cohort-01"';
