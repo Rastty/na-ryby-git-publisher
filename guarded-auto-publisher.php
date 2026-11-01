@@ -10,6 +10,7 @@ final class NRY_Guarded_Auto_Publisher {
     const RECEIPT = 'nry_gp_auto_receipt_v1';
     const LAST_BATCH = 'nry_gp_auto_last_batch_v1';
     const LOCK = 'nry_gp_auto_lock_v1';
+    const LAST_MANIFEST_SHA = 'nry_gp_auto_last_manifest_sha_v1';
     const EVENT = 'nry_gp_auto_tick_v1';
 
     public static function boot() {
@@ -43,8 +44,20 @@ final class NRY_Guarded_Auto_Publisher {
 
     public static function tick() {
         if (get_option(self::ENABLED, 'no') !== 'yes') { return; }
-        if (get_transient(self::LOCK)) { return; }
-        set_transient(self::LOCK, '1', 10 * MINUTE_IN_SECONDS);
+        // A transient get+set pair is not an atomic lock. The WP options
+        // table has a unique option_name, so add_option allows only one writer.
+        $token = wp_generate_uuid4();
+        $lock = array('token' => $token, 'expires' => time() + 10 * MINUTE_IN_SECONDS);
+        if (!add_option(self::LOCK, $lock, '', 'no')) {
+            $existing = get_option(self::LOCK, null);
+            if (!is_array($existing) || !isset($existing['expires'])
+                || (int) $existing['expires'] < time()) {
+                // Do not delete/steal a stale lock: its former worker may still
+                // exist. An administrator must investigate and reset it.
+                self::stop('stale_or_invalid_lock_manual_reset');
+            }
+            return;
+        }
         try {
             $manifest = NRY_Git_Publisher::manifest();
             if (is_wp_error($manifest)) { self::stop('invalid_manifest'); return; }
@@ -54,8 +67,16 @@ final class NRY_Guarded_Auto_Publisher {
                 self::stop('schema_or_batch_limit'); return;
             }
             $batch = $manifest['batch_id'];
+            // Detect changes to a previously processed immutable batch ID.
+            // A reused ID with different content must never be silently skipped.
+            $digest = hash('sha256', wp_json_encode($manifest));
             $previous = get_option(self::LAST_BATCH, '');
-            if ($previous === $batch) { return; }
+            if ($previous === $batch) {
+                if (get_option(self::LAST_MANIFEST_SHA, '') !== $digest) {
+                    self::stop('previous_batch_manifest_drift');
+                }
+                return;
+            }
             $rows = NRY_Git_Publisher::plan($manifest);
             if (is_wp_error($rows)) { self::stop('preflight_error'); return; }
             foreach ($rows as $row) {
@@ -65,19 +86,25 @@ final class NRY_Guarded_Auto_Publisher {
             }
             // Existing WordPress-local execute() performs per-post source checks,
             // non-public backups, SHA readback and bounded rollback.
+            // The administrator may have disabled the publisher mid-preflight.
+            if (get_option(self::ENABLED, 'no') !== 'yes') { return; }
             $result = NRY_Git_Publisher::execute($manifest);
             if (is_wp_error($result) || !is_array($result)
                 || ($result['status'] ?? '') !== 'applied_and_verified') {
                 self::stop(is_array($result) ? ($result['status'] ?? 'failed') : 'execution_error');
                 return;
             }
+            update_option(self::LAST_MANIFEST_SHA, $digest, false);
             update_option(self::LAST_BATCH, $batch, false);
             self::receipt('applied_and_verified_local', array(
                 'batch_id' => $batch, 'writes' => (int) ($result['writes'] ?? 0)
             ));
             // Local WP readback is not a substitute for independent public verification.
         } finally {
-            delete_transient(self::LOCK);
+            $held = get_option(self::LOCK, null);
+            if (is_array($held) && ($held['token'] ?? null) === $token) {
+                delete_option(self::LOCK);
+            }
         }
     }
 
@@ -94,6 +121,9 @@ final class NRY_Guarded_Auto_Publisher {
         echo '<p>Automatické aplikování pouze pro již schválené Git manifesty schématu 5–7 (max. 4 články). Záloha, kontrola zdroje a SHA readback probíhají uvnitř WordPressu. Při chybě se automatika zastaví. WP-Cron závisí na provozu webu. Veřejné ověření je samostatný krok.</p>';
         echo '<p>Stav: <strong>' . esc_html($enabled ? 'ZAPNUTO' : 'VYPNUTO') . '</strong></p>';
         echo '<p>Poslední dávka: ' . esc_html((string) get_option(self::LAST_BATCH, 'žádná')) . '</p>';
+        if (get_option(self::LOCK, false)) {
+            echo '<p><strong>Pozor:</strong> Běh právě probíhá, nebo zůstal zámek. Při zastavení automatiky kvůli starému zámku nejprve ověřte, že nic neběží; reset vyžaduje správce serveru.</p>';
+        }
         echo '<p>Poslední výsledek: ' . esc_html(wp_json_encode($last)) . '</p>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
         wp_nonce_field('nry_gp_auto_toggle');
