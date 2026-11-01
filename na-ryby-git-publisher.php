@@ -624,8 +624,12 @@ final class NRY_Git_Publisher {
     public static function page() {
         if (!current_user_can('manage_options')) { wp_die('Access denied'); }
         $rows = self::plan(self::manifest()); $last = get_option(self::RECEIPT, array());
+        $autoEnabled = get_option('nry_gp_auto_enabled_v1', 'no') === 'yes';
         echo '<div class="wrap"><h1>Na-Ryby Git Publisher</h1>';
-        echo '<p>Schválené změny jsou v manifest.json dodaném z Gitu. Nic se nepublikuje automaticky. WordPress zapisuje přímo na serveru, nikoliv přes WPVibe. Verze 5/6 porovnává identitu a datum úpravy; v5 přesnou délku, v6 bezpečný rozsah délky. Obě varianty zálohují původní text a kontrolují SHA během zápisu.</p>';
+        echo '<p>Schválené změny jsou v manifest.json dodaném z Gitu. WordPress zapisuje přímo na serveru, nikoliv přes WPVibe. Verze 5/6 porovnává identitu a datum úpravy; v5 přesnou délku, v6 bezpečný rozsah délky. Obě varianty zálohují původní text a kontrolují SHA během zápisu.</p>';
+        echo $autoEnabled
+            ? '<p><strong>Automatika je zapnutá</strong> pro omezené dávky v5–v7. Ruční Apply je při zapnuté automatice vypnuto. Stav a vypnutí: Nástroje → Na-Ryby Auto Publisher.</p>'
+            : '<p>Nic se nepublikuje automaticky. Omezenou automatiku lze aktivovat v Nástroje → Na-Ryby Auto Publisher.</p>';
         if (is_wp_error($rows)) { echo '<p>' . esc_html($rows->get_error_message()) . '</p></div>'; return; }
         $blocked = false;
         echo '<table class="widefat striped"><thead><tr><th>Post ID</th><th>Kontrola</th></tr></thead><tbody>';
@@ -635,17 +639,20 @@ final class NRY_Git_Publisher {
         if (is_array($last) && isset($last['status'])) {
             echo '<p>Poslední běh: <strong>' . esc_html($last['status']) . '</strong></p>';
         }
-        if (!$blocked) {
+        if (!$blocked && !$autoEnabled) {
             echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
             echo '<input type="hidden" name="action" value="nry_git_publisher_apply">';
             wp_nonce_field('nry_git_publisher_apply');
             submit_button('Zapsat ověřené změny do WordPressu'); echo '</form>';
-        } else { echo '<p>Nelze pokračovat: některý článek se mezitím změnil.</p>'; }
+        } elseif ($blocked) { echo '<p>Nelze pokračovat: některý článek se mezitím změnil.</p>'; }
         echo '</div>';
     }
     public static function handle_apply() {
         if (!current_user_can('manage_options')) { wp_die('Access denied'); }
         check_admin_referer('nry_git_publisher_apply');
+        if (get_option('nry_gp_auto_enabled_v1', 'no') === 'yes') {
+            wp_die('Nejprve vypněte automatiku v Nástroje → Na-Ryby Auto Publisher.');
+        }
         $receipt = self::execute(self::manifest());
         update_option(self::RECEIPT, is_wp_error($receipt) ? array('status' => 'manifest_invalid') : $receipt, false);
         wp_safe_redirect(admin_url('tools.php?page=nry-git-publisher')); exit;
