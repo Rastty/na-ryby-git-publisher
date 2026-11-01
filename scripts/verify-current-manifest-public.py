@@ -17,7 +17,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 BASE = "https://na-ryby.eu"
-ALLOWED = (5, 6, 7)
+ALLOWED = (5, 6, 7, 8)
 
 
 def verify_manifest(data):
