@@ -153,6 +153,24 @@ final class NRY_Checklist_Release_V1 {
         wp_safe_redirect(admin_url('tools.php?page=nry-checklist-release')); exit;
     }
 
+    /**
+     * Read once, then verify and serve those same bytes. A deploy replacing
+     * the asset between hash_file() and readfile() must never expose a body
+     * different from the administrator-approved SHA.
+     */
+    public static function approved_asset_bytes($expected_sha) {
+        if (!is_string($expected_sha) || !preg_match('/^[a-f0-9]{64}$/D', $expected_sha)) {
+            return false;
+        }
+        $file = self::asset_path();
+        if (!is_file($file) || !is_readable($file)) { return false; }
+        $bytes = file_get_contents($file);
+        if (!is_string($bytes) || strlen($bytes) < 15000 || strlen($bytes) > 100000) {
+            return false;
+        }
+        return hash_equals($expected_sha, hash('sha256', $bytes)) ? $bytes : false;
+    }
+
     public static function serve() {
         // An exact public path is the only supported route. Query parameters
         // remain available for the checklist's local sharing functionality.
@@ -170,9 +188,10 @@ final class NRY_Checklist_Release_V1 {
         if ($path !== '/' . self::SLUG && $path !== '/' . self::SLUG . '/') { return; }
         $state = self::inspection();
         if (!$state['approved']) { return; }
-        $file = self::asset_path();
-        // Recheck exact approved bytes immediately before serving.
-        if (!is_file($file) || !hash_equals($state['asset_sha'], hash_file('sha256', $file))) { return; }
+        // Verify and emit one immutable in-memory snapshot, not a second
+        // disk read that could race a Deployer-for-Git asset replacement.
+        $body = self::approved_asset_bytes($state['asset_sha']);
+        if ($body === false) { return; }
         status_header(200);
         header('Content-Type: text/html; charset=UTF-8');
         header('X-Content-Type-Options: nosniff');
@@ -181,7 +200,7 @@ final class NRY_Checklist_Release_V1 {
         header('Cache-Control: no-store');
         header('X-NRY-Checklist-Asset-SHA256: ' . $state['asset_sha']);
         // HEAD has the same verified headers as GET but no response body.
-        if ($method === 'GET') { readfile($file); }
+        if ($method === 'GET') { echo $body; }
         exit;
     }
 }
