@@ -35,6 +35,13 @@ require dirname(__DIR__) . '/checklist-release-v1.php';
 
 $sha = NRY_Checklist_Release_V1::asset_sha();
 check(is_string($sha) && preg_match('/^[a-f0-9]{64}$/D', $sha), 'validated standalone asset SHA');
+check(NRY_Checklist_Release_V1::approved_asset_bytes($sha) ===
+    file_get_contents(NRY_Checklist_Release_V1::asset_path()),
+    'serve exactly the bytes verified against approved SHA');
+check(NRY_Checklist_Release_V1::approved_asset_bytes(str_repeat('0', 64)) === false,
+    'stale approval cannot serve asset bytes');
+check(NRY_Checklist_Release_V1::approved_asset_bytes('not-a-sha') === false,
+    'malformed approval cannot serve asset bytes');
 check(NRY_Checklist_Release_V1::inspection()['ready'], 'ready without slug collision');
 check(!NRY_Checklist_Release_V1::inspection()['approved'], 'git checkout is NOT publication');
 check(!NRY_Checklist_Release_V1::inspection()['approval_conflict'], 'no initial approval conflict');
