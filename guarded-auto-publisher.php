@@ -14,12 +14,36 @@ final class NRY_Guarded_Auto_Publisher {
     const EVENT = 'nry_gp_auto_tick_v1';
 
     public static function boot() {
+        add_action('init', array(__CLASS__, 'owner_bootstrap'),9);
         add_action('init', array(__CLASS__, 'schedule'));
         add_action(self::EVENT, array(__CLASS__, 'tick'));
         add_action('admin_menu', array(__CLASS__, 'menu'));
         add_action('admin_post_nry_gp_auto_toggle', array(__CLASS__, 'toggle'));
     }
 
+
+    // Owner directive 2026-11-02: enable guarded Git publishing without manual toggle.
+    // The already-present historical manifest becomes a baseline, never replayed.
+    // A subsequent administrator disable remains authoritative.
+    public static function owner_bootstrap() {
+        $flag='nry_gp_owner_bootstrap_20261102';
+        if (get_option($flag,false)!==false || rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return;
+        $manifest=NRY_Git_Publisher::manifest();
+        if (is_wp_error($manifest) || ($manifest['schema_version']??null)!==7
+            || ($manifest['batch_id']??'')!=='chair-selection-next-four-20261025-v1'
+            || count($manifest['edits']??array())!==4) return;
+        $previous=get_option(self::LAST_BATCH,'');
+        if ($previous!=='' && $previous!==$manifest['batch_id']) return;
+        $digest=hash('sha256',wp_json_encode($manifest));
+        if ($previous==='' && !add_option(self::LAST_BATCH,$manifest['batch_id'],'',false)) return;
+        if (get_option(self::LAST_MANIFEST_SHA,'')==='') {
+            if (!add_option(self::LAST_MANIFEST_SHA,$digest,'',false)) return;
+        } elseif (get_option(self::LAST_MANIFEST_SHA,'')!==$digest) return;
+        update_option(self::ENABLED,'yes',false);
+        if (!add_option($flag,'yes','',false)) return;
+        self::schedule();
+        self::receipt('owner_enabled_existing_batch_skipped',array('baseline'=>$manifest['batch_id']));
+    }
     public static function schedule() {
         if (get_option(self::ENABLED, 'no') === 'yes') {
             if (!wp_next_scheduled(self::EVENT)) {
