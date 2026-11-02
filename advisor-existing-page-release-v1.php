@@ -344,13 +344,16 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         header('Content-Type: application/json; charset=utf-8');
         header('X-Robots-Tag: noindex, nofollow');
         echo wp_json_encode(array(
-            'site'=>'na-ryby.eu','publisher_version'=>'0.15.0',
+            'site'=>'na-ryby.eu','publisher_version'=>'0.16.0',
             'page_id'=>self::ID,'auto_status'=>$status,
             'source_matches'=>($current!=='' && hash_equals(self::AUTO_SOURCE_SHA,$current)),
             'candidate_matches'=>($current!=='' && hash_equals(self::AUTO_CANDIDATE_SHA,$current)),
             'backup_present'=>get_option(self::BACKUP,false)!==false,
             'recovery_attempted'=>get_option(self::AUTO_REPAIR_STATE,false)!==false,
-            'guarded_publisher_enabled'=>get_option('nry_gp_auto_enabled_v1','no')==='yes'
+            'guarded_publisher_enabled'=>get_option('nry_gp_auto_enabled_v1','no')==='yes',
+            'last_auto_batch_id'=>get_option('nry_gp_auto_last_batch_v1',''),
+            'last_auto_receipt_status'=>is_array(get_option('nry_gp_auto_receipt_v1',array()))
+                ? (get_option('nry_gp_auto_receipt_v1',array())['status'] ?? 'unknown') : 'unknown'
         ));
         exit;
     }
