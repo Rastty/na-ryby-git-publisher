@@ -262,6 +262,14 @@ ok($c::rollback()['status']==='rolled_back_local_verified','rollback verified');
 ok($GLOBALS['post']->post_content===$original,'original restored exactly including backslashes');
 ok($GLOBALS['mutations']===2,'one rollback write');
 ok($c::inspect()['reason']==='immutable_backup_conflict','backup immutable after rollback');
+// KSES recovery must never use a forged/other-page backup to bypass SHA gates.
+$GLOBALS['options'][$c::AUTO_STATE]=array('status'=>'write_uncertain_manual_review');
+$beforeRecoveryMutations=$GLOBALS['mutations'];
+$c::auto_recover_kses_once();
+$recovery=get_option($c::AUTO_REPAIR_STATE,false);
+ok(is_array($recovery) && $recovery['status']==='blocked_missing_verified_backup',
+    'anonymous recovery refuses a backup not matching the exact owner-provided source SHA');
+ok($GLOBALS['mutations']===$beforeRecoveryMutations,'forged backup cannot trigger WordPress recovery write');
 unlink($fixtureDir.'/advisor-existing-page-v1.json');
 unlink($assetDir.'/advisor-existing-page-v1.html');rmdir($assetDir);
 unlink($fixtureDir.'/advisor-existing-page-release-v1.php');rmdir($fixtureDir);
