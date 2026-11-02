@@ -130,6 +130,21 @@ foreach (array(
     ok($c::inspect()['reason']==='external_attribute_destination_drift',
         'new encoded/protocol-relative outbound destination blocked');
 }
+// A reviewed candidate cannot add a third inline script or mutate the
+// existing UI/analytics script while preserving URL/CJ counts and valid SHAs.
+foreach (array(
+    array($candidate.'<script>window.__unreviewed=1;</script>','new inline script'),
+    array(str_replace('const PRICE_VISIBLE_UNTIL=', 'window.__unreviewed=1;const PRICE_VISIBLE_UNTIL=', $candidate),
+        'existing inline script modified')
+) as $case) {
+    $unsafe=$case[0];
+    file_put_contents($assetDir.'/advisor-existing-page-v1.html',$unsafe);
+    $manifest['candidate_sha256']=hash('sha256',$unsafe);
+    $manifest['offer_safety']['candidate_sha256']=hash('sha256',$unsafe);
+    file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
+    ok($c::inspect()['reason']==='unreviewed_inline_script_change',
+        $case[1].' rejected before WordPress write');
+}
 file_put_contents($assetDir.'/advisor-existing-page-v1.html',$candidate);
 $manifest['candidate_sha256']=hash('sha256',$candidate);
 $manifest['offer_safety']['candidate_sha256']=hash('sha256',$candidate);
