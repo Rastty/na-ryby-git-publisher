@@ -184,6 +184,47 @@ def classify(snapshot, now):
     return "EXPIRED_OFFERS_SUPPRESSED"
 
 
+
+def classify_observed_local_ui(snapshot, now):
+    """Additional quarantined-browser evidence, never a production-safe verdict.
+
+    A full-browser audit remains fail-closed if any external dependency was
+    blocked. This separate field records only the directly observed 108-case
+    form/DOM parity and absence of local stale cards/clickouts. It is NOT proof
+    of unrestricted site runtime, GA4 delivery, CJ identity, stock or price.
+    Missing, malformed or synthetic outbound-request attempts fail closed.
+    """
+    if not isinstance(snapshot, dict):
+        return "LOCAL_UI_UNVERIFIABLE"
+    for key in ("blocked_third_party", "blocked_non_get",
+                "blocked_dynamic_get", "blocked_synthetic_requests"):
+        value = snapshot.get(key)
+        if type(value) is not int or value < 0:
+            return "LOCAL_UI_UNVERIFIABLE"
+    # Actual synthetic form interactions are never authorized to issue GET/POST;
+    # missing or altered channel guard is not a local UI pass either.
+    if snapshot["blocked_synthetic_requests"] != 0:
+        return "LOCAL_UI_UNVERIFIABLE"
+    channels = snapshot.get("blocked_channel_apis")
+    if not isinstance(channels, dict) or set(channels) != {"websocket", "eventsource", "beacon"}:
+        return "LOCAL_UI_UNVERIFIABLE"
+    if any(type(v) is not int or v != 0 for v in channels.values()):
+        return "LOCAL_UI_UNVERIFIABLE"
+    # Explicitly scoped counterfactual: classify all real observed UI counts
+    # against the unchanged strict rules while blanking ONLY requests that
+    # our isolated browser itself intentionally aborted before interacting.
+    isolated = dict(snapshot)
+    for key in ("blocked_third_party", "blocked_non_get", "blocked_dynamic_get"):
+        isolated[key] = 0
+    strict_local_result = classify(isolated, now)
+    if strict_local_result == "EXPIRED_OFFERS_SUPPRESSED":
+        return "OBSERVED_108_UI_SAFE_ONLY_NETWORK_DEPENDENCIES_UNVERIFIED"
+    if strict_local_result in ("EXPIRED_OFFERS_EXPOSED", "UNAPPROVED_RESULT_LINKS",
+                               "UNAPPROVED_RESULT_ACTIONS"):
+        return strict_local_result
+    return "LOCAL_UI_UNVERIFIABLE"
+
+
 def inspect_browser():
     from playwright.sync_api import sync_playwright
 
@@ -484,6 +525,7 @@ def main():
             "Third-party requests are blocked; no merchant link is clicked.",
             "This verifies current runtime behavior, not future price or stock.",
             "Synthetic funnel counters verify local wiring only, not GA4 ingestion.",
+            "The separate observed_local_ui_state does not relax the fail-closed overall state.",
         ],
     }
     try:
@@ -495,9 +537,11 @@ def main():
         report["runtime"] = snapshot
         report["blocked_requests"] = blocked
         report["state"] = classify(snapshot, now)
+        report["observed_local_ui_state"] = classify_observed_local_ui(snapshot, now)
     except Exception as exc:
         # Do not persist page content, cookies, URL query parameters or stack traces.
         report["state"] = "RUNTIME_UNVERIFIABLE"
+        report["observed_local_ui_state"] = "LOCAL_UI_UNVERIFIABLE"
         report["diagnostic"] = type(exc).__name__
     Path(args.output).write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"

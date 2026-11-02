@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from audit_live_advisor_browser import classify, request_policy
+from audit_live_advisor_browser import classify, classify_observed_local_ui, request_policy
 
 NOW = datetime(2026, 10, 31, 5, 0, tzinfo=timezone.utc)
 
@@ -47,6 +47,46 @@ def safe():
 
 
 class BrowserAuditContractTests(unittest.TestCase):
+
+    def test_quarantined_form_observations_are_reported_without_green_full_audit(self):
+        snapshot = safe()
+        snapshot.update({"blocked_third_party": 3, "blocked_non_get": 1,
+                         "blocked_dynamic_get": 11, "blocked_synthetic_requests": 0})
+        self.assertEqual(classify(snapshot, NOW), "RUNTIME_UNVERIFIABLE")
+        self.assertEqual(classify_observed_local_ui(snapshot, NOW),
+                         "OBSERVED_108_UI_SAFE_ONLY_NETWORK_DEPENDENCIES_UNVERIFIED")
+        # This is an observation in a quarantined browser, not permission to
+        # lift the network restrictions or claim unrestricted product safety.
+        self.assertEqual(snapshot["blocked_dynamic_get"], 11)
+
+    def test_quarantined_ui_verdict_fails_closed_on_real_safety_regression(self):
+        for key, value in (
+            ("scenarios_with_offers", 1), ("rendered_scenarios_with_cards", 1),
+            ("visible_clickouts", 1), ("rendered_scenarios_with_unapproved_links", 1),
+            ("rendered_scenarios_with_unapproved_actions", 1),
+            ("rendered_scenarios_matching_guides", 107),
+            ("rendered_scenario_errors", 1), ("scenario_count", 107),
+            ("synthetic_funnel_events", None),
+        ):
+            with self.subTest(field=key):
+                snapshot = safe()
+                snapshot.update({"blocked_third_party": 3, "blocked_non_get": 1,
+                                 "blocked_dynamic_get": 11})
+                snapshot[key] = value
+                self.assertNotEqual(classify_observed_local_ui(snapshot, NOW),
+                                    "OBSERVED_108_UI_SAFE_ONLY_NETWORK_DEPENDENCIES_UNVERIFIED")
+        for key in ("blocked_third_party", "blocked_non_get", "blocked_dynamic_get",
+                    "blocked_synthetic_requests"):
+            snapshot = safe()
+            snapshot[key] = None
+            self.assertEqual(classify_observed_local_ui(snapshot, NOW), "LOCAL_UI_UNVERIFIABLE")
+        snapshot = safe()
+        snapshot["blocked_synthetic_requests"] = 1
+        self.assertEqual(classify_observed_local_ui(snapshot, NOW), "LOCAL_UI_UNVERIFIABLE")
+        snapshot = safe()
+        snapshot["blocked_channel_apis"]["beacon"] = 1
+        self.assertEqual(classify_observed_local_ui(snapshot, NOW), "LOCAL_UI_UNVERIFIABLE")
+
     def test_only_canonical_document_and_static_assets_are_allowed(self):
         allowed = (
             "https://na-ryby.eu/poradce-vybavy/",
