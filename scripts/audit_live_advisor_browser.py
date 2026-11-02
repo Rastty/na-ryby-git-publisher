@@ -414,7 +414,15 @@ def inspect_browser():
                     // Even an approved guide href can carry a hidden ping POST,
                     // trigger a download, or override a form submission target.
                     // Do not certify those side effects as safe visitor guidance.
-                    if (panel.querySelector('button, input[type="submit"], input[type="button"], [role="button"], [role="link"], [onclick], [data-href], [data-url], [ping], [download], [formaction], form')) unexpectedActions++;
+                    // The existing first-party copy control is not a merchant CTA.
+                    // Permit exactly one reviewed non-navigating button, with no
+                    // additional attributes or arbitrary inline/data handlers.
+                    const controls = [...panel.querySelectorAll('button, input[type="submit"], input[type="button"], [role="button"], [role="link"]')];
+                    const copy = panel.querySelector('.nry-result__actions > button.nry-button.nry-button--subtle[type="button"]');
+                    const exactCopy = copy && controls.length === 1 && controls[0] === copy &&
+                      copy.textContent.trim() === 'Zkopírovat doporučení' &&
+                      copy.getAttributeNames().every(name => name === 'type' || name === 'class');
+                    if (!exactCopy || panel.querySelector('[onclick], [data-href], [data-url], [ping], [download], [formaction], form')) unexpectedActions++;
                     if (matches && guidesMatch && panel.textContent.trim().length > 100) guidance++;
                     if (panel.querySelector('.nry-offer, .nry-offer__cta')) cards++;
                     if ([...panel.querySelectorAll('a[href]')].some(a => {
