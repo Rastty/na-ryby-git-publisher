@@ -54,6 +54,28 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         }
         return $destinations;
     }
+    private static function scripts_preserved_except_expiry_guard($source, $candidate) {
+        // SHA and browser receipts do not authorize unreviewed inline JS.
+        // Permit only the exact known V4 stale-offer guard insertion.
+        preg_match_all('~<script\\b[^>]*>[\\s\\S]*?</script\\s*>~i', $source, $before);
+        preg_match_all('~<script\\b[^>]*>[\\s\\S]*?</script\\s*>~i', $candidate, $after);
+        if (count($before[0]) !== count($after[0]) || !$before[0]) { return false; }
+        $anchor = '    const fresh=Date.now()<Date.parse(PRICE_VISIBLE_UNTIL);';
+        $guard = "\n    // nry-expired-offer-hard-stop-v1: stale evidence cannot authorize a merchant clickout."
+            ."\n    if(!fresh)return {offers:[],status:'Konkrétní modely nyní nezobrazujeme: poslední ověření nabídek z '+PRICE_SNAPSHOT+' je starší než 7 dní. Výběr typu výbavy a kontrolní seznam zůstávají k dispozici; cenu, dostupnost a vhodnost konkrétního produktu ověřte u prodejce.'};";
+        $changes = 0;
+        foreach ($before[0] as $index => $original) {
+            $replacement = $after[0][$index];
+            if ($original === $replacement) { continue; }
+            if (++$changes > 1
+                || strpos($original, '<script data-nry-engine="nry-advisor-live-v1">') !== 0
+                || substr_count($original, $anchor) !== 1
+                || $replacement !== str_replace($anchor, $anchor.$guard, $original)) {
+                return false;
+            }
+        }
+        return true;
+    }
     private static function cj_routes($body) {
         // Include relative /click-* routes which a generic external URL
         // extractor would miss. Never silently rewrite the CJ property.
@@ -140,6 +162,9 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         if ($current_sha !== $manifest['source_sha256']
             || $post->post_modified_gmt !== $manifest['source_modified_gmt']) {
             return $blocked('source_sha_or_modified_drift');
+        }
+        if (!self::scripts_preserved_except_expiry_guard($post->post_content, $candidate)) {
+            return $blocked('unreviewed_inline_script_change');
         }
         if (self::urls($post->post_content) !== self::urls($candidate)) {
             return $blocked('external_destination_drift');
