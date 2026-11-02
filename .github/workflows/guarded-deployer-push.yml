@@ -6,6 +6,7 @@ on:
       - 'advisor-existing-page-release-v1.php'
       - 'guarded-auto-publisher.php'
       - 'tests/test-native-kses-write-contract.php'
+      - 'tests/test-three-chair-guides-v8.php'
       - 'tests/test-buyer-source-proof.php'
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
@@ -17,6 +18,7 @@ on:
       - 'manifest.json'
       - 'advisor-existing-page-release-v1.php'
       - 'guarded-auto-publisher.php'
+      - 'tests/test-three-chair-guides-v8.php'
       - 'tests/test-buyer-source-proof.php'
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
@@ -46,6 +48,7 @@ jobs:
           php tests/test-advisor-existing-page-release-v1.php
           php tests/test-native-kses-write-contract.php
           php tests/test-buyer-source-proof.php
+          php tests/test-three-chair-guides-v8.php
           php -l guarded-auto-publisher.php
           php -l seo-snippet-pilot.php
           php -l checklist-release-v1.php
@@ -116,7 +119,7 @@ jobs:
                   result={k:health.get(k) for k in ('publisher_version','auto_status','source_matches',
                       'candidate_matches','backup_present','guarded_publisher_enabled')}
                   print('LIVE HEALTH:',json.dumps(result,sort_keys=True))
-                  if health.get('publisher_version')=='0.15.0' and health.get('candidate_matches') is True \
+                  if health.get('publisher_version')=='0.16.0' and health.get('candidate_matches') is True \
                       and health.get('backup_present') is True \
                       and health.get('auto_status') in ('auto_applied_local_verified_pending_public_browser',
                           'recovered_local_verified_pending_public_browser',
@@ -125,7 +128,7 @@ jobs:
                       break
               except Exception as e:
                   print('Live WordPress health unavailable:',type(e).__name__)
-              if attempt==4: raise SystemExit('BLOCKED: WordPress v0.15 source-bound publisher not independently confirmed')
+              if attempt==4: raise SystemExit('BLOCKED: WordPress v0.16 source-bound publisher not independently confirmed')
               time.sleep(5)
           PY
 
@@ -156,6 +159,36 @@ jobs:
                   json.dumps({k:x[k] for k in ('id','slug','source_modified_gmt','source_bytes','source_sha256')},
                   sort_keys=True))
           print('PASS: exact current raw WordPress source hash only; no editorial publication')
+          PY
+
+
+      - name: Assert approved V8 batch genuinely committed in WordPress before success
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,urllib.request,time
+          with open('manifest.json',encoding='utf8') as f: manifest=json.load(f)
+          if manifest.get('schema_version')!=8:
+              print('SKIP: no V8 buyer content manifest in current release')
+              raise SystemExit(0)
+          expected=manifest['batch_id']
+          for attempt in range(5):
+              req=urllib.request.Request('https://na-ryby.eu/poradce-vybavy/?nry_release_health=1&buyer_batch='+str(attempt),
+                 headers={'Cache-Control':'no-cache','User-Agent':'NryExactNativeBatchReadback/1.0'})
+              with urllib.request.urlopen(req,timeout=25) as response:
+                  health=json.loads(response.read(4096))
+              print('BATCH_READBACK',json.dumps({
+                  'expected_batch':expected,'current_batch':health.get('last_auto_batch_id'),
+                  'status':health.get('last_auto_receipt_status'),
+                  'publisher_version':health.get('publisher_version')},sort_keys=True))
+              if (health.get('publisher_version')=='0.16.0'
+                  and health.get('last_auto_batch_id')==expected
+                  and health.get('last_auto_receipt_status')=='applied_and_verified_local'):
+                  print('PASS: full reviewed V8 batch committed, local SHA readback complete')
+                  break
+              if attempt==4:
+                  raise SystemExit('BLOCKED: reviewed V8 batch not committed in WordPress')
+              time.sleep(5)
           PY
 
       - name: Trigger exact source-pinned advisor release and verify public code
