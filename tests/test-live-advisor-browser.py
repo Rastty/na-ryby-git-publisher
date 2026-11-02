@@ -362,6 +362,11 @@ class BrowserAuditContractTests(unittest.TestCase):
         self.assertIn("allResultLinks.some(link => !actualGuides.includes(link))", source)
         self.assertIn("rendered_scenarios_with_unapproved_actions: unexpectedActions", source)
         self.assertIn('[onclick], [data-href], [data-url], [ping], [download], [formaction], form', source)
+        self.assertIn("controls.length === 1 && controls[0] === copy", source)
+        self.assertIn("copy.textContent.trim() === 'Zkopírovat doporučení'", source)
+        self.assertIn("copy.getAttributeNames().every", source)
+        self.assertIn("name === 'type' || name === 'class'", source)
+
         self.assertLess(source.index('window.__nryAuditSyntheticFunnel = {'),
                         source.index('page.locator(".nry-setup form button[type=submit]").first.click'))
         self.assertIn("sectionText('Doporučený prut')", source)
