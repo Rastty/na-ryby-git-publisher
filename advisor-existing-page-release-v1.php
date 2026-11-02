@@ -325,6 +325,33 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
             delete_option(self::LOCK);
         }
     }
+
+    /**
+     * Public GET-only deploy health. Exposes no post_content, SHA, CJ links,
+     * credentials, backup or other private data. Reports only exact-match
+     * booleans for the one approved page and whether bounded auto is enabled.
+     */
+    public static function public_release_health() {
+        if (!isset($_GET['nry_release_health']) || $_GET['nry_release_health'] !== '1'
+            || !function_exists('is_page') || !is_page(self::SLUG)) return;
+        $post=get_post(self::ID);
+        $current=self::identity($post) ? hash('sha256',$post->post_content) : '';
+        $s=get_option(self::AUTO_STATE,false);
+        $status=is_array($s) && is_string($s['status']??null) ? $s['status'] : 'not_attempted';
+        if (!preg_match('/^[a-z0-9_]{4,90}$/D',$status)) $status='unknown';
+        nocache_headers();
+        header('Content-Type: application/json; charset=utf-8');
+        header('X-Robots-Tag: noindex, nofollow');
+        echo wp_json_encode(array(
+            'site'=>'na-ryby.eu','publisher_version'=>'0.12.0',
+            'page_id'=>self::ID,'auto_status'=>$status,
+            'source_matches'=>($current!=='' && hash_equals(self::AUTO_SOURCE_SHA,$current)),
+            'candidate_matches'=>($current!=='' && hash_equals(self::AUTO_CANDIDATE_SHA,$current)),
+            'backup_present'=>get_option(self::BACKUP,false)!==false,
+            'guarded_publisher_enabled'=>get_option('nry_gp_auto_enabled_v1','no')==='yes'
+        ));
+        exit;
+    }
     private static function acquire() {
         // Atomic add_option blocks concurrent admin writes; stale lock fails closed.
         return add_option(self::LOCK, gmdate('c'), '', false);
@@ -459,6 +486,7 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
     }
 }
 add_action('wp_loaded',array('NRY_Advisor_Existing_Page_Release_V1','auto_expiry_once'),20);
+add_action('template_redirect',array('NRY_Advisor_Existing_Page_Release_V1','public_release_health'),20);
 add_action('admin_menu',array('NRY_Advisor_Existing_Page_Release_V1','menu'));
 add_action('admin_post_nry_advisor_existing_source_export',array('NRY_Advisor_Existing_Page_Release_V1','handle_source_export'));
 add_action('admin_post_nry_advisor_existing_apply',array('NRY_Advisor_Existing_Page_Release_V1','handle_apply'));
