@@ -1,0 +1,52 @@
+name: Na-Ryby four buyer guides public source preflight read-only
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_nry_buyer_sources.py'
+      - 'tests/test_nry_buyer_sources.py'
+      - '.github/workflows/nry-four-buyer-source-readonly.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/audit_nry_buyer_sources.py'
+      - 'tests/test_nry_buyer_sources.py'
+      - '.github/workflows/nry-four-buyer-source-readonly.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Offline contract safety, no WordPress writes
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/audit_nry_buyer_sources.py
+          python3 tests/test_nry_buyer_sources.py -v
+      - name: GET-only public REST metadata for exactly four buyer-intent posts
+        run: |
+          set -euo pipefail
+          python3 scripts/audit_nry_buyer_sources.py nry-four-buyer-public-preflight.json
+      - name: Do not confuse public REST with authenticated source
+        run: |
+          python3 - <<'PY'
+          import json
+          r=json.load(open('nry-four-buyer-public-preflight.json'))
+          assert r['read_only'] is True
+          assert r['private_source_sha_verified'] is False
+          assert r['wordPress_writes']==0 and r['eligible_for_automatic_publication']==0
+          assert len(r['rows'])==4
+          assert all(x['publication_authorized'] is False for x in r['rows'])
+          print('PASS: no WordPress publication permitted from anonymous REST metadata')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: na-ryby-four-buyer-public-preflight
+          retention-days: 7
+          path: nry-four-buyer-public-preflight.json
+          if-no-files-found: ignore
