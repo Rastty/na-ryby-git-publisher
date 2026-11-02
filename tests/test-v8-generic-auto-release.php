@@ -36,7 +36,7 @@ function must($condition, $message) {
 }
 require dirname(__DIR__) . '/na-ryby-git-publisher.php';
 
-$base = json_decode(file_get_contents(dirname(__DIR__) . '/manifest.json'), true);
+$base = json_decode(file_get_contents(__DIR__ . '/v7-frozen-manifest.json'), true);
 must($base['schema_version'] === 7, 'Fixture must be existing approved schema 7');
 $manifest = array('schema_version' => 8, 'site' => 'https://na-ryby.eu',
     'batch_id' => 'new-editorial-canary-20261101-01', 'edits' => array());
