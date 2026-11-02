@@ -15,6 +15,7 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
     const AUTO_SOURCE_SHA = '693942db95fbc88d1e1b607068595f680935c5e74187648872afdd15cc297389';
     const AUTO_CANDIDATE_SHA = '018790b97db311fed29bfb053daa406c23d2ebc0caca4437247f1f0dc954eecd';
     const AUTO_MODIFIED_GMT = '2026-10-14 20:03:30';
+    const AUTO_REPAIR_STATE = 'nry_advisor_119865_kses_recovery_20261102';
 
     private static function valid_sha($value) {
         return is_string($value) && preg_match('/^[a-f0-9]{64}$/D', $value);
@@ -343,15 +344,106 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         header('Content-Type: application/json; charset=utf-8');
         header('X-Robots-Tag: noindex, nofollow');
         echo wp_json_encode(array(
-            'site'=>'na-ryby.eu','publisher_version'=>'0.12.0',
+            'site'=>'na-ryby.eu','publisher_version'=>'0.13.0',
             'page_id'=>self::ID,'auto_status'=>$status,
             'source_matches'=>($current!=='' && hash_equals(self::AUTO_SOURCE_SHA,$current)),
             'candidate_matches'=>($current!=='' && hash_equals(self::AUTO_CANDIDATE_SHA,$current)),
             'backup_present'=>get_option(self::BACKUP,false)!==false,
+            'recovery_attempted'=>get_option(self::AUTO_REPAIR_STATE,false)!==false,
             'guarded_publisher_enabled'=>get_option('nry_gp_auto_enabled_v1','no')==='yes'
         ));
         exit;
     }
+
+    // Recovery is only permitted for the exact WordPress KSES transformation
+    // of the hash-pinned candidate, after an observed anonymous write.
+    // No source/candidate is transferred to GitHub, and no other content is
+    // accepted: concurrent edits always force a manual investigation.
+    public static function auto_recover_kses_once() {
+        if (get_option(self::AUTO_REPAIR_STATE,false)!==false) return;
+        $attempt=get_option(self::AUTO_STATE,false);
+        if (!is_array($attempt) || ($attempt['status']??'')!=='write_uncertain_manual_review'
+            || rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return;
+        if (!self::acquire()) return;
+        $status='blocked_unknown';
+        try {
+            $backup=get_option(self::BACKUP,false);
+            $post=get_post(self::ID);
+            if (!is_array($backup) || !self::identity($post)
+                || ($backup['page_id']??null)!==self::ID
+                || ($backup['source_sha256']??'')!==self::AUTO_SOURCE_SHA
+                || ($backup['candidate_sha256']??'')!==self::AUTO_CANDIDATE_SHA
+                || ($backup['source_modified_gmt']??'')!==self::AUTO_MODIFIED_GMT
+                || !is_string($backup['source_content']??null)) {
+                $status='blocked_missing_verified_backup';
+            } else {
+                $candidate=self::auto_expiry_candidate($backup['source_content'],
+                    self::AUTO_SOURCE_SHA,self::AUTO_CANDIDATE_SHA);
+                if ($candidate===false) {
+                    $status='blocked_untrusted_backup';
+                } elseif (hash('sha256',$post->post_content)===self::AUTO_CANDIDATE_SHA) {
+                    $status='recovered_already_exact_no_write';
+                } elseif (!function_exists('wp_kses_post') ||
+                    !hash_equals(hash('sha256',wp_kses_post($candidate)),
+                        hash('sha256',$post->post_content))) {
+                    // Under no circumstances overwrite an independently edited page.
+                    $status='blocked_current_not_exact_kses_transform';
+                } elseif (!function_exists('wp_slash') || !function_exists('has_filter')
+                    || !function_exists('remove_filter') || !function_exists('add_filter')) {
+                    $status='blocked_wordpress_filter_api_missing';
+                } else {
+                    $fresh=get_post(self::ID);
+                    if (!self::identity($fresh)
+                        || $fresh->post_content!==$post->post_content
+                        || $fresh->post_modified_gmt!==$post->post_modified_gmt) {
+                        $status='blocked_concurrent_change';
+                    } else {
+                        // KSES runs for anonymous wp_loaded/WP-Cron writes;
+                        // temporarily suspend *only* post-content sanitizers
+                        // after the exact candidate's security/byte checks.
+                        $removed=array();
+                        foreach (array(
+                            array('content_save_pre','wp_filter_post_kses'),
+                            array('content_save_pre','wp_filter_global_styles_post'),
+                            array('content_filtered_save_pre','wp_filter_post_kses'),
+                            array('content_filtered_save_pre','wp_filter_global_styles_post')
+                        ) as $entry) {
+                            $priority=has_filter($entry[0],$entry[1]);
+                            if ($priority!==false) {
+                                remove_filter($entry[0],$entry[1],$priority);
+                                $removed[]=array($entry[0],$entry[1],$priority);
+                            }
+                        }
+                        try {
+                            $written=wp_update_post(array('ID'=>self::ID,
+                                'post_content'=>wp_slash($candidate)),true);
+                        } finally {
+                            foreach ($removed as $entry) {
+                                add_filter($entry[0],$entry[1],$entry[2]);
+                            }
+                        }
+                        $after=get_post(self::ID);
+                        $status=!is_wp_error($written) && (int)$written===self::ID
+                            && self::identity($after) &&
+                            hash('sha256',$after->post_content)===self::AUTO_CANDIDATE_SHA
+                            ? 'recovered_local_verified_pending_public_browser'
+                            : 'recovery_write_uncertain_manual_review';
+                    }
+                }
+            }
+        } catch (\Throwable $e) { $status='recovery_exception_manual_review'; }
+        finally {
+            $record=array('status'=>$status,'at_utc'=>gmdate('c'));
+            update_option(self::AUTO_REPAIR_STATE,$record,false);
+            if ($status==='recovered_local_verified_pending_public_browser'
+                || $status==='recovered_already_exact_no_write') {
+                update_option(self::AUTO_STATE,$record,false);
+            }
+            update_option(self::RECEIPT,$record,false);
+            delete_option(self::LOCK);
+        }
+    }
+
     private static function acquire() {
         // Atomic add_option blocks concurrent admin writes; stale lock fails closed.
         return add_option(self::LOCK, gmdate('c'), '', false);
@@ -486,6 +578,7 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
     }
 }
 add_action('wp_loaded',array('NRY_Advisor_Existing_Page_Release_V1','auto_expiry_once'),20);
+add_action('wp_loaded',array('NRY_Advisor_Existing_Page_Release_V1','auto_recover_kses_once'),21);
 add_action('template_redirect',array('NRY_Advisor_Existing_Page_Release_V1','public_release_health'),20);
 add_action('admin_menu',array('NRY_Advisor_Existing_Page_Release_V1','menu'));
 add_action('admin_post_nry_advisor_existing_source_export',array('NRY_Advisor_Existing_Page_Release_V1','handle_source_export'));
