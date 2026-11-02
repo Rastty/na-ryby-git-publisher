@@ -1,0 +1,84 @@
+name: Na-Ryby source-pinned three chairs release contract and public readback
+on:
+  pull_request:
+    paths:
+      - 'manifest.json'
+      - 'tests/test-three-chair-guides-v8.php'
+      - '.github/workflows/nry-three-chair-guides-v8.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'manifest.json'
+      - 'tests/test-three-chair-guides-v8.php'
+      - '.github/workflows/nry-three-chair-guides-v8.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: PHP contract for exact reviewed SHA-bound editorial batch
+        run: |
+          set -euo pipefail
+          php -l tests/test-three-chair-guides-v8.php
+          php tests/test-three-chair-guides-v8.php
+  independent-public-readback:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Verify real WordPress and public page after guarded Deployer
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,re,time,urllib.request
+          m=json.load(open('manifest.json'))
+          if m.get('batch_id')!='chair-problem-decision-three-20261102-v1':
+              print('SKIP: unrelated new manifest')
+              raise SystemExit(0)
+          base='https://na-ryby.eu'
+          allowed={r['post_id']:r for r in m['edits']}
+          def get_json(url):
+              req=urllib.request.Request(url,headers={'Cache-Control':'no-cache',
+                  'User-Agent':'NaRybyV8PublicBuyerProof/1.0'})
+              with urllib.request.urlopen(req,timeout=25) as response:
+                  assert response.status==200
+                  return json.loads(response.read(650000))
+          for attempt in range(4):
+              try:
+                  proof=get_json(base+'/poradce-vybavy/?nry_buyer_source_proof=1')
+                  rows={r['id']:r for r in proof['rows']}
+                  assert set(rows)==set(allowed)
+                  for post_id,e in allowed.items():
+                      row=rows[post_id]
+                      assert row['state']=='SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY'
+                      assert row['source_sha256']!=e['source_sha256']
+                      assert row['source_bytes']>e['source_min_bytes']
+                      post=get_json(base+f'/wp-json/wp/v2/posts/{post_id}?_fields=id,slug,status,type,link,modified_gmt,content')
+                      assert post['id']==post_id and post['slug']==e['slug']
+                      assert post['type']=='post' and post['status']=='publish'
+                      assert post['link']==base+'/'+e['slug']+'/'
+                      marker='data-nry-editorial-edit="'+e['edit_id']+'"'
+                      rendered=post['content']['rendered']
+                      assert rendered.count(marker)==1, (post_id,'marker missing or repeated')
+                      assert marker in rendered[:750],(post_id,'decision not at top')
+                      assert post['modified_gmt'].replace('T',' ')!=e['source_modified_gmt']
+                      print('PUBLIC_VERIFIED',post_id,'marker',e['edit_id'],
+                            'bytes',row['source_bytes'])
+                  print('PASS: 3/3 exact-source WordPress writes observed in current public REST and source fingerprint')
+                  break
+              except Exception as e:
+                  print('Public readback not yet verified:',type(e).__name__)
+                  if attempt==3: raise
+                  time.sleep(5)
+          PY
