@@ -131,7 +131,15 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         // A dated 108-case browser receipt must match the exact staged bytes.
         // Its GitHub URL is for independent review, not a live deployment claim.
         $safety = $manifest['offer_safety'] ?? null;
-        $tested = is_array($safety) ? strtotime($safety['tested_at_utc'] ?? '') : false;
+        // A receipt must carry a real UTC instant, not PHP relative date text.
+        // A malformed JSON type must block safely instead of fatalling in strtotime().
+        $tested_at = is_array($safety) ? ($safety['tested_at_utc'] ?? null) : null;
+        $tested = is_string($tested_at)
+            && preg_match('/^20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/D', $tested_at)
+            ? strtotime($tested_at) : false;
+        if ($tested !== false && gmdate('Y-m-d\TH:i:s\Z', $tested) !== $tested_at) {
+            $tested = false;
+        }
         if (!is_array($safety) || ($safety['candidate_sha256'] ?? '') !== $manifest['candidate_sha256']
             || ($safety['scenarios_tested'] ?? null) !== 108
             || ($safety['expired_offer_clickouts'] ?? null) !== 0
