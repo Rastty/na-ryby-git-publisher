@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - 'manifest.json'
+      - 'advisor-existing-page-release-v1.php'
+      - 'guarded-auto-publisher.php'
+      - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
       - 'guarded-auto-publisher.php'
       - '.github/workflows/guarded-deployer-push.yml'
@@ -10,6 +13,9 @@ on:
     branches: [main]
     paths:
       - 'manifest.json'
+      - 'advisor-existing-page-release-v1.php'
+      - 'guarded-auto-publisher.php'
+      - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
       - 'guarded-auto-publisher.php'
       - 'seo-snippet-pilot.php'
@@ -31,7 +37,10 @@ jobs:
       - name: Syntax and rollback contract
         run: |
           set -euo pipefail
+          php -l advisor-existing-page-release-v1.php
+          php -l guarded-auto-publisher.php
           php -l na-ryby-git-publisher.php
+          php tests/test-advisor-existing-page-release-v1.php
           php -l guarded-auto-publisher.php
           php -l seo-snippet-pilot.php
           php -l checklist-release-v1.php
