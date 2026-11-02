@@ -144,7 +144,7 @@ jobs:
           with urllib.request.urlopen(req,timeout=30) as resp:
               assert resp.status==200
               document=json.loads(resp.read(10000))
-          assert document['publisher_version']=='0.15.0'
+          assert document['publisher_version']=='0.16.0'
           assert document['data_class']=='HASH_AND_MODIFIED_GMT_ONLY_NO_POST_CONTENT'
           assert document['publication_authorized'] is False
           assert document['wordpress_writes']==0
