@@ -1,0 +1,41 @@
+name: Na-Ryby Existing Advisor Admin-Apply Contract
+on:
+  pull_request:
+    paths:
+      - 'advisor-existing-page-release-v1.php'
+      - 'advisor-existing-page-v1.json'
+      - 'assets/advisor-existing-page-v1.html'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-advisor-existing-page-release-v1.php'
+      - '.github/workflows/advisor-existing-page-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'advisor-existing-page-release-v1.php'
+      - 'advisor-existing-page-v1.json'
+      - 'assets/advisor-existing-page-v1.html'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-advisor-existing-page-release-v1.php'
+      - '.github/workflows/advisor-existing-page-contract.yml'
+permissions:
+  contents: read
+jobs:
+  fail-closed-existing-page:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: PHP syntax and source-bound existing advisor contract
+        run: |
+          set -euo pipefail
+          php -l na-ryby-git-publisher.php
+          php -l advisor-existing-page-release-v1.php
+          php -l tests/test-advisor-existing-page-release-v1.php
+          php tests/test-advisor-existing-page-release-v1.php
+      - name: Fail closed without reviewed production candidate
+        run: |
+          set -euo pipefail
+          test ! -e advisor-existing-page-v1.json
+          test ! -e assets/advisor-existing-page-v1.html

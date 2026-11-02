@@ -182,3 +182,68 @@ The response disallows network requests and external scripts via CSP and
 does not collect email or transmit fishing location. This release is separate
 from editorial batches and does not clear intermittent REST 401 issue #865.
 
+
+## V0.11 — existing `/poradce-vybavy/` update gate (NOT staged or live)
+
+The existing advisor is WordPress page **119865**, not an empty slug.
+The historical new-page publisher cannot update it. This plugin adds a
+**separate admin-only** release/rollback path at
+`Tools → Na-Ryby Advisor Release`. No candidate HTML or approval manifest
+is included with this code-only PR. On a clean install the screen must report
+`reviewed_manifest_or_candidate_not_staged`, with **no Apply button and no
+WordPress writes**.
+
+Before a later, separately reviewed release, stage both files:
+`advisor-existing-page-v1.json` and
+`assets/advisor-existing-page-v1.html`. The latter must contain the **exact
+complete WordPress post_content**, not a standalone HTML document. The
+manifest must include schema 1, exact page ID/slug, fresh authenticated source
+SHA-256 and `post_modified_gmt`, candidate SHA-256, explicit
+`admin_apply_required`, and an exact-candidate-bound 108-scenario browser
+receipt (0 expired offer clickouts, timestamp within 72 hours, reviewed
+GitHub Actions run URL). A URL in the manifest is a review pointer, not proof
+of live publication or GA4 delivery. All explicit external destinations,
+including existing CJ tracking, must remain byte-identical and in order.
+
+At Apply, the plugin rechecks the exact current page, source SHA and modified
+time on-server; serializes the writer; persists an immutable private original
+snapshot before any write; and verifies local candidate SHA after the one
+`wp_update_post`. Only an authenticated WordPress administrator with
+`manage_options` and a valid nonce can invoke the UI action. No cron, REST
+retry, webhook or Git merge performs the update. If the source drifts, the
+release blocks. A post-write local receipt is
+`applied_pending_independent_public_readback`, **never LIVE**.
+
+After authorized admin Apply, independently verify authenticated WordPress
+readback, canonical public HTML, the real browser's full 108-case stale-offer
+behavior, all 14 preserved CJ routes, GA4 wiring and rollback availability.
+Use the same admin screen for exact-SHA rollback if public verification fails.
+Rollback refuses to overwrite a concurrent editor's changed content. The
+private original snapshot remains immutable after rollback; a subsequent
+release needs a separately reviewed versioned plan.
+
+The old HTTP-401 blocker and merchant feed/GA4 unknowns remain; this is an
+on-server guarded path, not an authorization to publish or a claim that the
+expired-offer problem has been fixed in production.
+
+## V0.11 — read-only exact source capture (no WordPress write)
+
+The existing-advisor admin page at `Tools → Na-Ryby Advisor Release`
+(`tools.php?page=nry-advisor-existing-release`) now shows a **read-only**
+source SHA-256, `post_modified_gmt`, byte length and CJ route occurrence count
+even when no reviewed replacement candidate/manifest is staged. An administrator
+with `manage_options`, `edit_post(119865)` and `unfiltered_html` can
+download the **exact raw `post_content` bytes** via a nonce-protected
+`admin-post.php` action. It is not a public REST endpoint, has no automatic
+writer, sends no secrets to GitHub and does not persist a backup or receipt.
+The download is private source material: do not paste it into a public PR,
+issue, Actions log or third-party service without separate review.
+
+The source SHA, modified timestamp and bytes are a **capture**, not a
+publication authorization. Build a separately reviewed exact full-content
+candidate and a candidate-bound 108-scenario zero-expired-clickout receipt;
+preserve all CJ routes and external destinations. At explicit admin Apply the
+plugin checks the live source SHA and modified timestamp again and blocks on
+drift. No new release is considered live until independent authenticated REST,
+public HTML, browser and rollback verification. The historical REST HTTP 401
+root cause is not resolved by this export path.
