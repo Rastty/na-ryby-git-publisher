@@ -257,13 +257,14 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
                 || $fresh->post_modified_gmt !== $pre['modified_gmt']) {
                 return array('status'=>'blocked','reason'=>'source_changed_after_backup');
             }
-            $written = wp_update_post(array('ID'=>self::ID,'post_content'=>$pre['candidate']),true);
+            // wp_update_post(array) expects slashed values; preserve JS regexes and JSON escapes.
+            $written = wp_update_post(array('ID'=>self::ID,'post_content'=>wp_slash($pre['candidate'])),true);
             $after = get_post(self::ID);
             if (is_wp_error($written) || (int)$written !== self::ID || !self::identity($after)
                 || hash('sha256',$after->post_content) !== $pre['candidate_sha256']) {
                 // Never overwrite a concurrent editor's different content.
                 if (self::identity($after) && hash('sha256',$after->post_content) === $pre['candidate_sha256']) {
-                    $restore = wp_update_post(array('ID'=>self::ID,'post_content'=>$backup['source_content']),true);
+                    $restore = wp_update_post(array('ID'=>self::ID,'post_content'=>wp_slash($backup['source_content'])),true);
                     $check = get_post(self::ID);
                     return array('status'=>!is_wp_error($restore) && self::identity($check)
                         && hash('sha256',$check->post_content) === $pre['source_sha256']
@@ -293,7 +294,7 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
                 || hash('sha256',$post->post_content) !== $backup['candidate_sha256']) {
                 return array('status'=>'blocked','reason'=>'backup_or_live_content_drift');
             }
-            $res = wp_update_post(array('ID'=>self::ID,'post_content'=>$backup['source_content']),true);
+            $res = wp_update_post(array('ID'=>self::ID,'post_content'=>wp_slash($backup['source_content'])),true);
             $after = get_post(self::ID);
             return array('status'=>!is_wp_error($res) && self::identity($after)
                 && hash('sha256',$after->post_content) === $backup['source_sha256']
