@@ -46,11 +46,11 @@ ok($scriptGate->invoke(null,$oldScripts,str_replace('offers:[]','offers:[1]',$ne
 
 $original='<!-- wp:html --><div data-nry-affiliate-disclosure="advisor-v3" data-nry-results>'.
     'https://na-ryby.eu/click-8287231-15734253</div><!-- nry-advisor-live-v1 -->'.
-    '<script>const PRICE_VISIBLE_UNTIL="2026-10-21";</script>'.
+    '<script data-nry-engine="nry-advisor-live-v1">const PRICE_VISIBLE_UNTIL="2026-10-21";'."\n".$expiryAnchor.'</script>'.
     '<span data-link="/click-8287231-15734253?url=exact">tracked</span>'.
     '<code data-test-regex="\\d+">JS escape must survive WordPress</code>'.
     str_repeat('Source guidance ',700);
-$candidate=str_replace('Source guidance ','Better guidance ',$original);
+$candidate=str_replace($expiryAnchor,$expiryAnchor.$expiryGuard,$original);
 $GLOBALS['post']->post_content=$original;
 ok(strpos($original,'\\d+')!==false,'fixture contains literal JS backslash for slashing regression');
 // Read-only exact source export preflight works WITHOUT a staged manifest,
@@ -165,6 +165,22 @@ foreach (array(
     file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
     ok($c::inspect()['reason']==='unreviewed_inline_script_change',
         $case[1].' rejected before WordPress write');
+}
+// Even if the browser receipt and SHA are reissued, an expiry-only release
+// must not silently change helpful prose, markup or noncommercial CTAs.
+foreach (array(
+    array(str_replace('Source guidance ','Changed guidance ',$candidate),'editorial prose drift'),
+    array($candidate.'<p>Unreviewed promotional claim</p>','added non-script markup'),
+    array(str_replace('data-nry-results','data-nry-results data-unreviewed="yes"',$candidate),
+        'existing DOM attribute drift')
+) as $case) {
+    $unsafe=$case[0];
+    file_put_contents($assetDir.'/advisor-existing-page-v1.html',$unsafe);
+    $manifest['candidate_sha256']=hash('sha256',$unsafe);
+    $manifest['offer_safety']['candidate_sha256']=hash('sha256',$unsafe);
+    file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
+    ok($c::inspect()['reason']==='unreviewed_inline_script_change',
+        $case[1].' blocked before WordPress write');
 }
 file_put_contents($assetDir.'/advisor-existing-page-v1.html',$candidate);
 $manifest['candidate_sha256']=hash('sha256',$candidate);
