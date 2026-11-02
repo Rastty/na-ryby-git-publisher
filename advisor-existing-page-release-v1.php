@@ -74,7 +74,11 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
                 return false;
             }
         }
-        return true;
+        // This release is an expiry-only hotfix. A valid manifest must not
+        // smuggle editorial, markup, analytics or CTA changes outside the one
+        // reviewed engine guard. The offline builder has the same byte contract.
+        return $changes === 1 && substr_count($source, $anchor) === 1
+            && $candidate === str_replace($anchor, $anchor.$guard, $source);
     }
     private static function cj_routes($body) {
         // Include relative /click-* routes which a generic external URL
@@ -163,9 +167,6 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
             || $post->post_modified_gmt !== $manifest['source_modified_gmt']) {
             return $blocked('source_sha_or_modified_drift');
         }
-        if (!self::scripts_preserved_except_expiry_guard($post->post_content, $candidate)) {
-            return $blocked('unreviewed_inline_script_change');
-        }
         if (self::urls($post->post_content) !== self::urls($candidate)) {
             return $blocked('external_destination_drift');
         }
@@ -179,6 +180,9 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
                 return strpos($url, '/click-8287231-') !== 0;
             })) > 0) {
             return $blocked('cj_route_or_property_drift');
+        }
+        if (!self::scripts_preserved_except_expiry_guard($post->post_content, $candidate)) {
+            return $blocked('unreviewed_inline_script_change');
         }
         if (hash_equals($current_sha, $manifest['candidate_sha256'])) {
             return $blocked('source_equals_candidate_without_backup');
