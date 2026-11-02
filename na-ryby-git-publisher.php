@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Na-Ryby.eu – Git Publisher
  * Description: Apply guarded Git-managed content manifests from wp-admin without WPVibe or outbound WordPress REST writes.
- * Version: 0.15.0
+ * Version: 0.16.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
@@ -711,7 +711,7 @@ final class NRY_Git_Publisher {
         }
         return array('schema'=>1,'site'=>'https://na-ryby.eu',
             'data_class'=>'HASH_AND_MODIFIED_GMT_ONLY_NO_POST_CONTENT',
-            'publisher_version'=>'0.15.0','publication_authorized'=>false,
+            'publisher_version'=>'0.16.0','publication_authorized'=>false,
             'gsc_protection_checked'=>false,'wordpress_writes'=>0,'rows'=>$rows);
     }
     public static function handle_buyer_public_proof() {
