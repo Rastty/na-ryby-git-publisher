@@ -93,3 +93,30 @@ jobs:
               exit 1
           fi
           echo "Deployer request accepted; LIVE code state and WordPress post writes NOT yet verified."
+
+      - name: Trigger exact source-pinned advisor release and verify public code
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os,time,urllib.request
+          marker=b'nry-expired-offer-hard-stop-v1'
+          base='https://na-ryby.eu/poradce-vybavy/'
+          for attempt in range(4):
+              url=base+'?nry_direct_release_readback='+os.environ['GITHUB_RUN_ID']+'-'+str(attempt)
+              request=urllib.request.Request(url,headers={
+                  'Cache-Control':'no-cache,no-store','Pragma':'no-cache',
+                  'User-Agent':'NaRybyGuardedReleaseProbe/1.0'})
+              try:
+                  with urllib.request.urlopen(request,timeout=30) as response:
+                      body=response.read(750000)
+                      if response.status==200 and marker in body:
+                          print('PASS: public advisor contains exact expiry hard-stop marker')
+                          break
+                      print('Not yet visible: HTTP',response.status,'marker',marker in body)
+              except Exception as e:
+                  print('Readback unavailable:',type(e).__name__)
+              if attempt==3:
+                  raise SystemExit('BLOCKED: public advisor hard-stop not independently visible')
+              time.sleep(5)
+          PY
+
