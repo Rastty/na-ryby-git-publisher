@@ -17,6 +17,8 @@ final class NRY_Guarded_Auto_Publisher {
         add_action('init', array(__CLASS__, 'owner_bootstrap'),9);
         add_action('init', array(__CLASS__, 'schedule'));
         add_action(self::EVENT, array(__CLASS__, 'tick'));
+        // Deploy is followed by a public GET; run a new bounded manifest immediately.
+        add_action('wp_loaded', array(__CLASS__, 'tick_on_new_manifest'), 30);
         add_action('admin_menu', array(__CLASS__, 'menu'));
         add_action('admin_post_nry_gp_auto_toggle', array(__CLASS__, 'toggle'));
     }
@@ -44,6 +46,18 @@ final class NRY_Guarded_Auto_Publisher {
         self::schedule();
         self::receipt('owner_enabled_existing_batch_skipped',array('baseline'=>$manifest['batch_id']));
     }
+
+    public static function tick_on_new_manifest() {
+        if (get_option(self::ENABLED,'no')!=='yes'
+            || rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return;
+        // No stale batch replay; the tick itself performs all schema/identity/
+        // source-SHA/backup/atomic-lock and readback gates before any write.
+        $manifest=NRY_Git_Publisher::manifest();
+        if (is_wp_error($manifest)) { self::stop('invalid_manifest_on_deploy'); return; }
+        if (($manifest['batch_id']??'')===get_option(self::LAST_BATCH,'')) return;
+        self::tick();
+    }
+
     public static function schedule() {
         if (get_option(self::ENABLED, 'no') === 'yes') {
             if (!wp_next_scheduled(self::EVENT)) {
