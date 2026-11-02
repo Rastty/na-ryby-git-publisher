@@ -166,7 +166,8 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         $backup = get_option(self::BACKUP, false);
         if (is_array($backup) && ($backup['candidate_sha256'] ?? '') === $current_sha
             && ($backup['source_sha256'] ?? '') === $manifest['source_sha256']
-            && hash('sha256',$backup['source_content'] ?? '') === $manifest['source_sha256']) {
+            && is_string($backup['source_content'] ?? null)
+            && hash('sha256',$backup['source_content']) === $manifest['source_sha256']) {
             return array('status'=>'already_applied_pending_public_readback',
                 'source_sha256'=>$manifest['source_sha256'], 'candidate_sha256'=>$current_sha);
         }
@@ -302,7 +303,8 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
             if (!is_array($backup) || !self::identity($post)
                 || !self::valid_sha($backup['source_sha256'] ?? null)
                 || !self::valid_sha($backup['candidate_sha256'] ?? null)
-                || hash('sha256',$backup['source_content'] ?? '') !== $backup['source_sha256']
+                || !is_string($backup['source_content'] ?? null)
+                || hash('sha256',$backup['source_content']) !== $backup['source_sha256']
                 || hash('sha256',$post->post_content) !== $backup['candidate_sha256']) {
                 return array('status'=>'blocked','reason'=>'backup_or_live_content_drift');
             }
