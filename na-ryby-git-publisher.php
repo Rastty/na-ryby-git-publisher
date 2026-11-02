@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Na-Ryby.eu – Git Publisher
  * Description: Apply guarded Git-managed content manifests from wp-admin without WPVibe or outbound WordPress REST writes.
- * Version: 0.14.0
+ * Version: 0.15.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
@@ -674,6 +674,58 @@ final class NRY_Git_Publisher {
         }
     }
 
+
+    /**
+     * Public read-only SHA/GMT proof for exactly three existing published
+     * buyer-intent articles. The proof exposes NO HTML, CJ routes, post data,
+     * unpublished content, credentials or flexible post ID lookup.
+     * SHA matches the actual raw post_content used by native manifest preflight.
+     */
+    public static function buyer_source_proof_snapshot() {
+        $allow = array(
+            34858 => 'jak-vybrat-detske-rybarske-kreslo-pro-pohodlne-rybareni',
+            34953 => 'jak-vychytat-nejlepsi-rybarske-kreslo-na-nadchazejici-akci',
+            34969 => 'jak-si-vybrat-levne-a-pohodlne-rybarske-kreslo',
+        );
+        $rows=array();
+        foreach ($allow as $id=>$slug) {
+            $post=get_post($id);
+            if (!is_object($post) || (int)($post->ID??0)!==$id
+                || ($post->post_type??'')!=='post'
+                || ($post->post_status??'')!=='publish'
+                || ($post->post_name??'')!==$slug
+                || !is_string($post->post_content??null)
+                || strlen($post->post_content)<1000
+                || !is_string($post->post_modified_gmt??null)
+                || !preg_match('/^20\d\d-\d\d-\d\d \d\d:\d\d:\d\d$/D',$post->post_modified_gmt)
+                || get_permalink($id)!=='https://na-ryby.eu/'.$slug.'/') {
+                $rows[]=array('id'=>$id,'state'=>'BLOCKED_IDENTITY_OR_SOURCE');
+                continue;
+            }
+            $rows[]=array(
+                'id'=>$id,'state'=>'SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY',
+                'slug'=>$slug,'source_modified_gmt'=>$post->post_modified_gmt,
+                'source_bytes'=>strlen($post->post_content),
+                'source_sha256'=>hash('sha256',$post->post_content)
+            );
+        }
+        return array('schema'=>1,'site'=>'https://na-ryby.eu',
+            'data_class'=>'HASH_AND_MODIFIED_GMT_ONLY_NO_POST_CONTENT',
+            'publisher_version'=>'0.15.0','publication_authorized'=>false,
+            'gsc_protection_checked'=>false,'wordpress_writes'=>0,'rows'=>$rows);
+    }
+    public static function handle_buyer_public_proof() {
+        if (!isset($_GET['nry_buyer_source_proof']) ||
+            $_GET['nry_buyer_source_proof']!=='1' ||
+            !function_exists('is_page') || !is_page('poradce-vybavy')) return;
+        if (rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return;
+        nocache_headers();
+        header('Content-Type: application/json; charset=utf-8');
+        header('X-Robots-Tag: noindex, nofollow');
+        echo wp_json_encode(self::buyer_source_proof_snapshot());
+        exit;
+    }
+
     private static function safe_rows($rows) {
         return array_map(function ($r) { return array('id' => $r['id'], 'status' => $r['status']); }, $rows);
     }
@@ -718,5 +770,6 @@ final class NRY_Git_Publisher {
         wp_safe_redirect(admin_url('tools.php?page=nry-git-publisher')); exit;
     }
 }
+add_action('template_redirect',array('NRY_Git_Publisher','handle_buyer_public_proof'),22);
 add_action('admin_menu', array('NRY_Git_Publisher', 'register_menu'));
 add_action('admin_post_nry_git_publisher_apply', array('NRY_Git_Publisher', 'handle_apply'));
