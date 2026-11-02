@@ -16,7 +16,9 @@ function get_option($key,$default=false){return array_key_exists($key,$GLOBALS['
 function add_option($key,$value,$x='',$autoload=false){if(array_key_exists($key,$GLOBALS['options']))return false;$GLOBALS['options'][$key]=$value;return true;}
 function update_option($key,$value,$autoload=false){$GLOBALS['options'][$key]=$value;return true;}
 function delete_option($key){unset($GLOBALS['options'][$key]);return true;}
-function wp_update_post($args,$error=false){$GLOBALS['mutations']++;$GLOBALS['post']->post_content=$args['post_content'];$GLOBALS['post']->post_modified_gmt='2026-11-01 16:00:00';return $args['ID'];}
+// Simulate core's wp_insert_post unslashing of wp_update_post(array) input.
+function wp_slash($value){return is_string($value)?addslashes($value):$value;}
+function wp_update_post($args,$error=false){$GLOBALS['mutations']++;$GLOBALS['post']->post_content=stripslashes($args['post_content']);$GLOBALS['post']->post_modified_gmt='2026-11-01 16:00:00';return $args['ID'];}
 function is_wp_error($x){return false;}
 $GLOBALS['can_edit']=true;
 function current_user_can($cap,$id=null){return $GLOBALS['can_edit'];}
@@ -46,9 +48,11 @@ $original='<!-- wp:html --><div data-nry-affiliate-disclosure="advisor-v3" data-
     'https://na-ryby.eu/click-8287231-15734253</div><!-- nry-advisor-live-v1 -->'.
     '<script>const PRICE_VISIBLE_UNTIL="2026-10-21";</script>'.
     '<span data-link="/click-8287231-15734253?url=exact">tracked</span>'.
+    '<code data-test-regex="\\d+">JS escape must survive WordPress</code>'.
     str_repeat('Source guidance ',700);
 $candidate=str_replace('Source guidance ','Better guidance ',$original);
 $GLOBALS['post']->post_content=$original;
+ok(strpos($original,'\\d+')!==false,'fixture contains literal JS backslash for slashing regression');
 // Read-only exact source export preflight works WITHOUT a staged manifest,
 // never changes WordPress, and refuses unauthorized or mismatched pages.
 $source=$c::source_snapshot();
@@ -177,6 +181,7 @@ delete_option($c::LOCK);
 $receipt=$c::execute();
 ok($receipt['status']==='applied_pending_independent_public_readback','local readback never claims deployed');
 ok($GLOBALS['mutations']===1,'one bounded WordPress write');
+ok($GLOBALS['post']->post_content===$candidate,'WordPress-style unslash retains exact candidate bytes');
 ok($c::inspect()['status']==='already_applied_pending_public_readback','applied state detected');
 ok($c::execute()['status']==='blocked','repeat apply blocks');
 ok($GLOBALS['mutations']===1,'no duplicate writes');
@@ -185,7 +190,7 @@ ok($c::rollback()['reason']==='backup_or_live_content_drift','concurrent editor 
 ok($GLOBALS['mutations']===1,'no overwrite on drift');
 $GLOBALS['post']->post_content=$candidate;
 ok($c::rollback()['status']==='rolled_back_local_verified','rollback verified');
-ok($GLOBALS['post']->post_content===$original,'original restored exactly');
+ok($GLOBALS['post']->post_content===$original,'original restored exactly including backslashes');
 ok($GLOBALS['mutations']===2,'one rollback write');
 ok($c::inspect()['reason']==='immutable_backup_conflict','backup immutable after rollback');
 unlink($fixtureDir.'/advisor-existing-page-v1.json');
