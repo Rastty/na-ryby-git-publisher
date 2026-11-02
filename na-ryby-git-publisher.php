@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Na-Ryby.eu – Git Publisher
  * Description: Apply guarded Git-managed content manifests from wp-admin without WPVibe or outbound WordPress REST writes.
- * Version: 0.13.0
+ * Version: 0.14.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
@@ -600,7 +600,8 @@ final class NRY_Git_Publisher {
                 || $fresh['candidate_sha'] !== $row['candidate_sha']) {
                 $failed = array('id' => $row['id'], 'reason' => 'concurrent_edit'); break;
             }
-            $result = wp_update_post(array('ID' => $row['id'], 'post_content' => $row['candidate']), true);
+            $result = self::verified_local_write($row['id'],$row['candidate'],
+                in_array($manifest['schema_version'] ?? null,array(5,6,7,8),true));
             if (is_wp_error($result) || (int) $result !== (int) $row['id']) {
                 $failed = array('id' => $row['id'], 'reason' => 'write_failed'); break;
             }
@@ -624,7 +625,8 @@ final class NRY_Git_Publisher {
                 if (!$p || hash('sha256', $p->post_content) !== $row['candidate_sha']) {
                     $uncertain[] = $row['id']; continue;
                 }
-                $r = wp_update_post(array('ID' => $row['id'], 'post_content' => $row['source']), true);
+                $r = self::verified_local_write($row['id'],$row['source'],
+                    in_array($manifest['schema_version'] ?? null,array(5,6,7,8),true));
                 $p = get_post($row['id']);
                 if (is_wp_error($r) || !$p || hash('sha256', $p->post_content) !== $row['source_sha']) {
                     $uncertain[] = $row['id'];
@@ -636,6 +638,40 @@ final class NRY_Git_Publisher {
         }
         return array('status' => 'applied_and_verified', 'changed' => array_column($done, 'id'),
             'writes' => count($done), 'already_applied' => count($rows) - count($done));
+    }
+
+
+    /**
+     * Only trusted schema v5-v8 candidate writes can bypass WordPress's
+     * anonymous-post KSES filters. All candidate and backup/source SHA checks
+     * happen in plan/inspect/execute before reaching this helper.
+     * WP arrays require wp_slash; KSES would silently strip legacy scripts.
+     */
+    private static function verified_local_write($postId,$content,$trusted) {
+        if (!$trusted || !function_exists('wp_slash')
+            || !function_exists('has_filter') || !function_exists('remove_filter')
+            || !function_exists('add_filter')) {
+            // CLI mocks and legacy manual-only contracts remain unchanged.
+            return wp_update_post(array('ID'=>$postId,'post_content'=>$content),true);
+        }
+        $removed=array();
+        foreach (array(
+            array('content_save_pre','wp_filter_post_kses'),
+            array('content_save_pre','wp_filter_global_styles_post'),
+            array('content_filtered_save_pre','wp_filter_post_kses'),
+            array('content_filtered_save_pre','wp_filter_global_styles_post')
+        ) as $entry) {
+            $priority=has_filter($entry[0],$entry[1]);
+            if ($priority!==false) {
+                remove_filter($entry[0],$entry[1],$priority);
+                $removed[]=array($entry[0],$entry[1],$priority);
+            }
+        }
+        try {
+            return wp_update_post(array('ID'=>$postId,'post_content'=>wp_slash($content)),true);
+        } finally {
+            foreach ($removed as $entry) add_filter($entry[0],$entry[1],$entry[2]);
+        }
     }
 
     private static function safe_rows($rows) {
