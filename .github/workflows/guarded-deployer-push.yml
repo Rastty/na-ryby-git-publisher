@@ -111,7 +111,7 @@ jobs:
                   result={k:health.get(k) for k in ('publisher_version','auto_status','source_matches',
                       'candidate_matches','backup_present','guarded_publisher_enabled')}
                   print('LIVE HEALTH:',json.dumps(result,sort_keys=True))
-                  if health.get('publisher_version')=='0.13.0' and health.get('candidate_matches') is True \
+                  if health.get('publisher_version')=='0.14.0' and health.get('candidate_matches') is True \
                       and health.get('backup_present') is True \
                       and health.get('auto_status') in ('auto_applied_local_verified_pending_public_browser',
                           'recovered_local_verified_pending_public_browser',
@@ -120,7 +120,7 @@ jobs:
                       break
               except Exception as e:
                   print('Live WordPress health unavailable:',type(e).__name__)
-              if attempt==4: raise SystemExit('BLOCKED: WordPress v0.13 source-bound auto recovery not independently confirmed')
+              if attempt==4: raise SystemExit('BLOCKED: WordPress v0.14 source-bound publisher not independently confirmed')
               time.sleep(5)
           PY
 
