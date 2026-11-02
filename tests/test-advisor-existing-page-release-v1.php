@@ -29,6 +29,10 @@ $c='NRY_Advisor_Existing_Page_Release_V1';
 ok($c::inspect()['reason']==='reviewed_manifest_or_candidate_not_staged','missing candidate blocks');
 // Positive cross-contract check: accept precisely the guard produced by
 // Prometheus PR #1207, while preserving the existing UI script byte-for-byte.
+$autoCandidateGate=new ReflectionMethod($c,'auto_expiry_candidate');
+$autoCandidateGate->setAccessible(true);
+ok($autoCandidateGate->invoke(null,'unreviewed source',hash('sha256','unreviewed source'),
+    hash('sha256','wrong candidate'))===false,'auto release rejects untrusted candidate hash');
 $scriptGate=new ReflectionMethod($c,'scripts_preserved_except_expiry_guard');
 $scriptGate->setAccessible(true);
 $expiryAnchor='    const fresh=Date.now()<Date.parse(PRICE_VISIBLE_UNTIL);';

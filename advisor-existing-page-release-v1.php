@@ -11,6 +11,10 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
     const BACKUP = 'nry_advisor_existing_119865_backup_v1';
     const RECEIPT = 'nry_advisor_existing_119865_receipt_v1';
     const LOCK = 'nry_advisor_existing_119865_lock_v1';
+    const AUTO_STATE = 'nry_advisor_119865_auto_expiry_20261102';
+    const AUTO_SOURCE_SHA = '693942db95fbc88d1e1b607068595f680935c5e74187648872afdd15cc297389';
+    const AUTO_CANDIDATE_SHA = '018790b97db311fed29bfb053daa406c23d2ebc0caca4437247f1f0dc954eecd';
+    const AUTO_MODIFIED_GMT = '2026-10-14 20:03:30';
 
     private static function valid_sha($value) {
         return is_string($value) && preg_match('/^[a-f0-9]{64}$/D', $value);
@@ -255,6 +259,72 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         echo $source['content'];
         exit;
     }
+
+    // Build one immutable offline-reviewed candidate locally from current WP content.
+    // No private page HTML or CJ URLs are committed to GitHub.
+    private static function auto_expiry_candidate($source,$expected_source,$expected_candidate) {
+        if (!is_string($source) || !hash_equals($expected_source,hash('sha256',$source))
+            || strlen($source) < 10000 || strlen($source) > 120000) return false;
+        $anchor = '    const fresh=Date.now()<Date.parse(PRICE_VISIBLE_UNTIL);';
+        $guard = "\n    // nry-expired-offer-hard-stop-v1: stale evidence cannot authorize a merchant clickout."
+            ."\n    if(!fresh)return {offers:[],status:'Konkrétní modely nyní nezobrazujeme: poslední ověření nabídek z '+PRICE_SNAPSHOT+' je starší než 7 dní. Výběr typu výbavy a kontrolní seznam zůstávají k dispozici; cenu, dostupnost a vhodnost konkrétního produktu ověřte u prodejce.'};";
+        if (substr_count($source,$anchor)!==1 || strpos($source,'nry-expired-offer-hard-stop-v1')!==false) return false;
+        $candidate=str_replace($anchor,$anchor.$guard,$source);
+        if (!hash_equals($expected_candidate,hash('sha256',$candidate))
+            || self::unsafe_active_markup($candidate)
+            || !self::scripts_preserved_except_expiry_guard($source,$candidate)
+            || self::urls($source)!==self::urls($candidate)
+            || self::external_attribute_destinations($source)!==self::external_attribute_destinations($candidate)
+            || self::cj_routes($source)!==self::cj_routes($candidate)) return false;
+        return $candidate;
+    }
+    // Authorized one-shot direct release runs after Git Deployer installs reviewed code.
+    // Fail closed on any source drift; preserve the server-side immutable backup.
+    public static function auto_expiry_once() {
+        if (get_option(self::AUTO_STATE,false)!==false || rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return;
+        if (!self::acquire()) return;
+        $status='blocked_unknown';
+        try {
+            $post=get_post(self::ID);
+            if (!self::identity($post)) $status='blocked_page_identity';
+            elseif (hash('sha256',$post->post_content)===self::AUTO_CANDIDATE_SHA) $status='already_patched_no_write';
+            elseif (hash('sha256',$post->post_content)!==self::AUTO_SOURCE_SHA
+                || $post->post_modified_gmt!==self::AUTO_MODIFIED_GMT) $status='blocked_source_or_gmt_drift';
+            elseif (get_option(self::BACKUP,false)!==false) $status='blocked_existing_backup';
+            else {
+                $candidate=self::auto_expiry_candidate($post->post_content,self::AUTO_SOURCE_SHA,self::AUTO_CANDIDATE_SHA);
+                if ($candidate===false) $status='blocked_exact_delta';
+                else {
+                    $backup=array('page_id'=>self::ID,'source_sha256'=>self::AUTO_SOURCE_SHA,
+                        'candidate_sha256'=>self::AUTO_CANDIDATE_SHA,'source_content'=>$post->post_content,
+                        'source_modified_gmt'=>$post->post_modified_gmt,'created_at_utc'=>gmdate('c'));
+                    $fresh=get_post(self::ID);
+                    if (!self::identity($fresh) || hash('sha256',$fresh->post_content)!==self::AUTO_SOURCE_SHA
+                        || $fresh->post_modified_gmt!==self::AUTO_MODIFIED_GMT) $status='blocked_concurrent_edit';
+                    elseif (!add_option(self::BACKUP,$backup,'',false)
+                        || get_option(self::BACKUP,false)!==$backup) $status='blocked_backup_failure';
+                    else {
+                        $again=get_post(self::ID);
+                        if (!self::identity($again) || hash('sha256',$again->post_content)!==self::AUTO_SOURCE_SHA
+                            || $again->post_modified_gmt!==self::AUTO_MODIFIED_GMT) $status='blocked_drift_after_backup';
+                        else {
+                            $written=wp_update_post(array('ID'=>self::ID,'post_content'=>wp_slash($candidate)),true);
+                            $after=get_post(self::ID);
+                            $status=!is_wp_error($written) && (int)$written===self::ID
+                                && self::identity($after) && hash('sha256',$after->post_content)===self::AUTO_CANDIDATE_SHA
+                                ? 'auto_applied_local_verified_pending_public_browser' : 'write_uncertain_manual_review';
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) { $status='exception_stop_manual_review'; }
+        finally {
+            update_option(self::AUTO_STATE,array('status'=>$status,'at_utc'=>gmdate('c'),
+                'source_sha256'=>self::AUTO_SOURCE_SHA,'candidate_sha256'=>self::AUTO_CANDIDATE_SHA),false);
+            update_option(self::RECEIPT,array('status'=>$status,'at_utc'=>gmdate('c')),false);
+            delete_option(self::LOCK);
+        }
+    }
     private static function acquire() {
         // Atomic add_option blocks concurrent admin writes; stale lock fails closed.
         return add_option(self::LOCK, gmdate('c'), '', false);
@@ -388,6 +458,7 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         wp_safe_redirect(admin_url('tools.php?page=nry-advisor-existing-release')); exit;
     }
 }
+add_action('wp_loaded',array('NRY_Advisor_Existing_Page_Release_V1','auto_expiry_once'),20);
 add_action('admin_menu',array('NRY_Advisor_Existing_Page_Release_V1','menu'));
 add_action('admin_post_nry_advisor_existing_source_export',array('NRY_Advisor_Existing_Page_Release_V1','handle_source_export'));
 add_action('admin_post_nry_advisor_existing_apply',array('NRY_Advisor_Existing_Page_Release_V1','handle_apply'));
