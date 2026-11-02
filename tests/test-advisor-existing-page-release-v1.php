@@ -25,6 +25,23 @@ function ok($value,$label){if(!$value){fwrite(STDERR,"FAIL $label\n");exit(1);}}
 require $fixtureDir.'/advisor-existing-page-release-v1.php';
 $c='NRY_Advisor_Existing_Page_Release_V1';
 ok($c::inspect()['reason']==='reviewed_manifest_or_candidate_not_staged','missing candidate blocks');
+// Positive cross-contract check: accept precisely the guard produced by
+// Prometheus PR #1207, while preserving the existing UI script byte-for-byte.
+$scriptGate=new ReflectionMethod($c,'scripts_preserved_except_expiry_guard');
+$scriptGate->setAccessible(true);
+$expiryAnchor='    const fresh=Date.now()<Date.parse(PRICE_VISIBLE_UNTIL);';
+$expiryGuard="\n    // nry-expired-offer-hard-stop-v1: stale evidence cannot authorize a merchant clickout."
+    ."\n    if(!fresh)return {offers:[],status:'Konkrétní modely nyní nezobrazujeme: poslední ověření nabídek z '+PRICE_SNAPSHOT+' je starší než 7 dní. Výběr typu výbavy a kontrolní seznam zůstávají k dispozici; cenu, dostupnost a vhodnost konkrétního produktu ověřte u prodejce.'};";
+$oldScripts='<script data-nry-engine="nry-advisor-live-v1">'.$expiryAnchor.'</script>'.
+    '<script data-nry-ui="nry-advisor-live-v1">const ui=1;</script>';
+$newScripts=str_replace($expiryAnchor,$expiryAnchor.$expiryGuard,$oldScripts);
+ok($scriptGate->invoke(null,$oldScripts,$newScripts)===true,
+    'exact known V4 guard insertion accepted');
+ok($scriptGate->invoke(null,$oldScripts,str_replace('const ui=1;','const ui=2;',$newScripts))===false,
+    'modified existing UI script rejected');
+ok($scriptGate->invoke(null,$oldScripts,str_replace('offers:[]','offers:[1]',$newScripts))===false,
+    'tampered expiry guard rejected');
+
 $original='<!-- wp:html --><div data-nry-affiliate-disclosure="advisor-v3" data-nry-results>'.
     'https://na-ryby.eu/click-8287231-15734253</div><!-- nry-advisor-live-v1 -->'.
     '<script>const PRICE_VISIBLE_UNTIL="2026-10-21";</script>'.
