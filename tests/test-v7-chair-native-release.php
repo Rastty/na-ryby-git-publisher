@@ -33,7 +33,7 @@ function wp_update_post($data,$returnError=false) {
 }
 function must($x,$why) {if(!$x)throw new RuntimeException($why);}
 require dirname(__DIR__) . '/na-ryby-git-publisher.php';
-$manifest=NRY_Git_Publisher::manifest();
+$manifest=NRY_Git_Publisher::validate_manifest(json_decode(file_get_contents(__DIR__.'/v7-frozen-manifest.json'),true));
 must(!is_wp_error($manifest),'schema7 manifest rejected');
 must($manifest['schema_version']===7,'wrong manifest version');
 must(array_column($manifest['edits'],'post_id')===[34913,34977,35003,35011],
