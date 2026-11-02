@@ -76,11 +76,27 @@ $manifest=array('schema'=>1,'page_id'=>119865,'slug'=>'poradce-vybavy',
     'source_modified_gmt'=>'2026-10-14 12:00:00','approval'=>'admin_apply_required',
     'offer_safety'=>array('candidate_sha256'=>hash('sha256',$candidate),
       'scenarios_tested'=>108,'expired_offer_clickouts'=>0,
-      'tested_at_utc'=>gmdate('c'),
+      'tested_at_utc'=>gmdate('Y-m-d\TH:i:s\Z'),
       'evidence_url'=>'https://github.com/Rastty/prometheus-growth-os/actions/runs/123456'));
 file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
 file_put_contents($assetDir.'/advisor-existing-page-v1.html',$candidate);
 ok($c::inspect()['status']==='ready','source/candidate exact SHA ready');
+// Malformed, relative, offset and impossible receipt dates must fail closed.
+// In particular an array must never cause a PHP 8 TypeError in strtotime().
+foreach (array(
+    array('now','relative timestamp'),
+    array(array('unexpected'=>'type'),'JSON array timestamp'),
+    array(gmdate('Y-m-d\TH:i:sP'),'non-UTC-offset timestamp'),
+    array('2026-02-30T00:00:00Z','impossible calendar date')
+) as $bad) {
+    $manifest['offer_safety']['tested_at_utc']=$bad[0];
+    file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
+    ok($c::inspect()['reason']==='fresh_candidate_bound_108_case_receipt_required',
+        $bad[1].' blocked without PHP fatal');
+}
+$manifest['offer_safety']['tested_at_utc']=gmdate('Y-m-d\TH:i:s\Z');
+file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
+ok($c::inspect()['status']==='ready','valid strict UTC receipt still accepted');
 $manifest['offer_safety']['expired_offer_clickouts']=1;
 file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
 ok($c::inspect()['reason']==='fresh_candidate_bound_108_case_receipt_required','expired offer exposure blocks');
@@ -88,7 +104,7 @@ $manifest['offer_safety']['expired_offer_clickouts']=0;
 $manifest['offer_safety']['tested_at_utc']='2026-10-01T00:00:00Z';
 file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
 ok($c::inspect()['reason']==='fresh_candidate_bound_108_case_receipt_required','stale receipt blocks');
-$manifest['offer_safety']['tested_at_utc']=gmdate('c');
+$manifest['offer_safety']['tested_at_utc']=gmdate('Y-m-d\TH:i:s\Z');
 file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
 $GLOBALS['post']->post_modified_gmt='2026-10-14 12:00:01';
 ok($c::inspect()['reason']==='source_sha_or_modified_drift','modified drift blocks');
