@@ -54,7 +54,8 @@ jobs:
           lines=['## Na-Ryby advisor browser expiry audit', 'WordPress writes: 0', 'Merchant clicks: 0']
           if path.exists():
               r=json.loads(path.read_text(encoding='utf-8'))
-              lines += [f"Checked (UTC): {r['checked_at_utc']}", f"State: {r['state']}"]
+              lines += [f"Checked (UTC): {r['checked_at_utc']}", f"Strict state: {r['state']}",
+                        f"Quarantined local UI (not live-full proof): {r.get('observed_local_ui_state','UNKNOWN')}"]
               if 'runtime' in r:
                   s=r['runtime']
                   lines += [f"Scenarios: {s.get('scenario_count','UNKNOWN')}",
