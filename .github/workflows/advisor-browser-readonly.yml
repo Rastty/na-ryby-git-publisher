@@ -14,6 +14,10 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '47 4,16 * * *'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
 permissions:
   contents: read
 jobs:
@@ -27,7 +31,7 @@ jobs:
           python3 -m py_compile scripts/audit_live_advisor_browser.py
           python3 tests/test-live-advisor-browser.py -v
   live-browser:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'push'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     needs: offline-contract
     # Playwright 1.56 does not support ubuntu26.04; pin the browser runner.
     runs-on: ubuntu-24.04
