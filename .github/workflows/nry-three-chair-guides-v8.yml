@@ -30,7 +30,10 @@ jobs:
           php -l tests/test-three-chair-guides-v8.php
           php tests/test-three-chair-guides-v8.php
   independent-public-readback:
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    # This GET-only job also verifies main branch after a failed Deployer job:
+    # a failed parent may mean the batch actually wrote but a downstream
+    # verification assumption was wrong. Never inherit parent's green status.
+    if: github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     needs: contract
     runs-on: ubuntu-latest
     timeout-minutes: 6
