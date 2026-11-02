@@ -86,6 +86,20 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         preg_match_all("~/click-[0-9]+-[0-9]+[^\\s\"'<>]*~i", $body, $matches);
         return $matches[0];
     }
+    private static function unsafe_form_markup($decoded) {
+        // The live V4 advisor uses a local, JavaScript-handled selection form.
+        // Reject additional forms and any action/method/target/handler attributes;
+        // only the reviewed form shape is allowed. The expiry-only byte-delta
+        // gate separately proves the original form was not modified.
+        preg_match_all('~<\\s*form\\b[^>]*>~i', $decoded, $forms);
+        if (count($forms[0]) > 1) { return true; }
+        foreach ($forms[0] as $tag) {
+            if (!preg_match('~^<form\\s+class="nry-setup__form"(?:\\s+aria-label="[^"<>]{1,160}")?\\s*>$~iD', trim($tag))) {
+                return true;
+            }
+        }
+        return false;
+    }
     private static function unsafe_active_markup($body) {
         // Whitespace and case variants of script src bypass a literal
         // "<script src=" check. A relative src is unsafe too: it could
@@ -96,9 +110,10 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
             // Do not allow active HTML to bypass the reviewed inline advisor.
             // Even an exact SHA-bound candidate can introduce an unreviewed
             // event handler, embedded document or form submission endpoint.
-            || preg_match('~<\s*(?:iframe|object|embed|form|base|meta|link|svg|math)\b~i', $decoded) === 1
+            || preg_match('~<\s*(?:iframe|object|embed|base|meta|link|svg|math)\b~i', $decoded) === 1
             || preg_match('~<[^>]*\s+on[a-z][a-z0-9_-]*\s*=~i', $decoded) === 1
             || preg_match('~<[^>]*\s+srcdoc\s*=~i', $decoded) === 1
+            || self::unsafe_form_markup($decoded)
             || self::unsafe_url_attributes($decoded);
     }
     private static function identity($post) {
