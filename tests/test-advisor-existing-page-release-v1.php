@@ -81,6 +81,22 @@ $manifest=array('schema'=>1,'page_id'=>119865,'slug'=>'poradce-vybavy',
 file_put_contents($fixtureDir.'/advisor-existing-page-v1.json',json_encode($manifest));
 file_put_contents($assetDir.'/advisor-existing-page-v1.html',$candidate);
 ok($c::inspect()['status']==='ready','source/candidate exact SHA ready');
+// A corrupt or plugin-modified backup option must fail closed rather than
+// throwing PHP 8 TypeError in hash() or risking an unreviewed restoration.
+$GLOBALS['options'][$c::BACKUP]=array(
+    'page_id'=>119865,
+    'candidate_sha256'=>hash('sha256',$original),
+    'source_sha256'=>hash('sha256',$original),
+    'source_content'=>array('not'=>'valid HTML'));
+ok($c::inspect()['reason']==='immutable_backup_conflict',
+    'malformed stored backup blocks inspect without fatal');
+$GLOBALS['post']->post_content=$candidate;
+ok($c::rollback()['reason']==='backup_or_live_content_drift',
+    'malformed stored backup blocks rollback without PHP TypeError');
+ok($GLOBALS['mutations']===0,'corrupt backup cannot cause WordPress writes');
+$GLOBALS['post']->post_content=$original;
+unset($GLOBALS['options'][$c::BACKUP]);
+ok($c::inspect()['status']==='ready','valid state recovered after test cleanup');
 // Malformed, relative, offset and impossible receipt dates must fail closed.
 // In particular an array must never cause a PHP 8 TypeError in strtotime().
 foreach (array(
