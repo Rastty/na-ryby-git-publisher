@@ -6,6 +6,7 @@ on:
       - 'advisor-existing-page-release-v1.php'
       - 'guarded-auto-publisher.php'
       - 'tests/test-native-kses-write-contract.php'
+      - 'tests/test-three-chair-guides-v8.php'
       - 'tests/test-buyer-source-proof.php'
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
@@ -17,6 +18,7 @@ on:
       - 'manifest.json'
       - 'advisor-existing-page-release-v1.php'
       - 'guarded-auto-publisher.php'
+      - 'tests/test-three-chair-guides-v8.php'
       - 'tests/test-buyer-source-proof.php'
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
@@ -46,6 +48,7 @@ jobs:
           php tests/test-advisor-existing-page-release-v1.php
           php tests/test-native-kses-write-contract.php
           php tests/test-buyer-source-proof.php
+          php tests/test-three-chair-guides-v8.php
           php -l guarded-auto-publisher.php
           php -l seo-snippet-pilot.php
           php -l checklist-release-v1.php
