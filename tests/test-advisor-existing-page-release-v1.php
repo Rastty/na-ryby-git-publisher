@@ -44,7 +44,24 @@ ok($scriptGate->invoke(null,$oldScripts,str_replace('const ui=1;','const ui=2;',
 ok($scriptGate->invoke(null,$oldScripts,str_replace('offers:[]','offers:[1]',$newScripts))===false,
     'tampered expiry guard rejected');
 
-$original='<!-- wp:html --><div data-nry-affiliate-disclosure="advisor-v3" data-nry-results>'.
+$reviewedForm='<form class="nry-setup__form" aria-label="Poradce výběrem rybářské výbavy">'.
+    '<select name="style"><option value="kapr">Kapr</option></select>'.
+    '<button type="submit">Vyhodnotit</button></form>';
+$activeMarkupGate=new ReflectionMethod($c,'unsafe_active_markup');
+$activeMarkupGate->setAccessible(true);
+ok($activeMarkupGate->invoke(null,$reviewedForm)===false,
+    'legitimate V4 advisor form must not block release');
+foreach (array(
+    str_replace('class="nry-setup__form"','class="other"',$reviewedForm),
+    str_replace('class="nry-setup__form"','class="nry-setup__form" action="/submit"',$reviewedForm),
+    str_replace('class="nry-setup__form"','class="nry-setup__form" method="post"',$reviewedForm),
+    str_replace('class="nry-setup__form"','class="nry-setup__form" target="_blank"',$reviewedForm),
+    $reviewedForm.$reviewedForm
+) as $unreviewedForm) {
+    ok($activeMarkupGate->invoke(null,$unreviewedForm)===true,
+        'unreviewed form markup must fail closed');
+}
+$original='<!-- wp:html -->'.$reviewedForm.'<div data-nry-affiliate-disclosure="advisor-v3" data-nry-results>'.
     'https://na-ryby.eu/click-8287231-15734253</div><!-- nry-advisor-live-v1 -->'.
     '<script data-nry-engine="nry-advisor-live-v1">const PRICE_VISIBLE_UNTIL="2026-10-21";'."\n".$expiryAnchor.'</script>'.
     '<span data-link="/click-8287231-15734253?url=exact">tracked</span>'.
