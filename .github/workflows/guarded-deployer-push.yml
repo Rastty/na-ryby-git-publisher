@@ -6,6 +6,7 @@ on:
       - 'advisor-existing-page-release-v1.php'
       - 'guarded-auto-publisher.php'
       - 'tests/test-native-kses-write-contract.php'
+      - 'tests/test-buyer-source-proof.php'
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
       - 'guarded-auto-publisher.php'
@@ -16,6 +17,7 @@ on:
       - 'manifest.json'
       - 'advisor-existing-page-release-v1.php'
       - 'guarded-auto-publisher.php'
+      - 'tests/test-buyer-source-proof.php'
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
       - 'guarded-auto-publisher.php'
@@ -43,6 +45,7 @@ jobs:
           php -l na-ryby-git-publisher.php
           php tests/test-advisor-existing-page-release-v1.php
           php tests/test-native-kses-write-contract.php
+          php tests/test-buyer-source-proof.php
           php -l guarded-auto-publisher.php
           php -l seo-snippet-pilot.php
           php -l checklist-release-v1.php
@@ -113,7 +116,7 @@ jobs:
                   result={k:health.get(k) for k in ('publisher_version','auto_status','source_matches',
                       'candidate_matches','backup_present','guarded_publisher_enabled')}
                   print('LIVE HEALTH:',json.dumps(result,sort_keys=True))
-                  if health.get('publisher_version')=='0.14.0' and health.get('candidate_matches') is True \
+                  if health.get('publisher_version')=='0.15.0' and health.get('candidate_matches') is True \
                       and health.get('backup_present') is True \
                       and health.get('auto_status') in ('auto_applied_local_verified_pending_public_browser',
                           'recovered_local_verified_pending_public_browser',
@@ -122,8 +125,37 @@ jobs:
                       break
               except Exception as e:
                   print('Live WordPress health unavailable:',type(e).__name__)
-              if attempt==4: raise SystemExit('BLOCKED: WordPress v0.14 source-bound publisher not independently confirmed')
+              if attempt==4: raise SystemExit('BLOCKED: WordPress v0.15 source-bound publisher not independently confirmed')
               time.sleep(5)
+          PY
+
+
+      - name: GET-only private-source SHA fingerprints for three explicit buyer guides
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,re,urllib.request
+          url="https://na-ryby.eu/poradce-vybavy/?nry_buyer_source_proof=1"
+          req=urllib.request.Request(url,headers={'Cache-Control':'no-cache',
+              'User-Agent':'NaRybySourceProofReadOnly/1.0'})
+          with urllib.request.urlopen(req,timeout=30) as resp:
+              assert resp.status==200
+              document=json.loads(resp.read(10000))
+          assert document['publisher_version']=='0.15.0'
+          assert document['data_class']=='HASH_AND_MODIFIED_GMT_ONLY_NO_POST_CONTENT'
+          assert document['publication_authorized'] is False
+          assert document['wordpress_writes']==0
+          rows=document['rows']
+          assert [x['id'] for x in rows]==[34858,34953,34969]
+          for x in rows:
+              assert x['state']=='SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY',x
+              assert re.fullmatch(r'[0-9a-f]{64}',x['source_sha256'])
+              assert re.fullmatch(r'20\d\d-\d\d-\d\d \d\d:\d\d:\d\d',x['source_modified_gmt'])
+              assert 1000<x['source_bytes']<350000
+              print('SOURCE_PROOF',
+                  json.dumps({k:x[k] for k in ('id','slug','source_modified_gmt','source_bytes','source_sha256')},
+                  sort_keys=True))
+          print('PASS: exact current raw WordPress source hash only; no editorial publication')
           PY
 
       - name: Trigger exact source-pinned advisor release and verify public code

@@ -344,7 +344,7 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
         header('Content-Type: application/json; charset=utf-8');
         header('X-Robots-Tag: noindex, nofollow');
         echo wp_json_encode(array(
-            'site'=>'na-ryby.eu','publisher_version'=>'0.14.0',
+            'site'=>'na-ryby.eu','publisher_version'=>'0.15.0',
             'page_id'=>self::ID,'auto_status'=>$status,
             'source_matches'=>($current!=='' && hash_equals(self::AUTO_SOURCE_SHA,$current)),
             'candidate_matches'=>($current!=='' && hash_equals(self::AUTO_CANDIDATE_SHA,$current)),
