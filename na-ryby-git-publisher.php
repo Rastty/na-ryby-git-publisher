@@ -727,7 +727,10 @@ final class NRY_Git_Publisher {
      * Never expose HTML, CJ routes, draft data or release authorization.
      */
     public static function buyer_source_proof_snapshot($scope='chairs') {
-        if ($scope==='buyer-hub') {
+        if ($scope==='echolot-budget') {
+            // One exact verified published buyer guide, no arbitrary ID.
+            $allow = array(118455 => 'nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz');
+        } elseif ($scope==='buyer-hub') {
             // Exact public post only: never make this an arbitrary ID lookup.
             $allow = array(60341 => 'nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby');
         } elseif ($scope==='evergreen') {
@@ -795,15 +798,17 @@ final class NRY_Git_Publisher {
             && $_GET['nry_evergreen_source_proof']==='1';
         $hub=isset($_GET['nry_buyer_hub_source_proof'])
             && $_GET['nry_buyer_hub_source_proof']==='1';
+        $echolot=isset($_GET['nry_echolot_budget_source_proof'])
+            && $_GET['nry_echolot_budget_source_proof']==='1';
         // Exactly one explicitly allowlisted GET selector; never arbitrary IDs.
-        if (((int)$chairs+(int)$evergreen+(int)$hub)!==1
+        if (((int)$chairs+(int)$evergreen+(int)$hub+(int)$echolot)!==1
             || !function_exists('is_page') || !is_page('poradce-vybavy')) return;
         if (rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return;
         nocache_headers();
         header('Content-Type: application/json; charset=utf-8');
         header('X-Robots-Tag: noindex, nofollow');
         echo wp_json_encode(self::buyer_source_proof_snapshot(
-            $hub ? 'buyer-hub' : ($evergreen ? 'evergreen' : 'chairs')));
+            $echolot ? 'echolot-budget' : ($hub ? 'buyer-hub' : ($evergreen ? 'evergreen' : 'chairs'))));
         exit;
     }
 
