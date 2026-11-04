@@ -67,6 +67,28 @@ final class NRY_Git_Publisher {
                     || !preg_match('/^[a-f0-9]{64}$/D', $e['source_sha256'])) {
                     return new WP_Error('v8_source_hash', 'Chybí přesný otisk původního obsahu.');
                 }
+                // Trust repair is confined to one exact public hub/batch.
+                if (isset($e['text_corrections'])) {
+                    if ($e['post_id']!==60341
+                        || $data['batch_id']!=='chair-buyer-trust-60341-20261104-v1'
+                        || count($data['edits'])!==1
+                        || !is_array($e['text_corrections'])
+                        || count($e['text_corrections'])!==3) {
+                        return new WP_Error('v8_repair_scope','Neschválený textový zásah.');
+                    }
+                    $correction_keys=array();
+                    foreach ($e['text_corrections'] as $correction) {
+                        if (!is_array($correction)
+                            || !isset($correction['old_text'],$correction['new_text'])
+                            || !self::editorial_text($correction['old_text'],25,750)
+                            || !self::editorial_text($correction['new_text'],25,1200)
+                            || $correction['old_text']===$correction['new_text']
+                            || isset($correction_keys[$correction['old_text']])) {
+                            return new WP_Error('v8_repair_text','Neschválená věcná oprava.');
+                        }
+                        $correction_keys[$correction['old_text']]=true;
+                    }
+                }
                 // Preserve v6 source-size and safe HTML rules. Only v8 allows
                 // a source SHA, which must also match actual WordPress data.
                 $proxy = $e;
@@ -272,10 +294,34 @@ final class NRY_Git_Publisher {
         if (strpos($source, $marker) !== false) {
             return array('error' => 'marker_conflict');
         }
-        $candidate = $html . "\n" . $source;
+        $cleaned=$source;
+        if (isset($edit['text_corrections'])) {
+            foreach ($edit['text_corrections'] as $correction) {
+                $old=$correction['old_text']; $new=$correction['new_text'];
+                if (substr_count($cleaned,$old)!==1) {
+                    return array('error'=>'correction_missing_or_ambiguous');
+                }
+                $pos=strpos($cleaned,$old);
+                if (!self::plain_text_span($cleaned,$pos,strlen($old))) {
+                    return array('error'=>'correction_inside_markup_or_link');
+                }
+                $cleaned=substr_replace($cleaned,
+                    htmlspecialchars($new,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8'),
+                    $pos,strlen($old));
+            }
+            // Preserve pre-existing links, images, iframes and shortcode tokens,
+            // including all original affiliate creatives and target URLs.
+            $pattern='~(?:<a\\b[^>]*>|<img\\b[^>]*>|<iframe\\b[^>]*>|\\[[a-zA-Z][^\\]]*\\])~iu';
+            preg_match_all($pattern,$source,$prior);
+            preg_match_all($pattern,$cleaned,$after);
+            if ($prior[0]!==$after[0]) {
+                return array('error'=>'protected_affiliate_or_media_drift');
+            }
+        }
+        $candidate = $html . "\n" . $cleaned;
         if (substr_count($candidate, $marker) !== 1
-            || substr($candidate, strlen($html) + 1) !== $source) {
-            return array('error' => 'append_only_reversibility');
+            || substr($candidate, strlen($html) + 1) !== $cleaned) {
+            return array('error' => 'prepend_reversibility');
         }
         return array('candidate' => $candidate);
     }
@@ -712,12 +758,24 @@ final class NRY_Git_Publisher {
                 $rows[]=array('id'=>$id,'state'=>'BLOCKED_IDENTITY_OR_SOURCE');
                 continue;
             }
-            $rows[]=array(
+            $row=array(
                 'id'=>$id,'state'=>'SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY',
                 'slug'=>$slug,'source_modified_gmt'=>$post->post_modified_gmt,
                 'source_bytes'=>strlen($post->post_content),
                 'source_sha256'=>hash('sha256',$post->post_content)
             );
+            if ($scope==='buyer-hub') {
+                // Only fixed, already public text checks; no raw source or merchant IDs.
+                $row['trust_correction_targets']=array(
+                    'false_manufacturer_claim'=>substr_count($post->post_content,
+                        'Naše společnost se specializuje na výrobu a prodej nejlepších rybářských křesel na trhu.'),
+                    'sales_claim'=>substr_count($post->post_content,
+                        'Jsme si jisti, že si u nás vyberete židličku na ryby, která splní vaše očekávání a zvýší vaši radost z rybaření.'),
+                    'visible_keyword_line'=>substr_count($post->post_content,
+                        'klíčová slova: rybářské křeslo, židlička na ryby, pohodlí, ergonomický design, opěrky pro záda, odolnost, úložný prostor, rybářský náčiní')
+                );
+            }
+            $rows[]=$row;
         }
         return array('schema'=>1,'site'=>'https://na-ryby.eu',
             'data_class'=>'HASH_AND_MODIFIED_GMT_ONLY_NO_POST_CONTENT',
