@@ -827,7 +827,10 @@ final class NRY_Git_Publisher {
      * Never expose HTML, CJ routes, draft data or release authorization.
      */
     public static function buyer_source_proof_snapshot($scope='chairs') {
-        if ($scope==='alarm-guide') {
+        if ($scope==='pipaky-beginner') {
+            // Exactly one published beginner how-to; never any user-supplied ID.
+            $allow = array(35755 => 'pipaky-na-ryby-prakticke-rady-pro-zacatecniky');
+        } elseif ($scope==='alarm-guide') {
             // Exactly one existing published alarm buyer guide; not open ID lookup.
             $allow = array(118218 => 'nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu');
         } elseif ($scope==='echolot-pillar') {
@@ -873,6 +876,24 @@ final class NRY_Git_Publisher {
                 'source_bytes'=>strlen($post->post_content),
                 'source_sha256'=>hash('sha256',$post->post_content)
             );
+            if ($scope==='pipaky-beginner') {
+                // Metadata hashes only, never disclose source body or meta value.
+                // This enables a second source-pinned, rollback-capable Yoast
+                // snippet correction, NOT permission to write or redirect.
+                $title=get_post_meta($id,'_yoast_wpseo_title',true);
+                $desc=get_post_meta($id,'_yoast_wpseo_metadesc',true);
+                if (!is_string($title) || !is_string($desc)) {
+                    $row['state']='BLOCKED_NON_STRING_SEO_METADATA';
+                    unset($row['source_sha256']);
+                } else {
+                    $row['raw_yoast_title_sha256']=hash('sha256',$title);
+                    $row['raw_yoast_description_sha256']=hash('sha256',$desc);
+                    $row['raw_yoast_title_bytes']=strlen($title);
+                    $row['raw_yoast_description_bytes']=strlen($desc);
+                    $row['raw_yoast_title_exists']=metadata_exists('post',$id,'_yoast_wpseo_title');
+                    $row['raw_yoast_description_exists']=metadata_exists('post',$id,'_yoast_wpseo_metadesc');
+                }
+            }
             if ($scope==='alarm-guide') {
                 // Six visible published scores only. Report COUNTS, never raw HTML,
                 // links, merchant parameters, cookies or new write permissions.
@@ -925,15 +946,17 @@ final class NRY_Git_Publisher {
             && $_GET['nry_echolot_pillar_source_proof']==='1';
         $alarm=isset($_GET['nry_alarm_guide_source_proof'])
             && $_GET['nry_alarm_guide_source_proof']==='1';
+        $beginner=isset($_GET['nry_pipaky_beginner_source_proof'])
+            && $_GET['nry_pipaky_beginner_source_proof']==='1';
         // Exactly one explicitly allowlisted GET selector; never arbitrary IDs.
-        if (((int)$chairs+(int)$evergreen+(int)$hub+(int)$echolot+(int)$pillar+(int)$alarm)!==1
+        if (((int)$chairs+(int)$evergreen+(int)$hub+(int)$echolot+(int)$pillar+(int)$alarm+(int)$beginner)!==1
             || !function_exists('is_page') || !is_page('poradce-vybavy')) return;
         if (rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return;
         nocache_headers();
         header('Content-Type: application/json; charset=utf-8');
         header('X-Robots-Tag: noindex, nofollow');
         echo wp_json_encode(self::buyer_source_proof_snapshot(
-            $alarm ? 'alarm-guide' : ($pillar ? 'echolot-pillar' : ($echolot ? 'echolot-budget' : ($hub ? 'buyer-hub' : ($evergreen ? 'evergreen' : 'chairs'))))));
+            $beginner ? 'pipaky-beginner' : ($alarm ? 'alarm-guide' : ($pillar ? 'echolot-pillar' : ($echolot ? 'echolot-budget' : ($hub ? 'buyer-hub' : ($evergreen ? 'evergreen' : 'chairs')))))));
         exit;
     }
 
