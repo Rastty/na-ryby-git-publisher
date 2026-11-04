@@ -168,6 +168,33 @@ jobs:
           PY
 
 
+      - name: Exact beginner pípáky WordPress source SHA and current Yoast hashes (GET only)
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,re,urllib.request
+          url='https://na-ryby.eu/poradce-vybavy/?nry_pipaky_beginner_source_proof=1'
+          request=urllib.request.Request(url,headers={
+              'Cache-Control':'no-cache','User-Agent':'NaRyby-Beginner-Serp-SourceReadOnly/1.0'})
+          with urllib.request.urlopen(request,timeout=25) as response:
+              assert response.status==200
+              proof=json.loads(response.read(9000))
+          assert proof['data_class']=='HASH_AND_MODIFIED_GMT_ONLY_NO_POST_CONTENT'
+          assert proof['publication_authorized'] is False and proof['wordpress_writes']==0
+          assert proof['gsc_protection_checked'] is False
+          assert len(proof['rows'])==1
+          row=proof['rows'][0]
+          assert row['id']==35755 and row['state']=='SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY'
+          assert row['slug']=='pipaky-na-ryby-prakticke-rady-pro-zacatecniky'
+          for key in ('source_sha256','raw_yoast_title_sha256','raw_yoast_description_sha256'):
+              assert re.fullmatch('[a-f0-9]{64}',row[key]),key
+          assert 1000<row['source_bytes']<160000
+          assert row['raw_yoast_title_bytes']<500 and row['raw_yoast_description_bytes']<1000
+          assert re.fullmatch('20[0-9]{2}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}',
+              row['source_modified_gmt'])
+          print('BEGINNER_SERP_SOURCE_PROOF',json.dumps(row,sort_keys=True))
+          PY
+
       - name: GET-only private-source SHA fingerprints for three explicit buyer guides
         run: |
           set -euo pipefail
