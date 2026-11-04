@@ -29,6 +29,8 @@ class AuditContract(TestCase):
         self.assertEqual(r["postId"], 61999)
         self.assertEqual(r["linksToPillar"], 1)
         self.assertEqual(r["linksToAdvisor"], 0)
+        self.assertEqual(r["linksToBudget"], 0)
+        self.assertEqual(r["linksToBoat"], 0)
         self.assertTrue(r["has2023Language"])
         self.assertFalse(r["merchantStockVerified"])
         self.assertFalse(r["sourceShaVerified"])
