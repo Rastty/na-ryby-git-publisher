@@ -1,18 +1,18 @@
 {
   "schema_version": 8,
-  "batch_id": "echolot-budget-118455-20261104-v1",
+  "batch_id": "echolot-pillar-answer-first-118553-20261104-v1",
   "site": "https://na-ryby.eu",
   "edits": [
     {
-      "post_id": 118455,
-      "slug": "nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz",
-      "source_modified_gmt": "2026-03-19 20:04:31",
-      "source_min_bytes": 36556,
-      "source_max_bytes": 36557,
-      "source_sha256": "8da806d88b7af2f8c7530c7c1b4994fcc3d86c0146aa79763636c22beea2372a",
-      "edit_id": "echolot-budget-decision-118455-v1",
+      "post_id": 118553,
+      "slug": "jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce",
+      "source_modified_gmt": "2026-10-22 06:33:24",
+      "source_min_bytes": 43846,
+      "source_max_bytes": 43847,
+      "source_sha256": "e53faedc69b7cbea9dad74a06c505476a912a87c5656d510e38df20b8e3c5b0a",
+      "edit_id": "echolot-pillar-answer-first-118553-v1",
       "placement": "prepend",
-      "insert_html": "<section data-nry-editorial-edit=\"echolot-budget-decision-118455-v1\"><h2>Echolot do 15 000 Kč: jak vybrat celou funkční sestavu</h2><p><strong>Rychlá odpověď:</strong> Nejdřív zvolte způsob použití. Ze břehu potřebujete jinou sestavu než do člunu; pro návrat na konkrétní místa je užitečná GPS a mapování, zatímco SideScan dává smysl jen tehdy, pokud máte kompatibilní přístroj i sondu a dokážete ji správně namontovat. Samotný displej nezaručuje všechny funkce z reklamního popisu.</p><p><strong>Pozor na ceny a nabídky ve starším srovnání níže:</strong> Uvedené modely, částky a obchodní nabídky nepředstavují dnes ověřený ceník ani aktuální dostupnost. Před koupí prověřte přesný model, verzi, obsah balení, typ sondy, dopravu a případné napájení či držák. Rozpočtový limit 15 000 Kč posuzujte podle výsledné funkční sestavy, nikoli podle samotné ceny obrazovky. Nejde o osobní test všech zmíněných modelů.</p><table><thead><tr><th>Kde a jak chytáte</th><th>Co řešit jako první</th><th>Kdy nepřiplácet</th></tr></thead><tbody><tr><td>Ze břehu, bez člunu</td><td>Vhodný nahazovací sonar nebo vůbec žádný; kompatibilní telefon, dosah a napájení</td><td>Za lodní displej bez možnosti používat sondu ve vodě</td></tr><tr><td>Malý člun na známé vodě</td><td>Čitelný základní sonar, správná sonda, bezpečné uchycení a napájení</td><td>Za boční či živé zobrazení, které zatím nepotřebujete</td></tr><tr><td>Pravidelné výpravy na větší vodu</td><td>GPS, ukládání bodů, mapování a čitelnost displeje při slunci</td><td>Za větší displej, pokud podstatně chybí rozpočet na sondu a montáž</td></tr><tr><td>Hledání hran a překážek vedle člunu</td><td>Podpora bočního skenu u konkrétní jednotky i dodávané sondy</td><td>Za marketingový název funkce bez ověřené kompatibility</td></tr></tbody></table><h3>Pět kontrol před objednávkou</h3><ol><li><strong>Přesná varianta:</strong> zjistěte úplné označení modelu a zda jde o set nebo samostatný displej.</li><li><strong>Sonda a montáž:</strong> ověřte kompatibilitu sondy, potřebné kabely a uchycení ke konkrétnímu plavidlu.</li><li><strong>Napájení:</strong> počítejte s odpovídající baterií, jištěním a bezpečným vedením kabeláže.</li><li><strong>Funkce:</strong> oddělte základní 2D sonar, detail dna, boční sken a live zobrazení; nepředpokládejte jejich dostupnost v každém setu.</li><li><strong>Skutečný rozpočet:</strong> porovnejte aktuální konečnou cenu kompletu včetně dopravy a příslušenství. Pokud už vaše vybavení stačí, nemusíte kupovat nové.</li></ol><p>Pokud si nejste jistí technologií, pokračujte na <a href=\"https://na-ryby.eu/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/\">hlavního průvodce výběrem echolotu</a>. Pro používání na člunu pomůže <a href=\"https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/\">výběr echolotu na loď</a>. Ostatní části rybářské sestavy můžete projít přes <a href=\"https://na-ryby.eu/poradce-vybavy/\">poradce rybářskou výbavou</a>.</p></section>"
+      "insert_html": "<section data-nry-editorial-edit=\"echolot-pillar-answer-first-118553-v1\"><h2>Jak vybrat vhodný typ echolotu</h2><p>Než začnete porovnávat konkrétní modely, rozhodněte, odkud chytáte a jakou informaci od přístroje potřebujete. Echolot nezaručuje úlovek. Pokud stávající vybavení dostačuje, další nákup není nutný.</p><ul><li><strong>Ze břehu:</strong> zvažte nahazovací sonar a ověřte kompatibilitu s telefonem, dosah a místní omezení.</li><li><strong>Z člunu:</strong> základní 2D nebo CHIRP řešení s vhodnou sondou; ověřte držák a napájení.</li><li><strong>Opakované návraty na místo:</strong> GPS a ukládání bodů; podpora mapování se liší podle varianty.</li><li><strong>Prohledávání prostoru vedle člunu:</strong> boční sken vyžaduje kompatibilní jednotku i sondu.</li></ul><p>Máte rozpočet do 15 000 Kč? Porovnejte <a href=\"https://na-ryby.eu/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/\">kompletní sestavu v rozpočtovém průvodci</a>. Pro konkrétní instalaci použijte <a href=\"https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/\">průvodce echolotem na loď</a>. Ostatní výbavu pro výpravu můžete prověřit v <a href=\"https://na-ryby.eu/poradce-vybavy/\">poradci rybářským vybavením</a>. Před nákupem ověřte přesný model, sondu, napájení a aktuální konečnou cenu kompletu.</p></section>"
     }
   ]
 }

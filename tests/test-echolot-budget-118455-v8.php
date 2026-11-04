@@ -9,7 +9,7 @@ function must($condition,$message) {
   if (!$condition) { fwrite(STDERR,"FAIL: ".$message."\n"); exit(1); }
 }
 require dirname(__DIR__).'/na-ryby-git-publisher.php';
-$m=json_decode(file_get_contents(dirname(__DIR__).'/manifest.json'),true);
+$m=json_decode(file_get_contents(__DIR__.'/v8-echolot-budget-118455-frozen.json'),true);
 must(is_array($m),'valid JSON');
 must($m['schema_version']===8 && $m['site']==='https://na-ryby.eu','site/schema');
 must($m['batch_id']==='echolot-budget-118455-20261104-v1','reviewed immutable batch');
