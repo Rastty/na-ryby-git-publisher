@@ -13,11 +13,16 @@ on:
       - '.github/workflows/echolot-cluster-readonly.yml'
   workflow_dispatch:
   schedule:
-    - cron: '44 6 * * 1'
+    - cron: '21 */4 * * *'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
 permissions:
   contents: read
 jobs:
   audit:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
@@ -48,6 +53,7 @@ jobs:
                       f"pillarLinks={row.get('linksToPillar','?')} "
                       f"advisorLinks={row.get('linksToAdvisor','?')} "
                       f"shopCTABeforeSecondH2={row.get('firstCtaBeforeSecondH2','?')} "
+                      f"answerFirstPilotVerified={row.get('answerFirstPilotVerified','N/A')} "
                       f"bodyH1={row.get('h1InBody','?')}")
           else:
               lines.append('Evidence unavailable; no decision authorized.')
