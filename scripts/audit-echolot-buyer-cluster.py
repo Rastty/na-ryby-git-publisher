@@ -23,6 +23,8 @@ GUIDES = (
 DESTINATIONS = {
     "pillar": SITE + "/" + GUIDES[0][1] + "/",
     "advisor": SITE + "/poradce-vybavy/",
+    "budget": SITE + "/" + GUIDES[2][1] + "/",
+    "boat": SITE + "/" + GUIDES[1][1] + "/",
 }
 
 
@@ -81,6 +83,8 @@ def summarize(role, slug, *, fetch=read):
             "internalLinkCount": len(internal),
             "linksToPillar": sum(u.rstrip("/") == DESTINATIONS["pillar"].rstrip("/") for u in internal),
             "linksToAdvisor": sum(u.rstrip("/") == DESTINATIONS["advisor"].rstrip("/") for u in internal),
+            "linksToBudget": sum(u.rstrip("/") == DESTINATIONS["budget"].rstrip("/") for u in internal),
+            "linksToBoat": sum(u.rstrip("/") == DESTINATIONS["boat"].rstrip("/") for u in internal),
             "has2023Language": bool(re.search(r"\b2023\b", visible)),
             "hasVisibleKeywordStuffing": "klíčová slova:" in visible.lower(),
             "hasNumericPrice": bool(re.search(r"\b\d[\d ]{0,8}\s*(?:Kč|CZK)\b", visible, re.I)),
