@@ -86,7 +86,7 @@ def inspect_commercial_freshness(rendered, modified_gmt, *, now=None):
     now = now or datetime.now(timezone.utc)
     visible = html.unescape(re.sub(r"<[^>]+>", " ", rendered)).replace("\xa0", " ")
     price_mentions = len(re.findall(
-        r"\b\d{1,3}(?:[ ]\d{3})*(?:[,.]\d{1,2})?\s*(?:Kč|CZK)\b",
+        r"\b\d{1,7}(?:[ ]\d{3})*(?:[,.]\d{1,2})?\s*(?:Kč|CZK)\b",
         visible, flags=re.I))
     cta_count = 0
     for href, label_markup in re.findall(
