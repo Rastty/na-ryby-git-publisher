@@ -1,0 +1,62 @@
+name: Na-Ryby Echolot Buyer Cluster Public Read-only Opportunity Audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit-echolot-buyer-cluster.py'
+      - 'tests/test_echolot_cluster_audit.py'
+      - '.github/workflows/echolot-cluster-readonly.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/audit-echolot-buyer-cluster.py'
+      - 'tests/test_echolot_cluster_audit.py'
+      - '.github/workflows/echolot-cluster-readonly.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '44 6 * * 1'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Offline public REST evidence contract
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/audit-echolot-buyer-cluster.py
+          python3 tests/test_echolot_cluster_audit.py -v
+      - name: Audit four live echolot articles using anonymous read-only REST
+        run: python3 scripts/audit-echolot-buyer-cluster.py
+      - name: Share evidence
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          source=Path('echolot-public-opportunity-audit.json')
+          lines=['## Na-Ryby echolot buyer-content quick wins',
+                 'Read-only. No WordPress writes or merchant requests; not a GSC keyword rank report.']
+          if source.exists():
+              for row in json.loads(source.read_text(encoding='utf8'))['guides']:
+                  lines.append(
+                      f"- {row['role']}: post {row.get('postId','?')} "
+                      f"state={row.get('state')} modified={row.get('modifiedGmt')} "
+                      f"pillarLinks={row.get('linksToPillar','?')} "
+                      f"advisorLinks={row.get('linksToAdvisor','?')} "
+                      f"bodyH1={row.get('h1InBody','?')}")
+          else:
+              lines.append('Evidence unavailable; no decision authorized.')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf8') as out:
+              out.write('\n'.join(lines)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: na-ryby-echolot-buyer-public-evidence
+          path: echolot-public-opportunity-audit.json
+          retention-days: 14
+          if-no-files-found: warn
