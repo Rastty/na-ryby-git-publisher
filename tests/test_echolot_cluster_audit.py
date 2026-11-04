@@ -80,7 +80,7 @@ class AuditContract(TestCase):
             row["content"]["rendered"] = content
             return mod.summarize("pillar", row["slug"],
                                   fetch=lambda _: (200, json.dumps([row])))
-        good = evaluate(panel+shop)
+        good = evaluate(panel+'<h2>Úvodní průvodce</h2>'+shop)
         self.assertTrue(good["answerFirstPilotVerified"])
         self.assertFalse(good["firstCtaBeforeSecondH2"])
         self.assertNotIn("merchant.invalid", str(good))
