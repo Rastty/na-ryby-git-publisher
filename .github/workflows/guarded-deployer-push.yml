@@ -17,6 +17,8 @@ on:
       - 'tests/test-buyer-source-proof.php'
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
+      - 'seo-pipaky-beginner-35755-v1.php'
+      - 'tests/test-pipaky-beginner-serp-35755-v1.php'
       - 'buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.mjs'
@@ -76,6 +78,8 @@ jobs:
           php tests/test-evergreen-chair-v8.php
           php -l guarded-auto-publisher.php
           php -l seo-snippet-pilot.php
+          php -l seo-pipaky-beginner-35755-v1.php
+          php tests/test-pipaky-beginner-serp-35755-v1.php
           php -l checklist-release-v1.php
           php tests/guarded-auto-publisher-contract.php
           php tests/test-v5-native-release.php
@@ -193,6 +197,70 @@ jobs:
           assert re.fullmatch('20[0-9]{2}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}',
               row['source_modified_gmt'])
           print('BEGINNER_SERP_SOURCE_PROOF',json.dumps(row,sort_keys=True))
+          PY
+
+      - name: Confirm exact one-time beginner Yoast metadata and live HTML SERP (read only)
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import html,json,re,time,urllib.request
+          from hashlib import sha256
+          from html.parser import HTMLParser
+          host='https://na-ryby.eu'
+          expected_title='Pípák na ryby pro začátečníky: nastavení bez chyb'
+          expected_description=('První pípák na ryby? Jak nastavit citlivost a hlasitost, '
+             'uložit prut, poznat falešný poplach a otestovat signalizátor '
+             'před nahozením. Praktický postup.')
+          expected_canonical=(host+'/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/')
+          expected_source='2ae4c0adb81a0fc7b667e95bb23d9b1e3f4c590b173c98b8e125c48c41c2763f'
+          def get(url):
+              req=urllib.request.Request(url,headers={'Cache-Control':'no-cache',
+                   'User-Agent':'NaRyby-OneShotBeginnerSeoPublicReadback/1.0'})
+              with urllib.request.urlopen(req,timeout=20) as resp:
+                  assert resp.status==200
+                  return resp.read(1000000).decode('utf8')
+          class Head(HTMLParser):
+              def __init__(self):
+                  super().__init__();self.in_title=False;self.title=[];self.description=None;self.canonical=None
+              def handle_starttag(self,tag,attrs):
+                  a=dict(attrs)
+                  if tag=='title':self.in_title=True
+                  if tag=='meta' and (a.get('name') or '').lower()=='description':
+                      self.description=a.get('content')
+                  if tag=='link' and 'canonical' in (a.get('rel') or '').lower().split():
+                      self.canonical=a.get('href')
+              def handle_endtag(self,tag):
+                  if tag=='title':self.in_title=False
+              def handle_data(self,value):
+                  if self.in_title:self.title.append(value)
+          for attempt in range(4):
+              try:
+                  doc=json.loads(get(host+'/poradce-vybavy/?nry_pipaky_beginner_source_proof=1'))
+                  assert doc['wordpress_writes']==0 and doc['publication_authorized'] is False
+                  assert len(doc['rows'])==1
+                  row=doc['rows'][0]
+                  assert row['id']==35755 and row['slug']=='pipaky-na-ryby-prakticke-rady-pro-zacatecniky'
+                  assert row['source_sha256']==expected_source and row['source_bytes']==14984
+                  assert row['source_modified_gmt']=='2026-10-23 06:35:07'
+                  assert row['raw_yoast_title_exists'] is True
+                  assert row['raw_yoast_description_exists'] is True
+                  assert row['raw_yoast_title_sha256']==sha256(expected_title.encode()).hexdigest()
+                  assert row['raw_yoast_description_sha256']==sha256(expected_description.encode()).hexdigest()
+                  page=Head()
+                  page.feed(get(expected_canonical+'?nry_serp_public_verify=20261104'))
+                  assert expected_title in html.unescape(''.join(page.title))
+                  assert html.unescape(page.description or '')==expected_description
+                  assert html.unescape(page.canonical or '')==expected_canonical
+                  print('BEGINNER_SERP_PROD_VERIFIED',json.dumps({
+                    'post_id':35755,'source_sha256':row['source_sha256'],
+                    'yoast_title':expected_title,'yoast_description':expected_description,
+                    'canonical':page.canonical,'status':'PUBLIC_META_AND_SOURCE_VERIFIED'
+                  },ensure_ascii=False))
+                  break
+              except Exception as e:
+                  print('BEGINNER_SERP_RETRY',type(e).__name__,attempt+1)
+                  if attempt==3:raise SystemExit('BLOCKED: exact beginner Yoast metadata not verified on public website')
+                  time.sleep(5)
           PY
 
       - name: GET-only private-source SHA fingerprints for three explicit buyer guides
