@@ -1,18 +1,18 @@
 {
   "schema_version": 8,
-  "batch_id": "echolot-pillar-answer-first-118553-20261104-v1",
+  "batch_id": "alarm-buyer-trust-118218-20261104-v1",
   "site": "https://na-ryby.eu",
   "edits": [
     {
-      "post_id": 118553,
-      "slug": "jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce",
-      "source_modified_gmt": "2026-10-22 06:33:24",
-      "source_min_bytes": 43846,
-      "source_max_bytes": 43847,
-      "source_sha256": "e53faedc69b7cbea9dad74a06c505476a912a87c5656d510e38df20b8e3c5b0a",
-      "edit_id": "echolot-pillar-answer-first-118553-v1",
+      "post_id": 118218,
+      "slug": "nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu",
+      "source_modified_gmt": "2026-10-23 06:35:08",
+      "source_min_bytes": 30551,
+      "source_max_bytes": 30552,
+      "source_sha256": "6f6f5d6e62c0e5a8fcd03b5b7219d2fbd626c7a023a1b11736c3318068a36481",
+      "edit_id": "alarm-buyer-prices-trust-118218-v1",
       "placement": "prepend",
-      "insert_html": "<section data-nry-editorial-edit=\"echolot-pillar-answer-first-118553-v1\"><h2>Jak vybrat vhodný typ echolotu</h2><p>Než začnete porovnávat konkrétní modely, rozhodněte, odkud chytáte a jakou informaci od přístroje potřebujete. Echolot nezaručuje úlovek. Pokud stávající vybavení dostačuje, další nákup není nutný.</p><ul><li><strong>Ze břehu:</strong> zvažte nahazovací sonar a ověřte kompatibilitu s telefonem, dosah a místní omezení.</li><li><strong>Z člunu:</strong> základní 2D nebo CHIRP řešení s vhodnou sondou; ověřte držák a napájení.</li><li><strong>Opakované návraty na místo:</strong> GPS a ukládání bodů; podpora mapování se liší podle varianty.</li><li><strong>Prohledávání prostoru vedle člunu:</strong> boční sken vyžaduje kompatibilní jednotku i sondu.</li></ul><p>Máte rozpočet do 15 000 Kč? Porovnejte <a href=\"https://na-ryby.eu/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/\">kompletní sestavu v rozpočtovém průvodci</a>. Pro konkrétní instalaci použijte <a href=\"https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/\">průvodce echolotem na loď</a>. Ostatní výbavu pro výpravu můžete prověřit v <a href=\"https://na-ryby.eu/poradce-vybavy/\">poradci rybářským vybavením</a>. Před nákupem ověřte přesný model, sondu, napájení a aktuální konečnou cenu kompletu.</p></section>"
+      "insert_html": "<section data-nry-editorial-edit=\"alarm-buyer-prices-trust-118218-v1\"><h2>Signalizátor záběru: podle čeho vybrat, než porovnáte nabídky</h2><p><strong>Rychlá odpověď:</strong> Při lovu s jedním prutem, kdy sedíte poblíž, může stačit samostatný hlásič se spolehlivou regulací hlasitosti a citlivosti. Při lovu s více pruty nebo když sedíte dál od stojanu dává smysl kompatibilní sada s příposlechem. Více funkcí samo o sobě neznamená lepší záběry a pokud vaše sada vyhovuje, novou kupovat nemusíte.</p><ul><li><strong>Jeden prut a krátké vycházky:</strong> základní elektronický hlásič; ověřte citlivost, ovládání a napájení.</li><li><strong>Dva pruty a stanoviště mimo stojan:</strong> zvažte sadu 2+1. Přijímač musí být skutečně spárovaný s danými hlásiči, nestačí stejná značka.</li><li><strong>Tři pruty nebo delší výpravy:</strong> porovnejte sadu 3+1, funkce přijímače, možnost rozšíření a odolnost v dešti.</li><li><strong>Telefon místo přijímače:</strong> ne každý bezdrátový příposlech funguje s mobilem; aplikaci a Bluetooth podporu ověřte podle přesného modelu.</li></ul><h3>Než kliknete na cenu nebo akci</h3><p><strong>Důležité k tabulce modelů níže:</strong> Uvedené částky v Kč, označení akcí 1+1 a číselná hodnocení typu 8,9/10 nejsou v tomto okamžiku nezávisle ověřenými cenami, skladovými nabídkami ani výsledkem zveřejněné srovnávací testovací metodiky. Považujte je za historické orientační údaje, nikoli za současný žebříček kvality. Před nákupem ověřte u prodejce přesné balení (samostatný hlásič nebo sada, počet kusů, přijímač), variantu, napájení, záruku a konečnou cenu; akce 1+1 může skončit nebo se týkat jiné varianty.</p><p>Už vlastníte hlásič a pouze špatně funguje? Začněte <a href=\"https://na-ryby.eu/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/\">praktickým nastavením pípáku</a>. Při výpadcích či krátké výdrži si projděte <a href=\"https://na-ryby.eu/baterie-do-signalizatoru-ktere-vydrzi-nejdele-a-proc-nekupovat-levne/\">volbu baterií do signalizátorů</a>; kompatibilita se liší podle modelu.</p></section>"
     }
   ]
 }
