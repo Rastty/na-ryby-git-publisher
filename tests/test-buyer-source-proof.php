@@ -114,4 +114,27 @@ $GLOBALS['sources'][118455]->post_status='publish';
 $GLOBALS['sources'][118455]->post_name='other-sonar-guide';
 must(NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-budget')['rows'][0]['state']
     ==='BLOCKED_IDENTITY_OR_SOURCE', 'echolot redirect/slugs rejected');
+$GLOBALS['sources'][118553]=(object)array(
+  'ID'=>118553,'post_type'=>'post','post_status'=>'publish',
+  'post_name'=>'jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce',
+  'post_modified_gmt'=>'2026-10-22 06:33:24',
+  'post_content'=>str_repeat('<p>Test bez vyzrazení zdrojového obsahu.</p>',400)
+);
+$pillar=NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-pillar');
+must(count($pillar['rows'])===1 && $pillar['rows'][0]['id']===118553,
+  'pillar has only exact source ID');
+must($pillar['rows'][0]['source_sha256']===hash('sha256',
+  $GLOBALS['sources'][118553]->post_content),'pillar hashes actual WordPress raw source');
+must($pillar['rows'][0]['source_modified_gmt']==='2026-10-22 06:33:24',
+  'pillar source date is actual WP GMT');
+must($pillar['wordpress_writes']===0 && $pillar['publication_authorized']===false
+  && !isset($pillar['rows'][0]['post_content']) && !isset($pillar['rows'][0]['cj_urls']),
+  'pillar proof returns metadata, no body, no affiliate routes and no write');
+$GLOBALS['sources'][118553]->post_status='draft';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-pillar')['rows'][0]['state']
+  ==='BLOCKED_IDENTITY_OR_SOURCE', 'pillar draft blocked');
+$GLOBALS['sources'][118553]->post_status='publish';
+$GLOBALS['sources'][118553]->post_name='unexpected-sonar-guide';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-pillar')['rows'][0]['state']
+  ==='BLOCKED_IDENTITY_OR_SOURCE', 'pillar slug drift blocked');
 echo "PASS: three allowlisted SHA/GMT proofs, no private body, no write, fail closed\n";
