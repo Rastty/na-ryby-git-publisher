@@ -39,4 +39,31 @@ $GLOBALS['sources'][34953]->post_name='wrong-slug';
 $blocked=NRY_Git_Publisher::buyer_source_proof_snapshot();
 must($blocked['rows'][1]['state']==='BLOCKED_IDENTITY_OR_SOURCE','unexpected canonical fails closed');
 must(!isset($blocked['rows'][1]['source_sha256']),'blocked row no hash');
+$GLOBALS['sources'][11901]=(object)array(
+    'ID'=>11901,'post_type'=>'post','post_status'=>'publish',
+    'post_name'=>'jak-vybrat-rybarske-kreslo',
+    'post_modified_gmt'=>'2017-06-29 16:58:04',
+    'post_content'=>str_repeat('<p>Historický nákupní průvodce.</p>',200)
+);
+$evergreen=NRY_Git_Publisher::buyer_source_proof_snapshot('evergreen');
+must(count($evergreen['rows'])===1,'evergreen proof has one exact post');
+must($evergreen['rows'][0]['id']===11901,'evergreen exact post ID');
+must($evergreen['rows'][0]['state']==='SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY',
+    'evergreen source hash available');
+must($evergreen['rows'][0]['source_sha256']===hash('sha256',
+    $GLOBALS['sources'][11901]->post_content),'evergreen SHA is raw post content');
+must(!isset($evergreen['rows'][0]['post_content'])
+    && !isset($evergreen['rows'][0]['cj_urls'])
+    && $evergreen['wordpress_writes']===0
+    && $evergreen['publication_authorized']===false,
+    'evergreen proof is metadata-only with zero WordPress writes');
+$GLOBALS['sources'][11901]->post_status='draft';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('evergreen')['rows'][0]['state']
+    ==='BLOCKED_IDENTITY_OR_SOURCE','evergreen draft blocked');
+$GLOBALS['sources'][11901]->post_status='publish';
+$GLOBALS['sources'][11901]->post_name='unexpected-other-slug';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('evergreen')['rows'][0]['state']
+    ==='BLOCKED_IDENTITY_OR_SOURCE','evergreen slug drift blocked');
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('arbitrary')['state']
+    ==='BLOCKED_UNSUPPORTED_PROOF_SCOPE','arbitrary source lookup blocked');
 echo "PASS: three allowlisted SHA/GMT proofs, no private body, no write, fail closed\n";

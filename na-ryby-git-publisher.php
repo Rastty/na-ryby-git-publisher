@@ -676,17 +676,24 @@ final class NRY_Git_Publisher {
 
 
     /**
-     * Public read-only SHA/GMT proof for exactly three existing published
-     * buyer-intent articles. The proof exposes NO HTML, CJ routes, post data,
-     * unpublished content, credentials or flexible post ID lookup.
-     * SHA matches the actual raw post_content used by native manifest preflight.
+     * Public read-only SHA/GMT proof for fixed, separate buyer-intent scopes.
+     * Each scope is a hardcoded identity allowlist, not an arbitrary post query.
+     * Never expose HTML, CJ routes, draft data or release authorization.
      */
-    public static function buyer_source_proof_snapshot() {
-        $allow = array(
-            34858 => 'jak-vybrat-detske-rybarske-kreslo-pro-pohodlne-rybareni',
-            34953 => 'jak-vychytat-nejlepsi-rybarske-kreslo-na-nadchazejici-akci',
-            34969 => 'jak-si-vybrat-levne-a-pohodlne-rybarske-kreslo',
-        );
+    public static function buyer_source_proof_snapshot($scope='chairs') {
+        if ($scope==='evergreen') {
+            $allow = array(11901 => 'jak-vybrat-rybarske-kreslo');
+        } elseif ($scope==='chairs') {
+            $allow = array(
+                34858 => 'jak-vybrat-detske-rybarske-kreslo-pro-pohodlne-rybareni',
+                34953 => 'jak-vychytat-nejlepsi-rybarske-kreslo-na-nadchazejici-akci',
+                34969 => 'jak-si-vybrat-levne-a-pohodlne-rybarske-kreslo',
+            );
+        } else {
+            return array('schema'=>1,'publication_authorized'=>false,
+                'wordpress_writes'=>0,'rows'=>array(),
+                'state'=>'BLOCKED_UNSUPPORTED_PROOF_SCOPE');
+        }
         $rows=array();
         foreach ($allow as $id=>$slug) {
             $post=get_post($id);
@@ -715,14 +722,19 @@ final class NRY_Git_Publisher {
             'gsc_protection_checked'=>false,'wordpress_writes'=>0,'rows'=>$rows);
     }
     public static function handle_buyer_public_proof() {
-        if (!isset($_GET['nry_buyer_source_proof']) ||
-            $_GET['nry_buyer_source_proof']!=='1' ||
-            !function_exists('is_page') || !is_page('poradce-vybavy')) return;
+        $chairs=isset($_GET['nry_buyer_source_proof'])
+            && $_GET['nry_buyer_source_proof']==='1';
+        $evergreen=isset($_GET['nry_evergreen_source_proof'])
+            && $_GET['nry_evergreen_source_proof']==='1';
+        // Exactly one explicitly allowlisted GET selector; never arbitrary IDs.
+        if ($chairs===$evergreen || !function_exists('is_page')
+            || !is_page('poradce-vybavy')) return;
         if (rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return;
         nocache_headers();
         header('Content-Type: application/json; charset=utf-8');
         header('X-Robots-Tag: noindex, nofollow');
-        echo wp_json_encode(self::buyer_source_proof_snapshot());
+        echo wp_json_encode(self::buyer_source_proof_snapshot(
+            $evergreen ? 'evergreen' : 'chairs'));
         exit;
     }
 
