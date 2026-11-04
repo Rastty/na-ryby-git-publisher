@@ -74,11 +74,21 @@ def check_target(target, fetch=read_public):
             and "Jsme si jisti, že si u nás vyberete židličku na ryby" not in html
             and "Na-ryby.eu je rybářský informační magazín" in html
         )
+    elif target["post_id"] == 118455:
+        # An inserted marker alone is not a buyer-journey improvement:
+        # independently require the price warning and the three intended routes.
+        semantic_ok = (
+            "nepředstavují dnes ověřený ceník" in html
+            and "nemusíte kupovat nové" in html
+            and 'href="https://na-ryby.eu/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/"' in html
+            and 'href="https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/"' in html
+            and 'href="https://na-ryby.eu/poradce-vybavy/"' in html
+        )
     passed = (response.get("status") == "READ_OK" and response.get("http") == 200
               and count == 1 and semantic_ok)
     return {"post_id": target["post_id"], "url": target["url"],
             "http": response.get("http"), "marker_count": count,
-            "semantic_trust_verified": semantic_ok if target["post_id"]==60341 else None,
+            "semantic_trust_verified": semantic_ok if target["post_id"] in (60341,118455) else None,
             "status": "PUBLIC_MARKER_VERIFIED" if passed else
                       ("NOT_PUBLIC_OR_CACHE_STALE" if response.get("status") == "READ_OK"
                        else response.get("status", "READER_ERROR"))}

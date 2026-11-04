@@ -7,8 +7,10 @@ on:
       - 'guarded-auto-publisher.php'
       - 'tests/test-native-kses-write-contract.php'
       - 'tests/test-buyer-hub-trust-repair-v8.php'
+      - 'tests/test-echolot-budget-118455-v8.php'
       - 'tests/test-three-chair-guides-v8.php'
       - 'tests/test-evergreen-chair-v8.php'
+      - 'tests/test-production-buyer-hub-60341-v8.php'
       - 'tests/test-buyer-source-proof.php'
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
@@ -51,6 +53,8 @@ jobs:
           php tests/test-advisor-existing-page-release-v1.php
           php tests/test-native-kses-write-contract.php
           php tests/test-buyer-hub-trust-repair-v8.php
+          php tests/test-production-buyer-hub-60341-v8.php
+          php tests/test-echolot-budget-118455-v8.php
           php tests/test-buyer-source-proof.php
           php tests/test-three-chair-guides-v8.php
           php tests/test-evergreen-chair-v8.php

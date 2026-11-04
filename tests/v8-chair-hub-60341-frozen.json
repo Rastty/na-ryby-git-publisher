@@ -1,0 +1,32 @@
+{
+  "schema_version": 8,
+  "batch_id": "chair-buyer-trust-60341-20261104-v1",
+  "site": "https://na-ryby.eu",
+  "edits": [
+    {
+      "post_id": 60341,
+      "slug": "nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby",
+      "source_modified_gmt": "2023-09-23 05:35:38",
+      "source_min_bytes": 18172,
+      "source_max_bytes": 18173,
+      "source_sha256": "155e367a6dfa0296b3a993d9db3d385c865e4a616af68542073793c282545e25",
+      "edit_id": "chair-hub-trust-60341-v1",
+      "placement": "prepend",
+      "insert_html": "<section data-nry-editorial-edit=\"chair-hub-trust-60341-v1\"><h2>Jaké rybářské křeslo dává smysl pro vaši výpravu?</h2><p><strong>Rychlá odpověď:</strong> Na krátké vycházky pěšky řešte hlavně hmotnost a složené rozměry. Na celodenní lov je zásadní pohodlný posed, opora zad a bezpečné vstávání. Na nerovném nebo měkkém břehu vždy zkontrolujte stabilitu, patky a aretaci nohou. Ani drahé křeslo není automaticky vhodné pro všechny situace. Pokud už máte bezpečnou a pohodlnou židli, nemusíte kupovat novou.</p><p><strong>Oprava staršího textu:</strong> Na-ryby.eu je informační rybářský magazín, nikoli výrobce nebo prodejce rybářských křesel. Níže zachované produktové modely a jejich parametry představují historický redakční přehled z roku 2023, nikoli nezávislý test aktuálních variant. Starší hvězdičky, superlativy a odkazy nepovažujte za doložené dnešní hodnocení, cenu, sklad nebo nabídku. Před nákupem vždy ověřte konkrétní variantu, výrobcem uváděnou nosnost a stav aktuální nabídky.</p><table><thead><tr><th>Vaše situace</th><th>Na čem záleží nejvíc</th><th>Častá chyba</th></tr></thead><tbody><tr><td>Rychlá vycházka a pěší přesuny</td><td>Nízká hmotnost, kompaktní složení a stabilní konstrukce</td><td>Těžké křeslo kvůli doplňkům, které nevyužijete</td></tr><tr><td>Celodenní lov na jednom místě</td><td>Správná výška a šířka sedáku, podpora zad, pohodlné vstávání</td><td>Nákup pouze podle fotografie nebo počtu hvězdiček</td></tr><tr><td>Měkký či svažitý břeh</td><td>Patky a nastavitelné bezpečně uzamykatelné nohy</td><td>Spoléhat jen na číslo nosnosti bez kontroly stability</td></tr><tr><td>Delší výprava s dopravou autem</td><td>Pohodlí, rozměry při přepravě a kompatibilní příslušenství</td><td>Předpokládat, že podnožka patří ke každému modelu</td></tr></tbody></table><h3>Pět kontrol před koupí</h3><ol><li>Ověřte přesný název modelu a jeho generaci u výrobce.</li><li>Porovnejte maximální zatížení, konstrukci a skutečnou šířku sedadla.</li><li>Zkontrolujte zámky nohou, patky a rovný stabilní posed.</li><li>Vyzkoušejte vstávání, opěradlo a přepravní hmotnost.</li><li>Porovnejte aktuální konečnou cenu stejné varianty včetně dopravy, ne staré slevy.</li></ol><p>Pro podrobný postup pokračujte na <a href=\"https://na-ryby.eu/jak-vybrat-rybarske-kreslo/\">praktického průvodce výběrem rybářského křesla</a>. Je-li hlavním omezením rozpočet, pomůže <a href=\"https://na-ryby.eu/jak-si-vybrat-levne-a-pohodlne-rybarske-kreslo/\">výběr levného a pohodlného křesla</a>. V tomto článku netvrdíme, že jsme uvedené modely osobně testovali.</p></section>",
+      "text_corrections": [
+        {
+          "old_text": "Naše společnost se specializuje na výrobu a prodej nejlepších rybářských křesel na trhu.",
+          "new_text": "Na-ryby.eu je rybářský informační magazín. Rybářská křesla nevyrábíme a nejsme jejich prodejcem."
+        },
+        {
+          "old_text": "Jsme si jisti, že si u nás vyberete židličku na ryby, která splní vaše očekávání a zvýší vaši radost z rybaření.",
+          "new_text": "Výběr křesla opřete o správné rozměry, způsob rybaření, ověřenou nosnost a skutečné potřeby."
+        },
+        {
+          "old_text": "Naše rybářská křesla jsou také vybavena",
+          "new_text": "Některá ze zde popisovaných rybářských křesel jsou také vybavena"
+        }
+      ]
+    }
+  ]
+}

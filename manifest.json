@@ -1,32 +1,18 @@
 {
   "schema_version": 8,
-  "batch_id": "chair-buyer-trust-60341-20261104-v1",
+  "batch_id": "echolot-budget-118455-20261104-v1",
   "site": "https://na-ryby.eu",
   "edits": [
     {
-      "post_id": 60341,
-      "slug": "nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby",
-      "source_modified_gmt": "2023-09-23 05:35:38",
-      "source_min_bytes": 18172,
-      "source_max_bytes": 18173,
-      "source_sha256": "155e367a6dfa0296b3a993d9db3d385c865e4a616af68542073793c282545e25",
-      "edit_id": "chair-hub-trust-60341-v1",
+      "post_id": 118455,
+      "slug": "nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz",
+      "source_modified_gmt": "2026-03-19 20:04:31",
+      "source_min_bytes": 36556,
+      "source_max_bytes": 36557,
+      "source_sha256": "8da806d88b7af2f8c7530c7c1b4994fcc3d86c0146aa79763636c22beea2372a",
+      "edit_id": "echolot-budget-decision-118455-v1",
       "placement": "prepend",
-      "insert_html": "<section data-nry-editorial-edit=\"chair-hub-trust-60341-v1\"><h2>Jaké rybářské křeslo dává smysl pro vaši výpravu?</h2><p><strong>Rychlá odpověď:</strong> Na krátké vycházky pěšky řešte hlavně hmotnost a složené rozměry. Na celodenní lov je zásadní pohodlný posed, opora zad a bezpečné vstávání. Na nerovném nebo měkkém břehu vždy zkontrolujte stabilitu, patky a aretaci nohou. Ani drahé křeslo není automaticky vhodné pro všechny situace. Pokud už máte bezpečnou a pohodlnou židli, nemusíte kupovat novou.</p><p><strong>Oprava staršího textu:</strong> Na-ryby.eu je informační rybářský magazín, nikoli výrobce nebo prodejce rybářských křesel. Níže zachované produktové modely a jejich parametry představují historický redakční přehled z roku 2023, nikoli nezávislý test aktuálních variant. Starší hvězdičky, superlativy a odkazy nepovažujte za doložené dnešní hodnocení, cenu, sklad nebo nabídku. Před nákupem vždy ověřte konkrétní variantu, výrobcem uváděnou nosnost a stav aktuální nabídky.</p><table><thead><tr><th>Vaše situace</th><th>Na čem záleží nejvíc</th><th>Častá chyba</th></tr></thead><tbody><tr><td>Rychlá vycházka a pěší přesuny</td><td>Nízká hmotnost, kompaktní složení a stabilní konstrukce</td><td>Těžké křeslo kvůli doplňkům, které nevyužijete</td></tr><tr><td>Celodenní lov na jednom místě</td><td>Správná výška a šířka sedáku, podpora zad, pohodlné vstávání</td><td>Nákup pouze podle fotografie nebo počtu hvězdiček</td></tr><tr><td>Měkký či svažitý břeh</td><td>Patky a nastavitelné bezpečně uzamykatelné nohy</td><td>Spoléhat jen na číslo nosnosti bez kontroly stability</td></tr><tr><td>Delší výprava s dopravou autem</td><td>Pohodlí, rozměry při přepravě a kompatibilní příslušenství</td><td>Předpokládat, že podnožka patří ke každému modelu</td></tr></tbody></table><h3>Pět kontrol před koupí</h3><ol><li>Ověřte přesný název modelu a jeho generaci u výrobce.</li><li>Porovnejte maximální zatížení, konstrukci a skutečnou šířku sedadla.</li><li>Zkontrolujte zámky nohou, patky a rovný stabilní posed.</li><li>Vyzkoušejte vstávání, opěradlo a přepravní hmotnost.</li><li>Porovnejte aktuální konečnou cenu stejné varianty včetně dopravy, ne staré slevy.</li></ol><p>Pro podrobný postup pokračujte na <a href=\"https://na-ryby.eu/jak-vybrat-rybarske-kreslo/\">praktického průvodce výběrem rybářského křesla</a>. Je-li hlavním omezením rozpočet, pomůže <a href=\"https://na-ryby.eu/jak-si-vybrat-levne-a-pohodlne-rybarske-kreslo/\">výběr levného a pohodlného křesla</a>. V tomto článku netvrdíme, že jsme uvedené modely osobně testovali.</p></section>",
-      "text_corrections": [
-        {
-          "old_text": "Naše společnost se specializuje na výrobu a prodej nejlepších rybářských křesel na trhu.",
-          "new_text": "Na-ryby.eu je rybářský informační magazín. Rybářská křesla nevyrábíme a nejsme jejich prodejcem."
-        },
-        {
-          "old_text": "Jsme si jisti, že si u nás vyberete židličku na ryby, která splní vaše očekávání a zvýší vaši radost z rybaření.",
-          "new_text": "Výběr křesla opřete o správné rozměry, způsob rybaření, ověřenou nosnost a skutečné potřeby."
-        },
-        {
-          "old_text": "Naše rybářská křesla jsou také vybavena",
-          "new_text": "Některá ze zde popisovaných rybářských křesel jsou také vybavena"
-        }
-      ]
+      "insert_html": "<section data-nry-editorial-edit=\"echolot-budget-decision-118455-v1\"><h2>Echolot do 15 000 Kč: jak vybrat celou funkční sestavu</h2><p><strong>Rychlá odpověď:</strong> Nejdřív zvolte způsob použití. Ze břehu potřebujete jinou sestavu než do člunu; pro návrat na konkrétní místa je užitečná GPS a mapování, zatímco SideScan dává smysl jen tehdy, pokud máte kompatibilní přístroj i sondu a dokážete ji správně namontovat. Samotný displej nezaručuje všechny funkce z reklamního popisu.</p><p><strong>Pozor na ceny a nabídky ve starším srovnání níže:</strong> Uvedené modely, částky a obchodní nabídky nepředstavují dnes ověřený ceník ani aktuální dostupnost. Před koupí prověřte přesný model, verzi, obsah balení, typ sondy, dopravu a případné napájení či držák. Rozpočtový limit 15 000 Kč posuzujte podle výsledné funkční sestavy, nikoli podle samotné ceny obrazovky. Nejde o osobní test všech zmíněných modelů.</p><table><thead><tr><th>Kde a jak chytáte</th><th>Co řešit jako první</th><th>Kdy nepřiplácet</th></tr></thead><tbody><tr><td>Ze břehu, bez člunu</td><td>Vhodný nahazovací sonar nebo vůbec žádný; kompatibilní telefon, dosah a napájení</td><td>Za lodní displej bez možnosti používat sondu ve vodě</td></tr><tr><td>Malý člun na známé vodě</td><td>Čitelný základní sonar, správná sonda, bezpečné uchycení a napájení</td><td>Za boční či živé zobrazení, které zatím nepotřebujete</td></tr><tr><td>Pravidelné výpravy na větší vodu</td><td>GPS, ukládání bodů, mapování a čitelnost displeje při slunci</td><td>Za větší displej, pokud podstatně chybí rozpočet na sondu a montáž</td></tr><tr><td>Hledání hran a překážek vedle člunu</td><td>Podpora bočního skenu u konkrétní jednotky i dodávané sondy</td><td>Za marketingový název funkce bez ověřené kompatibility</td></tr></tbody></table><h3>Pět kontrol před objednávkou</h3><ol><li><strong>Přesná varianta:</strong> zjistěte úplné označení modelu a zda jde o set nebo samostatný displej.</li><li><strong>Sonda a montáž:</strong> ověřte kompatibilitu sondy, potřebné kabely a uchycení ke konkrétnímu plavidlu.</li><li><strong>Napájení:</strong> počítejte s odpovídající baterií, jištěním a bezpečným vedením kabeláže.</li><li><strong>Funkce:</strong> oddělte základní 2D sonar, detail dna, boční sken a live zobrazení; nepředpokládejte jejich dostupnost v každém setu.</li><li><strong>Skutečný rozpočet:</strong> porovnejte aktuální konečnou cenu kompletu včetně dopravy a příslušenství. Pokud už vaše vybavení stačí, nemusíte kupovat nové.</li></ol><p>Pokud si nejste jistí technologií, pokračujte na <a href=\"https://na-ryby.eu/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/\">hlavního průvodce výběrem echolotu</a>. Pro používání na člunu pomůže <a href=\"https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/\">výběr echolotu na loď</a>. Ostatní části rybářské sestavy můžete projít přes <a href=\"https://na-ryby.eu/poradce-vybavy/\">poradce rybářskou výbavou</a>.</p></section>"
     }
   ]
 }
