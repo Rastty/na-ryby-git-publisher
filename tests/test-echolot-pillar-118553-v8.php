@@ -31,7 +31,7 @@ $h=$e['insert_html'];
 $marker='data-nry-editorial-edit="echolot-pillar-answer-first-118553-v1"';
 must(strpos($h,'<section '.$marker.'>')===0 && substr_count($h,$marker)===1,
     'unique marker at top');
-must(substr_count($h,'<li>')===4 && strpos($h,'nic kupovat nemusíte')!==false,
+must(substr_count($h,'<li>')===4 && strpos($h,'další nákup není nutný')!==false,
     'scenarios plus no-buy option');
 must(strpos($h,'sondu, napájení a aktuální konečnou cenu kompletu')!==false,
     'explicit exact offer due diligence');
