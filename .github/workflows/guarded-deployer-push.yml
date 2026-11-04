@@ -17,6 +17,9 @@ on:
       - 'tests/test-buyer-source-proof.php'
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
+      - 'buyer-click-telemetry-v1.php'
+      - 'tests/test-buyer-click-telemetry-v1.php'
+      - 'tests/test-buyer-click-telemetry-v1.mjs'
       - 'guarded-auto-publisher.php'
       - '.github/workflows/guarded-deployer-push.yml'
   push:
@@ -30,6 +33,9 @@ on:
       - 'tests/test-buyer-source-proof.php'
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
+      - 'buyer-click-telemetry-v1.php'
+      - 'tests/test-buyer-click-telemetry-v1.php'
+      - 'tests/test-buyer-click-telemetry-v1.mjs'
       - 'guarded-auto-publisher.php'
       - 'seo-snippet-pilot.php'
       - 'checklist-release-v1.php'
@@ -62,6 +68,10 @@ jobs:
           php tests/test-alarm-guide-trust-118218-v8.php
           php tests/test-alarm-score-cleanup-118218-v8.php
           php tests/test-buyer-source-proof.php
+          php -l buyer-click-telemetry-v1.php
+          php tests/test-buyer-click-telemetry-v1.php
+          node --check assets/nry-buyer-clicks-v1.js
+          node tests/test-buyer-click-telemetry-v1.mjs
           php tests/test-three-chair-guides-v8.php
           php tests/test-evergreen-chair-v8.php
           php -l guarded-auto-publisher.php
