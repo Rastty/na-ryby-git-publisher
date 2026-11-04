@@ -65,9 +65,20 @@ def check_target(target, fetch=read_public):
     html = response.get("html", "")
     marker = 'data-nry-editorial-edit="' + target["edit_id"] + '"'
     count = html.count(marker)
-    passed = response.get("status") == "READ_OK" and response.get("http") == 200 and count == 1
+    # The protected trust-repair canary must also remove verified deceptive
+    # source copy. An inserted banner alone does not pass this semantic gate.
+    semantic_ok = True
+    if target["post_id"] == 60341:
+        semantic_ok = (
+            "Naše společnost se specializuje na výrobu a prodej" not in html
+            and "Jsme si jisti, že si u nás vyberete židličku na ryby" not in html
+            and "Na-ryby.eu je rybářský informační magazín" in html
+        )
+    passed = (response.get("status") == "READ_OK" and response.get("http") == 200
+              and count == 1 and semantic_ok)
     return {"post_id": target["post_id"], "url": target["url"],
             "http": response.get("http"), "marker_count": count,
+            "semantic_trust_verified": semantic_ok if target["post_id"]==60341 else None,
             "status": "PUBLIC_MARKER_VERIFIED" if passed else
                       ("NOT_PUBLIC_OR_CACHE_STALE" if response.get("status") == "READ_OK"
                        else response.get("status", "READER_ERROR"))}

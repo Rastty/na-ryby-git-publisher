@@ -37,6 +37,23 @@ class Contract(TestCase):
         result = module.audit(self.manifest(), lambda _: {"status": "READER_ERROR"})
         self.assertEqual(result["status"], "PUBLIC_NOT_VERIFIED")
 
+    def test_hub_marker_alone_does_not_justify_trust_repair_success(self):
+        m = {"schema_version": 8, "site": "https://na-ryby.eu",
+             "batch_id": "chair-buyer-trust-60341-20261104-v1",
+             "edits": [{"post_id": 60341,
+                 "slug": "nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby",
+                 "edit_id": "chair-hub-trust-60341-v1"}]}
+        marker = 'data-nry-editorial-edit="chair-hub-trust-60341-v1"'
+        def fetch(html):
+            return module.audit(m, lambda _: {"status": "READ_OK", "http": 200, "html": html})
+        self.assertEqual(fetch('<section '+marker+'></section>')["status"], "PUBLIC_NOT_VERIFIED")
+        clean = ('<section '+marker+'>Na-ryby.eu je rybářský informační magazín</section>')
+        self.assertEqual(fetch(clean)["status"], "PUBLIC_VERIFIED_ALL")
+        stale = clean + '<p>Naše společnost se specializuje na výrobu a prodej</p>'
+        self.assertEqual(fetch(stale)["status"], "PUBLIC_NOT_VERIFIED")
+        sales = clean + '<p>Jsme si jisti, že si u nás vyberete židličku na ryby</p>'
+        self.assertEqual(fetch(sales)["status"], "PUBLIC_NOT_VERIFIED")
+
     def test_wrong_schema(self):
         data = self.manifest()
         data["schema_version"] = 4

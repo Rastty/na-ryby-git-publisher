@@ -7,7 +7,7 @@ function add_action($name,$callback,$priority=10) { return true; }
 function wp_kses($html,$allowed,$protocols) { return $html; }
 function must($ok,$why) { if (!$ok) {fwrite(STDERR,"FAIL: ".$why."\n");exit(1);} }
 require dirname(__DIR__).'/na-ryby-git-publisher.php';
-$m=json_decode(file_get_contents(dirname(__DIR__).'/manifest.json'),true);
+$m=json_decode(file_get_contents(__DIR__.'/v8-evergreen-chair-11901-frozen.json'),true);
 must(is_array($m) && $m['schema_version']===8, 'schema8 only');
 must($m['batch_id']==='chair-evergreen-trust-11901-20261104-v1', 'batch identity');
 must(count($m['edits'])===1,'exact one post');
