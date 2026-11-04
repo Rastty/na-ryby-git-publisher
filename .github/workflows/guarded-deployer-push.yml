@@ -6,6 +6,7 @@ on:
       - 'advisor-existing-page-release-v1.php'
       - 'guarded-auto-publisher.php'
       - 'tests/test-native-kses-write-contract.php'
+      - 'tests/test-buyer-hub-trust-repair-v8.php'
       - 'tests/test-three-chair-guides-v8.php'
       - 'tests/test-evergreen-chair-v8.php'
       - 'tests/test-buyer-source-proof.php'
@@ -49,6 +50,7 @@ jobs:
           php -l na-ryby-git-publisher.php
           php tests/test-advisor-existing-page-release-v1.php
           php tests/test-native-kses-write-contract.php
+          php tests/test-buyer-hub-trust-repair-v8.php
           php tests/test-buyer-source-proof.php
           php tests/test-three-chair-guides-v8.php
           php tests/test-evergreen-chair-v8.php
