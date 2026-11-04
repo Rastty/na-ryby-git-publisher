@@ -37,6 +37,28 @@ class AuditContract(TestCase):
         self.assertNotIn("affiliate.invalid", str(r))
         self.assertEqual(r["merchantCalls"], 0)
 
+    def test_first_shop_cta_before_scenarios_is_editorial_flag_only(self):
+        intro = ('<h2>Úvod</h2><p>Krátké vysvětlení</p>'
+                 '<a href="https://www.manufacturer.invalid/tech">CHIRP reference</a>')
+        shop = '<a href="https://merchant.invalid/product?affiliate=secret">Prověřit nabídku</a>'
+        early = mod.commercial_ordering(intro + shop + '<h2>Podrobné situace</h2>')
+        self.assertTrue(early["outboundShoppingCtaFound"])
+        self.assertTrue(early["firstCtaBeforeSecondH2"])
+        self.assertGreater(early["firstCtaVisiblePrefixChars"], 5)
+        self.assertNotIn("merchant.invalid", str(early))
+        late = mod.commercial_ordering(intro + '<h2>Rozhodnutí podle situace</h2>' + shop)
+        self.assertTrue(late["outboundShoppingCtaFound"])
+        self.assertFalse(late["firstCtaBeforeSecondH2"])
+        self.assertFalse(mod.commercial_ordering(intro)["outboundShoppingCtaFound"])
+
+    def test_early_merchant_signal_is_not_false_expiry(self):
+        import json
+        row = self.example()
+        r = mod.summarize("boat", row["slug"], fetch=lambda _: (200, json.dumps([row])))
+        self.assertTrue(r["outboundShoppingCtaFound"])
+        self.assertFalse(r["merchantStockVerified"])
+        self.assertNotIn("affiliate.invalid", str(r))
+
     def test_duplicate_slug_or_draft_is_blocked(self):
         import json
         row = self.example()

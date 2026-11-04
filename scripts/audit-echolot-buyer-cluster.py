@@ -11,7 +11,7 @@ import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 
 SITE = "https://na-ryby.eu"
 GUIDES = (
@@ -38,6 +38,35 @@ def read(url):
             return response.status, response.read(480000).decode("utf-8", "replace")
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
         return None, type(exc).__name__
+
+
+def commercial_ordering(content):
+    """Identify early merchant shopping CTA without fetching or exposing merchant links.
+
+    This is editorial review evidence only, not proof of a broken offer.
+    """
+    first = None
+    labels = ("prověřit nabídku", "zobrazit nabídku", "do obchodu",
+              "nejlevněji", "koupit", "ověřit cenu")
+    for match in re.finditer(r"<a\b[^>]*\bhref\s*=\s*[\x22\x27]([^\x22\x27]+)[\x22\x27][^>]*>(.*?)</a>",
+                             content, flags=re.I | re.S):
+        target = urlsplit(html.unescape(match.group(1)))
+        label = " ".join(html.unescape(re.sub(r"<[^>]+>", " ", match.group(2))).lower().split())
+        if (target.scheme not in ("http", "https") or
+                target.hostname in ("na-ryby.eu", "www.na-ryby.eu") or
+                not any(x in label for x in labels)):
+            continue
+        first = match.start()
+        break
+    if first is None:
+        return {"outboundShoppingCtaFound": False,
+                "firstCtaBeforeSecondH2": False,
+                "firstCtaVisiblePrefixChars": None}
+    prefix = content[:first]
+    visible = " ".join(html.unescape(re.sub(r"<[^>]+>", " ", prefix)).split())
+    return {"outboundShoppingCtaFound": True,
+            "firstCtaBeforeSecondH2": len(re.findall(r"<h2\b", prefix, re.I)) < 2,
+            "firstCtaVisiblePrefixChars": len(visible)}
 
 
 def summarize(role, slug, *, fetch=read):
@@ -90,6 +119,7 @@ def summarize(role, slug, *, fetch=read):
             "hasNumericPrice": bool(re.search(r"\b\d[\d ]{0,8}\s*(?:Kč|CZK)\b", visible, re.I)),
             "historicPricingVerified": False,
             "merchantStockVerified": False,
+            **commercial_ordering(content),
         })
     except (ValueError, AttributeError, TypeError, KeyError):
         result["state"] = "PUBLIC_PARSE_UNVERIFIABLE"

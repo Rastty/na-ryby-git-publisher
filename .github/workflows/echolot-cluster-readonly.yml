@@ -47,6 +47,7 @@ jobs:
                       f"state={row.get('state')} modified={row.get('modifiedGmt')} "
                       f"pillarLinks={row.get('linksToPillar','?')} "
                       f"advisorLinks={row.get('linksToAdvisor','?')} "
+                      f"shopCTABeforeSecondH2={row.get('firstCtaBeforeSecondH2','?')} "
                       f"bodyH1={row.get('h1InBody','?')}")
           else:
               lines.append('Evidence unavailable; no decision authorized.')
