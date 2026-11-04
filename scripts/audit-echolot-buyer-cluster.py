@@ -48,7 +48,7 @@ def commercial_ordering(content):
     first = None
     labels = ("prověřit nabídku", "zobrazit nabídku", "do obchodu",
               "nejlevněji", "koupit", "ověřit cenu")
-    for match in re.finditer(r'<a\\b[^>]*\\bhref\\s*=\\s*["\\']([^"\\']+)["\\'][^>]*>(.*?)</a>',
+    for match in re.finditer(r"<a\b[^>]*\bhref\s*=\s*[\x22\x27]([^\x22\x27]+)[\x22\x27][^>]*>(.*?)</a>",
                              content, flags=re.I | re.S):
         target = urlsplit(html.unescape(match.group(1)))
         label = " ".join(html.unescape(re.sub(r"<[^>]+>", " ", match.group(2))).lower().split())
@@ -65,7 +65,7 @@ def commercial_ordering(content):
     prefix = content[:first]
     visible = " ".join(html.unescape(re.sub(r"<[^>]+>", " ", prefix)).split())
     return {"outboundShoppingCtaFound": True,
-            "firstCtaBeforeSecondH2": len(re.findall(r"<h2\\b", prefix, re.I)) < 2,
+            "firstCtaBeforeSecondH2": len(re.findall(r"<h2\b", prefix, re.I)) < 2,
             "firstCtaVisiblePrefixChars": len(visible)}
 
 
