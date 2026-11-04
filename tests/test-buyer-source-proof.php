@@ -66,4 +66,26 @@ must(NRY_Git_Publisher::buyer_source_proof_snapshot('evergreen')['rows'][0]['sta
     ==='BLOCKED_IDENTITY_OR_SOURCE','evergreen slug drift blocked');
 must(NRY_Git_Publisher::buyer_source_proof_snapshot('arbitrary')['state']
     ==='BLOCKED_UNSUPPORTED_PROOF_SCOPE','arbitrary source lookup blocked');
+$GLOBALS['sources'][60341]=(object)array(
+  'ID'=>60341, 'post_type'=>'post', 'post_status'=>'publish',
+  'post_name'=>'nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby',
+  'post_modified_gmt'=>'2023-09-23 05:35:38',
+  'post_content'=>str_repeat('<p>Editorial mock content.</p>', 600),
+);
+$hub=NRY_Git_Publisher::buyer_source_proof_snapshot('buyer-hub');
+must(count($hub['rows'])===1 && $hub['rows'][0]['id']===60341, 'exact buyer hub scope');
+must($hub['rows'][0]['source_sha256']===hash('sha256',$GLOBALS['sources'][60341]->post_content),
+  'buyer hub proof uses raw WordPress content');
+must($hub['rows'][0]['source_modified_gmt']==='2023-09-23 05:35:38',
+  'buyer hub GMT exact');
+must(!isset($hub['rows'][0]['post_content']) && !isset($hub['rows'][0]['cj_urls'])
+  && $hub['publication_authorized']===false && $hub['wordpress_writes']===0,
+  'proof does not expose body or authorize write');
+$GLOBALS['sources'][60341]->post_status='draft';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('buyer-hub')['rows'][0]['state']
+  ==='BLOCKED_IDENTITY_OR_SOURCE','buyer hub drafts blocked');
+$GLOBALS['sources'][60341]->post_status='publish';
+$GLOBALS['sources'][60341]->post_name='wrong-article';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('buyer-hub')['rows'][0]['state']
+  ==='BLOCKED_IDENTITY_OR_SOURCE','buyer hub slug drift blocked');
 echo "PASS: three allowlisted SHA/GMT proofs, no private body, no write, fail closed\n";
