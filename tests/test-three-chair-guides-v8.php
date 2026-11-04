@@ -11,7 +11,7 @@ function add_action($name,$callback,$priority=10){return true;}
 function wp_kses($html,$allowed,$protocols){return $html;}
 function test_ok($value,$name){if(!$value){fwrite(STDERR,"FAIL: ".$name."\n");exit(1);}}
 require dirname(__DIR__).'/na-ryby-git-publisher.php';
-$m=json_decode(file_get_contents(dirname(__DIR__).'/manifest.json'),true);
+$m=json_decode(file_get_contents(__DIR__.'/v8-chair-three-20261102-frozen.json'),true);
 $proof=array(
 34858=>array('sha'=>'5fb4a53a467c81377182a31355ad74c899f10b60b441e78ffda3561cc95bbad7',
  'bytes'=>9529,'gmt'=>'2023-04-01 17:09:05'),
