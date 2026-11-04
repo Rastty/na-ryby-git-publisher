@@ -7,7 +7,7 @@ function add_action($name,$cb,$priority=10) {return true;}
 function wp_kses($html,$allowed,$protocols) {return $html;}
 function must($ok,$why) {if(!$ok){fwrite(STDERR,"FAIL: ".$why."\n");exit(1);}}
 require dirname(__DIR__).'/na-ryby-git-publisher.php';
-$m=json_decode(file_get_contents(dirname(__DIR__).'/manifest.json'),true);
+$m=json_decode(file_get_contents(__DIR__.'/v8-echolot-pillar-118553-frozen.json'),true);
 must(is_array($m)&&$m['schema_version']===8,'schema v8');
 must($m['site']==='https://na-ryby.eu'
     && $m['batch_id']==='echolot-pillar-answer-first-118553-20261104-v1',
