@@ -88,4 +88,30 @@ $GLOBALS['sources'][60341]->post_status='publish';
 $GLOBALS['sources'][60341]->post_name='wrong-article';
 must(NRY_Git_Publisher::buyer_source_proof_snapshot('buyer-hub')['rows'][0]['state']
   ==='BLOCKED_IDENTITY_OR_SOURCE','buyer hub slug drift blocked');
+$GLOBALS['sources'][118455]=(object)array(
+    'ID'=>118455, 'post_type'=>'post','post_status'=>'publish',
+    'post_name'=>'nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz',
+    'post_modified_gmt'=>'2026-03-19 20:04:31',
+    'post_content'=>str_repeat('<p>Veřejně psaný rozpočtový průvodce sonary.</p>',300)
+);
+$echolot=NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-budget');
+must($echolot['publication_authorized']===false && $echolot['wordpress_writes']===0,
+    'echolot hash does not grant write');
+must(count($echolot['rows'])===1 && $echolot['rows'][0]['id']===118455,
+    'echolot scope exact ID');
+must($echolot['rows'][0]['source_sha256']===hash('sha256',
+    $GLOBALS['sources'][118455]->post_content), 'echolot raw SHA');
+must($echolot['rows'][0]['source_modified_gmt']==='2026-03-19 20:04:31',
+    'echolot exact WordPress GMT');
+must(!isset($echolot['rows'][0]['post_content'])
+    && !isset($echolot['rows'][0]['rendered'])
+    && !isset($echolot['rows'][0]['cj_urls']),
+    'echolot raw HTML and commercial URLs withheld');
+$GLOBALS['sources'][118455]->post_status='draft';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-budget')['rows'][0]['state']
+    ==='BLOCKED_IDENTITY_OR_SOURCE', 'echolot draft rejected');
+$GLOBALS['sources'][118455]->post_status='publish';
+$GLOBALS['sources'][118455]->post_name='other-sonar-guide';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-budget')['rows'][0]['state']
+    ==='BLOCKED_IDENTITY_OR_SOURCE', 'echolot redirect/slugs rejected');
 echo "PASS: three allowlisted SHA/GMT proofs, no private body, no write, fail closed\n";
