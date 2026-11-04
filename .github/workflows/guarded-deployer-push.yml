@@ -65,6 +65,16 @@ jobs:
     timeout-minutes: 5
     environment: na-ryby-production
     steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify reviewed repository checkout is present before guarded release
+        run: |
+          set -euo pipefail
+          test -f manifest.json
+          test -f na-ryby-git-publisher.php
+          test -f RELEASE_INTEGRITY.json
+          echo 'PASS: reviewed release files checked out; no credentials persisted'
       - name: Validate exact approved Deployer destination
         env:
           NRY_DFG_DEPLOY_URL: ${{ secrets.NRY_DFG_DEPLOY_URL }}
