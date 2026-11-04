@@ -152,6 +152,25 @@ must($alarm['wordpress_writes']===0 && $alarm['publication_authorized']===false,
   'source proof never grants write authority');
 must(!isset($alarm['rows'][0]['post_content']) && !isset($alarm['rows'][0]['hrefs']),
   'no private content or affiliate merchant URLs');
+must(isset($alarm['rows'][0]['legacy_table_score_literal_counts']),
+  'only six fixed public score count keys exposed');
+must(array_keys($alarm['rows'][0]['legacy_table_score_literal_counts'])
+   ===array('8,1 / 10','8,6 / 10','8,9 / 10','9,2 / 10','9,1 / 10','9,4 / 10'),
+  'exact six documented numeric scores');
+must(array_sum($alarm['rows'][0]['legacy_table_score_literal_counts'])===0,
+  'zero matches when source fixture has no historical scores');
+must($alarm['rows'][0]['buyer_warning_marker_count']===0
+  && $alarm['rows'][0]['historical_score_warning_count']===0,
+  'exact warning and section counts never forged');
+$GLOBALS['sources'][118218]->post_content.='<p>8,1 / 10, 8,6 / 10, 8,9 / 10, 9,2 / 10, 9,1 / 10, 9,4 / 10</p>';
+$withScores=NRY_Git_Publisher::buyer_source_proof_snapshot('alarm-guide');
+must(array_sum($withScores['rows'][0]['legacy_table_score_literal_counts'])===6,
+  'six exact score strings counted from actual raw source');
+must($withScores['rows'][0]['source_sha256']===hash('sha256',
+  $GLOBALS['sources'][118218]->post_content), 'source proof remains SHA correct');
+must(!isset($withScores['rows'][0]['post_content'])
+  && $withScores['wordpress_writes']===0,
+  'no raw content leak and no write');
 $GLOBALS['sources'][118218]->post_status='draft';
 must(NRY_Git_Publisher::buyer_source_proof_snapshot('alarm-guide')['rows'][0]['state']
   ==='BLOCKED_IDENTITY_OR_SOURCE','alarm guide draft rejected');

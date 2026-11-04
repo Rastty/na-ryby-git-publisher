@@ -342,8 +342,14 @@ jobs:
           assert re.fullmatch('[0-9a-f]{64}',row['source_sha256'])
           assert 1000<row['source_bytes']<250000
           assert re.fullmatch(r'20\d\d-\d\d-\d\d \d\d:\d\d:\d\d',row['source_modified_gmt'])
-          print('ALARM_BUYER_SOURCE_PROOF',json.dumps({k:row[k] for k in (
-              'id','slug','source_bytes','source_modified_gmt','source_sha256')},sort_keys=True))
+          proof_keys=('id','slug','source_bytes','source_modified_gmt',
+              'source_sha256','legacy_table_score_literal_counts',
+              'buyer_warning_marker_count','historical_score_warning_count')
+          counts=row['legacy_table_score_literal_counts']
+          assert len(counts)==6 and all(isinstance(v,int) and v>=0 for v in counts.values())
+          assert row['buyer_warning_marker_count'] in (0,1)
+          print('ALARM_BUYER_SOURCE_PROOF',json.dumps(
+              {k:row[k] for k in proof_keys},sort_keys=True))
           PY
 
       - name: Assert approved V8 batch genuinely committed in WordPress before success
