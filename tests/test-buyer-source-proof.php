@@ -137,4 +137,26 @@ $GLOBALS['sources'][118553]->post_status='publish';
 $GLOBALS['sources'][118553]->post_name='unexpected-sonar-guide';
 must(NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-pillar')['rows'][0]['state']
   ==='BLOCKED_IDENTITY_OR_SOURCE', 'pillar slug drift blocked');
+$GLOBALS['sources'][118218]=(object)array(
+  'ID'=>118218,'post_type'=>'post','post_status'=>'publish',
+  'post_name'=>'nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu',
+  'post_modified_gmt'=>'2026-10-23 06:34:54',
+  'post_content'=>str_repeat('<p>Zdroj pro přesně vymezenou kontrolu nabídky.</p>',260)
+);
+$alarm=NRY_Git_Publisher::buyer_source_proof_snapshot('alarm-guide');
+must(count($alarm['rows'])===1 && $alarm['rows'][0]['id']===118218,
+  'exact alarm guide');
+must($alarm['rows'][0]['source_sha256']===hash('sha256',
+  $GLOBALS['sources'][118218]->post_content),'raw WP source SHA for alarm guide');
+must($alarm['wordpress_writes']===0 && $alarm['publication_authorized']===false,
+  'source proof never grants write authority');
+must(!isset($alarm['rows'][0]['post_content']) && !isset($alarm['rows'][0]['hrefs']),
+  'no private content or affiliate merchant URLs');
+$GLOBALS['sources'][118218]->post_status='draft';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('alarm-guide')['rows'][0]['state']
+  ==='BLOCKED_IDENTITY_OR_SOURCE','alarm guide draft rejected');
+$GLOBALS['sources'][118218]->post_status='publish';
+$GLOBALS['sources'][118218]->post_name='unknown-other';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('alarm-guide')['rows'][0]['state']
+  ==='BLOCKED_IDENTITY_OR_SOURCE','alarm guide slug drift rejected');
 echo "PASS: three allowlisted SHA/GMT proofs, no private body, no write, fail closed\n";
