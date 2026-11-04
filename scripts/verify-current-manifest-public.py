@@ -103,11 +103,31 @@ def check_target(target, fetch=read_public):
             and 'aktuální konečnou cenu kompletu' in panel
             and all(route in panel for route in paths)
         )
+    elif target["post_id"] == 118218:
+        # Marker-only pass is not enough: honest price/ratings warning must
+        # exist ahead of the unchanged commercial table and affiliate links.
+        start = html.find('<section ' + marker)
+        end = html.find('</section>', start) if start >= 0 else -1
+        section = html[start:end] if end > start else ""
+        allowed = (
+            'href="https://na-ryby.eu/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/"',
+            'href="https://na-ryby.eu/baterie-do-signalizatoru-ktere-vydrzi-nejdele-a-proc-nekupovat-levne/"',
+        )
+        semantic_ok = (
+            section.startswith('<section ' + marker)
+            and '<h2>Signalizátor záběru: podle čeho vybrat' in section
+            and section.count('<li>') == 4
+            and 'číselná hodnocení typu 8,9/10' in section
+            and 'nezávisle ověřenými cenami' in section
+            and 'historické orientační údaje' in section
+            and 'akce 1+1 může skončit' in section
+            and all(route in section for route in allowed)
+        )
     passed = (response.get("status") == "READ_OK" and response.get("http") == 200
               and count == 1 and semantic_ok)
     return {"post_id": target["post_id"], "url": target["url"],
             "http": response.get("http"), "marker_count": count,
-            "semantic_trust_verified": semantic_ok if target["post_id"] in (60341,118455,118553) else None,
+            "semantic_trust_verified": semantic_ok if target["post_id"] in (60341,118455,118553,118218) else None,
             "status": "PUBLIC_MARKER_VERIFIED" if passed else
                       ("NOT_PUBLIC_OR_CACHE_STALE" if response.get("status") == "READ_OK"
                        else response.get("status", "READER_ERROR"))}

@@ -103,6 +103,30 @@ class Contract(TestCase):
         self.assertEqual(status(panel+" ".join(routes)), "PUBLIC_NOT_VERIFIED")
         self.assertEqual(status(valid+valid), "PUBLIC_NOT_VERIFIED")
 
+    def test_118218_alarmed_prices_and_scores_require_real_warning(self):
+        m = {"schema_version": 8, "site": "https://na-ryby.eu",
+             "batch_id": "alarm-buyer-trust-118218-20261104-v1",
+             "edits": [{"post_id": 118218,
+                        "slug": "nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu",
+                        "edit_id": "alarm-buyer-prices-trust-118218-v1"}]}
+        marker='data-nry-editorial-edit="alarm-buyer-prices-trust-118218-v1"'
+        def status(html):
+            return module.audit(m,lambda _: {"status":"READ_OK","http":200,"html":html})["status"]
+        part = '<section '+marker+'><h2>Signalizátor záběru: podle čeho vybrat</h2>'
+        part += '<li>scénář</li>'*4
+        part += 'číselná hodnocení typu 8,9/10; nezávisle ověřenými cenami'
+        part += 'historické orientační údaje; akce 1+1 může skončit'
+        paths = [
+          'href="https://na-ryby.eu/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/"',
+          'href="https://na-ryby.eu/baterie-do-signalizatoru-ktere-vydrzi-nejdele-a-proc-nekupovat-levne/"'
+        ]
+        complete = part+" ".join(paths)+'</section>'
+        self.assertEqual(status(complete),"PUBLIC_VERIFIED_ALL")
+        self.assertEqual(status(part+'</section>'),"PUBLIC_NOT_VERIFIED")
+        self.assertEqual(status(complete.replace(paths[0],"")),"PUBLIC_NOT_VERIFIED")
+        self.assertEqual(status(complete.replace("akce 1+1 může skončit","")),"PUBLIC_NOT_VERIFIED")
+        self.assertEqual(status(complete+complete),"PUBLIC_NOT_VERIFIED")
+
     def test_wrong_schema(self):
         data = self.manifest()
         data["schema_version"] = 4

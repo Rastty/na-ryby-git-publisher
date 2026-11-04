@@ -9,6 +9,7 @@ on:
       - 'tests/test-buyer-hub-trust-repair-v8.php'
       - 'tests/test-echolot-budget-118455-v8.php'
       - 'tests/test-echolot-pillar-118553-v8.php'
+      - 'tests/test-alarm-guide-trust-118218-v8.php'
       - 'tests/test-three-chair-guides-v8.php'
       - 'tests/test-evergreen-chair-v8.php'
       - 'tests/test-production-buyer-hub-60341-v8.php'
@@ -57,6 +58,7 @@ jobs:
           php tests/test-production-buyer-hub-60341-v8.php
           php tests/test-echolot-budget-118455-v8.php
           php tests/test-echolot-pillar-118553-v8.php
+          php tests/test-alarm-guide-trust-118218-v8.php
           php tests/test-buyer-source-proof.php
           php tests/test-three-chair-guides-v8.php
           php tests/test-evergreen-chair-v8.php
