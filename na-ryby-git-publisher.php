@@ -773,6 +773,21 @@ final class NRY_Git_Publisher {
                 'source_bytes'=>strlen($post->post_content),
                 'source_sha256'=>hash('sha256',$post->post_content)
             );
+            if ($scope==='alarm-guide') {
+                // Six visible published scores only. Report COUNTS, never raw HTML,
+                // links, merchant parameters, cookies or new write permissions.
+                $score_labels=array('8,1 / 10','8,6 / 10','8,9 / 10',
+                    '9,2 / 10','9,1 / 10','9,4 / 10');
+                $score_counts=array();
+                foreach ($score_labels as $score) {
+                    $score_counts[$score]=substr_count($post->post_content,$score);
+                }
+                $row['legacy_table_score_literal_counts']=$score_counts;
+                $row['buyer_warning_marker_count']=substr_count(
+                    $post->post_content,'data-nry-editorial-edit="alarm-buyer-prices-trust-118218-v1"');
+                $row['historical_score_warning_count']=substr_count(
+                    $post->post_content,'Uvedené částky v Kč, označení akcí 1+1 a číselná hodnocení typu 8,9/10 nejsou v tomto okamžiku nezávisle ověřenými cenami, skladovými nabídkami ani výsledkem zveřejněné srovnávací testovací metodiky.');
+            }
             if ($scope==='buyer-hub') {
                 // Only fixed, already public text checks; no raw source or merchant IDs.
                 $row['trust_correction_targets']=array(
