@@ -84,11 +84,30 @@ def check_target(target, fetch=read_public):
             and 'href="https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/"' in html
             and 'href="https://na-ryby.eu/poradce-vybavy/"' in html
         )
+    elif target["post_id"] == 118553:
+        # Require actual answer-first decision section, not a marker elsewhere
+        # or duplicated existing links in the long historical article.
+        begin = html.find('<section ' + marker)
+        finish = html.find('</section>', begin) if begin >= 0 else -1
+        panel = html[begin:finish] if finish > begin else ""
+        paths = (
+            'href="https://na-ryby.eu/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/"',
+            'href="https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/"',
+            'href="https://na-ryby.eu/poradce-vybavy/"',
+        )
+        semantic_ok = (
+            panel.startswith('<section ' + marker)
+            and '<h2>Jak vybrat vhodný typ echolotu</h2>' in panel
+            and panel.count('<li>') == 4
+            and 'další nákup není nutný' in panel
+            and 'aktuální konečnou cenu kompletu' in panel
+            and all(route in panel for route in paths)
+        )
     passed = (response.get("status") == "READ_OK" and response.get("http") == 200
               and count == 1 and semantic_ok)
     return {"post_id": target["post_id"], "url": target["url"],
             "http": response.get("http"), "marker_count": count,
-            "semantic_trust_verified": semantic_ok if target["post_id"] in (60341,118455) else None,
+            "semantic_trust_verified": semantic_ok if target["post_id"] in (60341,118455,118553) else None,
             "status": "PUBLIC_MARKER_VERIFIED" if passed else
                       ("NOT_PUBLIC_OR_CACHE_STALE" if response.get("status") == "READ_OK"
                        else response.get("status", "READER_ERROR"))}
