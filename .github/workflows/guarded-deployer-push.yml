@@ -228,6 +228,11 @@ jobs:
           assert 1000<r['source_bytes']<350000
           print('BUYER_HUB_RAW_SOURCE_PROOF',json.dumps({
               k:r[k] for k in ('id','slug','source_modified_gmt','source_bytes','source_sha256')},sort_keys=True))
+          targets=r.get('trust_correction_targets')
+          assert isinstance(targets,dict)
+          assert set(targets)=={'false_manufacturer_claim','sales_claim','visible_keyword_line'}
+          assert all(type(n) is int and 0<=n<=3 for n in targets.values())
+          print('BUYER_HUB_TRUST_TARGET_COUNTS',json.dumps(targets,sort_keys=True))
           print('PASS: buyer hub read-only exact source verified; WordPress writes 0')
           PY
 
