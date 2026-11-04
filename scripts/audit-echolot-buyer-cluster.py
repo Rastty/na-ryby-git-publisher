@@ -61,12 +61,49 @@ def commercial_ordering(content):
     if first is None:
         return {"outboundShoppingCtaFound": False,
                 "firstCtaBeforeSecondH2": False,
-                "firstCtaVisiblePrefixChars": None}
+                "firstCtaVisiblePrefixChars": None,
+                "firstCtaHtmlOffset": None}
     prefix = content[:first]
     visible = " ".join(html.unescape(re.sub(r"<[^>]+>", " ", prefix)).split())
     return {"outboundShoppingCtaFound": True,
             "firstCtaBeforeSecondH2": len(re.findall(r"<h2\b", prefix, re.I)) < 2,
-            "firstCtaVisiblePrefixChars": len(visible)}
+            "firstCtaVisiblePrefixChars": len(visible),
+            "firstCtaHtmlOffset": first}
+
+
+def answer_first_pilot(content, first_shop_offset):
+    """Post-release semantic evidence for the one verified echolot pillar.
+
+    Presence alone is insufficient: all three useful destinations and four
+    choice cases must appear INSIDE the inserted section ahead of any shop CTA.
+    No affiliate URL or reader data is returned.
+    """
+    marker = 'data-nry-editorial-edit="echolot-pillar-answer-first-118553-v1"'
+    marker_count = content.count(marker)
+    start = content.find("<section " + marker)
+    end = content.find("</section>", start) if start >= 0 else -1
+    panel = content[start:end] if end > start else ""
+    expected_routes = (
+        DESTINATIONS["budget"],
+        DESTINATIONS["boat"],
+        DESTINATIONS["advisor"],
+    )
+    useful = (
+        marker_count == 1
+        and start >= 0 and end > start
+        and "<h2>Jak vybrat vhodný typ echolotu</h2>" in panel
+        and panel.count("<li>") == 4
+        and "další nákup není nutný" in panel
+        and "aktuální konečnou cenu kompletu" in panel
+        and all('href="' + url + '"' in panel for url in expected_routes)
+    )
+    before = useful and (first_shop_offset is None or end < first_shop_offset)
+    return {
+        "answerFirstPilotMarkerCount": marker_count,
+        "answerFirstPilotSemantics": useful,
+        "answerFirstPilotBeforeShoppingCta": before,
+        "answerFirstPilotVerified": useful and before,
+    }
 
 
 def summarize(role, slug, *, fetch=read):
@@ -99,6 +136,7 @@ def summarize(role, slug, *, fetch=read):
         hrefs = [html.unescape(x) for x in re.findall(
             r'<a\b[^>]*\bhref\s*=\s*["\']([^"\']+)["\']', content, flags=re.I)]
         internal = [u for u in hrefs if u.startswith(SITE + "/")]
+        commercial = commercial_ordering(content)
         result.update({
             "state": "PUBLIC_EVIDENCE",
             "postId": item["id"],
@@ -119,7 +157,9 @@ def summarize(role, slug, *, fetch=read):
             "hasNumericPrice": bool(re.search(r"\b\d[\d ]{0,8}\s*(?:Kč|CZK)\b", visible, re.I)),
             "historicPricingVerified": False,
             "merchantStockVerified": False,
-            **commercial_ordering(content),
+            **{k: v for k, v in commercial.items() if k != "firstCtaHtmlOffset"},
+            **(answer_first_pilot(content, commercial["firstCtaHtmlOffset"])
+               if role == "pillar" else {}),
         })
     except (ValueError, AttributeError, TypeError, KeyError):
         result["state"] = "PUBLIC_PARSE_UNVERIFIABLE"
@@ -138,6 +178,9 @@ def main():
         json.dump(evidence, output, ensure_ascii=False, indent=2)
     if any(x["state"] != "PUBLIC_EVIDENCE" for x in rows):
         raise SystemExit("BLOCKED: at least one public sonar guide unverifiable")
+    pillar = next(x for x in rows if x["role"] == "pillar")
+    if pillar.get("postId") != 118553 or pillar.get("answerFirstPilotVerified") is not True:
+        raise SystemExit("BLOCKED: post-release answer-before-offer pillar regression")
 
 
 if __name__ == "__main__":
