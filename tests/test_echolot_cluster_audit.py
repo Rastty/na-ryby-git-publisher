@@ -59,6 +59,38 @@ class AuditContract(TestCase):
         self.assertFalse(r["merchantStockVerified"])
         self.assertNotIn("affiliate.invalid", str(r))
 
+    def test_post_release_answer_first_must_precede_shop_and_contain_real_utility(self):
+        import json
+        marker = 'data-nry-editorial-edit="echolot-pillar-answer-first-118553-v1"'
+        routes = [
+            mod.DESTINATIONS["budget"],
+            mod.DESTINATIONS["boat"],
+            mod.DESTINATIONS["advisor"],
+        ]
+        panel = ('<section '+marker+'>'
+                 '<h2>Jak vybrat vhodný typ echolotu</h2>'
+                 '<p>další nákup není nutný, aktuální konečnou cenu kompletu</p>'
+                 + '<li>Scénář</li>'*4
+                 + ''.join('<a href="'+u+'">Průvodce</a>' for u in routes)
+                 + '</section>')
+        shop = '<a href="https://merchant.invalid/p?affiliate=private">Prověřit nabídku</a>'
+        row = self.example(mod.GUIDES[0][1])
+        row["id"] = 118553
+        def evaluate(content):
+            row["content"]["rendered"] = content
+            return mod.summarize("pillar", row["slug"],
+                                  fetch=lambda _: (200, json.dumps([row])))
+        good = evaluate(panel+shop)
+        self.assertTrue(good["answerFirstPilotVerified"])
+        self.assertFalse(good["firstCtaBeforeSecondH2"])
+        self.assertNotIn("merchant.invalid", str(good))
+        self.assertTrue(good["outboundShoppingCtaFound"])
+        self.assertFalse(evaluate(shop+panel)["answerFirstPilotVerified"])
+        self.assertFalse(evaluate(panel.replace(routes[2],"")+shop)["answerFirstPilotVerified"])
+        self.assertFalse(evaluate(panel.replace("další nákup není nutný","")+shop)["answerFirstPilotVerified"])
+        self.assertFalse(evaluate(panel+panel+shop)["answerFirstPilotVerified"])
+        self.assertFalse(evaluate("<p>"+marker+"</p>"+shop)["answerFirstPilotVerified"])
+
     def test_duplicate_slug_or_draft_is_blocked(self):
         import json
         row = self.example()
