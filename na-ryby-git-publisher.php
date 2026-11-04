@@ -772,7 +772,13 @@ final class NRY_Git_Publisher {
                     'sales_claim'=>substr_count($post->post_content,
                         'Jsme si jisti, že si u nás vyberete židličku na ryby, která splní vaše očekávání a zvýší vaši radost z rybaření.'),
                     'visible_keyword_line'=>substr_count($post->post_content,
-                        'klíčová slova: rybářské křeslo, židlička na ryby, pohodlí, ergonomický design, opěrky pro záda, odolnost, úložný prostor, rybářský náčiní')
+                        'klíčová slova: rybářské křeslo, židlička na ryby, pohodlí, ergonomický design, opěrky pro záda, odolnost, úložný prostor, rybářský náčiní'),
+                    'keyword_line_prefix'=>substr_count($post->post_content,
+                        'klíčová slova: rybářské křeslo, židlička na ryby'),
+                    'keyword_marker_only'=>substr_count($post->post_content,
+                        'klíčová slova:'),
+                    'false_chair_ownership_prefix'=>substr_count($post->post_content,
+                        'Naše rybářská křesla jsou také vybavena')
                 );
             }
             $rows[]=$row;
