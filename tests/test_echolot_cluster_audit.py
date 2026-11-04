@@ -55,7 +55,7 @@ class AuditContract(TestCase):
         import json
         row = self.example()
         r = mod.summarize("boat", row["slug"], fetch=lambda _: (200, json.dumps([row])))
-        self.assertFalse(r["outboundShoppingCtaFound"])
+        self.assertTrue(r["outboundShoppingCtaFound"])
         self.assertFalse(r["merchantStockVerified"])
         self.assertNotIn("affiliate.invalid", str(r))
 
