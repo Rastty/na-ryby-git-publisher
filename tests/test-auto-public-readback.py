@@ -54,6 +54,29 @@ class Contract(TestCase):
         sales = clean + '<p>Jsme si jisti, že si u nás vyberete židličku na ryby</p>'
         self.assertEqual(fetch(sales)["status"], "PUBLIC_NOT_VERIFIED")
 
+    def test_echolot_budget_release_requires_proven_buyer_journey(self):
+        m = {"schema_version": 8, "site": "https://na-ryby.eu",
+             "batch_id": "echolot-budget-118455-20261104-v1",
+             "edits": [{"post_id": 118455,
+                        "slug": "nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz",
+                        "edit_id": "echolot-budget-decision-118455-v1"}]}
+        marker = 'data-nry-editorial-edit="echolot-budget-decision-118455-v1"'
+        def check(markup):
+            return module.audit(m, lambda _: {"status": "READ_OK", "http": 200,
+                                                "html": markup})
+        base = '<section '+marker+'>'
+        self.assertEqual(check(base)["status"], "PUBLIC_NOT_VERIFIED")
+        price = "nepředstavují dnes ověřený ceník"
+        self.assertEqual(check(base+price)["status"], "PUBLIC_NOT_VERIFIED")
+        anchor1 = 'href="https://na-ryby.eu/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/"'
+        anchor2 = 'href="https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/"'
+        anchor3 = 'href="https://na-ryby.eu/poradce-vybavy/"'
+        complete = base+price+' nemusíte kupovat nové '+anchor1+anchor2+anchor3
+        self.assertEqual(check(complete)["status"], "PUBLIC_VERIFIED_ALL")
+        self.assertTrue(check(complete)["rows"][0]["semantic_trust_verified"])
+        self.assertEqual(check(complete.replace(anchor3,""))["status"], "PUBLIC_NOT_VERIFIED")
+        self.assertEqual(check(complete.replace(price,""))["status"], "PUBLIC_NOT_VERIFIED")
+
     def test_wrong_schema(self):
         data = self.manifest()
         data["schema_version"] = 4
