@@ -681,7 +681,10 @@ final class NRY_Git_Publisher {
      * Never expose HTML, CJ routes, draft data or release authorization.
      */
     public static function buyer_source_proof_snapshot($scope='chairs') {
-        if ($scope==='evergreen') {
+        if ($scope==='buyer-hub') {
+            // Exact public post only: never make this an arbitrary ID lookup.
+            $allow = array(60341 => 'nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby');
+        } elseif ($scope==='evergreen') {
             $allow = array(11901 => 'jak-vybrat-rybarske-kreslo');
         } elseif ($scope==='chairs') {
             $allow = array(
@@ -726,15 +729,17 @@ final class NRY_Git_Publisher {
             && $_GET['nry_buyer_source_proof']==='1';
         $evergreen=isset($_GET['nry_evergreen_source_proof'])
             && $_GET['nry_evergreen_source_proof']==='1';
+        $hub=isset($_GET['nry_buyer_hub_source_proof'])
+            && $_GET['nry_buyer_hub_source_proof']==='1';
         // Exactly one explicitly allowlisted GET selector; never arbitrary IDs.
-        if ($chairs===$evergreen || !function_exists('is_page')
-            || !is_page('poradce-vybavy')) return;
+        if (((int)$chairs+(int)$evergreen+(int)$hub)!==1
+            || !function_exists('is_page') || !is_page('poradce-vybavy')) return;
         if (rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return;
         nocache_headers();
         header('Content-Type: application/json; charset=utf-8');
         header('X-Robots-Tag: noindex, nofollow');
         echo wp_json_encode(self::buyer_source_proof_snapshot(
-            $evergreen ? 'evergreen' : 'chairs'));
+            $hub ? 'buyer-hub' : ($evergreen ? 'evergreen' : 'chairs')));
         exit;
     }
 
