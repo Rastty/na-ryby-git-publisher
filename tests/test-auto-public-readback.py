@@ -77,6 +77,32 @@ class Contract(TestCase):
         self.assertEqual(check(complete.replace(anchor3,""))["status"], "PUBLIC_NOT_VERIFIED")
         self.assertEqual(check(complete.replace(price,""))["status"], "PUBLIC_NOT_VERIFIED")
 
+    def test_sonar_pillar_answer_first_requires_actual_block(self):
+        m = {"schema_version": 8, "site": "https://na-ryby.eu",
+             "batch_id": "echolot-pillar-answer-first-118553-20261104-v1",
+             "edits": [{"post_id": 118553,
+                        "slug": "jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce",
+                        "edit_id": "echolot-pillar-answer-first-118553-v1"}]}
+        marker = 'data-nry-editorial-edit="echolot-pillar-answer-first-118553-v1"'
+        def status(page):
+            return module.audit(m, lambda _: {"status": "READ_OK", "http": 200,
+                                               "html": page})["status"]
+        panel = '<section '+marker+'>'
+        self.assertEqual(status(panel), "PUBLIC_NOT_VERIFIED")
+        panel += '<h2>Jak vybrat vhodný typ echolotu</h2>'
+        panel += '<li>Use</li>' * 4
+        panel += 'další nákup není nutný aktuální konečnou cenu kompletu'
+        routes = (
+            'href="https://na-ryby.eu/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/"',
+            'href="https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/"',
+            'href="https://na-ryby.eu/poradce-vybavy/"',
+        )
+        valid = panel + " ".join(routes) + '</section>'
+        self.assertEqual(status(valid), "PUBLIC_VERIFIED_ALL")
+        self.assertEqual(status(valid.replace(routes[2],"")), "PUBLIC_NOT_VERIFIED")
+        self.assertEqual(status(panel+" ".join(routes)), "PUBLIC_NOT_VERIFIED")
+        self.assertEqual(status(valid+valid), "PUBLIC_NOT_VERIFIED")
+
     def test_wrong_schema(self):
         data = self.manifest()
         data["schema_version"] = 4
