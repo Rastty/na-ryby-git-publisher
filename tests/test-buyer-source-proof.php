@@ -2,6 +2,13 @@
 // Standalone read-only WordPress source-proof contract; raw content never printed.
 define('ABSPATH', __DIR__);
 $GLOBALS['sources'] = array();
+$GLOBALS['meta'] = array();
+function get_post_meta($id,$key,$single=true) {
+    return $GLOBALS['meta'][$id][$key]??'';
+}
+function metadata_exists($type,$id,$key) {
+    return $type==='post' && array_key_exists($key,$GLOBALS['meta'][$id]??array());
+}
 function add_action($n,$cb,$priority=10) {}
 function get_post($id) { return $GLOBALS['sources'][$id]??null; }
 function get_permalink($id) {
@@ -178,4 +185,41 @@ $GLOBALS['sources'][118218]->post_status='publish';
 $GLOBALS['sources'][118218]->post_name='unknown-other';
 must(NRY_Git_Publisher::buyer_source_proof_snapshot('alarm-guide')['rows'][0]['state']
   ==='BLOCKED_IDENTITY_OR_SOURCE','alarm guide slug drift rejected');
-echo "PASS: three allowlisted SHA/GMT proofs, no private body, no write, fail closed\n";
+$GLOBALS['sources'][35755]=(object)array(
+  'ID'=>35755,'post_type'=>'post','post_status'=>'publish',
+  'post_name'=>'pipaky-na-ryby-prakticke-rady-pro-zacatecniky',
+  'post_modified_gmt'=>'2026-10-23 07:09:00',
+  'post_content'=>str_repeat('<p>Ověřený praktický obsah pro začátečníky.</p>',300)
+);
+$GLOBALS['meta'][35755]=array(
+  '_yoast_wpseo_title'=>'Pípáky na ryby: praktické rady pro začátečníky',
+  '_yoast_wpseo_metadesc'=>'Pípáky pro začátečníky, praktické rady.'
+);
+$beginner=NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-beginner');
+must(count($beginner['rows'])===1&&$beginner['rows'][0]['id']===35755,
+    'only exact beginner article source');
+$b=$beginner['rows'][0];
+must($b['state']==='SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY'
+  && $b['source_sha256']===hash('sha256',$GLOBALS['sources'][35755]->post_content),
+  'exact raw WordPress content fingerprint');
+must($b['raw_yoast_title_sha256']===hash('sha256',$GLOBALS['meta'][35755]['_yoast_wpseo_title'])
+  && $b['raw_yoast_description_sha256']===hash('sha256',$GLOBALS['meta'][35755]['_yoast_wpseo_metadesc']),
+  'only metadata hashes, never raw metatags');
+must($b['raw_yoast_title_exists']===true
+  && $b['raw_yoast_description_exists']===true,
+  'detect actual raw Yoast field existence');
+must(!isset($b['post_content'])&&!isset($b['yoast_title'])&&!isset($b['yoast_description'])
+  && $beginner['wordpress_writes']===0&&$beginner['publication_authorized']===false,
+  'no source leakage or authorization');
+$GLOBALS['sources'][35755]->post_status='draft';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-beginner')['rows'][0]['state']
+  ==='BLOCKED_IDENTITY_OR_SOURCE','draft blocked');
+$GLOBALS['sources'][35755]->post_status='publish';
+$GLOBALS['sources'][35755]->post_name='wrong-slug';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-beginner')['rows'][0]['state']
+  ==='BLOCKED_IDENTITY_OR_SOURCE','wrong slug blocked');
+$GLOBALS['sources'][35755]->post_name='pipaky-na-ryby-prakticke-rady-pro-zacatecniky';
+$GLOBALS['meta'][35755]['_yoast_wpseo_title']=array('bad');
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-beginner')['rows'][0]['state']
+  ==='BLOCKED_NON_STRING_SEO_METADATA','invalid Yoast meta blocked');
+echo "PASS: bounded source and Yoast hashes for beginner, no private body, zero writes, fail closed\n";
