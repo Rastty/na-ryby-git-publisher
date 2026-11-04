@@ -230,7 +230,8 @@ jobs:
               k:r[k] for k in ('id','slug','source_modified_gmt','source_bytes','source_sha256')},sort_keys=True))
           targets=r.get('trust_correction_targets')
           assert isinstance(targets,dict)
-          assert set(targets)=={'false_manufacturer_claim','sales_claim','visible_keyword_line'}
+          assert set(targets)=={'false_manufacturer_claim','sales_claim','visible_keyword_line',
+            'keyword_line_prefix','keyword_marker_only','false_chair_ownership_prefix'}
           assert all(type(n) is int and 0<=n<=3 for n in targets.values())
           print('BUYER_HUB_TRUST_TARGET_COUNTS',json.dumps(targets,sort_keys=True))
           print('PASS: buyer hub read-only exact source verified; WordPress writes 0')
@@ -240,7 +241,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import json,urllib.request,time
+          import json,urllib.request,urllib.error,time
           with open('manifest.json',encoding='utf8') as f: manifest=json.load(f)
           if manifest.get('schema_version')!=8:
               print('SKIP: no V8 buyer content manifest in current release')
@@ -249,8 +250,16 @@ jobs:
           for attempt in range(5):
               req=urllib.request.Request('https://na-ryby.eu/poradce-vybavy/?nry_release_health=1&buyer_batch='+str(attempt),
                  headers={'Cache-Control':'no-cache','User-Agent':'NryExactNativeBatchReadback/1.0'})
-              with urllib.request.urlopen(req,timeout=25) as response:
-                  health=json.loads(response.read(4096))
+              try:
+                  with urllib.request.urlopen(req,timeout=25) as response:
+                      health=json.loads(response.read(4096))
+              except (urllib.error.URLError,TimeoutError,OSError,json.JSONDecodeError) as exc:
+                  print('BATCH_READBACK_TRANSIENT_FAILURE',type(exc).__name__,
+                    'attempt',attempt+1)
+                  if attempt==4:
+                      raise SystemExit('BLOCKED: could not read current batch receipt after retries')
+                  time.sleep(5)
+                  continue
               print('BATCH_READBACK',json.dumps({
                   'expected_batch':expected,'current_batch':health.get('last_auto_batch_id'),
                   'status':health.get('last_auto_receipt_status'),
@@ -268,7 +277,15 @@ jobs:
       - name: Independent public HTTP readback of exact current reviewed editorial manifest
         run: |
           set -euo pipefail
-          python3 scripts/verify-current-manifest-public.py manifest.json
+          for attempt in 1 2 3; do
+            if python3 scripts/verify-current-manifest-public.py manifest.json; then
+              echo 'PASS: independent public readback'
+              exit 0
+            fi
+            echo "Public HTTP not fully verified, attempt $attempt of 3"
+            if [ "$attempt" -lt 3 ]; then sleep 7; fi
+          done
+          exit 1
 
       - uses: actions/upload-artifact@v4
         if: always()
