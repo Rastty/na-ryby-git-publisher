@@ -1,22 +1,66 @@
-name: Chair Buyer Candidate Public Audit
+name: Na-Ryby Buyer Guide Price and CTA Public Audit
 on:
   pull_request:
     paths:
       - 'scripts/audit-chair-buyer-candidates.py'
+      - 'tests/test_chair_commercial_freshness.py'
       - '.github/workflows/chair-candidates-readonly.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/audit-chair-buyer-candidates.py'
+      - 'tests/test_chair_commercial_freshness.py'
+      - '.github/workflows/chair-candidates-readonly.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '21 5 * * *'
 permissions:
   contents: read
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
-      - name: Query eight published WP public REST pages, no credentials
+        with:
+          persist-credentials: false
+      - name: Offline audit contract, no network
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/audit-chair-buyer-candidates.py
+          python3 tests/test_chair_commercial_freshness.py -v
+      - name: Anonymous public WordPress REST content audit (GET only)
         run: python3 scripts/audit-chair-buyer-candidates.py
+      - name: Evidence summary (not merchant price verification)
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path('chair-candidate-public-audit.json')
+          lines=['## Na-Ryby evergreen buyer-guide hygiene',
+            'Read-only; 0 WordPress writes; 0 merchant link requests.',
+            'A historical numeric price plus external shop CTA flags **review**, not confirmed expiry.']
+          if p.exists():
+              data=json.loads(p.read_text(encoding='utf-8'))
+              guide=data.get('evergreenGuide',{})
+              lines += [
+                f"Guide: {guide.get('slug','UNKNOWN')} (post ID {guide.get('postId','UNKNOWN')})",
+                f"State: {guide.get('state','UNKNOWN')}",
+                f"Public numerical price mentions: {guide.get('numericPriceMentions','UNKNOWN')}",
+                f"External shopping CTAs: {guide.get('outboundShoppingCTAs','UNKNOWN')}",
+                f"WordPress last modification (GMT): {guide.get('modifiedGmt','UNKNOWN')}",
+                f"Action: {guide.get('recommendedNextAction','Check access and rerun with verified public source')}",
+              ]
+          else:
+              lines.append('No evidence artifact; network or source may be unavailable.')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
+              f.write('\n\n'.join(lines)+'\n')
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: chair-candidate-public-readonly
+          name: na-ryby-chair-buyers-public-readonly
           path: chair-candidate-public-audit.json
-          retention-days: 7
+          retention-days: 14
+          if-no-files-found: warn
