@@ -36,9 +36,17 @@ def verify_manifest(data):
                 or not isinstance(slug, str) or not re.fullmatch(r"[a-z0-9-]{10,140}", slug)
                 or not isinstance(marker, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{7,63}", marker)):
             raise ValueError("INVALID_EDIT_IDENTITY")
+        if edit.get("placement") == "corrections_only":
+            if (data.get("schema_version") != 8 or
+                    data.get("batch_id") != "alarm-buyer-score-method-118218-20261104-v2" or
+                    post_id != 118218 or
+                    marker != "alarm-buyer-prices-trust-118218-v1" or
+                    len(edits) != 1):
+                raise ValueError("UNAUTHORIZED_CORRECTION_ONLY_RELEASE")
         ids.add(post_id)
         targets.append({"post_id": post_id, "slug": slug,
-                        "edit_id": marker, "url": BASE + "/" + slug + "/"})
+                        "edit_id": marker, "placement": edit.get("placement"),
+                        "url": BASE + "/" + slug + "/"})
     return targets
 
 
@@ -102,6 +110,28 @@ def check_target(target, fetch=read_public):
             and 'další nákup není nutný' in panel
             and 'aktuální konečnou cenu kompletu' in panel
             and all(route in panel for route in paths)
+        )
+    elif target["post_id"] == 118218 and target.get("placement") == "corrections_only":
+        # Exactly six unsubstantiated table ratings must be removed. The
+        # previously verified buyer guide, warning section and affiliate links
+        # remain on the same canonical page; no new front-end panel required.
+        original_scores=("8,1 / 10","8,6 / 10","8,9 / 10",
+                         "9,2 / 10","9,1 / 10","9,4 / 10")
+        new_warning=(
+            "Uvedené ceny v Kč a akce 1+1 jsou orientační, nikoli právě "
+            "ověřené skladové nabídky. Bodová hodnocení jsme z tabulky "
+            "odstranili, protože pro ně není zveřejněná srovnávací "
+            "testovací metodika."
+        )
+        semantic_ok = (
+            count == 1 and html.count("Bez doloženého skóre") == 6
+            and all(score not in html for score in original_scores)
+            and html.count(new_warning) == 1
+            and 'href="https://na-ryby.eu/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/"' in html
+            and 'href="https://na-ryby.eu/baterie-do-signalizatoru-ktere-vydrzi-nejdele-a-proc-nekupovat-levne/"' in html
+            and all(name in html for name in (
+                "NGT", "DAM", "Delphin", "Helios", "Zx8", "Flajzar"))
+            and "Zjistit cenu" in html
         )
     elif target["post_id"] == 118218:
         # Marker-only pass is not enough: honest price/ratings warning must

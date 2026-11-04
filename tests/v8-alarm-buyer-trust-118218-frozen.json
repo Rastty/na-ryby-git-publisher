@@ -1,0 +1,18 @@
+{
+  "schema_version": 8,
+  "batch_id": "alarm-buyer-trust-118218-20261104-v1",
+  "site": "https://na-ryby.eu",
+  "edits": [
+    {
+      "post_id": 118218,
+      "slug": "nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu",
+      "source_modified_gmt": "2026-10-23 06:35:08",
+      "source_min_bytes": 30551,
+      "source_max_bytes": 30552,
+      "source_sha256": "6f6f5d6e62c0e5a8fcd03b5b7219d2fbd626c7a023a1b11736c3318068a36481",
+      "edit_id": "alarm-buyer-prices-trust-118218-v1",
+      "placement": "prepend",
+      "insert_html": "<section data-nry-editorial-edit=\"alarm-buyer-prices-trust-118218-v1\"><h2>Signalizátor záběru: podle čeho vybrat, než porovnáte nabídky</h2><p><strong>Rychlá odpověď:</strong> Při lovu s jedním prutem, kdy sedíte poblíž, může stačit samostatný hlásič se spolehlivou regulací hlasitosti a citlivosti. Při lovu s více pruty nebo když sedíte dál od stojanu dává smysl kompatibilní sada s příposlechem. Více funkcí samo o sobě neznamená lepší záběry a pokud vaše sada vyhovuje, novou kupovat nemusíte.</p><ul><li><strong>Jeden prut a krátké vycházky:</strong> základní elektronický hlásič; ověřte citlivost, ovládání a napájení.</li><li><strong>Dva pruty a stanoviště mimo stojan:</strong> zvažte sadu 2+1. Přijímač musí být skutečně spárovaný s danými hlásiči, nestačí stejná značka.</li><li><strong>Tři pruty nebo delší výpravy:</strong> porovnejte sadu 3+1, funkce přijímače, možnost rozšíření a odolnost v dešti.</li><li><strong>Telefon místo přijímače:</strong> ne každý bezdrátový příposlech funguje s mobilem; aplikaci a Bluetooth podporu ověřte podle přesného modelu.</li></ul><h3>Než kliknete na cenu nebo akci</h3><p><strong>Důležité k tabulce modelů níže:</strong> Uvedené částky v Kč, označení akcí 1+1 a číselná hodnocení typu 8,9/10 nejsou v tomto okamžiku nezávisle ověřenými cenami, skladovými nabídkami ani výsledkem zveřejněné srovnávací testovací metodiky. Považujte je za historické orientační údaje, nikoli za současný žebříček kvality. Před nákupem ověřte u prodejce přesné balení (samostatný hlásič nebo sada, počet kusů, přijímač), variantu, napájení, záruku a konečnou cenu; akce 1+1 může skončit nebo se týkat jiné varianty.</p><p>Už vlastníte hlásič a pouze špatně funguje? Začněte <a href=\"https://na-ryby.eu/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/\">praktickým nastavením pípáku</a>. Při výpadcích či krátké výdrži si projděte <a href=\"https://na-ryby.eu/baterie-do-signalizatoru-ktere-vydrzi-nejdele-a-proc-nekupovat-levne/\">volbu baterií do signalizátorů</a>; kompatibilita se liší podle modelu.</p></section>"
+    }
+  ]
+}

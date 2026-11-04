@@ -127,6 +127,42 @@ class Contract(TestCase):
         self.assertEqual(status(complete.replace("akce 1+1 může skončit","")),"PUBLIC_NOT_VERIFIED")
         self.assertEqual(status(complete+complete),"PUBLIC_NOT_VERIFIED")
 
+    def test_alarm_score_cleanup_requires_six_removed_and_old_buyer_section(self):
+        m = {"schema_version":8,"site":"https://na-ryby.eu",
+             "batch_id":"alarm-buyer-score-method-118218-20261104-v2",
+             "edits":[{"post_id":118218,
+                "slug":"nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu",
+                "edit_id":"alarm-buyer-prices-trust-118218-v1",
+                "placement":"corrections_only"}]}
+        marker='data-nry-editorial-edit="alarm-buyer-prices-trust-118218-v1"'
+        warning=("Uvedené ceny v Kč a akce 1+1 jsou orientační, nikoli právě "
+                 "ověřené skladové nabídky. Bodová hodnocení jsme z tabulky "
+                 "odstranili, protože pro ně není zveřejněná srovnávací "
+                 "testovací metodika.")
+        routes=(
+          'href="https://na-ryby.eu/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/"',
+          'href="https://na-ryby.eu/baterie-do-signalizatoru-ktere-vydrzi-nejdele-a-proc-nekupovat-levne/"'
+        )
+        models="NGT DAM Delphin Helios Zx8 Flajzar"
+        page=('<section '+marker+'>'+warning+" ".join(routes)+
+              "</section>"+'<td>Bez doloženého skóre</td>'*6+
+              '<a href="https://www.tkqlhce.com/click?id=example">Zjistit cenu</a>'
+              +models)
+        def check(html):
+            return module.audit(m,lambda _: {"status":"READ_OK","http":200,
+                                              "html":html})["status"]
+        self.assertEqual(check(page),"PUBLIC_VERIFIED_ALL")
+        self.assertEqual(check(page.replace("Bez doloženého skóre","8,1 / 10",1)),
+                         "PUBLIC_NOT_VERIFIED")
+        self.assertEqual(check(page.replace(warning,"")),
+                         "PUBLIC_NOT_VERIFIED")
+        self.assertEqual(check(page.replace(routes[0],"")),
+                         "PUBLIC_NOT_VERIFIED")
+        self.assertEqual(check(page+page),"PUBLIC_NOT_VERIFIED")
+        bad={**m,"batch_id":"arbitrary-alarm-score-batch"}
+        with self.assertRaisesRegex(ValueError,"UNAUTHORIZED_CORRECTION_ONLY_RELEASE"):
+            module.verify_manifest(bad)
+
     def test_wrong_schema(self):
         data = self.manifest()
         data["schema_version"] = 4

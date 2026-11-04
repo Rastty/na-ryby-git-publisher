@@ -67,6 +67,14 @@ final class NRY_Git_Publisher {
                     || !preg_match('/^[a-f0-9]{64}$/D', $e['source_sha256'])) {
                     return new WP_Error('v8_source_hash', 'Chybí přesný otisk původního obsahu.');
                 }
+                // A single correction-only release removes six invented 1–10
+                // numerical ratings without adding another redundant top panel.
+                // All other schema v8 operations remain the original prepend flow.
+                if (($e['placement'] ?? '') === 'corrections_only') {
+                    $check=self::validate_alarm_scores_correction($e,$data);
+                    if (is_wp_error($check)) { return $check; }
+                    continue;
+                }
                 // Trust repair is confined to one exact public hub/batch.
                 if (isset($e['text_corrections'])) {
                     if ($e['post_id']!==60341
@@ -215,6 +223,95 @@ final class NRY_Git_Publisher {
             return new WP_Error('v6_scope', 'V6 povoluje pouze vybranou čtveřici.');
         }
         return $data;
+    }
+
+    private static function alarm_score_warning_old() {
+        return 'Uvedené částky v Kč, označení akcí 1+1 a číselná hodnocení typu 8,9/10 nejsou v tomto okamžiku nezávisle ověřenými cenami, skladovými nabídkami ani výsledkem zveřejněné srovnávací testovací metodiky.';
+    }
+
+    private static function alarm_score_warning_new() {
+        return 'Uvedené ceny v Kč a akce 1+1 jsou orientační, nikoli právě ověřené skladové nabídky. Bodová hodnocení jsme z tabulky odstranili, protože pro ně není zveřejněná srovnávací testovací metodika.';
+    }
+
+    private static function alarm_score_corrections() {
+        $scores=array('8,1 / 10','8,6 / 10','8,9 / 10',
+            '9,2 / 10','9,1 / 10','9,4 / 10');
+        $list=array();
+        foreach ($scores as $score) {
+            $list[]=array('old_text'=>$score,'new_text'=>'Bez doloženého skóre');
+        }
+        $list[]=array('old_text'=>self::alarm_score_warning_old(),
+            'new_text'=>self::alarm_score_warning_new());
+        return $list;
+    }
+
+    private static function validate_alarm_scores_correction($e,$manifest) {
+        $expected_keys=array('post_id','slug','source_modified_gmt','source_min_bytes',
+            'source_max_bytes','source_sha256','edit_id','placement','text_corrections');
+        $keys=array_keys($e);
+        sort($keys);sort($expected_keys);
+        if (($manifest['batch_id']??'')!=='alarm-buyer-score-method-118218-20261104-v2'
+            || count($manifest['edits']??array())!==1
+            || $e['post_id']!==118218
+            || ($e['slug']??'')!=='nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu'
+            || ($e['edit_id']??'')!=='alarm-buyer-prices-trust-118218-v1'
+            || $e['placement']!=='corrections_only'
+            || $keys!==$expected_keys
+            || !is_int($e['source_min_bytes']) || !is_int($e['source_max_bytes'])
+            || $e['source_min_bytes']<5000
+            || $e['source_max_bytes']!==$e['source_min_bytes']+1
+            || $e['source_max_bytes']>100000
+            || !is_string($e['source_modified_gmt'])
+            || !preg_match('/^20[0-9]{2}-[01][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/D',$e['source_modified_gmt'])
+            || $e['text_corrections']!==self::alarm_score_corrections()) {
+            return new WP_Error('v8_alarm_score_scope','Only exact reviewed 118218 score cleanup is supported.');
+        }
+        return true;
+    }
+
+    private static function build_alarm_score_candidate($source,$edit) {
+        $corrections=self::alarm_score_corrections();
+        $ready=true;$already=true;
+        foreach ($corrections as $item) {
+            if (substr_count($source,$item['old_text'])!==1) $ready=false;
+            if (substr_count($source,$item['old_text'])!==0
+                || substr_count($source,$item['new_text'])!==
+                    ($item['new_text']==='Bez doloženého skóre'?6:1)) $already=false;
+        }
+        if ($already && substr_count($source,
+            'data-nry-editorial-edit="alarm-buyer-prices-trust-118218-v1"')===1) {
+            return array('already'=>true);
+        }
+        if (!$ready) return array('error'=>'alarm_score_source_missing_or_ambiguous');
+        $candidate=$source;
+        foreach ($corrections as $item) {
+            $old=$item['old_text'];
+            if (substr_count($candidate,$old)!==1) {
+                return array('error'=>'alarm_score_not_unique');
+            }
+            $at=strpos($candidate,$old);
+            if (!self::plain_text_span($candidate,$at,strlen($old))) {
+                return array('error'=>'alarm_score_inside_markup');
+            }
+            $candidate=substr_replace($candidate,
+                htmlspecialchars($item['new_text'],ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8'),
+                $at,strlen($old));
+        }
+        if (substr_count($candidate,'Bez doloženého skóre')!==6
+            || substr_count($candidate,self::alarm_score_warning_new())!==1
+            || substr_count($candidate,
+                'data-nry-editorial-edit="alarm-buyer-prices-trust-118218-v1"')!==1) {
+            return array('error'=>'alarm_score_incomplete');
+        }
+        // The entire legacy affiliate/image/embed/shortcode token sequence must
+        // remain identical, with only seven visible text replacements.
+        $pattern='~(?:<a\\b[^>]*>|<img\\b[^>]*>|<iframe\\b[^>]*>|\\[[a-zA-Z][^\\]]*\\])~iu';
+        preg_match_all($pattern,$source,$oldTokens);
+        preg_match_all($pattern,$candidate,$newTokens);
+        if ($oldTokens[0]!==$newTokens[0]) {
+            return array('error'=>'protected_affiliate_or_media_drift');
+        }
+        return array('candidate'=>$candidate);
     }
 
     private static function validate_v6_edit($e) {
@@ -524,7 +621,9 @@ final class NRY_Git_Publisher {
         if (isset($edit['placement'])) {
             // The source is captured on the actual WordPress server. No
             // outbound REST authentication or WPVibe is needed.
-            $built = self::build_v5_candidate($source, $edit);
+            $built = ($edit['placement']==='corrections_only')
+                ? self::build_alarm_score_candidate($source, $edit)
+                : self::build_v5_candidate($source, $edit);
             if (isset($built['already'])) {
                 return array('id' => $post->ID, 'status' => 'already_applied');
             }
