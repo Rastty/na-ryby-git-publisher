@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - 'manifest.json'
+      - 'tests/test-pipaky-42401-quick-choice-v8.php'
+      - 'tests/test-42401-public-semantic.py'
+      - 'scripts/verify-current-manifest-public.py'
       - 'advisor-existing-page-release-v1.php'
       - 'guarded-auto-publisher.php'
       - 'tests/test-native-kses-write-contract.php'
@@ -38,6 +41,9 @@ on:
     branches: [main]
     paths:
       - 'manifest.json'
+      - 'tests/test-pipaky-42401-quick-choice-v8.php'
+      - 'tests/test-42401-public-semantic.py'
+      - 'scripts/verify-current-manifest-public.py'
       - 'advisor-existing-page-release-v1.php'
       - 'guarded-auto-publisher.php'
       - 'tests/test-three-chair-guides-v8.php'
@@ -100,6 +106,7 @@ jobs:
           php tests/test-pipaky-beginner-serp-35755-v1.php
           php tests/test-pipaky-diagnostics-35755-v8.php
           php tests/test-pipaky-advanced-36702-v8.php
+          php tests/test-pipaky-42401-quick-choice-v8.php
           php tests/test-pipaky-36702-five-price-fix-v8.php
           php tests/test-pipaky-advanced-description-36702-v1.php
           php -l checklist-release-v1.php
@@ -109,6 +116,7 @@ jobs:
           php tests/test-v7-chair-native-release.php
           php tests/test-v8-generic-auto-release.php
           python3 tests/test-auto-public-readback.py -v
+          python3 tests/test-42401-public-semantic.py
   deploy:
     needs: verify
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.NRY_AUTO_DEPLOY_ENABLED == 'true'
