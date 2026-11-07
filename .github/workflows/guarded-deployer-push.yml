@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'manifest.json'
+      - 'tests/test-60354-trust-source-proof.php'
       - 'tests/test-pipaky-42401-quick-choice-v8.php'
       - 'tests/test-42401-public-semantic.py'
       - 'scripts/verify-current-manifest-public.py'
@@ -41,6 +42,7 @@ on:
     branches: [main]
     paths:
       - 'manifest.json'
+      - 'tests/test-60354-trust-source-proof.php'
       - 'tests/test-pipaky-42401-quick-choice-v8.php'
       - 'tests/test-42401-public-semantic.py'
       - 'scripts/verify-current-manifest-public.py'
@@ -93,6 +95,7 @@ jobs:
           php tests/test-alarm-guide-trust-118218-v8.php
           php tests/test-alarm-score-cleanup-118218-v8.php
           php tests/test-buyer-source-proof.php
+          php tests/test-60354-trust-source-proof.php
           php -l buyer-click-telemetry-v1.php
           php tests/test-buyer-click-telemetry-v1.php
           node --check assets/nry-buyer-clicks-v1.js
@@ -303,6 +306,48 @@ jobs:
                   print('BEGINNER_SERP_RETRY',type(e).__name__,attempt+1)
                   if attempt==3:raise SystemExit('BLOCKED: exact beginner Yoast metadata not verified on public website')
                   time.sleep(5)
+          PY
+
+      - name: Exact 60354 legacy-ranking source and safe visible-claim counts (GET only)
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,urllib.request,re
+          from scripts.readonly_urlopen_retry import guarded_urlopen
+          target='https://na-ryby.eu/poradce-vybavy/?nry_alarm_ranking_source_proof=1'
+          req=urllib.request.Request(target,headers={
+              'Cache-Control':'no-cache,no-store',
+              'User-Agent':'NaRyby60354PublicClaimsSourceCountOnly/1.0'})
+          with guarded_urlopen(req,timeout=25) as response:
+              assert response.status==200
+              proof=json.loads(response.read(9000))
+          assert proof['site']=='https://na-ryby.eu'
+          assert proof['data_class']=='HASH_AND_MODIFIED_GMT_ONLY_NO_POST_CONTENT'
+          assert proof['publication_authorized'] is False
+          assert proof['wordpress_writes']==0 and len(proof['rows'])==1
+          row=proof['rows'][0]
+          assert row['state']=='SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY'
+          assert row['id']==60354 and row['slug']=='nejlepsi-rybarske-hlasice-a-signalizatory'
+          # Source provenance: owner-authenticated 8-post #1442, Nov 7.
+          assert row['source_sha256']=='a7d76b5908e09c4bd128548806c5bb3589b9aed88546770f4f4a9604ec0fea83'
+          assert row['source_modified_gmt']=='2026-10-23 06:35:08'
+          assert 5000 < row['source_bytes'] < 100000
+          keys={'false_shop_claim','unproven_price_winner',
+                'unproven_top_winner','five_stars','four_stars',
+                'unproven_waterproof','unproven_waterproof_guarantee',
+                'current_market_promise'}
+          raw=row['legacy_rank_raw_literal_counts']
+          safe=row['legacy_rank_safe_plain_counts']
+          assert set(raw)==keys and set(safe)==keys
+          assert all(type(raw[k]) is int and type(safe[k]) is int
+                     and raw[k]>=safe[k]>=0 for k in keys)
+          assert 'post_content' not in row and 'hrefs' not in row
+          print('NRY_60354_SOURCE_CLAIM_COUNTS',json.dumps({
+              'post_id':row['id'],'source_sha256':row['source_sha256'],
+              'source_bytes':row['source_bytes'],
+              'modified_gmt':row['source_modified_gmt'],
+              'raw':raw,'safe':safe,'wordpress_writes':0,
+              'publication_authorized':False},sort_keys=True))
           PY
 
       - name: Read-only exact live source and Yoast hashes for broad pípáky guide #42401
