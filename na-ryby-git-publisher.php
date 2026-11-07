@@ -10,6 +10,7 @@
 if (!defined('ABSPATH')) { exit; }
 require_once __DIR__ . '/seo-snippet-pilot.php';
 require_once __DIR__ . '/seo-pipaky-beginner-35755-v1.php';
+require_once __DIR__ . '/seo-pipaky-advanced-description-36702-v1.php';
 require_once __DIR__ . '/checklist-release-v1.php';
 require_once __DIR__ . '/guarded-auto-publisher.php';
 require_once __DIR__ . '/advisor-existing-page-release-v1.php';

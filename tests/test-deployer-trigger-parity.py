@@ -61,4 +61,11 @@ assert "expected_modified_gmt='2026-11-07 11:23:04'" in workflow
 assert "approved_batch" not in workflow
 assert "assert row['source_sha256']==expected_source" in workflow
 assert (ROOT/"tests/v8-pipaky-advanced-36702-20261107-frozen.json").exists()
+assert "seo-pipaky-advanced-description-36702-v1.php" in pr & push
+assert "tests/test-pipaky-advanced-description-36702-v1.php" in pr
+assert "php tests/test-pipaky-advanced-description-36702-v1.php" in workflow
+assert "ADVANCED_PIPAKY_SEO_PROD_VERIFIED" in workflow
+assert "assert unescape(html.description or '')==expected_meta" in workflow
+assert "assert unescape(html.canonical or '')==canonical" in workflow
+assert "assert row['raw_yoast_title_exists'] is False" in workflow
 print("PASS: all live publisher modules trigger PR review and guarded main deploy")

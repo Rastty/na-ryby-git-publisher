@@ -18,9 +18,11 @@ on:
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
       - 'seo-pipaky-beginner-35755-v1.php'
+      - 'seo-pipaky-advanced-description-36702-v1.php'
       - 'tests/test-pipaky-beginner-serp-35755-v1.php'
       - 'tests/test-pipaky-diagnostics-35755-v8.php'
       - 'tests/test-pipaky-advanced-36702-v8.php'
+      - 'tests/test-pipaky-advanced-description-36702-v1.php'
       - 'buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.mjs'
@@ -49,6 +51,7 @@ on:
       - 'checklist-release-v1.php'
       - 'assets/**'
       - 'seo-pipaky-beginner-35755-v1.php'
+      - 'seo-pipaky-advanced-description-36702-v1.php'
       - '.github/workflows/guarded-deployer-push.yml'
       - 'scripts/readonly_urlopen_retry.py'
       - 'tests/test-readonly-urlopen-retry.py'
@@ -92,9 +95,11 @@ jobs:
           php -l guarded-auto-publisher.php
           php -l seo-snippet-pilot.php
           php -l seo-pipaky-beginner-35755-v1.php
+          php -l seo-pipaky-advanced-description-36702-v1.php
           php tests/test-pipaky-beginner-serp-35755-v1.php
           php tests/test-pipaky-diagnostics-35755-v8.php
           php tests/test-pipaky-advanced-36702-v8.php
+          php tests/test-pipaky-advanced-description-36702-v1.php
           php -l checklist-release-v1.php
           php tests/guarded-auto-publisher-contract.php
           php tests/test-v5-native-release.php
@@ -323,10 +328,62 @@ jobs:
           assert row['source_modified_gmt']==expected_modified_gmt
           for field in ('source_sha256','raw_yoast_title_sha256','raw_yoast_description_sha256'):
               assert re.fullmatch('[a-f0-9]{64}',row[field]),field
-          assert row['raw_yoast_title_bytes']<500
-          assert row['raw_yoast_description_bytes']<1000
-          # Hashes/date only, never print article HTML, merchant links or raw SEO.
-          print('PROFESSIONAL_PIPAKY_READONLY_SOURCE',json.dumps(row,sort_keys=True))
+          assert row['raw_yoast_title_exists'] is False
+          assert row['raw_yoast_title_bytes']==0
+          assert row['raw_yoast_title_sha256']=='e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+          assert row['raw_yoast_description_exists'] is True
+          from hashlib import sha256
+          from html.parser import HTMLParser
+          from html import unescape
+          from time import sleep
+          expected_meta=('Pípáky pro pokročilé: kdy se vyplatí příposlech, '
+              'jak ověřit párování, ochranu před deštěm a kompatibilitu '
+              'starší sady. Konkrétní kontrolní kroky před nákupem.')
+          expected_digest=sha256(expected_meta.encode('utf8')).hexdigest()
+          canonical='https://na-ryby.eu/pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu/'
+          class PageHead(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.description=None
+                  self.canonical=None
+              def handle_starttag(self,tag,attrs):
+                  attrs=dict(attrs)
+                  if tag=='meta' and (attrs.get('name') or '').lower()=='description':
+                      self.description=attrs.get('content')
+                  if tag=='link' and 'canonical' in (attrs.get('rel') or '').lower().split():
+                      self.canonical=attrs.get('href')
+          for attempt in range(4):
+              try:
+                  if attempt:
+                      with guarded_urlopen(req,timeout=25) as response:
+                          assert response.status==200
+                          obj=json.loads(response.read(9000))
+                          assert len(obj['rows'])==1
+                          row=obj['rows'][0]
+                  assert row['raw_yoast_description_sha256']==expected_digest
+                  assert row['raw_yoast_description_bytes']==len(expected_meta.encode('utf8'))
+                  page=urllib.request.Request(
+                      canonical+'?nry_professional_meta_public_proof=20261107',
+                      headers={'Cache-Control':'no-cache,no-store',
+                               'User-Agent':'NaRyby-Professional-Pipaky-Meta-Proof/1.0'})
+                  with guarded_urlopen(page,timeout=25) as response:
+                      assert response.status==200
+                      body=response.read(400000).decode('utf8')
+                  html=PageHead()
+                  html.feed(body)
+                  assert unescape(html.description or '')==expected_meta
+                  assert unescape(html.canonical or '')==canonical
+                  break
+              except Exception as error:
+                  print('ADVANCED_PIPAKY_META_RETRY',type(error).__name__,attempt+1)
+                  if attempt==3:
+                      raise SystemExit('BLOCKED: exact source/meta or public canonical not verified')
+                  sleep(3)
+          print('ADVANCED_PIPAKY_SEO_PROD_VERIFIED',json.dumps({
+              'post_id':36702,'source_sha256':row['source_sha256'],
+              'meta_sha256':expected_digest,'canonical':canonical,
+              'wordpress_meta_fields_changed':1,'affiliate_destination_changes':0,
+              'status':'PUBLIC_META_AND_SOURCE_VERIFIED'},sort_keys=True))
           PY
 
       - name: GET-only private-source SHA fingerprints for three explicit buyer guides
