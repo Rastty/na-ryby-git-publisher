@@ -71,4 +71,20 @@ assert "ADVANCED_PIPAKY_SEO_PROD_VERIFIED" in workflow
 assert "assert unescape(html.description or '')==expected_meta" in workflow
 assert "assert unescape(html.canonical or '')==canonical" in workflow
 assert "assert row['raw_yoast_title_exists'] is False" in workflow
+# A successful source-locked #42401 edit changes source SHA/GMT. Ensure
+# the one-batch transition is gated by exact identity, local candidate digest,
+# preserved backup, no blanket publisher bypass, and emits fresh SHA proof.
+assert "reviewed_transition=(" in workflow
+assert "current.get('batch_id')=='pipaky-42401-quick-choice-router-20261107-v1'" in workflow
+assert "current['edits'][0].get('post_id')==42401" in workflow
+assert "current['edits'][0].get('source_sha256')==prior_source" in workflow
+assert "health.get('last_auto_batch_id')==current['batch_id']" in workflow
+assert "health.get('last_auto_receipt_status')=='applied_and_verified_local'" in workflow
+assert "health.get('candidate_matches') is True" in workflow
+assert "health.get('source_matches') is False" in workflow
+assert "health.get('backup_present') is True" in workflow
+assert "health.get('guarded_publisher_enabled') is True" in workflow
+assert "PIPAKY_MAIN_EXACT_POST_WRITE_SOURCE_REPIN_REQUIRED" in workflow
+assert "assert row['source_sha256']==prior_source" in workflow
+assert "assert row['source_modified_gmt']==prior_modified" in workflow
 print("PASS: all live publisher modules trigger PR review and guarded main deploy")
