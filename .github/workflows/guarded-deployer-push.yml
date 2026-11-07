@@ -228,19 +228,14 @@ jobs:
              'uložit prut, poznat falešný poplach a otestovat signalizátor '
              'před nahozením. Praktický postup.')
           expected_canonical=(host+'/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/')
-          expected_source='2ae4c0adb81a0fc7b667e95bb23d9b1e3f4c590b173c98b8e125c48c41c2763f'
-          with open('manifest.json',encoding='utf8') as source:
-              manifest=json.load(source)
-          reviewed_diagnostic=(
-              manifest.get('schema_version')==8
-              and manifest.get('batch_id')=='pipaky-diagnostika-35755-20261107-v1'
-              and len(manifest.get('edits',[]))==1
-              and manifest['edits'][0].get('post_id')==35755
-              and manifest['edits'][0].get('source_sha256')==expected_source
-              and manifest['edits'][0].get('source_min_bytes')==14984
-              and manifest['edits'][0].get('source_max_bytes')==14985)
-          if manifest.get('batch_id')=='pipaky-diagnostika-35755-20261107-v1' and not reviewed_diagnostic:
-              raise SystemExit('BLOCKED: unexpected pípáky release manifest')
+          # Independent public/WordPress proof run 42365660451: guarded
+          # one-post 35755 diagnosis was applied and publicly verified.
+          # Keep this post's exact CURRENT content fingerprint pinned for
+          # every next manifest batch, rather than switching to stale
+          # pre-release 14984-byte evidence on an unrelated new release.
+          expected_source='d4a35b7772708fe47dec76c6d023f1f6b39d0acc443fa160d60ab9dafd390016'
+          expected_bytes=17459
+          expected_modified_gmt='2026-11-07 10:51:04'
           def get(url):
               req=urllib.request.Request(url,headers={'Cache-Control':'no-cache',
                    'User-Agent':'NaRyby-OneShotBeginnerSeoPublicReadback/1.0'})
@@ -268,22 +263,9 @@ jobs:
                   assert len(doc['rows'])==1
                   row=doc['rows'][0]
                   assert row['id']==35755 and row['slug']=='pipaky-na-ryby-prakticke-rady-pro-zacatecniky'
-                  if reviewed_diagnostic:
-                      # This exact, source-pinned one-post V8 release is
-                      # independently validated by WordPress local backup/SHA
-                      # plus the semantic public marker below.
-                      edit=manifest['edits'][0]
-                      expected_size=14984+len(edit['insert_html'].encode('utf8'))+1
-                      assert row['source_bytes']==expected_size
-                      assert row['source_sha256']!=expected_source
-                      assert row['source_modified_gmt']>'2026-10-23 06:35:07'
-                      print('BEGINNER_DIAGNOSTIC_WP_SOURCE_UPDATED',json.dumps({
-                          'post_id':35755,'source_sha256':row['source_sha256'],
-                          'source_bytes':row['source_bytes'],
-                          'reviewed_batch':manifest['batch_id']}))
-                  else:
-                      assert row['source_sha256']==expected_source and row['source_bytes']==14984
-                      assert row['source_modified_gmt']=='2026-10-23 06:35:07'
+                  assert row['source_sha256']==expected_source
+                  assert row['source_bytes']==expected_bytes
+                  assert row['source_modified_gmt']==expected_modified_gmt
                   assert row['raw_yoast_title_exists'] is True
                   assert row['raw_yoast_description_exists'] is True
                   assert row['raw_yoast_title_sha256']==sha256(expected_title.encode()).hexdigest()

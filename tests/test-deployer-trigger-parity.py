@@ -40,4 +40,16 @@ assert "assets/**" in pr & push
 # Preserve the original production-only release gate.
 assert "github.event_name != 'pull_request'" in workflow
 assert "vars.NRY_AUTO_DEPLOY_ENABLED == 'true'" in workflow
+# A successful already-published 35755 content update is the CURRENT
+# protected source for future batches. Do not let a new manifest regress
+# back to the pre-edit 14984-byte content or require its historical batch.
+assert "expected_source='d4a35b7772708fe47dec76c6d023f1f6b39d0acc443fa160d60ab9dafd390016'" in workflow
+assert "expected_bytes=17459" in workflow
+assert "expected_modified_gmt='2026-11-07 10:51:04'" in workflow
+assert "assert row['source_sha256']==expected_source" in workflow
+assert "assert row['source_bytes']==expected_bytes" in workflow
+assert "assert row['source_modified_gmt']==expected_modified_gmt" in workflow
+assert "reviewed_diagnostic" not in workflow
+assert "expected_source='2ae4c0adb81a0fc7b667e95bb23d9b1e3f4c590b173c98b8e125c48c41c2763f'" not in workflow
+assert (ROOT/"tests/v8-pipaky-diagnostics-35755-20261107-frozen.json").exists()
 print("PASS: all live publisher modules trigger PR review and guarded main deploy")

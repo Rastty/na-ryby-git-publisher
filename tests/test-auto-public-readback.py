@@ -165,7 +165,7 @@ class Contract(TestCase):
 
     def test_beginner_pipaky_requires_real_four_symptom_diagnosis(self):
         import json
-        manifest = json.loads((path.parents[1] / "manifest.json").read_text(encoding="utf-8"))
+        manifest = json.loads((path.parents[1] / "tests" / "v8-pipaky-diagnostics-35755-20261107-frozen.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["batch_id"], "pipaky-diagnostika-35755-20261107-v1")
         edit = manifest["edits"][0]
         h = edit["insert_html"]
