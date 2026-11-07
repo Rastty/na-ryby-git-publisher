@@ -222,4 +222,41 @@ $GLOBALS['sources'][35755]->post_name='pipaky-na-ryby-prakticke-rady-pro-zacatec
 $GLOBALS['meta'][35755]['_yoast_wpseo_title']=array('bad');
 must(NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-beginner')['rows'][0]['state']
   ==='BLOCKED_NON_STRING_SEO_METADATA','invalid Yoast meta blocked');
+$GLOBALS['sources'][36702]=(object)array(
+ 'ID'=>36702,'post_type'=>'post','post_status'=>'publish',
+ 'post_name'=>'pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu',
+ 'post_modified_gmt'=>'2026-10-23 06:35:08',
+ 'post_content'=>str_repeat('<p>Historické srovnání pípáků vyžaduje kontrolu.</p>',140)
+);
+$GLOBALS['meta'][36702]=array(
+ '_yoast_wpseo_title'=>'Pípáky na ryby pro profesionály: přehled nejlepších značek a modelů',
+ '_yoast_wpseo_metadesc'=>'Původní meta popis neověřených tvrzení'
+);
+$professional=NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-professional');
+must(count($professional['rows'])===1 && $professional['rows'][0]['id']===36702,
+ 'professional proof is single fixed post');
+$p=$professional['rows'][0];
+must($p['state']==='SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY'
+ && $p['source_sha256']===hash('sha256',$GLOBALS['sources'][36702]->post_content)
+ && $p['source_modified_gmt']==='2026-10-23 06:35:08',
+ 'professional proof uses exact raw WordPress SHA and date');
+must($p['raw_yoast_title_sha256']===hash('sha256',$GLOBALS['meta'][36702]['_yoast_wpseo_title'])
+ && $p['raw_yoast_description_sha256']===hash('sha256',$GLOBALS['meta'][36702]['_yoast_wpseo_metadesc'])
+ && $p['raw_yoast_title_exists']===true && $p['raw_yoast_description_exists']===true,
+ 'only source-bound SEO hashes, no title or description disclosure');
+must(!isset($p['post_content'],$p['yoast_title'],$p['yoast_description'],$p['hrefs'])
+ && $professional['wordpress_writes']===0
+ && $professional['publication_authorized']===false
+ && $professional['gsc_protection_checked']===false,'proof must not leak or authorize');
+$GLOBALS['sources'][36702]->post_status='draft';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-professional')['rows'][0]['state']
+ ==='BLOCKED_IDENTITY_OR_SOURCE','draft professional cannot disclose hash');
+$GLOBALS['sources'][36702]->post_status='publish';
+$GLOBALS['sources'][36702]->post_name='unapproved-other-post';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-professional')['rows'][0]['state']
+ ==='BLOCKED_IDENTITY_OR_SOURCE','wrong professional slug fails closed');
+$GLOBALS['sources'][36702]->post_name='pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu';
+$GLOBALS['meta'][36702]['_yoast_wpseo_title']=array('invalid');
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-professional')['rows'][0]['state']
+ ==='BLOCKED_NON_STRING_SEO_METADATA','non-string professional SEO meta fails closed');
 echo "PASS: bounded source and Yoast hashes for beginner, no private body, zero writes, fail closed\n";
