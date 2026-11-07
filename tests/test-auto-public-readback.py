@@ -163,6 +163,36 @@ class Contract(TestCase):
         with self.assertRaisesRegex(ValueError,"UNAUTHORIZED_CORRECTION_ONLY_RELEASE"):
             module.verify_manifest(bad)
 
+    def test_beginner_pipaky_requires_real_four_symptom_diagnosis(self):
+        import json
+        manifest = json.loads((path.parents[1] / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["batch_id"], "pipaky-diagnostika-35755-20261107-v1")
+        edit = manifest["edits"][0]
+        h = edit["insert_html"]
+        article = h + "<h2>Co lidé pod pojmem pípák na ryby myslí</h2><p>Původní obsah.</p>"
+
+        def check(page):
+            return module.audit(manifest, lambda _: {
+                "status": "READ_OK", "http": 200, "html": page})
+
+        valid = check(article)
+        self.assertEqual(valid["status"], "PUBLIC_VERIFIED_ALL")
+        self.assertTrue(valid["rows"][0]["semantic_trust_verified"])
+        self.assertEqual(check(article.replace("<li>", "", 1))["status"], "PUBLIC_NOT_VERIFIED")
+        self.assertEqual(check(article.replace("příposlech však mlčí", "", 1))["status"],
+                         "PUBLIC_NOT_VERIFIED")
+        self.assertEqual(check(article.replace("Ověření před prvním nahozením", "", 1))["status"],
+                         "PUBLIC_NOT_VERIFIED")
+        self.assertEqual(check(article.replace(
+            'href="https://na-ryby.eu/poradce-vybavy/"', "", 1))["status"],
+                         "PUBLIC_NOT_VERIFIED")
+        self.assertEqual(check(article.replace("</section>", "", 1))["status"],
+                         "PUBLIC_NOT_VERIFIED")
+        marker = 'data-nry-editorial-edit="' + edit["edit_id"] + '"'
+        self.assertEqual(check("<section " + marker + "></section>")["status"],
+                         "PUBLIC_NOT_VERIFIED")
+        self.assertEqual(check(article + article)["status"], "PUBLIC_NOT_VERIFIED")
+
     def test_wrong_schema(self):
         data = self.manifest()
         data["schema_version"] = 4

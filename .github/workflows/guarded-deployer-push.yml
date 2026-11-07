@@ -19,6 +19,7 @@ on:
       - 'na-ryby-git-publisher.php'
       - 'seo-pipaky-beginner-35755-v1.php'
       - 'tests/test-pipaky-beginner-serp-35755-v1.php'
+      - 'tests/test-pipaky-diagnostics-35755-v8.php'
       - 'buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.mjs'
@@ -91,6 +92,7 @@ jobs:
           php -l seo-snippet-pilot.php
           php -l seo-pipaky-beginner-35755-v1.php
           php tests/test-pipaky-beginner-serp-35755-v1.php
+          php tests/test-pipaky-diagnostics-35755-v8.php
           php -l checklist-release-v1.php
           php tests/guarded-auto-publisher-contract.php
           php tests/test-v5-native-release.php
@@ -227,6 +229,18 @@ jobs:
              'před nahozením. Praktický postup.')
           expected_canonical=(host+'/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/')
           expected_source='2ae4c0adb81a0fc7b667e95bb23d9b1e3f4c590b173c98b8e125c48c41c2763f'
+          with open('manifest.json',encoding='utf8') as source:
+              manifest=json.load(source)
+          reviewed_diagnostic=(
+              manifest.get('schema_version')==8
+              and manifest.get('batch_id')=='pipaky-diagnostika-35755-20261107-v1'
+              and len(manifest.get('edits',[]))==1
+              and manifest['edits'][0].get('post_id')==35755
+              and manifest['edits'][0].get('source_sha256')==expected_source
+              and manifest['edits'][0].get('source_min_bytes')==14984
+              and manifest['edits'][0].get('source_max_bytes')==14985)
+          if manifest.get('batch_id')=='pipaky-diagnostika-35755-20261107-v1' and not reviewed_diagnostic:
+              raise SystemExit('BLOCKED: unexpected pípáky release manifest')
           def get(url):
               req=urllib.request.Request(url,headers={'Cache-Control':'no-cache',
                    'User-Agent':'NaRyby-OneShotBeginnerSeoPublicReadback/1.0'})
@@ -254,8 +268,22 @@ jobs:
                   assert len(doc['rows'])==1
                   row=doc['rows'][0]
                   assert row['id']==35755 and row['slug']=='pipaky-na-ryby-prakticke-rady-pro-zacatecniky'
-                  assert row['source_sha256']==expected_source and row['source_bytes']==14984
-                  assert row['source_modified_gmt']=='2026-10-23 06:35:07'
+                  if reviewed_diagnostic:
+                      # This exact, source-pinned one-post V8 release is
+                      # independently validated by WordPress local backup/SHA
+                      # plus the semantic public marker below.
+                      edit=manifest['edits'][0]
+                      expected_size=14984+len(edit['insert_html'].encode('utf8'))+1
+                      assert row['source_bytes']==expected_size
+                      assert row['source_sha256']!=expected_source
+                      assert row['source_modified_gmt']>'2026-10-23 06:35:07'
+                      print('BEGINNER_DIAGNOSTIC_WP_SOURCE_UPDATED',json.dumps({
+                          'post_id':35755,'source_sha256':row['source_sha256'],
+                          'source_bytes':row['source_bytes'],
+                          'reviewed_batch':manifest['batch_id']}))
+                  else:
+                      assert row['source_sha256']==expected_source and row['source_bytes']==14984
+                      assert row['source_modified_gmt']=='2026-10-23 06:35:07'
                   assert row['raw_yoast_title_exists'] is True
                   assert row['raw_yoast_description_exists'] is True
                   assert row['raw_yoast_title_sha256']==sha256(expected_title.encode()).hexdigest()

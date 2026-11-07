@@ -1,0 +1,47 @@
+{
+  "schema_version": 8,
+  "batch_id": "alarm-buyer-score-method-118218-20261104-v2",
+  "site": "https://na-ryby.eu",
+  "edits": [
+    {
+      "post_id": 118218,
+      "slug": "nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu",
+      "source_modified_gmt": "2026-11-04 13:04:54",
+      "source_min_bytes": 32805,
+      "source_max_bytes": 32806,
+      "source_sha256": "93c352ae0a953877a640c52225ac956d162b744f34c084c2224fadc299d642df",
+      "edit_id": "alarm-buyer-prices-trust-118218-v1",
+      "placement": "corrections_only",
+      "text_corrections": [
+        {
+          "old_text": "8,1 / 10",
+          "new_text": "Bez doloženého skóre"
+        },
+        {
+          "old_text": "8,6 / 10",
+          "new_text": "Bez doloženého skóre"
+        },
+        {
+          "old_text": "8,9 / 10",
+          "new_text": "Bez doloženého skóre"
+        },
+        {
+          "old_text": "9,2 / 10",
+          "new_text": "Bez doloženého skóre"
+        },
+        {
+          "old_text": "9,1 / 10",
+          "new_text": "Bez doloženého skóre"
+        },
+        {
+          "old_text": "9,4 / 10",
+          "new_text": "Bez doloženého skóre"
+        },
+        {
+          "old_text": "Uvedené částky v Kč, označení akcí 1+1 a číselná hodnocení typu 8,9/10 nejsou v tomto okamžiku nezávisle ověřenými cenami, skladovými nabídkami ani výsledkem zveřejněné srovnávací testovací metodiky.",
+          "new_text": "Uvedené ceny v Kč a akce 1+1 jsou orientační, nikoli právě ověřené skladové nabídky. Bodová hodnocení jsme z tabulky odstranili, protože pro ně není zveřejněná srovnávací testovací metodika."
+        }
+      ]
+    }
+  ]
+}

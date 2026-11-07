@@ -20,8 +20,8 @@ function wp_update_post($data,$return_error=true){
 }
 require dirname(__DIR__).'/na-ryby-git-publisher.php';
 
-$manifest=json_decode(file_get_contents(dirname(__DIR__).'/manifest.json'),true);
-must(!is_wp_error(NRY_Git_Publisher::validate_manifest($manifest)),'production manifest exact safe release');
+$manifest=json_decode(file_get_contents(__DIR__.'/v8-alarm-score-correction-118218-20261104-frozen.json'),true);
+must(!is_wp_error(NRY_Git_Publisher::validate_manifest($manifest)),'immutable historical alarm correction fixture');
 $edit=$manifest['edits'][0];
 must($manifest['schema_version']===8
   && $manifest['batch_id']==='alarm-buyer-score-method-118218-20261104-v2'
@@ -32,7 +32,7 @@ must($manifest['schema_version']===8
 must($edit['source_sha256']==='93c352ae0a953877a640c52225ac956d162b744f34c084c2224fadc299d642df'
   && $edit['source_modified_gmt']==='2026-11-04 13:04:54'
   && $edit['source_min_bytes']===32805 && $edit['source_max_bytes']===32806,
-  'production source hash/date/byte proof pinned');
+  'historical source hash/date/byte proof pinned');
 $corrections=$edit['text_corrections'];
 must(count($corrections)===7,'six exact ratings and one warning edit');
 $expected=array('8,1 / 10','8,6 / 10','8,9 / 10','9,2 / 10','9,1 / 10','9,4 / 10');

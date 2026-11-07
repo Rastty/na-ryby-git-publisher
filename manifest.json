@@ -1,47 +1,18 @@
 {
   "schema_version": 8,
-  "batch_id": "alarm-buyer-score-method-118218-20261104-v2",
+  "batch_id": "pipaky-diagnostika-35755-20261107-v1",
   "site": "https://na-ryby.eu",
   "edits": [
     {
-      "post_id": 118218,
-      "slug": "nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu",
-      "source_modified_gmt": "2026-11-04 13:04:54",
-      "source_min_bytes": 32805,
-      "source_max_bytes": 32806,
-      "source_sha256": "93c352ae0a953877a640c52225ac956d162b744f34c084c2224fadc299d642df",
-      "edit_id": "alarm-buyer-prices-trust-118218-v1",
-      "placement": "corrections_only",
-      "text_corrections": [
-        {
-          "old_text": "8,1 / 10",
-          "new_text": "Bez doloženého skóre"
-        },
-        {
-          "old_text": "8,6 / 10",
-          "new_text": "Bez doloženého skóre"
-        },
-        {
-          "old_text": "8,9 / 10",
-          "new_text": "Bez doloženého skóre"
-        },
-        {
-          "old_text": "9,2 / 10",
-          "new_text": "Bez doloženého skóre"
-        },
-        {
-          "old_text": "9,1 / 10",
-          "new_text": "Bez doloženého skóre"
-        },
-        {
-          "old_text": "9,4 / 10",
-          "new_text": "Bez doloženého skóre"
-        },
-        {
-          "old_text": "Uvedené částky v Kč, označení akcí 1+1 a číselná hodnocení typu 8,9/10 nejsou v tomto okamžiku nezávisle ověřenými cenami, skladovými nabídkami ani výsledkem zveřejněné srovnávací testovací metodiky.",
-          "new_text": "Uvedené ceny v Kč a akce 1+1 jsou orientační, nikoli právě ověřené skladové nabídky. Bodová hodnocení jsme z tabulky odstranili, protože pro ně není zveřejněná srovnávací testovací metodika."
-        }
-      ]
+      "post_id": 35755,
+      "slug": "pipaky-na-ryby-prakticke-rady-pro-zacatecniky",
+      "source_modified_gmt": "2026-10-23 06:35:07",
+      "source_min_bytes": 14984,
+      "source_max_bytes": 14985,
+      "source_sha256": "2ae4c0adb81a0fc7b667e95bb23d9b1e3f4c590b173c98b8e125c48c41c2763f",
+      "edit_id": "pipaky-diagnostika-35755-20261107-v1",
+      "placement": "prepend",
+      "insert_html": "<section data-nry-editorial-edit=\"pipaky-diagnostika-35755-20261107-v1\">\n<h2>Pípák pípá bez záběru, nebo naopak mlčí? Zkuste tuto diagnostiku</h2>\n<p>Než signalizátor vyměníte za nový, najděte příčinu. Testujte na bezpečně uloženém prutu bez ryby na háčku. Při potížích měňte vždy jen jednu věc, abyste poznali, co zabralo.</p>\n<ol>\n<li><strong>Nepípne ani při posunutí vlasce:</strong> ověřte zapnutí, správné vložení a stav baterie, potom vedení vlasce přes snímací část. Vyzkoušejte mírný kontrolovaný pohyb vlasce a sledujte světelnou i zvukovou odezvu. Pokud je zařízení mokré nebo jsou kontakty poškozené, řiďte se návodem výrobce; nezasahujte do elektroniky u vody.</li>\n<li><strong>Pípá opakovaně, ale ryba nezabírá:</strong> nejprve zpevněte stojan a uložení prutu. Zkontrolujte, zda vítr, proud nebo pohyb šňůry nespouštějí rolničku či čidlo. Postupně snižujte citlivost, ale tak, aby zařízení stále rozeznalo skutečný posun vlasce.</li>\n<li><strong>Na jemné záběry reaguje pozdě:</strong> ověřte, zda vlasec správně prochází snímacím místem, není nadměrně povolený a montáž odpovídá způsobu lovu. Citlivost přidávejte po jednom stupni a nový stav znovu otestujte.</li>\n<li><strong>Signalizátor funguje, příposlech však mlčí:</strong> zkontrolujte baterii a hlasitost obou jednotek, pak párování a dosah podle návodu konkrétní sady. Bezdrátový příposlech nenahrazuje kontrolu samotného signalizátoru ani bezpečný dohled nad pruty.</li>\n</ol>\n<h3>Ověření před prvním nahozením</h3>\n<p>Na stabilně uloženém prutu opatrně simulujte krátké odvíjení vlasce. Potvrďte, že přístroj reaguje čitelně, a zkontrolujte nastavení hlasitosti pro dané místo. Pokud problém trvá i s funkční baterií a správným vedením vlasce, porovnejte chování s návodem přesného modelu; teprve pak řešte opravu či výměnu.</p>\n<p>Pomůže také <a href=\"https://na-ryby.eu/baterie-do-signalizatoru-ktere-vydrzi-nejdele-a-proc-nekupovat-levne/\">průvodce bateriemi do signalizátorů</a>, <a href=\"https://na-ryby.eu/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/\">výběr vhodného hlásiče bez nepodložených skóre</a> a <a href=\"https://na-ryby.eu/poradce-vybavy/\">poradce s výběrem výbavy</a>. Konkrétní cenu, dostupnost a kompatibilitu vždy ověřte u aktuálního výrobku.</p>\n</section>"
     }
   ]
 }
