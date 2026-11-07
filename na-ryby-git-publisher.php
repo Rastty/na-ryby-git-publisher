@@ -806,11 +806,13 @@ final class NRY_Git_Publisher {
         if (isset($edit['placement'])) {
             // The source is captured on the actual WordPress server. No
             // outbound REST authentication or WPVibe is needed.
-            $built = ($edit['placement']==='corrections_only')
-                ? self::build_alarm_score_candidate($source, $edit)
-                : (($edit['placement']==='price_corrections_only')
-                    ? self::build_pipaky_price_candidate($source,$edit)
-                    : self::build_v5_candidate($source, $edit));
+            $built = ($edit['placement']==='ranking_claims_only')
+                ? self::build_alarm_ranking_candidate($source,$edit)
+                : (($edit['placement']==='corrections_only')
+                    ? self::build_alarm_score_candidate($source,$edit)
+                    : (($edit['placement']==='price_corrections_only')
+                        ? self::build_pipaky_price_candidate($source,$edit)
+                        : self::build_v5_candidate($source,$edit)));
             if (isset($built['already'])) {
                 return array('id' => $post->ID, 'status' => 'already_applied');
             }
