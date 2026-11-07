@@ -10,6 +10,7 @@ $GLOBALS['actions'] = array();
 $GLOBALS['exec_calls'] = 0;
 function add_action($name, $cb) { $GLOBALS['actions'][$name] = $cb; }
 function get_option($k, $default = false) { return array_key_exists($k, $GLOBALS['options']) ? $GLOBALS['options'][$k] : $default; }
+function home_url($path='/') { return 'https://na-ryby.eu/'; }
 function update_option($k, $v, $autoload = null) { $GLOBALS['options'][$k] = $v; return true; }
 function add_option($k, $v, $deprecated = '', $autoload = 'yes') {
     if (array_key_exists($k, $GLOBALS['options'])) { return false; }
