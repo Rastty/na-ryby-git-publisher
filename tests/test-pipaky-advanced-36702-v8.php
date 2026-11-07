@@ -36,7 +36,7 @@ must(strlen($h)>2200&&strlen($h)<5000,'useful compact decision content');
 must(strpos($h,'<section '.$marker.'>')===0&&substr_count($h,$marker)===1,'one section marker');
 must(substr_count($h,'<li>')===4&&substr_count($h,'<a href=')===3,'four decisions and 3 navigation paths');
 foreach(array('příposlech není nutný','náhradních baterií','kompatibilitu','není nezávislý srovnávací test') as $phrase)
- must(mb_stripos($h,$phrase)!==false,'missing buyer-relevant caveat: '.$phrase);
+ must(stripos($h,$phrase)!==false,'missing buyer-relevant caveat: '.$phrase);
 must(!preg_match('~<(?:script|style|iframe|form|img|svg)\b|(?:\bonclick\b|http://)~iu',$h),'no unsafe active HTML');
 preg_match_all('~href="([^"]+)"~',$h,$links);
 must(count($links[1])===3,'three exact internal links');
