@@ -73,6 +73,11 @@ final class NRY_Git_Publisher {
                 // A single correction-only release removes six invented 1–10
                 // numerical ratings without adding another redundant top panel.
                 // All other schema v8 operations remain the original prepend flow.
+                if (($e['placement'] ?? '') === 'ranking_claims_only') {
+                    $check=self::validate_alarm_ranking_correction($e,$data);
+                    if (is_wp_error($check)) return $check;
+                    continue;
+                }
                 if (($e['placement'] ?? '') === 'price_corrections_only') {
                     $check=self::validate_pipaky_price_correction($e,$data);
                     if (is_wp_error($check)) return $check;
@@ -239,6 +244,94 @@ final class NRY_Git_Publisher {
      * to the SHA and modified GMT independently verified on WordPress.
      * No generic product/price replacement API or affiliate URL changes.
      */
+    /** Eight fixed historic claim classes, no generic source editing. */
+    private static function alarm_ranking_corrections() {
+        return array(
+            array('old_text'=>'⭐⭐⭐⭐⭐','new_text'=>'bez zveřejněného testovacího skóre'),
+            array('old_text'=>'⭐⭐⭐⭐','new_text'=>'bez zveřejněného testovacího skóre'),
+            array('old_text'=>'Pokud jste vášnivý rybář, určitě oceníte naše produkty.',
+                'new_text'=>'Jde o historický redakční přehled, nikoli nabídku našeho obchodu; před nákupem ověřte přesný model a aktuální parametry u prodejce.'),
+            array('old_text'=>'Nejlepší poměr cena/výkon',
+                'new_text'=>'historické redakční označení bez ověřeného srovnání cen'),
+            array('old_text'=>'Top produkt na trhu',
+                'new_text'=>'historicky uváděná prémiová sada'),
+            array('old_text'=>'100% vodotěsné',
+                'new_text'=>'Stupeň ochrany před vodou ověřte v návodu konkrétního modelu'),
+            array('old_text'=>'Voděodolnost zaručena',
+                'new_text'=>'Odolnost vůči vodě ověřte podle specifikace výrobce'),
+            array('old_text'=>'Pojďme se společně podívat na ty nejlepší signalizátory, kterou jsou momentálně na našem trhu.',
+                'new_text'=>'Následuje historický přehled vybraných modelů, nikoli současný žebříček trhu.')
+        );
+    }
+
+    private static function validate_alarm_ranking_correction($e,$manifest) {
+        $keys=array_keys($e);
+        $expected=array('post_id','slug','source_modified_gmt','source_min_bytes',
+            'source_max_bytes','source_sha256','edit_id','placement','text_corrections');
+        sort($keys);sort($expected);
+        if (($manifest['batch_id']??'')!=='alarm-ranking-60354-legacy-claims-fix-20261107-v1'
+            || count($manifest['edits']??array())!==1
+            || ($e['post_id']??null)!==60354
+            || ($e['slug']??'')!=='nejlepsi-rybarske-hlasice-a-signalizatory'
+            || ($e['edit_id']??'')!=='alarm-ranking-60354-legacy-trust-20261107-v1'
+            || ($e['placement']??'')!=='ranking_claims_only'
+            || $keys!==$expected
+            || ($e['source_sha256']??'')!=='a7d76b5908e09c4bd128548806c5bb3589b9aed88546770f4f4a9604ec0fea83'
+            || ($e['source_modified_gmt']??'')!=='2026-10-23 06:35:08'
+            || ($e['source_min_bytes']??0)!==20174
+            || ($e['source_max_bytes']??0)!==20175
+            || ($e['text_corrections']??null)!==self::alarm_ranking_corrections()) {
+            return new WP_Error('v8_alarm_ranking_scope','Unapproved historic ranking correction.');
+        }
+        return true;
+    }
+
+    private static function build_alarm_ranking_candidate($source,$edit) {
+        $rules=self::alarm_ranking_corrections();
+        $counts=array(4,2,1,1,1,1,1,1);
+        $label='bez zveřejněného testovacího skóre';
+        if (substr_count($source,$label)===6) {
+            $already=true;
+            foreach ($rules as $i=>$rule) {
+                if (substr_count($source,$rule['old_text'])!==0) $already=false;
+                if ($i>=2 && substr_count($source,$rule['new_text'])!==1) $already=false;
+            }
+            if ($already) return array('already'=>true);
+        }
+        if (substr_count($source,$label)!==0) return array('error'=>'unreviewed_ranking_label_present');
+        $candidate=$source;
+        foreach ($rules as $i=>$rule) {
+            $old=$rule['old_text'];$new=$rule['new_text'];
+            // Five-star strings overlap four-star strings in original source.
+            // After removing all four five-star instances only two four-star remain.
+            if (substr_count($candidate,$old)!==$counts[$i]
+                || substr_count($candidate,$new)!==($i===1 ? 4 : 0)) {
+                return array('error'=>'ranking_claim_count_or_sequence_drift');
+            }
+            $offset=0;$escaped=htmlspecialchars($new,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');
+            for ($n=0;$n<$counts[$i];$n++) {
+                $at=strpos($candidate,$old,$offset);
+                if ($at===false || !self::plain_text_span($candidate,$at,strlen($old))) {
+                    return array('error'=>'ranking_claim_not_safe_visible_text');
+                }
+                $candidate=substr_replace($candidate,$escaped,$at,strlen($old));
+                $offset=$at+strlen($escaped);
+            }
+        }
+        if (substr_count($candidate,$label)!==6) return array('error'=>'ranking_scores_not_fully_corrected');
+        foreach ($rules as $i=>$rule) {
+            if (strpos($candidate,$rule['old_text'])!==false
+                || ($i>=2 && substr_count($candidate,$rule['new_text'])!==1)) {
+                return array('error'=>'ranking_claim_remnant');
+            }
+        }
+        $pattern='~(?:<a\b[^>]*>|<img\b[^>]*>|<iframe\b[^>]*>|\[[a-zA-Z][^\]]*\])~iu';
+        preg_match_all($pattern,$source,$before);
+        preg_match_all($pattern,$candidate,$after);
+        if ($before[0]!==$after[0]) return array('error'=>'protected_affiliate_or_media_drift');
+        return array('candidate'=>$candidate);
+    }
+
     private static function pipaky_price_corrections() {
         $prices=array('1000','800','3000','1200','2000');
         $edits=array();
@@ -713,11 +806,13 @@ final class NRY_Git_Publisher {
         if (isset($edit['placement'])) {
             // The source is captured on the actual WordPress server. No
             // outbound REST authentication or WPVibe is needed.
-            $built = ($edit['placement']==='corrections_only')
-                ? self::build_alarm_score_candidate($source, $edit)
-                : (($edit['placement']==='price_corrections_only')
-                    ? self::build_pipaky_price_candidate($source,$edit)
-                    : self::build_v5_candidate($source, $edit));
+            $built = ($edit['placement']==='ranking_claims_only')
+                ? self::build_alarm_ranking_candidate($source,$edit)
+                : (($edit['placement']==='corrections_only')
+                    ? self::build_alarm_score_candidate($source,$edit)
+                    : (($edit['placement']==='price_corrections_only')
+                        ? self::build_pipaky_price_candidate($source,$edit)
+                        : self::build_v5_candidate($source,$edit)));
             if (isset($built['already'])) {
                 return array('id' => $post->ID, 'status' => 'already_applied');
             }

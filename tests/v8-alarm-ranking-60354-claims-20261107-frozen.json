@@ -1,0 +1,51 @@
+{
+  "schema_version": 8,
+  "batch_id": "alarm-ranking-60354-legacy-claims-fix-20261107-v1",
+  "site": "https://na-ryby.eu",
+  "edits": [
+    {
+      "post_id": 60354,
+      "slug": "nejlepsi-rybarske-hlasice-a-signalizatory",
+      "source_modified_gmt": "2026-10-23 06:35:08",
+      "source_min_bytes": 20174,
+      "source_max_bytes": 20175,
+      "source_sha256": "a7d76b5908e09c4bd128548806c5bb3589b9aed88546770f4f4a9604ec0fea83",
+      "edit_id": "alarm-ranking-60354-legacy-trust-20261107-v1",
+      "placement": "ranking_claims_only",
+      "text_corrections": [
+        {
+          "old_text": "⭐⭐⭐⭐⭐",
+          "new_text": "bez zveřejněného testovacího skóre"
+        },
+        {
+          "old_text": "⭐⭐⭐⭐",
+          "new_text": "bez zveřejněného testovacího skóre"
+        },
+        {
+          "old_text": "Pokud jste vášnivý rybář, určitě oceníte naše produkty.",
+          "new_text": "Jde o historický redakční přehled, nikoli nabídku našeho obchodu; před nákupem ověřte přesný model a aktuální parametry u prodejce."
+        },
+        {
+          "old_text": "Nejlepší poměr cena/výkon",
+          "new_text": "historické redakční označení bez ověřeného srovnání cen"
+        },
+        {
+          "old_text": "Top produkt na trhu",
+          "new_text": "historicky uváděná prémiová sada"
+        },
+        {
+          "old_text": "100% vodotěsné",
+          "new_text": "Stupeň ochrany před vodou ověřte v návodu konkrétního modelu"
+        },
+        {
+          "old_text": "Voděodolnost zaručena",
+          "new_text": "Odolnost vůči vodě ověřte podle specifikace výrobce"
+        },
+        {
+          "old_text": "Pojďme se společně podívat na ty nejlepší signalizátory, kterou jsou momentálně na našem trhu.",
+          "new_text": "Následuje historický přehled vybraných modelů, nikoli současný žebříček trhu."
+        }
+      ]
+    }
+  ]
+}
