@@ -71,4 +71,15 @@ assert "ADVANCED_PIPAKY_SEO_PROD_VERIFIED" in workflow
 assert "assert unescape(html.description or '')==expected_meta" in workflow
 assert "assert unescape(html.canonical or '')==canonical" in workflow
 assert "assert row['raw_yoast_title_exists'] is False" in workflow
+# Source-bound GSC-priority #42401 navigation is a real reviewed editorial
+# batch; never auto-approve another source or an arbitrary WordPress post.
+assert "php tests/test-pipaky-problem-navigation-42401-v8.php" in workflow
+assert "pipaky-problem-navigation-42401-20261107-v1" in workflow
+assert "pipaky-rychle-rozhodnuti-42401-20261107-v1" in workflow
+assert "expected_size==15981" in workflow
+assert "row['source_bytes']==expected_size" in workflow
+assert "current_manifest['edits'][0].get('source_sha256')==old_source" in workflow
+assert "reviewed_navigation" in workflow
+assert "nry_pipaky_main_source_proof=1" in workflow
+assert (ROOT/"tests/v8-pipaky-problem-navigation-42401-20261107-frozen.json").exists()
 print("PASS: all live publisher modules trigger PR review and guarded main deploy")
