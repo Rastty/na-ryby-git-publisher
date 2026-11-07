@@ -1,0 +1,39 @@
+{
+  "schema_version": 8,
+  "batch_id": "pipaky-pokrocile-five-price-fix-36702-20261107-v1",
+  "site": "https://na-ryby.eu",
+  "edits": [
+    {
+      "post_id": 36702,
+      "slug": "pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu",
+      "source_modified_gmt": "2026-11-07 11:23:04",
+      "source_min_bytes": 12938,
+      "source_max_bytes": 12939,
+      "source_sha256": "b862ecbd7abc3a87864df1eb6e2c6ff1c4a2621216d941acbfab646bff71d735",
+      "edit_id": "pipaky-pokrocile-36702-20261107-v1",
+      "placement": "price_corrections_only",
+      "text_corrections": [
+        {
+          "old_text": "Cena: od 1000 Kč",
+          "new_text": "Historická cena – aktuálně neověřeno"
+        },
+        {
+          "old_text": "Cena: od 800 Kč",
+          "new_text": "Historická cena – aktuálně neověřeno"
+        },
+        {
+          "old_text": "Cena: od 3000 Kč",
+          "new_text": "Historická cena – aktuálně neověřeno"
+        },
+        {
+          "old_text": "Cena: od 1200 Kč",
+          "new_text": "Historická cena – aktuálně neověřeno"
+        },
+        {
+          "old_text": "Cena: od 2000 Kč",
+          "new_text": "Historická cena – aktuálně neověřeno"
+        }
+      ]
+    }
+  ]
+}

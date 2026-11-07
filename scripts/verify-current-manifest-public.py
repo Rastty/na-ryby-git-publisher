@@ -36,6 +36,13 @@ def verify_manifest(data):
                 or not isinstance(slug, str) or not re.fullmatch(r"[a-z0-9-]{10,140}", slug)
                 or not isinstance(marker, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{7,63}", marker)):
             raise ValueError("INVALID_EDIT_IDENTITY")
+        if edit.get("placement") == "price_corrections_only":
+            if (data.get("schema_version") != 8 or
+                    data.get("batch_id") != "pipaky-pokrocile-five-price-fix-36702-20261107-v1" or
+                    post_id != 36702 or
+                    marker != "pipaky-pokrocile-36702-20261107-v1" or
+                    len(edits) != 1):
+                raise ValueError("UNAUTHORIZED_PIPAKY_PRICE_ONLY_RELEASE")
         if edit.get("placement") == "corrections_only":
             if (data.get("schema_version") != 8 or
                     data.get("batch_id") != "alarm-buyer-score-method-118218-20261104-v2" or
@@ -101,6 +108,22 @@ def check_target(target, fetch=read_public):
             and all(phrase in panel for phrase in required)
             and all(panel.count(route) == 1 for route in routes)
             and panel.count('<a href=') == 3
+        )
+    elif target["post_id"] == 36702 and target.get("placement") == "price_corrections_only":
+        # The existing advanced-buyer section is deliberately unchanged.
+        # This release is successful only when ALL five old prices are gone
+        # and exactly five visible honest noncurrent-price labels remain.
+        labels=("Cena: od 1000 Kč","Cena: od 800 Kč","Cena: od 3000 Kč",
+                "Cena: od 1200 Kč","Cena: od 2000 Kč")
+        semantic_ok=(
+            count==1
+            and all(label not in html for label in labels)
+            and html.count("Historická cena – aktuálně neověřeno")==5
+            and "Pípáky pro pokročilé: kdy má dražší sada opravdu smysl?" in html
+            and "není nezávislý srovnávací test" in html
+            and 'href="https://na-ryby.eu/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/"' in html
+            and "rybarske-potreby-na-zaclony.cz" in html
+            and "rybarske-potreby-na-lukavecu.cz" in html
         )
     elif target["post_id"] == 36702 and target["edit_id"] == "pipaky-pokrocile-36702-20261107-v1":
         # No marker-only success: verify four distinct buyer decisions, a

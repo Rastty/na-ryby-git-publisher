@@ -1,18 +1,39 @@
 {
   "schema_version": 8,
-  "batch_id": "pipaky-pokrocile-rozhodnuti-36702-20261107-v1",
+  "batch_id": "pipaky-pokrocile-five-price-fix-36702-20261107-v1",
   "site": "https://na-ryby.eu",
   "edits": [
     {
       "post_id": 36702,
       "slug": "pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu",
-      "source_modified_gmt": "2026-10-23 06:35:08",
-      "source_min_bytes": 10314,
-      "source_max_bytes": 10315,
-      "source_sha256": "2904911169f1d49d30f46518c91c8f6220bfce71d978e73f11b3b0a26b2aeb6d",
+      "source_modified_gmt": "2026-11-07 11:23:04",
+      "source_min_bytes": 12938,
+      "source_max_bytes": 12939,
+      "source_sha256": "b862ecbd7abc3a87864df1eb6e2c6ff1c4a2621216d941acbfab646bff71d735",
       "edit_id": "pipaky-pokrocile-36702-20261107-v1",
-      "placement": "prepend",
-      "insert_html": "<section data-nry-editorial-edit=\"pipaky-pokrocile-36702-20261107-v1\">\n<h2>Pípáky pro pokročilé: kdy má dražší sada opravdu smysl?</h2>\n<p>Samotná značka ani označení „profesionální“ nezaručuje lepší hlídání záběru. Nejdřív si ujasněte, co vám současné hlásiče nedokážou spolehlivě zajistit. Následující otázky pomohou odlišit užitečnou funkci od příplatku, který u vody nevyužijete.</p>\n<ol>\n<li><strong>Lovíte blízko prutů a jednotlivé záběry dobře slyšíte?</strong> Samostatný signalizátor může stačit. Příposlech není nutný jen proto, že jej nabízí dražší sada. Zkontrolujte správné vedení vlasce, stabilitu stojanu a citlivost.</li>\n<li><strong>Potřebujete slyšitelný přenos do příposlechu?</strong> Před koupí ověřte v návodu přesného modelu podporované párování, rozlišení jednotlivých hlásičů, indikaci slabé baterie a chování při ztrátě spojení. Deklarovaný dosah není zárukou spojení za každou překážkou a příposlech nenahrazuje dohled nad pruty.</li>\n<li><strong>Rybaříte dlouho za deště, větru nebo v chladu?</strong> Důležitější než reklamní slovo „vodotěsný“ je konkrétní stupeň ochrany, předepsaný způsob používání a dostupnost náhradních baterií. Odolnost ani výdrž bez ověřených podkladů nepřisuzujte celé značce.</li>\n<li><strong>Chcete rozšířit nebo nahradit starší sadu?</strong> Zjistěte přesné označení modelové řady a verze hlásičů i příposlechu. Stejná značka automaticky neznamená vzájemnou kompatibilitu; prodejci si potvrďte možnost párování konkrétních variant a servisní podmínky.</li>\n</ol>\n<h3>Rozhodnutí před nákupem</h3>\n<p>Pokud řešíte falešné poplachy, nejprve upravte citlivost a uložení prutu. Pokud hledáte nový set, sepište si požadované funkce a porovnejte pouze přesně označené modely podle výrobních návodů. Tento historický přehled značek není nezávislý srovnávací test a neurčuje dnešního vítěze ani aktuální cenu.</p>\n<p>Pro postup nastavování využijte <a href=\"https://na-ryby.eu/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/\">návod k používání pípáků</a>, pro diagnostiku problémů <a href=\"https://na-ryby.eu/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/\">čtyři typické závady a jejich řešení</a> a při rozhodování mezi samostatným hlásičem a sadou <a href=\"https://na-ryby.eu/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/\">praktický průvodce výběrem signalizátoru</a>.</p>\n</section>"
+      "placement": "price_corrections_only",
+      "text_corrections": [
+        {
+          "old_text": "Cena: od 1000 Kč",
+          "new_text": "Historická cena – aktuálně neověřeno"
+        },
+        {
+          "old_text": "Cena: od 800 Kč",
+          "new_text": "Historická cena – aktuálně neověřeno"
+        },
+        {
+          "old_text": "Cena: od 3000 Kč",
+          "new_text": "Historická cena – aktuálně neověřeno"
+        },
+        {
+          "old_text": "Cena: od 1200 Kč",
+          "new_text": "Historická cena – aktuálně neověřeno"
+        },
+        {
+          "old_text": "Cena: od 2000 Kč",
+          "new_text": "Historická cena – aktuálně neověřeno"
+        }
+      ]
     }
   ]
 }
