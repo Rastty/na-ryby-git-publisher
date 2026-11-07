@@ -248,6 +248,31 @@ must(!isset($p['post_content'],$p['yoast_title'],$p['yoast_description'],$p['hre
  && $professional['wordpress_writes']===0
  && $professional['publication_authorized']===false
  && $professional['gsc_protection_checked']===false,'proof must not leak or authorize');
+// All five public price examples must be counted without disclosing raw HTML
+// or any external/tracking href. A price in an HTML attribute is NOT safe.
+$old_professional_source=$GLOBALS['sources'][36702]->post_content;
+$price_strings=array('Cena: od 1000 Kč','Cena: od 800 Kč',
+    'Cena: od 3000 Kč','Cena: od 1200 Kč','Cena: od 2000 Kč');
+$GLOBALS['sources'][36702]->post_content=str_repeat('<p>Zdrojový obsah.</p>',85)
+    .'<p>'.implode('</p><p>',$price_strings).'</p>'
+    .'<a href="https://example.invalid/" title="Cena: od 1000 Kč">Neověřený odkaz</a>'
+    .'<a href="https://rybarske-potreby-na-zaclony.cz/">Odkaz</a>'
+    .'<a href="https://rybarske-potreby-na-lukavecu.cz/">Odkaz</a>';
+$prof_prices=NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-professional');
+$pr=$prof_prices['rows'][0];
+must($pr['legacy_price_raw_literal_counts']===array(
+    1000=>2,800=>1,3000=>1,1200=>1,2000=>1),
+    'counts include unsafe HTML-attribute price occurrences');
+must($pr['legacy_price_safe_plain_counts']===array(
+    1000=>1,800=>1,3000=>1,1200=>1,2000=>1),
+    'safe plain-text counts omit the price in href-adjacent markup');
+must($pr['legacy_external_host_literal_counts']===array(
+    'zaclony'=>1,'lukavecu'=>1),'legacy external host counts only');
+must($prof_prices['publication_authorized']===false
+    &&$prof_prices['wordpress_writes']===0
+    &&!isset($pr['post_content'],$pr['hrefs'],$pr['links']),
+    'no source body/links nor publication authority in diagnostics');
+$GLOBALS['sources'][36702]->post_content=$old_professional_source;
 $GLOBALS['sources'][36702]->post_status='draft';
 must(NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-professional')['rows'][0]['state']
  ==='BLOCKED_IDENTITY_OR_SOURCE','draft professional cannot disclose hash');
