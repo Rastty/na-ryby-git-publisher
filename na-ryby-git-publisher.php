@@ -828,7 +828,10 @@ final class NRY_Git_Publisher {
      * Never expose HTML, CJ routes, draft data or release authorization.
      */
     public static function buyer_source_proof_snapshot($scope='chairs') {
-        if ($scope==='pipaky-beginner') {
+        if ($scope==='pipaky-professional') {
+            // One source-bound brand-comparison guide, hash-only, no user IDs.
+            $allow = array(36702 => 'pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu');
+        } elseif ($scope==='pipaky-beginner') {
             // Exactly one published beginner how-to; never any user-supplied ID.
             $allow = array(35755 => 'pipaky-na-ryby-prakticke-rady-pro-zacatecniky');
         } elseif ($scope==='alarm-guide') {
@@ -877,7 +880,7 @@ final class NRY_Git_Publisher {
                 'source_bytes'=>strlen($post->post_content),
                 'source_sha256'=>hash('sha256',$post->post_content)
             );
-            if ($scope==='pipaky-beginner') {
+            if ($scope==='pipaky-beginner' || $scope==='pipaky-professional') {
                 // Metadata hashes only, never disclose source body or meta value.
                 // This enables a second source-pinned, rollback-capable Yoast
                 // snippet correction, NOT permission to write or redirect.
@@ -949,15 +952,17 @@ final class NRY_Git_Publisher {
             && $_GET['nry_alarm_guide_source_proof']==='1';
         $beginner=isset($_GET['nry_pipaky_beginner_source_proof'])
             && $_GET['nry_pipaky_beginner_source_proof']==='1';
+        $professional=isset($_GET['nry_pipaky_professional_source_proof'])
+            && $_GET['nry_pipaky_professional_source_proof']==='1';
         // Exactly one explicitly allowlisted GET selector; never arbitrary IDs.
-        if (((int)$chairs+(int)$evergreen+(int)$hub+(int)$echolot+(int)$pillar+(int)$alarm+(int)$beginner)!==1
+        if (((int)$chairs+(int)$evergreen+(int)$hub+(int)$echolot+(int)$pillar+(int)$alarm+(int)$beginner+(int)$professional)!==1
             || !function_exists('is_page') || !is_page('poradce-vybavy')) return;
         if (rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return;
         nocache_headers();
         header('Content-Type: application/json; charset=utf-8');
         header('X-Robots-Tag: noindex, nofollow');
         echo wp_json_encode(self::buyer_source_proof_snapshot(
-            $beginner ? 'pipaky-beginner' : ($alarm ? 'alarm-guide' : ($pillar ? 'echolot-pillar' : ($echolot ? 'echolot-budget' : ($hub ? 'buyer-hub' : ($evergreen ? 'evergreen' : 'chairs')))))));
+            $professional ? 'pipaky-professional' : ($beginner ? 'pipaky-beginner' : ($alarm ? 'alarm-guide' : ($pillar ? 'echolot-pillar' : ($echolot ? 'echolot-budget' : ($hub ? 'buyer-hub' : ($evergreen ? 'evergreen' : 'chairs'))))))));
         exit;
     }
 
