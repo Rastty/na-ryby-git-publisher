@@ -3,6 +3,10 @@ on:
   pull_request:
     paths:
       - 'manifest.json'
+      - 'tests/test-alarm-ranking-60354-v8.php'
+      - 'tests/test-60354-public-semantic.py'
+      - 'tests/v8-alarm-ranking-60354-claims-20261107-frozen.json'
+      - 'scripts/verify-current-manifest-public.py'
       - 'tests/test-60354-trust-source-proof.php'
       - 'tests/test-pipaky-42401-quick-choice-v8.php'
       - 'tests/test-42401-public-semantic.py'
@@ -42,6 +46,10 @@ on:
     branches: [main]
     paths:
       - 'manifest.json'
+      - 'tests/test-alarm-ranking-60354-v8.php'
+      - 'tests/test-60354-public-semantic.py'
+      - 'tests/v8-alarm-ranking-60354-claims-20261107-frozen.json'
+      - 'scripts/verify-current-manifest-public.py'
       - 'tests/test-60354-trust-source-proof.php'
       - 'tests/test-pipaky-42401-quick-choice-v8.php'
       - 'tests/test-42401-public-semantic.py'
@@ -96,6 +104,7 @@ jobs:
           php tests/test-alarm-score-cleanup-118218-v8.php
           php tests/test-buyer-source-proof.php
           php tests/test-60354-trust-source-proof.php
+          php tests/test-alarm-ranking-60354-v8.php
           php -l buyer-click-telemetry-v1.php
           php tests/test-buyer-click-telemetry-v1.php
           node --check assets/nry-buyer-clicks-v1.js
@@ -120,6 +129,7 @@ jobs:
           php tests/test-v8-generic-auto-release.php
           python3 tests/test-auto-public-readback.py -v
           python3 tests/test-42401-public-semantic.py
+          python3 tests/test-60354-public-semantic.py
   deploy:
     needs: verify
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.NRY_AUTO_DEPLOY_ENABLED == 'true'
