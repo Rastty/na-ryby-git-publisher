@@ -244,6 +244,27 @@ class Contract(TestCase):
         with self.assertRaises(ValueError):
             module.verify_manifest(wrong)
 
+    def test_broad_pipaky_four_problem_routes_require_actual_public_value(self):
+        import json
+        m=json.loads((path.parents[1]/"tests"/
+          "v8-pipaky-problem-navigation-42401-20261107-frozen.json").read_text(encoding="utf-8"))
+        self.assertEqual(m["batch_id"],"pipaky-problem-navigation-42401-20261107-v1")
+        edit=m["edits"][0]
+        self.assertEqual(edit["post_id"],42401)
+        h=edit["insert_html"]
+        def status(html):
+            return module.audit(m,lambda _:{"status":"READ_OK","http":200,"html":html})["status"]
+        self.assertEqual(status(h+"<p>Original article, unchanged.</p>"),"PUBLIC_VERIFIED_ALL")
+        self.assertEqual(status(h+h),"PUBLIC_NOT_VERIFIED")
+        self.assertEqual(status(h.replace("<li>","",1)),"PUBLIC_NOT_VERIFIED")
+        self.assertEqual(status(h.replace("bez dalšího nákupu","",1)),"PUBLIC_NOT_VERIFIED")
+        self.assertEqual(status(h.replace("Rozšiřujete starší sadu","",1)),"PUBLIC_NOT_VERIFIED")
+        self.assertEqual(status(h.replace(
+          'href="https://na-ryby.eu/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/"',
+          'href="https://example.net/"',1)),"PUBLIC_NOT_VERIFIED")
+        marker='data-nry-editorial-edit="pipaky-rychle-rozhodnuti-42401-20261107-v1"'
+        self.assertEqual(status("<section "+marker+"></section>"),"PUBLIC_NOT_VERIFIED")
+
     def test_wrong_schema(self):
         data = self.manifest()
         data["schema_version"] = 4
