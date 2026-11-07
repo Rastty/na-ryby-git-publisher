@@ -31,7 +31,7 @@ for name, selected in (("pull_request", pr), ("push", push)):
     if missing:
         raise AssertionError(name + " misses runtime files: " + ", ".join(sorted(missing)))
 
-assert ".github/workflows/guarded-deployer-push.yml" in pr
+assert ".github/workflows/guarded-deployer-push.yml" in pr & push
 assert "tests/test-deployer-trigger-parity.py" in pr
 assert "seo-pipaky-beginner-35755-v1.php" in pr & push
 assert "checklist-release-v1.php" in pr & push

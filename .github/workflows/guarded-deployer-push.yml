@@ -45,6 +45,7 @@ on:
       - 'checklist-release-v1.php'
       - 'assets/**'
       - 'seo-pipaky-beginner-35755-v1.php'
+      - '.github/workflows/guarded-deployer-push.yml'
   workflow_dispatch:
 permissions:
   contents: read
