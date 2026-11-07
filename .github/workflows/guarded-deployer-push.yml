@@ -179,7 +179,8 @@ jobs:
                       raw=resp.read(4096)
                       health=json.loads(raw)
                   result={k:health.get(k) for k in ('publisher_version','auto_status','source_matches',
-                      'candidate_matches','backup_present','guarded_publisher_enabled')}
+                      'candidate_matches','backup_present','guarded_publisher_enabled',
+                      'last_auto_batch_id','last_auto_receipt_status','last_auto_stop_reason')}
                   print('LIVE HEALTH:',json.dumps(result,sort_keys=True))
                   if health.get('publisher_version')=='0.16.0' and health.get('candidate_matches') is True \
                       and health.get('backup_present') is True \
