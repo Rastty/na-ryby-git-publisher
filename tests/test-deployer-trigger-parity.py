@@ -82,4 +82,15 @@ assert "assert row['source_bytes']==expected_bytes" in workflow
 assert "assert row['source_modified_gmt']==expected_modified_gmt" in workflow
 assert "PIPAKY_MAIN_EXACT_POST_WRITE_SOURCE_REPIN_REQUIRED" not in workflow
 assert "reviewed_transition=(" not in workflow
+# The 60354 historic-rank trust correction is already real WordPress content.
+# Every subsequent unrelated release must preserve this exact current source.
+assert "expected_source='36a361eb839948cb41b81490b2969a6b0e12540862cf7c572ffef0893ec39005'" in workflow
+assert "expected_bytes=20528" in workflow
+assert "expected_modified_gmt='2026-11-07 17:30:55'" in workflow
+assert "assert row['source_sha256']==expected_source" in workflow
+assert "assert row['source_bytes']==expected_bytes" in workflow
+assert "assert row['source_modified_gmt']==expected_modified_gmt" in workflow
+assert "assert all(raw[k]==0 and safe[k]==0 for k in keys)" in workflow
+assert "NRY_60354_POST_WRITE_SOURCE_REPIN_REQUIRED" not in workflow
+assert "reviewed=(" not in workflow
 print("PASS: all live publisher modules trigger PR review and guarded main deploy")
