@@ -83,7 +83,35 @@ def check_target(target, fetch=read_public):
     # The protected trust-repair canary must also remove verified deceptive
     # source copy. An inserted banner alone does not pass this semantic gate.
     semantic_ok = True
-    if target["post_id"] == 35755 and target["edit_id"] == "pipaky-diagnostika-35755-20261107-v1":
+    if target["post_id"] == 42401 and target["edit_id"] == "pipaky-rychle-rozhodnuti-42401-20261107-v1":
+        # A marker alone is not visitor value. The broad-use page must
+        # route 4 DIFFERENT problems to 4 preexisting canonical pages and
+        # explicitly tell the visitor when another purchase is unnecessary.
+        start = html.find('<section ' + marker)
+        end = html.find('</section>', start) if start >= 0 else -1
+        panel = html[start:end] if end > start else ""
+        exact_routes = (
+            'href="https://na-ryby.eu/proc-mi-signalizator-pipa-bez-zaberu-5-nejcastejsich-pricin-a-jak-je-vyresit/"',
+            'href="https://na-ryby.eu/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/"',
+            'href="https://na-ryby.eu/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/"',
+            'href="https://na-ryby.eu/pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu/"',
+        )
+        decisions = (
+            "Co řešíte s pípákem právě teď?",
+            "Pípá bez záběru",
+            "první hlásič",
+            "Vybíráte samostatný hlásič",
+            "Rozšiřujete starší sadu",
+            "bez dalšího nákupu",
+        )
+        semantic_ok = (
+            panel.startswith('<section ' + marker)
+            and panel.count('<li>') == 4
+            and panel.count('<a href=') == 4
+            and all(panel.count(route) == 1 for route in exact_routes)
+            and all(phrase in panel for phrase in decisions)
+        )
+    elif target["post_id"] == 35755 and target["edit_id"] == "pipaky-diagnostika-35755-20261107-v1":
         # An HTML marker without the concrete four-symptom diagnostic or
         # preserved, safe same-site next steps is not a user-facing improvement.
         start = html.find('<section ' + marker)
@@ -233,7 +261,7 @@ def check_target(target, fetch=read_public):
               and count == 1 and semantic_ok)
     return {"post_id": target["post_id"], "url": target["url"],
             "http": response.get("http"), "marker_count": count,
-            "semantic_trust_verified": semantic_ok if target["post_id"] in (35755,36702,60341,118455,118553,118218) else None,
+            "semantic_trust_verified": semantic_ok if target["post_id"] in (42401,35755,36702,60341,118455,118553,118218) else None,
             "status": "PUBLIC_MARKER_VERIFIED" if passed else
                       ("NOT_PUBLIC_OR_CACHE_STALE" if response.get("status") == "READ_OK"
                        else response.get("status", "READER_ERROR"))}
