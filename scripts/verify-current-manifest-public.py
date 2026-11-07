@@ -110,6 +110,38 @@ def check_target(target, fetch=read_public):
             ))
             and all(panel.count(route) == 1 for route in routes)
         )
+    elif target["post_id"] == 60354 and target.get("placement") == "ranking_claims_only":
+        # One immutable historic-score correction with NO new section marker.
+        # Semantic text proof is mandatory; marker-only check cannot apply.
+        # Decode HTML entities because old star symbols may be entity-encoded.
+        from html import unescape
+        text = unescape(html)
+        obsolete = (
+            "⭐⭐⭐⭐⭐", "⭐⭐⭐⭐",
+            "Pokud jste vášnivý rybář, určitě oceníte naše produkty.",
+            "Nejlepší poměr cena/výkon",
+            "Top produkt na trhu",
+            "100% vodotěsné",
+            "Voděodolnost zaručena",
+            "Pojďme se společně podívat na ty nejlepší signalizátory, kterou jsou momentálně na našem trhu.",
+        )
+        replacements = (
+            "Jde o historický redakční přehled, nikoli nabídku našeho obchodu",
+            "historické redakční označení bez ověřeného srovnání cen",
+            "historicky uváděná prémiová sada",
+            "Stupeň ochrany před vodou ověřte v návodu konkrétního modelu",
+            "Odolnost vůči vodě ověřte podle specifikace výrobce",
+            "Následuje historický přehled vybraných modelů, nikoli současný žebříček trhu.",
+        )
+        semantic_ok = (
+            all(phrase not in text for phrase in obsolete)
+            and text.count("bez zveřejněného testovacího skóre") == 6
+            and all(text.count(phrase) == 1 for phrase in replacements)
+            and all(token in text for token in (
+                "Nejlepší rybářské hlásiče a signalizátory",
+                "Zfish", "DAM", "Nash", "Hlásiče v AKCI",
+            ))
+        )
     elif target["post_id"] == 35755 and target["edit_id"] == "pipaky-diagnostika-35755-20261107-v1":
         # An HTML marker without the concrete four-symptom diagnostic or
         # preserved, safe same-site next steps is not a user-facing improvement.
@@ -256,11 +288,13 @@ def check_target(target, fetch=read_public):
             and 'akce 1+1 může skončit' in section
             and all(route in section for route in allowed)
         )
+    semantic_only = (target["post_id"] == 60354
+                     and target.get("placement") == "ranking_claims_only")
     passed = (response.get("status") == "READ_OK" and response.get("http") == 200
-              and count == 1 and semantic_ok)
+              and (count == 1 or (semantic_only and semantic_ok)) and semantic_ok)
     return {"post_id": target["post_id"], "url": target["url"],
             "http": response.get("http"), "marker_count": count,
-            "semantic_trust_verified": semantic_ok if target["post_id"] in (42401,35755,36702,60341,118455,118553,118218) else None,
+            "semantic_trust_verified": semantic_ok if target["post_id"] in (60354,42401,35755,36702,60341,118455,118553,118218) else None,
             "status": "PUBLIC_MARKER_VERIFIED" if passed else
                       ("NOT_PUBLIC_OR_CACHE_STALE" if response.get("status") == "READ_OK"
                        else response.get("status", "READER_ERROR"))}
