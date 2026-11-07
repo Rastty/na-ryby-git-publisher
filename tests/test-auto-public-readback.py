@@ -193,6 +193,28 @@ class Contract(TestCase):
                          "PUBLIC_NOT_VERIFIED")
         self.assertEqual(check(article + article)["status"], "PUBLIC_NOT_VERIFIED")
 
+    def test_advanced_pipaky_verified_decision_not_marker_only(self):
+        import json
+        manifest = json.loads((path.parents[1] / "tests" /
+            "v8-pipaky-advanced-36702-20261107-frozen.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["batch_id"], "pipaky-pokrocile-rozhodnuti-36702-20261107-v1")
+        h = manifest["edits"][0]["insert_html"]
+        def check(html):
+            return module.audit(manifest,lambda _:
+                {"status":"READ_OK","http":200,"html":html})["status"]
+        self.assertEqual(check(h+"<p>Historický článek s původními odkazy.</p>"),"PUBLIC_VERIFIED_ALL")
+        for missing in ("není nezávislý srovnávací test",
+                        "Potřebujete slyšitelný přenos",
+                        "Rybaříte dlouho za deště",
+                        "Chcete rozšířit nebo nahradit"):
+            self.assertEqual(check(h.replace(missing,"",1)),"PUBLIC_NOT_VERIFIED")
+        self.assertEqual(check(h.replace("<li>","",1)),"PUBLIC_NOT_VERIFIED")
+        self.assertEqual(check(h.replace("https://na-ryby.eu/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/",
+                                         "https://example.org/",1)),"PUBLIC_NOT_VERIFIED")
+        marker='data-nry-editorial-edit="pipaky-pokrocile-36702-20261107-v1"'
+        self.assertEqual(check("<section "+marker+"></section>"),"PUBLIC_NOT_VERIFIED")
+        self.assertEqual(check(h+h),"PUBLIC_NOT_VERIFIED")
+
     def test_wrong_schema(self):
         data = self.manifest()
         data["schema_version"] = 4
