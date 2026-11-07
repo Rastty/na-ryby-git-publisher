@@ -379,6 +379,20 @@ jobs:
                   if attempt==3:
                       raise SystemExit('BLOCKED: exact source/meta or public canonical not verified')
                   sleep(3)
+          counts=row.get('legacy_price_raw_literal_counts')
+          safe=row.get('legacy_price_safe_plain_counts')
+          external=row.get('legacy_external_host_literal_counts')
+          assert isinstance(counts,dict) and isinstance(safe,dict)
+          assert set(map(str,counts))=={'1000','800','3000','1200','2000'}
+          assert set(map(str,safe))=={'1000','800','3000','1200','2000'}
+          assert isinstance(external,dict) and set(external)=={'zaclony','lukavecu'}
+          assert all(type(counts[k]) is int and 0<=safe[k]<=counts[k]<=10 for k in counts)
+          assert all(type(v) is int and 0<=v<=10 for v in external.values())
+          print('PROFESSIONAL_PIPAKY_PRICE_PROOF',json.dumps({
+              'post_id':36702,'source_sha256':row['source_sha256'],
+              'raw_literal_counts':counts,'safe_plain_counts':safe,
+              'unverified_external_host_counts':external,
+              'wordpress_writes':0,'publication_authorized':False},sort_keys=True))
           print('ADVANCED_PIPAKY_SEO_PROD_VERIFIED',json.dumps({
               'post_id':36702,'source_sha256':row['source_sha256'],
               'meta_sha256':expected_digest,'canonical':canonical,

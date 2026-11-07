@@ -899,6 +899,40 @@ final class NRY_Git_Publisher {
                     $row['raw_yoast_description_exists']=metadata_exists('post',$id,'_yoast_wpseo_metadesc');
                 }
             }
+            if ($scope==='pipaky-professional') {
+                // Exactly five historical public price literals. Return only
+                // bounded counts, never raw body, href, source fragments, CJ
+                // tracking parameters or proposed publication permission.
+                // A safe plain-text span must not straddle any HTML attribute
+                // nor touch an anchor, image or shortcode.
+                $price_labels=array(
+                    '1000'=>'Cena: od 1000 Kč',
+                    '800'=>'Cena: od 800 Kč',
+                    '3000'=>'Cena: od 3000 Kč',
+                    '1200'=>'Cena: od 1200 Kč',
+                    '2000'=>'Cena: od 2000 Kč'
+                );
+                $raw_counts=array(); $safe_counts=array();
+                foreach ($price_labels as $key=>$needle) {
+                    $raw_counts[$key]=substr_count($post->post_content,$needle);
+                    $safe_counts[$key]=0;
+                    $offset=0;
+                    while (($at=strpos($post->post_content,$needle,$offset))!==false) {
+                        if (self::plain_text_span($post->post_content,$at,strlen($needle))) {
+                            $safe_counts[$key]++;
+                        }
+                        $offset=$at+strlen($needle);
+                    }
+                }
+                $row['legacy_price_raw_literal_counts']=$raw_counts;
+                $row['legacy_price_safe_plain_counts']=$safe_counts;
+                // Unverified destination provenance. Counts only, and do
+                // not use them as authority to delete/edit a link.
+                $row['legacy_external_host_literal_counts']=array(
+                    'zaclony'=>substr_count($post->post_content,'rybarske-potreby-na-zaclony.cz'),
+                    'lukavecu'=>substr_count($post->post_content,'rybarske-potreby-na-lukavecu.cz')
+                );
+            }
             if ($scope==='alarm-guide') {
                 // Six visible published scores only. Report COUNTS, never raw HTML,
                 // links, merchant parameters, cookies or new write permissions.
