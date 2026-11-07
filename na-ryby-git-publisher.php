@@ -920,7 +920,10 @@ final class NRY_Git_Publisher {
      * Never expose HTML, CJ routes, draft data or release authorization.
      */
     public static function buyer_source_proof_snapshot($scope='chairs') {
-        if ($scope==='pipaky-main') {
+        if ($scope==='alarm-ranking') {
+            // Only existing published 2023 alarm ranking, never arbitrary post IDs.
+            $allow = array(60354 => 'nejlepsi-rybarske-hlasice-a-signalizatory');
+        } elseif ($scope==='pipaky-main') {
             // GSC query-intent lead #42401; fixed published slug only.
             // Neither arbitrary IDs nor raw source are ever exposed.
             $allow = array(42401 =>
@@ -1030,6 +1033,31 @@ final class NRY_Git_Publisher {
                     'lukavecu'=>substr_count($post->post_content,'rybarske-potreby-na-lukavecu.cz')
                 );
             }
+            if ($scope==='alarm-ranking') {
+                // Fixed phrases from the public 2023 article; disclose ONLY
+                // raw/visible-safe occurrence counts, never source fragments.
+                $targets=array(
+                    'false_shop_claim'=>'Pokud jste vášnivý rybář, určitě oceníte naše produkty.',
+                    'unproven_price_winner'=>'Nejlepší poměr cena/výkon',
+                    'unproven_top_winner'=>'Top produkt na trhu',
+                    'five_stars'=>'⭐⭐⭐⭐⭐',
+                    'four_stars'=>'⭐⭐⭐⭐',
+                    'unproven_waterproof'=>'100% vodotěsné',
+                    'unproven_waterproof_guarantee'=>'Voděodolnost zaručena',
+                    'current_market_promise'=>'Pojďme se společně podívat na ty nejlepší signalizátory, kterou jsou momentálně na našem trhu.'
+                );
+                $raw=array();$safe=array();
+                foreach ($targets as $key=>$phrase) {
+                    $raw[$key]=substr_count($post->post_content,$phrase);
+                    $safe[$key]=0;$offset=0;
+                    while (($at=strpos($post->post_content,$phrase,$offset))!==false) {
+                        if (self::plain_text_span($post->post_content,$at,strlen($phrase))) $safe[$key]++;
+                        $offset=$at+strlen($phrase);
+                    }
+                }
+                $row['legacy_rank_raw_literal_counts']=$raw;
+                $row['legacy_rank_safe_plain_counts']=$safe;
+            }
             if ($scope==='alarm-guide') {
                 // Six visible published scores only. Report COUNTS, never raw HTML,
                 // links, merchant parameters, cookies or new write permissions.
@@ -1086,17 +1114,19 @@ final class NRY_Git_Publisher {
             && $_GET['nry_pipaky_beginner_source_proof']==='1';
         $professional=isset($_GET['nry_pipaky_professional_source_proof'])
             && $_GET['nry_pipaky_professional_source_proof']==='1';
+        $ranking=isset($_GET['nry_alarm_ranking_source_proof'])
+            && $_GET['nry_alarm_ranking_source_proof']==='1';
         $pipakyMain=isset($_GET['nry_pipaky_main_source_proof'])
             && $_GET['nry_pipaky_main_source_proof']==='1';
         // Exactly one explicitly allowlisted GET selector; never arbitrary IDs.
-        if (((int)$chairs+(int)$evergreen+(int)$hub+(int)$echolot+(int)$pillar+(int)$alarm+(int)$beginner+(int)$professional+(int)$pipakyMain)!==1
+        if (((int)$chairs+(int)$evergreen+(int)$hub+(int)$echolot+(int)$pillar+(int)$alarm+(int)$beginner+(int)$professional+(int)$pipakyMain+(int)$ranking)!==1
             || !function_exists('is_page') || !is_page('poradce-vybavy')) return;
         if (rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return;
         nocache_headers();
         header('Content-Type: application/json; charset=utf-8');
         header('X-Robots-Tag: noindex, nofollow');
         echo wp_json_encode(self::buyer_source_proof_snapshot(
-            $pipakyMain ? 'pipaky-main' : ($professional ? 'pipaky-professional' : ($beginner ? 'pipaky-beginner' : ($alarm ? 'alarm-guide' : ($pillar ? 'echolot-pillar' : ($echolot ? 'echolot-budget' : ($hub ? 'buyer-hub' : ($evergreen ? 'evergreen' : 'chairs')))))))));
+            $ranking ? 'alarm-ranking' : ($pipakyMain ? 'pipaky-main' : ($professional ? 'pipaky-professional' : ($beginner ? 'pipaky-beginner' : ($alarm ? 'alarm-guide' : ($pillar ? 'echolot-pillar' : ($echolot ? 'echolot-budget' : ($hub ? 'buyer-hub' : ($evergreen ? 'evergreen' : 'chairs'))))))))));
         exit;
     }
 
