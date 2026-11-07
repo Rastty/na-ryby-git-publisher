@@ -3,14 +3,13 @@ on:
   pull_request:
     paths:
       - 'manifest.json'
+      - 'scripts/verify-current-manifest-public.py'
       - 'tests/test-alarm-ranking-60354-v8.php'
       - 'tests/test-60354-public-semantic.py'
       - 'tests/v8-alarm-ranking-60354-claims-20261107-frozen.json'
-      - 'scripts/verify-current-manifest-public.py'
       - 'tests/test-60354-trust-source-proof.php'
       - 'tests/test-pipaky-42401-quick-choice-v8.php'
       - 'tests/test-42401-public-semantic.py'
-      - 'scripts/verify-current-manifest-public.py'
       - 'advisor-existing-page-release-v1.php'
       - 'guarded-auto-publisher.php'
       - 'tests/test-native-kses-write-contract.php'
@@ -46,14 +45,13 @@ on:
     branches: [main]
     paths:
       - 'manifest.json'
+      - 'scripts/verify-current-manifest-public.py'
       - 'tests/test-alarm-ranking-60354-v8.php'
       - 'tests/test-60354-public-semantic.py'
       - 'tests/v8-alarm-ranking-60354-claims-20261107-frozen.json'
-      - 'scripts/verify-current-manifest-public.py'
       - 'tests/test-60354-trust-source-proof.php'
       - 'tests/test-pipaky-42401-quick-choice-v8.php'
       - 'tests/test-42401-public-semantic.py'
-      - 'scripts/verify-current-manifest-public.py'
       - 'advisor-existing-page-release-v1.php'
       - 'guarded-auto-publisher.php'
       - 'tests/test-three-chair-guides-v8.php'
