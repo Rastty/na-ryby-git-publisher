@@ -73,6 +73,11 @@ final class NRY_Git_Publisher {
                 // A single correction-only release removes six invented 1–10
                 // numerical ratings without adding another redundant top panel.
                 // All other schema v8 operations remain the original prepend flow.
+                if (($e['placement'] ?? '') === 'price_corrections_only') {
+                    $check=self::validate_pipaky_price_correction($e,$data);
+                    if (is_wp_error($check)) return $check;
+                    continue;
+                }
                 if (($e['placement'] ?? '') === 'corrections_only') {
                     $check=self::validate_alarm_scores_correction($e,$data);
                     if (is_wp_error($check)) { return $check; }
@@ -226,6 +231,90 @@ final class NRY_Git_Publisher {
             return new WP_Error('v6_scope', 'V6 povoluje pouze vybranou čtveřici.');
         }
         return $data;
+    }
+
+
+    /**
+     * A fixed five-price cleanup of already-published post 36702, scoped
+     * to the SHA and modified GMT independently verified on WordPress.
+     * No generic product/price replacement API or affiliate URL changes.
+     */
+    private static function pipaky_price_corrections() {
+        $prices=array('1000','800','3000','1200','2000');
+        $edits=array();
+        foreach ($prices as $p) {
+            $edits[]=array('old_text'=>'Cena: od '.$p.' Kč',
+                'new_text'=>'Historická cena – aktuálně neověřeno');
+        }
+        return $edits;
+    }
+    private static function validate_pipaky_price_correction($e,$manifest) {
+        $keys=array_keys($e);
+        $expected=array('post_id','slug','source_modified_gmt','source_min_bytes',
+            'source_max_bytes','source_sha256','edit_id','placement','text_corrections');
+        sort($keys);sort($expected);
+        if (($manifest['batch_id']??'')!=='pipaky-pokrocile-five-price-fix-36702-20261107-v1'
+            || count($manifest['edits']??array())!==1
+            || ($e['post_id']??null)!==36702
+            || ($e['slug']??'')!=='pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu'
+            || ($e['edit_id']??'')!=='pipaky-pokrocile-36702-20261107-v1'
+            || ($e['placement']??'')!=='price_corrections_only'
+            || $keys!==$expected
+            || ($e['source_sha256']??'')!=='b862ecbd7abc3a87864df1eb6e2c6ff1c4a2621216d941acbfab646bff71d735'
+            || ($e['source_modified_gmt']??'')!=='2026-11-07 11:23:04'
+            || ($e['source_min_bytes']??0)!==12938
+            || ($e['source_max_bytes']??0)!==12939
+            || ($e['text_corrections']??null)!==self::pipaky_price_corrections()) {
+            return new WP_Error('v8_pipaky_price_scope',
+                'Only the five published #36702 plain-text price claims may be changed.');
+        }
+        return true;
+    }
+    private static function build_pipaky_price_candidate($source,$edit) {
+        $rules=self::pipaky_price_corrections();
+        $oldSum=0;$new=0;
+        $expected='Historická cena – aktuálně neověřeno';
+        foreach ($rules as $c) $oldSum+=substr_count($source,$c['old_text']);
+        $new=substr_count($source,$expected);
+        if ($oldSum===0 && $new===5
+            && substr_count($source,'data-nry-editorial-edit="pipaky-pokrocile-36702-20261107-v1"')===1) {
+            return array('already'=>true);
+        }
+        if ($oldSum!==5 || $new!==0) {
+            return array('error'=>'five_prices_missing_or_ambiguous');
+        }
+        $candidate=$source;
+        foreach ($rules as $rule) {
+            $old=$rule['old_text'];
+            if (substr_count($candidate,$old)!==1) {
+                return array('error'=>'stale_price_not_unique');
+            }
+            $at=strpos($candidate,$old);
+            if (!self::plain_text_span($candidate,$at,strlen($old))) {
+                return array('error'=>'stale_price_inside_link_or_html_attribute');
+            }
+            $candidate=substr_replace($candidate,
+                htmlspecialchars($rule['new_text'],ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8'),
+                $at,strlen($old));
+        }
+        if (substr_count($candidate,$expected)!==5
+            || substr_count($candidate,'data-nry-editorial-edit="pipaky-pokrocile-36702-20261107-v1"')!==1) {
+            return array('error'=>'stale_price_candidate_incomplete');
+        }
+        foreach ($rules as $rule) {
+            if (strpos($candidate,$rule['old_text'])!==false) {
+                return array('error'=>'stale_price_remnant');
+            }
+        }
+        // Every previous link, image, embed and shortcode token must survive
+        // byte-for-byte and in original order; no merchant clickout mutation.
+        $pattern='~(?:<a\\b[^>]*>|<img\\b[^>]*>|<iframe\\b[^>]*>|\\[[a-zA-Z][^\\]]*\\])~iu';
+        preg_match_all($pattern,$source,$before);
+        preg_match_all($pattern,$candidate,$after);
+        if ($before[0]!==$after[0]) {
+            return array('error'=>'protected_affiliate_or_media_drift');
+        }
+        return array('candidate'=>$candidate);
     }
 
     private static function alarm_score_warning_old() {
@@ -626,7 +715,9 @@ final class NRY_Git_Publisher {
             // outbound REST authentication or WPVibe is needed.
             $built = ($edit['placement']==='corrections_only')
                 ? self::build_alarm_score_candidate($source, $edit)
-                : self::build_v5_candidate($source, $edit);
+                : (($edit['placement']==='price_corrections_only')
+                    ? self::build_pipaky_price_candidate($source,$edit)
+                    : self::build_v5_candidate($source, $edit));
             if (isset($built['already'])) {
                 return array('id' => $post->ID, 'status' => 'already_applied');
             }
