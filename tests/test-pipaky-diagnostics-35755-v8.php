@@ -24,7 +24,7 @@ function wp_update_post($data,$returnError=false) {
 function must($ok,$message){if(!$ok)throw new RuntimeException($message);}
 require dirname(__DIR__).'/na-ryby-git-publisher.php';
 
-$m=json_decode(file_get_contents(dirname(__DIR__).'/manifest.json'),true);
+$m=json_decode(file_get_contents(__DIR__.'/v8-pipaky-diagnostics-35755-20261107-frozen.json'),true);
 must($m['schema_version']===8 && $m['batch_id']==='pipaky-diagnostika-35755-20261107-v1','immutable batch');
 must(count($m['edits'])===1,'one post only');
 $e=$m['edits'][0];
