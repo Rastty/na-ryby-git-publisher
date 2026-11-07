@@ -55,9 +55,12 @@ assert (ROOT/"tests/v8-pipaky-diagnostics-35755-20261107-frozen.json").exists()
 # Post-36702 advanced buyer answer is now real public content, not a
 # temporary manifest exception. Exact current SHA/bytes/GMT must be checked
 # even when next release edits an unrelated WordPress article.
-assert "expected_source='b862ecbd7abc3a87864df1eb6e2c6ff1c4a2621216d941acbfab646bff71d735'" in workflow
-assert "expected_bytes=12938" in workflow
-assert "expected_modified_gmt='2026-11-07 11:23:04'" in workflow
+assert "expected_source='94c3683902bee004fc136c12004ecde138509bc3a9346df0b095286f781e10cd'" in workflow
+assert "expected_bytes=13069" in workflow
+assert "expected_modified_gmt='2026-11-07 13:19:54'" in workflow
+assert "approved_price_fix" not in workflow
+assert "assert all(v==0 for v in row['legacy_price_raw_literal_counts'].values())" in workflow
+assert (ROOT/"tests/v8-pipaky-36702-five-prices-20261107-frozen.json").exists()
 assert "approved_batch" not in workflow
 assert "assert row['source_sha256']==expected_source" in workflow
 assert (ROOT/"tests/v8-pipaky-advanced-36702-20261107-frozen.json").exists()
