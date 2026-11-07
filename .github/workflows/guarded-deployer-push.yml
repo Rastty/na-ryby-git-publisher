@@ -328,57 +328,16 @@ jobs:
           assert row['id']==42401
           assert row['slug']=='jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne'
           assert row['state']=='SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY'
-          # The 42401 content batch was actually written by WordPress BEFORE
-          # this diagnostic runs. Checking the PRE-edit SHA here would always
-          # reject the legitimate new content after an exact batch success.
-          # Scope the single transition to the current frozen 42401 manifest,
-          # verified native WP local receipt and candidate readback. New hash
-          # is printed below and MUST be permanently repinned afterward.
-          prior_source='7f3b1fa8073d4167cdd770c6d869044be07d3db4d54884306a50cd0bbe6681f8'
-          prior_modified='2026-10-23 06:34:54'
-          with open('manifest.json',encoding='utf8') as f: current=json.load(f)
-          reviewed_transition=(
-              current.get('schema_version')==8
-              and current.get('batch_id')=='pipaky-42401-quick-choice-router-20261107-v1'
-              and len(current.get('edits',[]))==1
-              and current['edits'][0].get('post_id')==42401
-              and current['edits'][0].get('edit_id')=='pipaky-navod-42401-quick-choice-20261107-v1'
-              and current['edits'][0].get('source_sha256')==prior_source
-              and current['edits'][0].get('source_modified_gmt')==prior_modified
-          )
-          if reviewed_transition:
-              # This GET reports a server-side SHA/backup/candidate verification;
-              # it is NOT public HTML/visitor proof or fresh write authority.
-              health_req=urllib.request.Request(
-                  'https://na-ryby.eu/poradce-vybavy/?nry_release_health=1',
-                  headers={'Cache-Control':'no-cache,no-store',
-                           'User-Agent':'Nry42401OneBatchPostWriteReadOnly/1.0'})
-              with guarded_urlopen(health_req,timeout=25) as hres:
-                  assert hres.status==200
-                  health=json.loads(hres.read(4096))
-              assert health.get('publisher_version')=='0.16.0'
-              assert health.get('last_auto_batch_id')==current['batch_id']
-              assert health.get('last_auto_receipt_status')=='applied_and_verified_local'
-              assert health.get('candidate_matches') is True
-              assert health.get('source_matches') is False
-              assert health.get('backup_present') is True
-              assert health.get('guarded_publisher_enabled') is True
-              assert row['source_sha256']!=prior_source
-              assert row['source_modified_gmt']>prior_modified
-              assert 5000 < row['source_bytes'] < 100000
-              print('PIPAKY_MAIN_EXACT_POST_WRITE_SOURCE_REPIN_REQUIRED',json.dumps({
-                  'source_sha256':row['source_sha256'],
-                  'source_bytes':row['source_bytes'],
-                  'source_modified_gmt':row['source_modified_gmt'],
-                  'last_auto_batch_id':health['last_auto_batch_id'],
-                  'last_auto_receipt_status':health['last_auto_receipt_status'],
-                  'wordpress_writes_by_read_only_check':0},sort_keys=True))
-          else:
-              # All other releases stay pinned to the exact former source
-              # until the new post-write SHA is permanently source-locked.
-              assert row['source_sha256']==prior_source
-              assert row['source_modified_gmt']==prior_modified
-              assert 5000 < row['source_bytes'] < 100000
+          # Permanent 42401 source pin, independently captured after real
+          # guarded WordPress batch #100 in run 42379244280 and public
+          # semantic PUBLIC_VERIFIED_ALL 1/1. This is not the old pre-edit
+          # 2026-10-23 source. All future unrelated releases must preserve it.
+          expected_source='a61c57d0838632d17d9aca33593fca4903d1603953c0ef0534d37dbfcee0bfff'
+          expected_bytes=16590
+          expected_modified_gmt='2026-11-07 13:51:49'
+          assert row['source_sha256']==expected_source
+          assert row['source_bytes']==expected_bytes
+          assert row['source_modified_gmt']==expected_modified_gmt
           for field in ('raw_yoast_title_sha256','raw_yoast_description_sha256'):
               assert re.fullmatch('[a-f0-9]{64}',row[field])
           assert row['raw_yoast_title_exists'] is True
