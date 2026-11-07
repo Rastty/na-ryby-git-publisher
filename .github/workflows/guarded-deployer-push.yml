@@ -22,8 +22,11 @@ on:
       - 'buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.mjs'
-      - 'guarded-auto-publisher.php'
       - '.github/workflows/guarded-deployer-push.yml'
+      - 'seo-snippet-pilot.php'
+      - 'checklist-release-v1.php'
+      - 'assets/**'
+      - 'tests/test-deployer-trigger-parity.py'
   push:
     branches: [main]
     paths:
@@ -38,10 +41,10 @@ on:
       - 'buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.mjs'
-      - 'guarded-auto-publisher.php'
       - 'seo-snippet-pilot.php'
       - 'checklist-release-v1.php'
       - 'assets/**'
+      - 'seo-pipaky-beginner-35755-v1.php'
   workflow_dispatch:
 permissions:
   contents: read
@@ -58,6 +61,7 @@ jobs:
       - name: Syntax and rollback contract
         run: |
           set -euo pipefail
+          python3 tests/test-deployer-trigger-parity.py
           php -l advisor-existing-page-release-v1.php
           php -l guarded-auto-publisher.php
           php -l na-ryby-git-publisher.php
