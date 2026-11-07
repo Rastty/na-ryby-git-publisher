@@ -306,23 +306,12 @@ jobs:
           # Independent live proof from successful protected publication run
           # 42367935285: use exact CURRENT post-36702 source for all future
           # batches; no special approval based on a transient batch ID.
-          expected_source='b862ecbd7abc3a87864df1eb6e2c6ff1c4a2621216d941acbfab646bff71d735'
-          expected_bytes=12938
-          expected_modified_gmt='2026-11-07 11:23:04'
-          with open('manifest.json',encoding='utf8') as f:
-              current_manifest=json.load(f)
-          approved_price_fix=(
-              current_manifest.get('schema_version')==8
-              and current_manifest.get('batch_id')=='pipaky-pokrocile-five-price-fix-36702-20261107-v1'
-              and len(current_manifest.get('edits',[]))==1
-              and current_manifest['edits'][0].get('post_id')==36702
-              and current_manifest['edits'][0].get('source_sha256')==expected_source
-              and current_manifest['edits'][0].get('source_min_bytes')==12938
-              and current_manifest['edits'][0].get('source_max_bytes')==12939
-              and current_manifest['edits'][0].get('source_modified_gmt')==expected_modified_gmt
-              and current_manifest['edits'][0].get('placement')=='price_corrections_only')
-          if current_manifest.get('batch_id')=='pipaky-pokrocile-five-price-fix-36702-20261107-v1' and not approved_price_fix:
-              raise SystemExit('BLOCKED: wrong five-price #36702 manifest or source')
+          # Exact new SOURCE state independently verified after guarded
+          # five-price publication, run 42376437883 and read-only GSC #1440.
+          # No future release may fall back to the old 12938-byte document.
+          expected_source='94c3683902bee004fc136c12004ecde138509bc3a9346df0b095286f781e10cd'
+          expected_bytes=13069
+          expected_modified_gmt='2026-11-07 13:19:54'
           url='https://na-ryby.eu/poradce-vybavy/?nry_pipaky_professional_source_proof=1'
           req=urllib.request.Request(url,headers={
               'Cache-Control':'no-cache,no-store',
@@ -340,19 +329,13 @@ jobs:
           assert row['id']==36702
           assert row['slug']=='pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu'
           assert row['state']=='SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY'
-          if approved_price_fix:
-              # WordPress-local source pin, immutable snapshot and verified
-              # candidate SHA are mandatory; independent browser audit below
-              # proves every replacement and preserves old legacy links.
-              assert row['source_sha256']!=expected_source
-              assert row['source_bytes']==13069
-              assert row['source_modified_gmt']>expected_modified_gmt
-              assert all(v==0 for v in row.get('legacy_price_raw_literal_counts',{}).values())
-              assert len(row.get('legacy_price_raw_literal_counts',{}))==5
-          else:
-              assert row['source_sha256']==expected_source
-              assert row['source_bytes']==expected_bytes
-              assert row['source_modified_gmt']==expected_modified_gmt
+          assert row['source_sha256']==expected_source
+          assert row['source_bytes']==expected_bytes
+          assert row['source_modified_gmt']==expected_modified_gmt
+          assert len(row.get('legacy_price_raw_literal_counts',{}))==5
+          assert all(v==0 for v in row['legacy_price_raw_literal_counts'].values())
+          assert len(row.get('legacy_price_safe_plain_counts',{}))==5
+          assert all(v==0 for v in row['legacy_price_safe_plain_counts'].values())
           for field in ('source_sha256','raw_yoast_title_sha256','raw_yoast_description_sha256'):
               assert re.fullmatch('[a-f0-9]{64}',row[field]),field
           assert row['raw_yoast_title_exists'] is False
