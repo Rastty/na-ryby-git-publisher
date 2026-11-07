@@ -102,6 +102,33 @@ def check_target(target, fetch=read_public):
             and all(panel.count(route) == 1 for route in routes)
             and panel.count('<a href=') == 3
         )
+    elif target["post_id"] == 36702 and target["edit_id"] == "pipaky-pokrocile-36702-20261107-v1":
+        # No marker-only success: verify four distinct buyer decisions, a
+        # clearly disclosed non-tested historical brand comparison, and
+        # three exact same-site next steps in the newly inserted section.
+        start = html.find('<section ' + marker)
+        end = html.find('</section>', start) if start >= 0 else -1
+        panel = html[start:end] if end > start else ""
+        routes = (
+            'href="https://na-ryby.eu/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/"',
+            'href="https://na-ryby.eu/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/"',
+            'href="https://na-ryby.eu/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/"',
+        )
+        requirements = (
+            "Pípáky pro pokročilé: kdy má dražší sada opravdu smysl?",
+            "Lovíte blízko prutů",
+            "Potřebujete slyšitelný přenos",
+            "Rybaříte dlouho za deště",
+            "Chcete rozšířit nebo nahradit",
+            "není nezávislý srovnávací test",
+        )
+        semantic_ok = (
+            panel.startswith('<section ' + marker)
+            and panel.count('<li>') == 4
+            and all(phrase in panel for phrase in requirements)
+            and all(panel.count(route) == 1 for route in routes)
+            and panel.count('<a href=') == 3
+        )
     elif target["post_id"] == 60341:
         semantic_ok = (
             "Naše společnost se specializuje na výrobu a prodej" not in html
@@ -183,7 +210,7 @@ def check_target(target, fetch=read_public):
               and count == 1 and semantic_ok)
     return {"post_id": target["post_id"], "url": target["url"],
             "http": response.get("http"), "marker_count": count,
-            "semantic_trust_verified": semantic_ok if target["post_id"] in (35755,60341,118455,118553,118218) else None,
+            "semantic_trust_verified": semantic_ok if target["post_id"] in (35755,36702,60341,118455,118553,118218) else None,
             "status": "PUBLIC_MARKER_VERIFIED" if passed else
                       ("NOT_PUBLIC_OR_CACHE_STALE" if response.get("status") == "READ_OK"
                        else response.get("status", "READER_ERROR"))}
