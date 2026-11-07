@@ -295,19 +295,12 @@ jobs:
           python3 - <<'PY'
           from scripts.readonly_urlopen_retry import guarded_urlopen
           import json,re,urllib.request
-          with open('manifest.json',encoding='utf8') as f:
-              manifest=json.load(f)
-          approved_batch=(
-              manifest.get('schema_version')==8
-              and manifest.get('batch_id')=='pipaky-pokrocile-rozhodnuti-36702-20261107-v1'
-              and len(manifest.get('edits',[]))==1
-              and manifest['edits'][0].get('post_id')==36702
-              and manifest['edits'][0].get('source_sha256')=='2904911169f1d49d30f46518c91c8f6220bfce71d978e73f11b3b0a26b2aeb6d'
-              and manifest['edits'][0].get('source_modified_gmt')=='2026-10-23 06:35:08'
-              and manifest['edits'][0].get('source_min_bytes')==10314
-              and manifest['edits'][0].get('source_max_bytes')==10315)
-          if manifest.get('batch_id')=='pipaky-pokrocile-rozhodnuti-36702-20261107-v1' and not approved_batch:
-              raise SystemExit('BLOCKED: wrong advanced pípáky batch/source identity')
+          # Independent live proof from successful protected publication run
+          # 42367935285: use exact CURRENT post-36702 source for all future
+          # batches; no special approval based on a transient batch ID.
+          expected_source='b862ecbd7abc3a87864df1eb6e2c6ff1c4a2621216d941acbfab646bff71d735'
+          expected_bytes=12938
+          expected_modified_gmt='2026-11-07 11:23:04'
           url='https://na-ryby.eu/poradce-vybavy/?nry_pipaky_professional_source_proof=1'
           req=urllib.request.Request(url,headers={
               'Cache-Control':'no-cache,no-store',
@@ -325,18 +318,9 @@ jobs:
           assert row['id']==36702
           assert row['slug']=='pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu'
           assert row['state']=='SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY'
-          if approved_batch:
-              # The WordPress-local writer independently verifies actual source,
-              # saves the original and checks candidate SHA before this GET.
-              # The public manifest semantic audit later proves visible value.
-              expected_bytes=10314+len(manifest['edits'][0]['insert_html'].encode('utf8'))+1
-              assert row['source_bytes']==expected_bytes
-              assert row['source_sha256']!='2904911169f1d49d30f46518c91c8f6220bfce71d978e73f11b3b0a26b2aeb6d'
-              assert row['source_modified_gmt']>'2026-10-23 06:35:08'
-          else:
-              assert row['source_modified_gmt']=='2026-10-23 06:35:08'
-              assert row['source_bytes']==10314
-              assert row['source_sha256']=='2904911169f1d49d30f46518c91c8f6220bfce71d978e73f11b3b0a26b2aeb6d'
+          assert row['source_sha256']==expected_source
+          assert row['source_bytes']==expected_bytes
+          assert row['source_modified_gmt']==expected_modified_gmt
           for field in ('source_sha256','raw_yoast_title_sha256','raw_yoast_description_sha256'):
               assert re.fullmatch('[a-f0-9]{64}',row[field]),field
           assert row['raw_yoast_title_bytes']<500
