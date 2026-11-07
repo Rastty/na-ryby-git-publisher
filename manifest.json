@@ -1,39 +1,18 @@
 {
   "schema_version": 8,
-  "batch_id": "pipaky-pokrocile-five-price-fix-36702-20261107-v1",
+  "batch_id": "pipaky-problem-navigation-42401-20261107-v1",
   "site": "https://na-ryby.eu",
   "edits": [
     {
-      "post_id": 36702,
-      "slug": "pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu",
-      "source_modified_gmt": "2026-11-07 11:23:04",
-      "source_min_bytes": 12938,
-      "source_max_bytes": 12939,
-      "source_sha256": "b862ecbd7abc3a87864df1eb6e2c6ff1c4a2621216d941acbfab646bff71d735",
-      "edit_id": "pipaky-pokrocile-36702-20261107-v1",
-      "placement": "price_corrections_only",
-      "text_corrections": [
-        {
-          "old_text": "Cena: od 1000 Kč",
-          "new_text": "Historická cena – aktuálně neověřeno"
-        },
-        {
-          "old_text": "Cena: od 800 Kč",
-          "new_text": "Historická cena – aktuálně neověřeno"
-        },
-        {
-          "old_text": "Cena: od 3000 Kč",
-          "new_text": "Historická cena – aktuálně neověřeno"
-        },
-        {
-          "old_text": "Cena: od 1200 Kč",
-          "new_text": "Historická cena – aktuálně neověřeno"
-        },
-        {
-          "old_text": "Cena: od 2000 Kč",
-          "new_text": "Historická cena – aktuálně neověřeno"
-        }
-      ]
+      "post_id": 42401,
+      "slug": "jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne",
+      "source_modified_gmt": "2026-10-23 06:34:54",
+      "source_min_bytes": 14221,
+      "source_max_bytes": 14222,
+      "source_sha256": "7f3b1fa8073d4167cdd770c6d869044be07d3db4d54884306a50cd0bbe6681f8",
+      "edit_id": "pipaky-rychle-rozhodnuti-42401-20261107-v1",
+      "placement": "prepend",
+      "insert_html": "<section data-nry-editorial-edit=\"pipaky-rychle-rozhodnuti-42401-20261107-v1\">\n<h2>Co řešíte s pípákem právě teď?</h2>\n<p>Nejdřív pojmenujte problém. Většinu potíží s hlásičem lze prověřit bez dalšího nákupu; nový přístroj sám nevyřeší nestabilní prut ani špatně vedený vlasec.</p>\n<ul>\n<li><strong>Pípá bez záběru:</strong> zkontrolujte upevnění stojanu, proud, vítr a napnutí vlasce. <a href=\"https://na-ryby.eu/proc-mi-signalizator-pipa-bez-zaberu-5-nejcastejsich-pricin-a-jak-je-vyresit/\">Pět příčin falešného pípání a jejich řešení</a>.</li>\n<li><strong>Je to váš první hlásič nebo přestal reagovat:</strong> nejprve otestujte baterii, správné vedení vlasce a citlivost. <a href=\"https://na-ryby.eu/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/\">Praktická diagnostika čtyř typických závad</a>.</li>\n<li><strong>Vybíráte samostatný hlásič nebo sadu:</strong> příposlech může pomoci podle stylu lovu, ale nenahrazuje dohled nad pruty. <a href=\"https://na-ryby.eu/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/\">Rozhodnutí podle výbavy a způsobu rybaření</a>.</li>\n<li><strong>Rozšiřujete starší sadu:</strong> stejná značka sama o sobě nezaručuje kompatibilitu příposlechu a hlásičů. <a href=\"https://na-ryby.eu/pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu/\">Jak ověřit konkrétní modelovou řadu před nákupem</a>.</li>\n</ul>\n<p><strong>Rychlý test u vody:</strong> na bezpečně uloženém prutu opatrně posuňte vlasec přes snímací část a sledujte odezvu. Pokud něco nefunguje, řešte nejprve montáž, napájení a nastavení. Cena nového vybavení není důkazem, že problém zmizí.</p>\n</section>"
     }
   ]
 }
