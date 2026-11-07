@@ -52,4 +52,13 @@ assert "assert row['source_modified_gmt']==expected_modified_gmt" in workflow
 assert "reviewed_diagnostic" not in workflow
 assert "expected_source='2ae4c0adb81a0fc7b667e95bb23d9b1e3f4c590b173c98b8e125c48c41c2763f'" not in workflow
 assert (ROOT/"tests/v8-pipaky-diagnostics-35755-20261107-frozen.json").exists()
+# Post-36702 advanced buyer answer is now real public content, not a
+# temporary manifest exception. Exact current SHA/bytes/GMT must be checked
+# even when next release edits an unrelated WordPress article.
+assert "expected_source='b862ecbd7abc3a87864df1eb6e2c6ff1c4a2621216d941acbfab646bff71d735'" in workflow
+assert "expected_bytes=12938" in workflow
+assert "expected_modified_gmt='2026-11-07 11:23:04'" in workflow
+assert "approved_batch" not in workflow
+assert "assert row['source_sha256']==expected_source" in workflow
+assert (ROOT/"tests/v8-pipaky-advanced-36702-20261107-frozen.json").exists()
 print("PASS: all live publisher modules trigger PR review and guarded main deploy")
