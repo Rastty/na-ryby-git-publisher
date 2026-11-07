@@ -332,6 +332,23 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
      * credentials, backup or other private data. Reports only exact-match
      * booleans for the one approved page and whether bounded auto is enabled.
      */
+    private static function public_auto_stop_reason() {
+        $receipt=get_option('nry_gp_auto_receipt_v1',array());
+        if (!is_array($receipt) || ($receipt['status']??'')!=='stopped') {
+            return 'none';
+        }
+        $reason=$receipt['reason']??'unknown';
+        // The reason is a fixed internal status enum, never a WP exception,
+        // post excerpt, merchant URL, secret, or user-controlled string.
+        $safe=array('invalid_manifest_on_deploy','invalid_manifest',
+            'preflight_blocked','preflight_error','schema_or_batch_limit',
+            'previous_batch_manifest_drift','stale_or_invalid_lock_manual_reset',
+            'unexpected_exception_manual_review','blocked_no_writes',
+            'backup_conflict_no_writes','backup_verification_failed_no_writes',
+            'rolled_back_verified','uncertain','execution_error');
+        return in_array($reason,$safe,true)?$reason:'unrecognized_stop_reason';
+    }
+
     public static function public_release_health() {
         if (!isset($_GET['nry_release_health']) || $_GET['nry_release_health'] !== '1'
             || !function_exists('is_page') || !is_page(self::SLUG)) return;
@@ -353,7 +370,8 @@ final class NRY_Advisor_Existing_Page_Release_V1 {
             'guarded_publisher_enabled'=>get_option('nry_gp_auto_enabled_v1','no')==='yes',
             'last_auto_batch_id'=>get_option('nry_gp_auto_last_batch_v1',''),
             'last_auto_receipt_status'=>is_array(get_option('nry_gp_auto_receipt_v1',array()))
-                ? (get_option('nry_gp_auto_receipt_v1',array())['status'] ?? 'unknown') : 'unknown'
+                ? (get_option('nry_gp_auto_receipt_v1',array())['status'] ?? 'unknown') : 'unknown',
+            'last_auto_stop_reason'=>self::public_auto_stop_reason()
         ));
         exit;
     }
