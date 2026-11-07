@@ -215,6 +215,35 @@ class Contract(TestCase):
         self.assertEqual(check("<section "+marker+"></section>"),"PUBLIC_NOT_VERIFIED")
         self.assertEqual(check(h+h),"PUBLIC_NOT_VERIFIED")
 
+    def test_five_stale_price_cleanup_requires_actual_rendered_replacements(self):
+        import json
+        manifest=json.loads((path.parents[1]/"tests"/
+            "v8-pipaky-36702-five-prices-20261107-frozen.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["batch_id"],
+            "pipaky-pokrocile-five-price-fix-36702-20261107-v1")
+        self.assertEqual(manifest["edits"][0]["placement"],"price_corrections_only")
+        marker='data-nry-editorial-edit="pipaky-pokrocile-36702-20261107-v1"'
+        body=('<section '+marker+'>Pípáky pro pokročilé: kdy má dražší sada opravdu smysl?'
+              'není nezávislý srovnávací test'
+              '<a href="https://na-ryby.eu/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/">Pípáky</a>'
+              '</section>'
+              + 'Historická cena – aktuálně neověřeno'*5
+              + '<a href="https://rybarske-potreby-na-zaclony.cz/">Starší zdroj</a>'
+              + '<a href="https://rybarske-potreby-na-lukavecu.cz/">Starší zdroj</a>')
+        def status(html):
+            return module.audit(manifest,lambda _:{"status":"READ_OK","http":200,"html":html})["status"]
+        self.assertEqual(status(body),"PUBLIC_VERIFIED_ALL")
+        self.assertEqual(status(body.replace("Historická cena – aktuálně neověřeno","",1)),
+            "PUBLIC_NOT_VERIFIED")
+        self.assertEqual(status(body+"Cena: od 800 Kč"),"PUBLIC_NOT_VERIFIED")
+        self.assertEqual(status(body.replace("rybarske-potreby-na-lukavecu.cz","bad.example")),
+            "PUBLIC_NOT_VERIFIED")
+        self.assertEqual(status(body.replace(marker,"",1)),"PUBLIC_NOT_VERIFIED")
+        wrong=json.loads(json.dumps(manifest))
+        wrong["batch_id"]="not-reviewed"
+        with self.assertRaises(ValueError):
+            module.verify_manifest(wrong)
+
     def test_wrong_schema(self):
         data = self.manifest()
         data["schema_version"] = 4
