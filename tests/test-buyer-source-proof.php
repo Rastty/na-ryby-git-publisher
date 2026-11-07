@@ -284,4 +284,44 @@ $GLOBALS['sources'][36702]->post_name='pipaky-na-ryby-pro-profesionaly-prehled-n
 $GLOBALS['meta'][36702]['_yoast_wpseo_title']=array('invalid');
 must(NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-professional')['rows'][0]['state']
  ==='BLOCKED_NON_STRING_SEO_METADATA','non-string professional SEO meta fails closed');
+$GLOBALS['sources'][42401]=(object)array(
+ 'ID'=>42401,'post_type'=>'post','post_status'=>'publish',
+ 'post_name'=>'jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne',
+ 'post_modified_gmt'=>'2026-10-23 06:34:54',
+ 'post_content'=>str_repeat('<p>Ověřený návod na použití hlásiče.</p>',330)
+);
+$GLOBALS['meta'][42401]=array(
+ '_yoast_wpseo_title'=>'Pípáky na ryby: jak vybrat, nastavit a používat',
+ '_yoast_wpseo_metadesc'=>'Pípáky na ryby jednoduše a bezpečně.'
+);
+$main=NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-main');
+must(count($main['rows'])===1 && $main['rows'][0]['id']===42401
+ && $main['rows'][0]['state']==='SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY'
+ && $main['rows'][0]['source_sha256']===
+   hash('sha256',$GLOBALS['sources'][42401]->post_content)
+ && $main['rows'][0]['source_modified_gmt']==='2026-10-23 06:34:54',
+ 'one static live main alarm guide SHA and source date');
+must($main['rows'][0]['raw_yoast_title_sha256']===
+   hash('sha256',$GLOBALS['meta'][42401]['_yoast_wpseo_title'])
+ && $main['rows'][0]['raw_yoast_description_sha256']===
+   hash('sha256',$GLOBALS['meta'][42401]['_yoast_wpseo_metadesc'])
+ && $main['rows'][0]['raw_yoast_title_exists']===true
+ && $main['rows'][0]['raw_yoast_description_exists']===true,
+ 'main SEO title/meta hashed only, values not exposed');
+must($main['wordpress_writes']===0 && $main['publication_authorized']===false
+ && !isset($main['rows'][0]['post_content'],$main['rows'][0]['hrefs'],
+    $main['rows'][0]['yoast_title'],$main['rows'][0]['yoast_description']),
+ 'main article proof never exposes source or any merchant links');
+$GLOBALS['sources'][42401]->post_status='draft';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-main')['rows'][0]['state']
+ ==='BLOCKED_IDENTITY_OR_SOURCE','draft #42401 blocked');
+$GLOBALS['sources'][42401]->post_status='publish';
+$GLOBALS['sources'][42401]->post_name='wrong-slug';
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-main')['rows'][0]['state']
+ ==='BLOCKED_IDENTITY_OR_SOURCE','wrong main article slug blocked');
+$GLOBALS['sources'][42401]->post_name=
+ 'jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne';
+$GLOBALS['meta'][42401]['_yoast_wpseo_title']=array('unexpected');
+must(NRY_Git_Publisher::buyer_source_proof_snapshot('pipaky-main')['rows'][0]['state']
+ ==='BLOCKED_NON_STRING_SEO_METADATA','wrong SEO metadata type blocked');
 echo "PASS: bounded source and Yoast hashes for beginner, no private body, zero writes, fail closed\n";
