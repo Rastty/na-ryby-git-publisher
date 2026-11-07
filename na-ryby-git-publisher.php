@@ -73,6 +73,11 @@ final class NRY_Git_Publisher {
                 // A single correction-only release removes six invented 1–10
                 // numerical ratings without adding another redundant top panel.
                 // All other schema v8 operations remain the original prepend flow.
+                if (($e['placement'] ?? '') === 'ranking_claims_only') {
+                    $check=self::validate_alarm_ranking_correction($e,$data);
+                    if (is_wp_error($check)) return $check;
+                    continue;
+                }
                 if (($e['placement'] ?? '') === 'price_corrections_only') {
                     $check=self::validate_pipaky_price_correction($e,$data);
                     if (is_wp_error($check)) return $check;
