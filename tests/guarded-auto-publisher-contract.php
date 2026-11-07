@@ -122,4 +122,93 @@ ok($GLOBALS['exec_calls'] === 1 && get_option(NRY_Guarded_Auto_Publisher::ENABLE
 ok(get_option(NRY_Guarded_Auto_Publisher::LOCK) === false,
     'exception releases owned atomic lock');
 
+// The old plugin parser once saw the new manifest during DFG atomic update
+// and safely stopped. Owner recovery is allowed only for that exact already
+// authorized one-post/same-SHA manifest, with no admin disable or stale lock.
+function recovery_case() {
+    reset_case(8);
+    $GLOBALS['options']=array(
+        NRY_Guarded_Auto_Publisher::ENABLED=>'no',
+        'nry_gp_owner_bootstrap_20261102'=>'yes',
+        NRY_Guarded_Auto_Publisher::LAST_BATCH=>
+            'pipaky-pokrocile-rozhodnuti-36702-20261107-v1',
+        NRY_Guarded_Auto_Publisher::LAST_MANIFEST_SHA=>str_repeat('a',64),
+        NRY_Guarded_Auto_Publisher::RECEIPT=>array('status'=>'stopped',
+            'reason'=>'invalid_manifest_on_deploy','at'=>'2026-11-07T13:09:00Z')
+    );
+    NRY_Git_Publisher::$manifest=array(
+        'schema_version'=>8,
+        'batch_id'=>'pipaky-pokrocile-five-price-fix-36702-20261107-v1',
+        'edits'=>array(array('post_id'=>36702,
+            'placement'=>'price_corrections_only',
+            'source_sha256'=>'b862ecbd7abc3a87864df1eb6e2c6ff1c4a2621216d941acbfab646bff71d735',
+            'source_modified_gmt'=>'2026-11-07 11:23:04',
+            'source_min_bytes'=>12938,'source_max_bytes'=>12939))
+    );
+    NRY_Git_Publisher::$rows=array(array('id'=>36702,
+        'status'=>'ready',
+        'source_sha'=>'b862ecbd7abc3a87864df1eb6e2c6ff1c4a2621216d941acbfab646bff71d735',
+        'candidate_sha'=>str_repeat('b',64)));
+    NRY_Git_Publisher::$result=array('status'=>'applied_and_verified','writes'=>1);
+}
+recovery_case();
+NRY_Guarded_Auto_Publisher::recover_price_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='yes'
+ && get_option('nry_gp_owner_price_recovery_20261107',false)!==false
+ && get_option(NRY_Guarded_Auto_Publisher::RECEIPT)['status']
+     ==='owner_recovered_validated_manifest'
+ && $GLOBALS['exec_calls']===0,
+ 'specific owner recovery only re-enables, never writes directly');
+NRY_Guarded_Auto_Publisher::tick_on_new_manifest();
+ok($GLOBALS['exec_calls']===1
+ && get_option(NRY_Guarded_Auto_Publisher::LAST_BATCH)
+    ==='pipaky-pokrocile-five-price-fix-36702-20261107-v1',
+ 'existing source-bound tick runs one verified five-price batch');
+NRY_Guarded_Auto_Publisher::recover_price_manifest_after_update();
+NRY_Guarded_Auto_Publisher::tick_on_new_manifest();
+ok($GLOBALS['exec_calls']===1,'recovery cannot replay already applied batch');
+recovery_case();
+$GLOBALS['options'][NRY_Guarded_Auto_Publisher::RECEIPT]=array(
+ 'status'=>'disabled_by_admin');
+NRY_Guarded_Auto_Publisher::recover_price_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no'
+ &&$GLOBALS['exec_calls']===0,'administrator disable always authoritative');
+recovery_case();
+$GLOBALS['options'][NRY_Guarded_Auto_Publisher::RECEIPT]['reason']='preflight_blocked';
+NRY_Guarded_Auto_Publisher::recover_price_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no',
+ 'other safety stops never auto-recover');
+recovery_case();
+$GLOBALS['options'][NRY_Guarded_Auto_Publisher::LOCK]=array(
+ 'token'=>'unknown','expires'=>time()-100);
+NRY_Guarded_Auto_Publisher::recover_price_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no'
+ &&get_option(NRY_Guarded_Auto_Publisher::LOCK)!==false,
+ 'stale lock never stolen for recovery');
+recovery_case();
+unset($GLOBALS['options']['nry_gp_owner_bootstrap_20261102']);
+NRY_Guarded_Auto_Publisher::recover_price_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no',
+ 'no previous owner enable means no recovery');
+recovery_case();
+NRY_Git_Publisher::$manifest['edits'][0]['source_sha256']=str_repeat('0',64);
+NRY_Guarded_Auto_Publisher::recover_price_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no',
+ 'unapproved source SHA cannot recover');
+recovery_case();
+NRY_Git_Publisher::$rows=array(array('id'=>36702,'status'=>'blocked'));
+NRY_Guarded_Auto_Publisher::recover_price_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no',
+ 'current WordPress source preflight blocked means no recovery');
+recovery_case();
+$GLOBALS['options'][NRY_Guarded_Auto_Publisher::LAST_BATCH]='other-batch';
+NRY_Guarded_Auto_Publisher::recover_price_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no',
+ 'unexpected last processed batch prohibits recovery');
+recovery_case();
+$GLOBALS['options']['nry_gp_owner_price_recovery_20261107']=array('already'=>true);
+NRY_Guarded_Auto_Publisher::recover_price_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no',
+ 'single-use recovery guard is irreversible even after a failure');
+
 echo "Guarded auto publisher tests successful.\n";
