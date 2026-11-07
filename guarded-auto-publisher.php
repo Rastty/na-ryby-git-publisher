@@ -18,6 +18,7 @@ final class NRY_Guarded_Auto_Publisher {
         add_action('init', array(__CLASS__, 'schedule'));
         add_action(self::EVENT, array(__CLASS__, 'tick'));
         // Deploy is followed by a public GET; run a new bounded manifest immediately.
+        add_action('wp_loaded', array(__CLASS__, 'recover_price_manifest_after_update'), 29);
         add_action('wp_loaded', array(__CLASS__, 'tick_on_new_manifest'), 30);
         add_action('admin_menu', array(__CLASS__, 'menu'));
         add_action('admin_post_nry_gp_auto_toggle', array(__CLASS__, 'toggle'));
@@ -45,6 +46,62 @@ final class NRY_Guarded_Auto_Publisher {
         if (!add_option($flag,'yes','',false)) return;
         self::schedule();
         self::receipt('owner_enabled_existing_batch_skipped',array('baseline'=>$manifest['batch_id']));
+    }
+
+
+    /**
+     * Narrow, one-time owner-authorized recovery of an atomic plugin update
+     * where the OLD V8 parser saw the NEW five-price manifest mid-deployment
+     * and stopped with invalid_manifest_on_deploy. It must not override any
+     * administrator disable, any other safety stop, or an active/stale lock.
+     *
+     * Recovery performs NO content writes itself. The existing tick() runs
+     * afterward and rechecks source SHA, all five safe spans, unique backup,
+     * atomic lock, exact candidate and WordPress-local readback. The one-shot
+     * option is deliberately never deleted, even after a failed tick.
+     */
+    public static function recover_price_manifest_after_update() {
+        if (rtrim(home_url('/'),'/')!=='https://na-ryby.eu'
+            || get_option(self::ENABLED,'no')==='yes'
+            || get_option('nry_gp_owner_bootstrap_20261102',false)!=='yes'
+            || get_option('nry_gp_owner_price_recovery_20261107',false)!==false
+            || get_option(self::LOCK,false)!==false
+            || get_option(self::LAST_BATCH,'')!=='pipaky-pokrocile-rozhodnuti-36702-20261107-v1'
+            || !is_string(get_option(self::LAST_MANIFEST_SHA,''))
+            || !preg_match('/^[a-f0-9]{64}$/D',get_option(self::LAST_MANIFEST_SHA,''))) return;
+        $prior=get_option(self::RECEIPT,array());
+        if (!is_array($prior)
+            || ($prior['status']??'')!=='stopped'
+            || ($prior['reason']??'')!=='invalid_manifest_on_deploy') return;
+        $manifest=NRY_Git_Publisher::manifest();
+        if (is_wp_error($manifest) || ($manifest['schema_version']??null)!==8
+            || ($manifest['batch_id']??'')!=='pipaky-pokrocile-five-price-fix-36702-20261107-v1'
+            || count($manifest['edits']??array())!==1) return;
+        $e=$manifest['edits'][0];
+        if (($e['post_id']??null)!==36702
+            || ($e['placement']??'')!=='price_corrections_only'
+            || ($e['source_sha256']??'')!=='b862ecbd7abc3a87864df1eb6e2c6ff1c4a2621216d941acbfab646bff71d735'
+            || ($e['source_modified_gmt']??'')!=='2026-11-07 11:23:04'
+            || ($e['source_min_bytes']??0)!==12938
+            || ($e['source_max_bytes']??0)!==12939) return;
+        $rows=NRY_Git_Publisher::plan($manifest);
+        if (is_wp_error($rows) || count($rows)!==1
+            || ($rows[0]['id']??null)!==36702
+            || ($rows[0]['status']??'')!=='ready'
+            || ($rows[0]['source_sha']??'')!==$e['source_sha256']
+            || !is_string($rows[0]['candidate_sha']??null)
+            || !preg_match('/^[a-f0-9]{64}$/D',$rows[0]['candidate_sha'])) return;
+        // Last millisecond recheck before claiming the exclusive recovery.
+        if (get_option(self::ENABLED,'no')==='yes'
+            || get_option(self::LOCK,false)!==false
+            || get_option(self::RECEIPT,array())!==$prior) return;
+        $receipt=array('batch'=>$manifest['batch_id'],
+            'at'=>gmdate('c'),'reason'=>'owner_validated_single_price_batch');
+        if (!add_option('nry_gp_owner_price_recovery_20261107',$receipt,'','no')) return;
+        update_option(self::ENABLED,'yes',false);
+        self::schedule();
+        self::receipt('owner_recovered_validated_manifest',array(
+            'batch_id'=>$manifest['batch_id'],'writes'=>0));
     }
 
     public static function tick_on_new_manifest() {
