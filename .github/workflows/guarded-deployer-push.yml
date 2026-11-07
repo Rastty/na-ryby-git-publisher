@@ -336,46 +336,16 @@ jobs:
           row=proof['rows'][0]
           assert row['state']=='SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY'
           assert row['id']==60354 and row['slug']=='nejlepsi-rybarske-hlasice-a-signalizatory'
-          # The exact old source was independently verified at 20174 bytes
-          # in production read-only run 42395638130. On the one reviewed new
-          # batch, native WordPress has already applied before this GET. Do
-          # not falsely demand old SHA after a guarded successful new write.
-          old_sha='a7d76b5908e09c4bd128548806c5bb3589b9aed88546770f4f4a9604ec0fea83'
-          old_gmt='2026-10-23 06:35:08'
-          with open('manifest.json',encoding='utf8') as f: current=json.load(f)
-          reviewed=(
-              current.get('schema_version')==8
-              and current.get('batch_id')=='alarm-ranking-60354-legacy-claims-fix-20261107-v1'
-              and len(current.get('edits',[]))==1
-              and current['edits'][0].get('post_id')==60354
-              and current['edits'][0].get('placement')=='ranking_claims_only'
-              and current['edits'][0].get('source_sha256')==old_sha
-              and current['edits'][0].get('source_modified_gmt')==old_gmt
-              and current['edits'][0].get('source_min_bytes')==20174
-              and current['edits'][0].get('source_max_bytes')==20175
-          )
-          if reviewed:
-              health_req=urllib.request.Request(
-                  'https://na-ryby.eu/poradce-vybavy/?nry_release_health=1',
-                  headers={'Cache-Control':'no-cache,no-store',
-                           'User-Agent':'Nry60354OneBatchPostWriteReadOnly/1.0'})
-              with guarded_urlopen(health_req,timeout=25) as res:
-                  assert res.status==200
-                  health=json.loads(res.read(4096))
-              assert health.get('publisher_version')=='0.16.0'
-              assert health.get('last_auto_batch_id')==current['batch_id']
-              assert health.get('last_auto_receipt_status')=='applied_and_verified_local'
-              assert health.get('candidate_matches') is True
-              assert health.get('source_matches') is False
-              assert health.get('backup_present') is True
-              assert health.get('guarded_publisher_enabled') is True
-              assert row['source_sha256']!=old_sha
-              assert row['source_modified_gmt']>old_gmt
-              assert 5000 < row['source_bytes'] < 100000
-          else:
-              assert row['source_sha256']==old_sha
-              assert row['source_modified_gmt']==old_gmt
-              assert row['source_bytes']==20174
+          # Exact new WordPress source independently verified after one
+          # source-bound six-score/six-claim repair, run 42396656398;
+          # public HTTP200 semantic PUBLIC_VERIFIED_ALL (1/1). Permanent,
+          # not a conditional bypass on a particular manifest.
+          expected_source='36a361eb839948cb41b81490b2969a6b0e12540862cf7c572ffef0893ec39005'
+          expected_bytes=20528
+          expected_modified_gmt='2026-11-07 17:30:55'
+          assert row['source_sha256']==expected_source
+          assert row['source_bytes']==expected_bytes
+          assert row['source_modified_gmt']==expected_modified_gmt
           keys={'false_shop_claim','unproven_price_winner',
                 'unproven_top_winner','five_stars','four_stars',
                 'unproven_waterproof','unproven_waterproof_guarantee',
@@ -385,18 +355,7 @@ jobs:
           assert set(raw)==keys and set(safe)==keys
           assert all(type(raw[k]) is int and type(safe[k]) is int
                      and raw[k]>=safe[k]>=0 for k in keys)
-          if reviewed:
-              assert all(raw[k]==0 and safe[k]==0 for k in keys)
-              print('NRY_60354_POST_WRITE_SOURCE_REPIN_REQUIRED',json.dumps({
-                  'sha':row['source_sha256'],'bytes':row['source_bytes'],
-                  'modified_gmt':row['source_modified_gmt'],
-                  'last_auto_batch_id':health['last_auto_batch_id'],
-                  'last_auto_receipt_status':health['last_auto_receipt_status'],
-                  'wordpress_writes_by_source_proof':0},sort_keys=True))
-          else:
-              assert raw['five_stars']==4 and raw['four_stars']==6
-              assert all(raw[k]==safe[k]==1 for k in
-                  keys-{'five_stars','four_stars'})
+          assert all(raw[k]==0 and safe[k]==0 for k in keys)
           assert 'post_content' not in row and 'hrefs' not in row
           print('NRY_60354_SOURCE_CLAIM_COUNTS',json.dumps({
               'post_id':row['id'],'source_sha256':row['source_sha256'],
