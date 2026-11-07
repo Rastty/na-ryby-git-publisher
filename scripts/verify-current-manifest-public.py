@@ -83,7 +83,34 @@ def check_target(target, fetch=read_public):
     # The protected trust-repair canary must also remove verified deceptive
     # source copy. An inserted banner alone does not pass this semantic gate.
     semantic_ok = True
-    if target["post_id"] == 35755 and target["edit_id"] == "pipaky-diagnostika-35755-20261107-v1":
+    if target["post_id"] == 42401 and target["edit_id"] == "pipaky-navod-42401-quick-choice-20261107-v1":
+        # Never pass an inserted marker alone as useful visitor advice.
+        # Require all four problem-first choices and exact internal routes.
+        begin = html.find('<section ' + marker)
+        finish = html.find('</section>', begin) if begin >= 0 else -1
+        panel = html[begin:finish] if finish > begin else ""
+        routes = (
+            'href="https://na-ryby.eu/proc-mi-signalizator-pipa-bez-zaberu-5-nejcastejsich-pricin-a-jak-je-vyresit/"',
+            'href="https://na-ryby.eu/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/"',
+            'href="https://na-ryby.eu/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/"',
+            'href="https://na-ryby.eu/baterie-do-signalizatoru-ktere-vydrzi-nejdele-a-proc-nekupovat-levne/"',
+        )
+        semantic_ok = (
+            panel.startswith('<section ' + marker)
+            and panel.count('<li>') == 4
+            and panel.count('<a href=') == 4
+            and '<h2>Pípák na ryby: koupit nový, nebo nejdřív opravit nastavení?</h2>' in panel
+            and all(phrase in panel for phrase in (
+                'Pípá i bez záběru?',
+                'Začínáte s jedním prutem?',
+                'Chcete sadu s příposlechem?',
+                'Pípák mlčí nebo je zvuk slabý?',
+                'není důvod automaticky kupovat nový',
+                'Ceny, sklad a kompatibilitu konkrétní varianty',
+            ))
+            and all(panel.count(route) == 1 for route in routes)
+        )
+    elif target["post_id"] == 35755 and target["edit_id"] == "pipaky-diagnostika-35755-20261107-v1":
         # An HTML marker without the concrete four-symptom diagnostic or
         # preserved, safe same-site next steps is not a user-facing improvement.
         start = html.find('<section ' + marker)
@@ -233,7 +260,7 @@ def check_target(target, fetch=read_public):
               and count == 1 and semantic_ok)
     return {"post_id": target["post_id"], "url": target["url"],
             "http": response.get("http"), "marker_count": count,
-            "semantic_trust_verified": semantic_ok if target["post_id"] in (35755,36702,60341,118455,118553,118218) else None,
+            "semantic_trust_verified": semantic_ok if target["post_id"] in (42401,35755,36702,60341,118455,118553,118218) else None,
             "status": "PUBLIC_MARKER_VERIFIED" if passed else
                       ("NOT_PUBLIC_OR_CACHE_STALE" if response.get("status") == "READ_OK"
                        else response.get("status", "READER_ERROR"))}
