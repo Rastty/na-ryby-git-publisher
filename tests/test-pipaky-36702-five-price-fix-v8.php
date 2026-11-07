@@ -52,7 +52,10 @@ $posts[36702]=(object)array('ID'=>36702,'post_type'=>'post','post_status'=>'publ
  'post_name'=>$e['slug'],'post_modified_gmt'=>$e['source_modified_gmt'],
  'post_content'=>$source);
 $fixture=$m;$fixture['edits'][0]['source_sha256']=hash('sha256',$source);
-must(!is_wp_error(NRY_Git_Publisher::validate_manifest($fixture)),'fixture valid');
+// A synthetic body can exercise inspect/apply/rollback internals, but MUST
+// never pass the LIVE manifest identity gate: only real production SHA is valid.
+must(is_wp_error(NRY_Git_Publisher::validate_manifest($fixture)),
+ 'synthetic source cannot authorize real WordPress publication');
 $ready=NRY_Git_Publisher::plan($fixture);
 must($ready[0]['status']==='ready','five plain text source spans ready');
 $candidate=$ready[0]['candidate'];
