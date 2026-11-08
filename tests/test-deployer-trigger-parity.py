@@ -105,9 +105,36 @@ assert "health.get('backup_present') is True" in workflow
 # stage order and the live row variable so the mix-up cannot recur.
 rank_start=workflow.index("          print('NRY_60354_SOURCE_CLAIM_COUNTS'")
 budget_start=workflow.index("          raw=r.get('historical_offer_raw_counts')")
-budget_transition=workflow.index("          # Fresh independent preflight: run 42460178190")
+budget_transition=workflow.index("          # One exact reviewed post-write transition only.")
 budget_receipt=workflow.index("          print('NRY_118455_HISTORIC_OFFERS_COUNTS'")
 assert rank_start<budget_start<budget_transition<budget_receipt
 assert "old_sha='f0ba0b4dcd29646d470d084af077623b12fa687935347e626203a13107e7be79'" not in workflow[rank_start:budget_start]
 assert "r['source_sha256']!=old_sha" in workflow[budget_start:budget_receipt]
+# Compile every inline Python heredoc, not only the workflow YAML. In
+# previous releases an accidentally truncated block passed string tests but
+# triggered a Python NameError / IndentationError on production; this guards
+# syntax of exactly the code embedded in the workflow before site deployment.
+import re
+import textwrap
+heredoc_starts=list(re.finditer(r"(?m)^[ \t]*python3 - <<'PY'[ \t]*$",workflow))
+assert len(heredoc_starts)>=8, 'unexpected missing inline Python checks'
+for index,m in enumerate(heredoc_starts):
+    tail=workflow[m.end():]
+    close=re.search(r"(?m)^[ \t]*PY[ \t]*$",tail)
+    assert close, f"unclosed workflow Python heredoc {index}"
+    code=textwrap.dedent(tail[:close.start()])
+    compile(code,f'guarded-deployer-inline-{index}.py','exec')
+# Schema-specific claims are in their original independent audit steps.
+rank_step=workflow.split(
+    '      - name: Exact 60354 legacy-ranking source and safe visible-claim counts (GET only)'
+)[1].split('      - name: Read-only exact live source and Yoast hashes for broad pípáky guide #42401')[0]
+budget_step=workflow.split(
+    '      - name: Prove exact read-only WordPress source of 15k echolot buyer guide'
+)[1].split('      - name: Read-only exact echolot pillar source proof from live WordPress')[0]
+assert 'NRY_118455_NEW_SOURCE_PIN_REQUIRED' not in rank_step
+assert 'NRY_60354_SOURCE_CLAIM_COUNTS' in rank_step
+assert "expected_source='36a361eb839948cb41b81490b2969a6b0e12540862cf7c572ffef0893ec39005'" in rank_step
+assert "old_sha='f0ba0b4dcd29646d470d084af077623b12fa687935347e626203a13107e7be79'" in budget_step
+assert 'NRY_118455_NEW_SOURCE_PIN_REQUIRED' in budget_step
+assert budget_step.count("if reviewed:")==1 and budget_step.count("else:")==1
 print("PASS: all live publisher modules trigger PR review and guarded main deploy")
