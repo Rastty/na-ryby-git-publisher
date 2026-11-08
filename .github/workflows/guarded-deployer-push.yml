@@ -364,17 +364,6 @@ jobs:
           assert all(type(raw[k]) is int and type(safe[k]) is int
                      and raw[k]>=safe[k]>=0 for k in keys)
           assert all(raw[k]==0 and safe[k]==0 for k in keys)
-              print('NRY_118455_NEW_SOURCE_PIN_REQUIRED',json.dumps({
-                'sha':r['source_sha256'],'bytes':r['source_bytes'],
-                'gmt':r['source_modified_gmt'],'oldClaims':raw,
-                'batch':current['batch_id']},sort_keys=True))
-          else:
-              assert r['source_sha256']==old_sha
-              assert r['source_bytes']==39795
-              assert r['source_modified_gmt']==old_gmt
-              assert all(raw[k]==1 and safe[k]==1 for k in keys)
-
-          assert all(raw[k]==0 and safe[k]==0 for k in keys)
           assert 'post_content' not in row and 'hrefs' not in row
           print('NRY_60354_SOURCE_CLAIM_COUNTS',json.dumps({
               'post_id':row['id'],'source_sha256':row['source_sha256'],
@@ -678,11 +667,8 @@ jobs:
           assert set(raw)==keys and set(safe)==keys
           assert all(type(raw[k]) is int and type(safe[k]) is int
                      and raw[k]>=safe[k]>=0 for k in keys)
-          # Fresh independent preflight: run 42460178190, 2026-11-08,
-          # exact WP post-content SHA/39795 bytes/GMT and 3 visible-safe spans.
-          # For the exact staged one-post batch only, WordPress has already
-          # written before this read-only proof step. A post-write SHA change
-          # must be tied to same-batch native candidate receipt and backup.
+          # One exact reviewed post-write transition only. All other
+          # articles preserve their independent permanent source pins.
           old_sha='f0ba0b4dcd29646d470d084af077623b12fa687935347e626203a13107e7be79'
           old_gmt='2026-11-04 11:04:24'
           with open('manifest.json',encoding='utf8') as fd:
@@ -715,7 +701,17 @@ jobs:
               assert r['source_sha256']!=old_sha
               assert r['source_modified_gmt']>old_gmt
               assert 39000<r['source_bytes']<43000
-              print('NRY_118455_HISTORIC_OFFERS_COUNTS',json.dumps({
+              assert all(raw[key]==0 and safe[key]==0 for key in keys)
+              print('NRY_118455_NEW_SOURCE_PIN_REQUIRED',json.dumps({
+                  'sha':r['source_sha256'],'bytes':r['source_bytes'],
+                  'gmt':r['source_modified_gmt'],'oldClaims':raw,
+                  'batch':current['batch_id']},sort_keys=True))
+          else:
+              assert r['source_sha256']==old_sha
+              assert r['source_bytes']==39795
+              assert r['source_modified_gmt']==old_gmt
+              assert all(raw[key]==1 and safe[key]==1 for key in keys)
+          print('NRY_118455_HISTORIC_OFFERS_COUNTS',json.dumps({
               'postId':r['id'],'sourceSha256':r['source_sha256'],
               'modifiedGmt':r['source_modified_gmt'],'sourceBytes':r['source_bytes'],
               'raw':raw,'safe':safe,'wordpressWrites':0,'publicationAuthorized':False
