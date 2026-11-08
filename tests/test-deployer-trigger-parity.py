@@ -92,5 +92,12 @@ assert "assert row['source_bytes']==expected_bytes" in workflow
 assert "assert row['source_modified_gmt']==expected_modified_gmt" in workflow
 assert "assert all(raw[k]==0 and safe[k]==0 for k in keys)" in workflow
 assert "NRY_60354_POST_WRITE_SOURCE_REPIN_REQUIRED" not in workflow
-assert "reviewed=(" not in workflow
+# #60354 remains permanently pinned. The ONLY temporary transition is
+# the exact newly reviewed #118455 one-post batch, which must include
+# native WordPress backup and local candidate receipt proofs.
+assert "NRY_60354_POST_WRITE_SOURCE_REPIN_REQUIRED" not in workflow
+assert "current['edits'][0].get('post_id')==118455" in workflow
+assert "current.get('batch_id')=='echolot-budget-118455-three-offers-fix-20261108-v1'" in workflow
+assert "health.get('candidate_matches') is True" in workflow
+assert "health.get('backup_present') is True" in workflow
 print("PASS: all live publisher modules trigger PR review and guarded main deploy")
