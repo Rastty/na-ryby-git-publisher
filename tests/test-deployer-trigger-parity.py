@@ -92,28 +92,19 @@ assert "assert row['source_bytes']==expected_bytes" in workflow
 assert "assert row['source_modified_gmt']==expected_modified_gmt" in workflow
 assert "assert all(raw[k]==0 and safe[k]==0 for k in keys)" in workflow
 assert "NRY_60354_POST_WRITE_SOURCE_REPIN_REQUIRED" not in workflow
-# #60354 remains permanently pinned. The ONLY temporary transition is
-# the exact newly reviewed #118455 one-post batch, which must include
-# native WordPress backup and local candidate receipt proofs.
+# Two independent source-locked public interventions are permanently pinned.
+# A future new batch must never reopen a stale #118455 or #60354 source
+# transition just because a manifest is reused or the page cache is stale.
 assert "NRY_60354_POST_WRITE_SOURCE_REPIN_REQUIRED" not in workflow
-assert "current['edits'][0].get('post_id')==118455" in workflow
-assert "current.get('batch_id')=='echolot-budget-118455-three-offers-fix-20261108-v1'" in workflow
-assert "health.get('candidate_matches') is True" in workflow
-assert "health.get('backup_present') is True" in workflow
-# A prior draft inserted the transient 118455 logic into the permanent
-# 60354 rank-proof step and failed before any public confirmation. Guard
-# stage order and the live row variable so the mix-up cannot recur.
-rank_start=workflow.index("          print('NRY_60354_SOURCE_CLAIM_COUNTS'")
-budget_start=workflow.index("          raw=r.get('historical_offer_raw_counts')")
-budget_transition=workflow.index("          # One exact reviewed post-write transition only.")
-budget_receipt=workflow.index("          print('NRY_118455_HISTORIC_OFFERS_COUNTS'")
-assert rank_start<budget_start<budget_transition<budget_receipt
-assert "old_sha='f0ba0b4dcd29646d470d084af077623b12fa687935347e626203a13107e7be79'" not in workflow[rank_start:budget_start]
-assert "r['source_sha256']!=old_sha" in workflow[budget_start:budget_receipt]
-# Compile every inline Python heredoc, not only the workflow YAML. In
-# previous releases an accidentally truncated block passed string tests but
-# triggered a Python NameError / IndentationError on production; this guards
-# syntax of exactly the code embedded in the workflow before site deployment.
+assert "NRY_118455_NEW_SOURCE_PIN_REQUIRED" not in workflow
+assert "old_sha='f0ba0b4dcd29646d470d084af077623b12fa687935347e626203a13107e7be79'" not in workflow
+assert "current_sha='6d8736d5d2f62a5f6170871a7630d9e097f6dc6839a461e97da53d95cb166f7e'" in workflow
+assert "current_bytes=39897" in workflow
+assert "current_gmt='2026-11-08 07:56:27'" in workflow
+assert "assert r['source_sha256']==current_sha" in workflow
+assert "assert r['source_bytes']==current_bytes" in workflow
+assert "assert r['source_modified_gmt']==current_gmt" in workflow
+assert "assert all(raw[key]==0 and safe[key]==0 for key in keys)" in workflow
 import re
 import textwrap
 heredoc_starts=list(re.finditer(r"(?m)^[ \t]*python3 - <<'PY'[ \t]*$",workflow))
@@ -122,19 +113,18 @@ for index,m in enumerate(heredoc_starts):
     tail=workflow[m.end():]
     close=re.search(r"(?m)^[ \t]*PY[ \t]*$",tail)
     assert close, f"unclosed workflow Python heredoc {index}"
-    code=textwrap.dedent(tail[:close.start()])
-    compile(code,f'guarded-deployer-inline-{index}.py','exec')
-# Schema-specific claims are in their original independent audit steps.
+    compile(textwrap.dedent(tail[:close.start()]),f'guarded-deployer-inline-{index}.py','exec')
 rank_step=workflow.split(
     '      - name: Exact 60354 legacy-ranking source and safe visible-claim counts (GET only)'
 )[1].split('      - name: Read-only exact live source and Yoast hashes for broad pípáky guide #42401')[0]
 budget_step=workflow.split(
     '      - name: Prove exact read-only WordPress source of 15k echolot buyer guide'
 )[1].split('      - name: Read-only exact echolot pillar source proof from live WordPress')[0]
-assert 'NRY_118455_NEW_SOURCE_PIN_REQUIRED' not in rank_step
 assert 'NRY_60354_SOURCE_CLAIM_COUNTS' in rank_step
 assert "expected_source='36a361eb839948cb41b81490b2969a6b0e12540862cf7c572ffef0893ec39005'" in rank_step
-assert "old_sha='f0ba0b4dcd29646d470d084af077623b12fa687935347e626203a13107e7be79'" in budget_step
-assert 'NRY_118455_NEW_SOURCE_PIN_REQUIRED' in budget_step
-assert budget_step.count("if reviewed:")==1 and budget_step.count("else:")==1
+assert "current_sha='6d8736d5d2f62a5f6170871a7630d9e097f6dc6839a461e97da53d95cb166f7e'" in budget_step
+assert "current_bytes=39897" in budget_step
+assert "current_gmt='2026-11-08 07:56:27'" in budget_step
+assert "assert all(raw[key]==0 and safe[key]==0 for key in keys)" in budget_step
+assert 'NRY_118455_HISTORIC_OFFERS_COUNTS' in budget_step
 print("PASS: all live publisher modules trigger PR review and guarded main deploy")
