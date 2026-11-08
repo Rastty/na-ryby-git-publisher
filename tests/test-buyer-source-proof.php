@@ -114,6 +114,31 @@ must(!isset($echolot['rows'][0]['post_content'])
     && !isset($echolot['rows'][0]['rendered'])
     && !isset($echolot['rows'][0]['cj_urls']),
     'echolot raw HTML and commercial URLs withheld');
+$GLOBALS['sources'][118455]->post_content='<p>v době přípravy článku skladem za 4 509 Kč</p>'
+ .'<li>aktuálně 10 542 Kč a skladem 1 ks</li>'
+ .'<p>v době přípravy článku skladem za 13 889 Kč</p>'
+ .str_repeat('<p>Rybářský nákupní průvodce.</p>',250);
+$prices=NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-budget');
+must(count($prices['rows'])===1,'exact budget post remains scoped');
+must($prices['rows'][0]['source_sha256']===hash('sha256',$GLOBALS['sources'][118455]->post_content),
+ 'price fixture hashes full raw WordPress source');
+must($prices['rows'][0]['historical_offer_raw_counts']===
+ array('eagle4x_old_offer'=>1,'hook5_old_offer'=>1,'eagle7_old_offer'=>1),
+ 'three exact historic price + stock statements counted');
+must($prices['rows'][0]['historical_offer_safe_plain_counts']===
+ array('eagle4x_old_offer'=>1,'hook5_old_offer'=>1,'eagle7_old_offer'=>1),
+ 'three statements visible safely outside protected href or attributes');
+must(!isset($prices['rows'][0]['post_content'])
+  && !isset($prices['rows'][0]['hrefs'])
+  && $prices['wordpress_writes']===0 && $prices['publication_authorized']===false,
+  'never expose post body or grant edits');
+$GLOBALS['sources'][118455]->post_content='<a href="https://na-ryby.eu/?q='
+  .'aktuálně 10 542 Kč a skladem 1 ks'.'">See offer</a>'
+  .str_repeat('<p>Historický průvodce.</p>',250);
+$guarded=NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-budget');
+must($guarded['rows'][0]['historical_offer_raw_counts']['hook5_old_offer']===1
+  && $guarded['rows'][0]['historical_offer_safe_plain_counts']['hook5_old_offer']===0,
+  'text inside anchor attribute cannot be treated as safe visible prose');
 $GLOBALS['sources'][118455]->post_status='draft';
 must(NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-budget')['rows'][0]['state']
     ==='BLOCKED_IDENTITY_OR_SOURCE', 'echolot draft rejected');
