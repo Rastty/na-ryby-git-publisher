@@ -22,6 +22,26 @@ for target,edit in zip(targets,batch["edits"]):
     assert verify(html.replace('<ul>','',1))["status"]!="PUBLIC_MARKER_VERIFIED"
     assert verify(html.replace('<h2>','<h4>',1))["status"]!="PUBLIC_MARKER_VERIFIED"
     assert verify(html.replace('https://na-ryby.eu/poradce-vybavy/','https://wrong.example/'))["status"]!="PUBLIC_MARKER_VERIFIED"
+    # Frontend link filters may add one internal taxonomy link and an
+    # encyclopedic reference, but never arbitrary merchant outbound links.
+    # The original author's target URLs must stay present as clickable links.
+    wiki='<a href="https://en.wikipedia.org/wiki/GPS">GPS reference</a>'
+    extra='<a href="https://na-ryby.eu/echoloty/">Echoloty category</a>'+wiki
+    rendered=html.replace('<h2>',extra+'<h2>',1)
+    if target["post_id"]==36518:
+        boat='https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/'
+        rendered=rendered.replace('</section>','<a href="'+boat+'">Detail pro loď</a></section>',1)
+    assert verify(rendered)["status"]=="PUBLIC_MARKER_VERIFIED", \
+      "limited safe auto-links must not falsify accurate buyer advice"
+    wrong=rendered.replace('https://en.wikipedia.org/wiki/GPS',
+                            'https://unknown-merchant.example/tracker',1)
+    assert verify(wrong)["status"]!="PUBLIC_MARKER_VERIFIED", \
+      "unknown external commerce destination cannot be waved through"
+    tracked=rendered.replace('https://na-ryby.eu/poradce-vybavy/',
+                             'https://na-ryby.eu/poradce-vybavy/?aid=unknown',1)
+    assert verify(tracked)["status"]!="PUBLIC_MARKER_VERIFIED", \
+      "unexpected tracking URL must fail closed"
+
     assert verify(html.replace('data-nry-editorial-edit=', 'data-invalid-marker=',1))["status"]!="PUBLIC_MARKER_VERIFIED"
     if target["post_id"]==60637:
         assert verify(html.replace('Kajak nebo přenosná sestava','',1))["status"]!="PUBLIC_MARKER_VERIFIED"

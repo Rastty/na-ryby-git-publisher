@@ -82,6 +82,48 @@ def read_public(url):
         return {"status": "READER_ERROR", "error_type": type(exc).__name__}
 
 
+def sonar_bounded_rendered_links(panel, routes, role):
+    """Validate rendered links, including bounded reference autolinks.
+
+    The saved source has only reviewed internal URLs; a frontend auto-linker
+    may inject one same-origin taxonomy link and one Wikipedia reference.
+    Never accept an unverified external destination, tracking params or
+    unexpected duplicates as a shortcut to PUBLIC_VERIFIED_ALL.
+    """
+    import html as html_utils
+    from urllib.parse import urlsplit
+    hrefs=re.findall(r"""<a\b[^>]*?href\s*=\s*["']([^"']+)["']""",panel,re.I)
+    expected=[urlsplit(r.split('href="',1)[1].rstrip('"')).path for r in routes]
+    counts=[0]*len(expected)
+    taxonomy=0
+    wikipedia=0
+    for href in hrefs:
+        parsed=urlsplit(html_utils.unescape(href))
+        if parsed.scheme=='https' and parsed.netloc in ('cs.wikipedia.org','en.wikipedia.org','www.wikipedia.org'):
+            if parsed.query or parsed.fragment: return False
+            wikipedia+=1
+            continue
+        if parsed.scheme not in ('https','') or parsed.netloc not in ('na-ryby.eu',''):
+            return False
+        if parsed.query or parsed.fragment or not parsed.path.startswith('/'):
+            return False
+        if parsed.path in expected:
+            counts[expected.index(parsed.path)]+=1
+        else:
+            taxonomy+=1
+    if role=='boat':
+        return counts==[1,1,1] and taxonomy<=1 and wikipedia<=1 and len(hrefs)<=5
+    if role=='historic':
+        return counts in ([1,1,1,1],[1,1,2,1]) and taxonomy<=1 and wikipedia<=1 and len(hrefs)<=7
+    return False
+
+
+def sonar_visible_phrase(panel,phrase):
+    import html as html_utils
+    text=' '.join(html_utils.unescape(re.sub(r'<[^>]+>',' ',panel)).split())
+    return phrase in text
+
+
 def check_target(target, fetch=read_public):
     response = fetch(target["url"])
     html = response.get("html", "")
@@ -284,8 +326,7 @@ def check_target(target, fetch=read_public):
                 'nemusíte kupovat novou',
                 'Starší ceny a tvrzení o skladovosti nejsou důkazem aktuální nabídky.',
             ))
-            and all(panel.count(route) == 1 for route in routes)
-            and panel.count('<a href=') == 3
+            and sonar_bounded_rendered_links(panel,routes,'boat')
         )
     elif target["post_id"] == 36518 and target["edit_id"] == "echolot-historic-decision-36518-20261108-v1":
         # Historic comparison must not masquerade as current test, price
@@ -312,10 +353,9 @@ def check_target(target, fetch=read_public):
                 'Vracíte se na stejné lovné body',
                 'Chcete zkoumat prostor vedle člunu',
                 'kompatibilitu a typ sondy',
-                'nový echolot nepotřebujete',
             ))
-            and all(panel.count(route) == 1 for route in routes)
-            and panel.count('<a href=') == 4
+            and sonar_visible_phrase(panel,'nový echolot nepotřebujete')
+            and sonar_bounded_rendered_links(panel,routes,'historic')
         )
     elif target["post_id"] == 118553:
         # Require actual answer-first decision section, not a marker elsewhere
@@ -395,6 +435,8 @@ def check_target(target, fetch=read_public):
         observed_hrefs = re.findall(r"""<a\b[^>]*?href\s*=\s*["']([^"']+)["']""", panel, re.I)
         def role_for_href(href):
             parsed=urlsplit(html_utils.unescape(href))
+            if parsed.scheme == "https" and parsed.netloc in ("cs.wikipedia.org","en.wikipedia.org","www.wikipedia.org"):
+                return "REFERENCE_WIKIPEDIA" if not parsed.query and not parsed.fragment else "EXTERNAL_OR_INVALID"
             if parsed.scheme not in ("https","") or parsed.netloc not in ("na-ryby.eu",""):
                 return "EXTERNAL_OR_INVALID"
             if parsed.query or parsed.fragment:
