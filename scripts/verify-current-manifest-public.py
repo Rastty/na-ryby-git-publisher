@@ -36,6 +36,13 @@ def verify_manifest(data):
                 or not isinstance(slug, str) or not re.fullmatch(r"[a-z0-9-]{10,140}", slug)
                 or not isinstance(marker, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{7,63}", marker)):
             raise ValueError("INVALID_EDIT_IDENTITY")
+        if edit.get("placement") == "sonar_spec_bonus_only":
+            if (data.get("schema_version") != 8
+                    or data.get("batch_id") != "echolot-budget-118455-spec-bonus-fix-20261108-v1"
+                    or post_id != 118455
+                    or marker != "echolot-budget-118455-spec-bonus-20261108-v1"
+                    or len(edits) != 1):
+                raise ValueError("UNAUTHORIZED_SONAR_SPEC_BONUS_CORRECTION")
         if edit.get("placement") == "historic_sonar_offers_only":
             if (data.get("schema_version") != 8
                     or data.get("batch_id") != "echolot-budget-118455-three-offers-fix-20261108-v1"
@@ -266,6 +273,28 @@ def check_target(target, fetch=read_public):
             and "Jsme si jisti, že si u nás vyberete židličku na ryby" not in html
             and "Na-ryby.eu je rybářský informační magazín" in html
         )
+    elif target["post_id"] == 118455 and target.get("placement") == "sonar_spec_bonus_only":
+        # Verified actual WordPress write only when all SIX exact factual/bonus
+        # source corrections are rendered and the old claims are absent.
+        # No new marker: prior useful buyer guidance/routes must remain.
+        rules = (
+            ("Nízká cena, GPS, jednoduchost, bonus baterie.", "Základní 2D sonar a jednoduché ovládání; model Eagle 4X nemá GPS. Bonusy ověřte u prodejce.", 1),
+            ("baterie zdarma v balení", "případnou baterii v balení ověřte u prodejce", 1),
+            ("Chyť a pusť tu má rozumnou aktuální nabídku včetně baterie a nabíječky.", "Před koupí ověřte aktuální cenu a zda jsou baterie a nabíječka součástí přesné varianty balení.", 1),
+            ("V Chyť a pusť aktuálně dává větší smysl i díky přibalené baterii a nabíječce.", "Porovnejte skutečný obsah balení a konečnou cenu, včetně případné baterie a nabíječky.", 1),
+            ("Lowrance Eagle 4X se sondou Bullet + baterie ZDARMA", "Lowrance Eagle 4X se sondou Bullet (bonusy ověřte)", 2),
+            ("Lowrance Eagle 7 se sondou SplitShot HD + baterie + nabíječka ZDARMA", "Lowrance Eagle 7 se sondou SplitShot HD (balení ověřte)", 2),
+        )
+        semantic_ok = (
+            all(html.count(old) == 0 and html.count(new) == number
+                for old, new, number in rules)
+            and "model Eagle 4X nemá GPS" in html
+            and "nepředstavují dnes ověřený ceník" in html
+            and "nemusíte kupovat nové" in html
+            and 'href="https://na-ryby.eu/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/"' in html
+            and 'href="https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/"' in html
+            and 'href="https://na-ryby.eu/poradce-vybavy/"' in html
+        )
     elif target["post_id"] == 118455 and target.get("placement") == "historic_sonar_offers_only":
         # No invented marker. The actual three exact unsafe historical
         # price/stock claims must be absent, replaced by accurate warnings.
@@ -493,7 +522,8 @@ def check_target(target, fetch=read_public):
     semantic_only = (
         target["post_id"] == 60354 and target.get("placement") == "ranking_claims_only"
     ) or (
-        target["post_id"] == 118455 and target.get("placement") == "historic_sonar_offers_only"
+        target["post_id"] == 118455 and target.get("placement") in (
+            "historic_sonar_offers_only", "sonar_spec_bonus_only")
     )
     passed = (response.get("status") == "READ_OK" and response.get("http") == 200
               and (count == 1 or (semantic_only and semantic_ok)) and semantic_ok)
