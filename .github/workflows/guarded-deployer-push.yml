@@ -143,6 +143,7 @@ jobs:
           python3 tests/test-42401-public-semantic.py
           python3 tests/test-60354-public-semantic.py
           python3 tests/test-118455-three-offers-public-semantic.py
+          python3 tests/test-118455-spec-bonus-public-semantic.py
           python3 tests/test-echolot-boat-historic-two-public-semantic.py
   deploy:
     needs: verify
@@ -675,15 +676,29 @@ jobs:
           assert set(raw)==keys and set(safe)==keys
           assert all(type(raw[k]) is int and type(safe[k]) is int
                      and raw[k]>=safe[k]>=0 for k in keys)
-          # Permanent post-write source proof captured from actual WordPress
-          # and public HTML in production run 42461297745. This is NOT the
-          # old pre-write SHA and has NO batch-specific transition bypass.
-          current_sha='6d8736d5d2f62a5f6170871a7630d9e097f6dc6839a461e97da53d95cb166f7e'
-          current_bytes=39897
-          current_gmt='2026-11-08 07:56:27'
-          assert r['source_sha256']==current_sha
-          assert r['source_bytes']==current_bytes
-          assert r['source_modified_gmt']==current_gmt
+          # Previously source-pinned 118455: never silently skip protection.
+          # The ONE reviewed new release can enter a post-write state only
+          # with a matching WordPress-native receipt and backup proof. Other
+          # manifests retain the exact old source pin without exception.
+          old_sha='6d8736d5d2f62a5f6170871a7630d9e097f6dc6839a461e97da53d95cb166f7e'
+          old_bytes=39897
+          old_gmt='2026-11-08 07:56:27'
+          with open('manifest.json',encoding='utf8') as manifest_file:
+              active=json.load(manifest_file)
+          reviewed=(active.get('schema_version')==8
+              and active.get('batch_id')=='echolot-budget-118455-spec-bonus-fix-20261108-v1'
+              and len(active.get('edits',[]))==1
+              and active['edits'][0].get('post_id')==118455
+              and active['edits'][0].get('slug')==r['slug']
+              and active['edits'][0].get('placement')=='sonar_spec_bonus_only'
+              and active['edits'][0].get('source_sha256')==old_sha
+              and active['edits'][0].get('source_modified_gmt')==old_gmt
+              and active['edits'][0].get('source_min_bytes')==old_bytes
+              and active['edits'][0].get('source_max_bytes')==old_bytes+1)
+          if not reviewed:
+              assert r['source_sha256']==old_sha
+              assert r['source_bytes']==old_bytes
+              assert r['source_modified_gmt']==old_gmt
           assert all(raw[key]==0 and safe[key]==0 for key in keys)
           trust_raw=r.get('fixed_offer_claim_raw_counts')
           trust_safe=r.get('fixed_offer_claim_safe_plain_counts')
@@ -694,6 +709,34 @@ jobs:
           assert set(trust_raw)==trust_keys and set(trust_safe)==trust_keys
           assert all(type(trust_raw[k]) is int and type(trust_safe[k]) is int
                      and 0<=trust_safe[k]<=trust_raw[k]<=20 for k in trust_keys)
+          expected_old={'eagle4x_false_gps':1,'eagle4x_battery_assertion':1,
+             'eagle7_current_bundle':1,'eagle7_current_cta':1,
+             'eagle4x_bonus_title':2,'eagle7_bonus_title':2}
+          if reviewed:
+              # All stale claims vanish only after a locally verified one-post
+              # write. A manifest change or a green GitHub run is not enough.
+              url='https://na-ryby.eu/poradce-vybavy/?nry_release_health=1'
+              req=urllib.request.Request(url,headers={
+                  'Cache-Control':'no-cache,no-store',
+                  'User-Agent':'Nry118455SpecBonusPostWriteSourceAudit/1.0'})
+              with guarded_urlopen(req,timeout=25) as response:
+                  assert response.status==200
+                  health=json.loads(response.read(9000))
+              assert health.get('last_auto_batch_id')==active['batch_id']
+              assert health.get('last_auto_receipt_status')=='applied_and_verified_local'
+              assert health.get('candidate_matches') is True
+              assert health.get('backup_present') is True
+              assert health.get('guarded_publisher_enabled') is True
+              assert r['source_sha256']!=old_sha
+              assert r['source_modified_gmt']>old_gmt
+              assert old_bytes<r['source_bytes']<45000
+              assert all(trust_raw[k]==0 and trust_safe[k]==0 for k in trust_keys)
+              print('NRY_118455_SPEC_BONUS_POSTWRITE_SHA_REPIN_REQUIRED',json.dumps({
+                  'sha':r['source_sha256'],'gmt':r['source_modified_gmt'],
+                  'bytes':r['source_bytes'],'batch':active['batch_id'],
+                  'oldClaims':trust_raw,'publicProofStillRequired':True},sort_keys=True))
+          else:
+              assert trust_raw==expected_old and trust_safe==expected_old
           print('NRY_118455_FIXED_TRUST_CLAIM_PREFLIGHT',json.dumps({
               'sourceSha256':r['source_sha256'],'modifiedGmt':r['source_modified_gmt'],
               'raw':trust_raw,'safePlain':trust_safe,
