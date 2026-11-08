@@ -1,0 +1,49 @@
+{
+  "schema_version": 8,
+  "batch_id": "echolot-budget-118455-spec-bonus-fix-20261108-v1",
+  "site": "https://na-ryby.eu",
+  "edits": [
+    {
+      "post_id": 118455,
+      "slug": "nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz",
+      "source_modified_gmt": "2026-11-08 07:56:27",
+      "source_min_bytes": 39897,
+      "source_max_bytes": 39898,
+      "source_sha256": "6d8736d5d2f62a5f6170871a7630d9e097f6dc6839a461e97da53d95cb166f7e",
+      "edit_id": "echolot-budget-118455-spec-bonus-20261108-v1",
+      "placement": "sonar_spec_bonus_only",
+      "text_corrections": [
+        {
+          "old_text": "Nízká cena, GPS, jednoduchost, bonus baterie.",
+          "new_text": "Základní 2D sonar a jednoduché ovládání; model Eagle 4X nemá GPS. Bonusy ověřte u prodejce.",
+          "count": 1
+        },
+        {
+          "old_text": "baterie zdarma v balení",
+          "new_text": "případnou baterii v balení ověřte u prodejce",
+          "count": 1
+        },
+        {
+          "old_text": "Chyť a pusť tu má rozumnou aktuální nabídku včetně baterie a nabíječky.",
+          "new_text": "Před koupí ověřte aktuální cenu a zda jsou baterie a nabíječka součástí přesné varianty balení.",
+          "count": 1
+        },
+        {
+          "old_text": "V Chyť a pusť aktuálně dává větší smysl i díky přibalené baterii a nabíječce.",
+          "new_text": "Porovnejte skutečný obsah balení a konečnou cenu, včetně případné baterie a nabíječky.",
+          "count": 1
+        },
+        {
+          "old_text": "Lowrance Eagle 4X se sondou Bullet + baterie ZDARMA",
+          "new_text": "Lowrance Eagle 4X se sondou Bullet (bonusy ověřte)",
+          "count": 2
+        },
+        {
+          "old_text": "Lowrance Eagle 7 se sondou SplitShot HD + baterie + nabíječka ZDARMA",
+          "new_text": "Lowrance Eagle 7 se sondou SplitShot HD (balení ověřte)",
+          "count": 2
+        }
+      ]
+    }
+  ]
+}
