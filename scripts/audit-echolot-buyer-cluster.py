@@ -11,6 +11,7 @@ import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 from urllib.parse import quote, urlsplit
 
 SITE = "https://na-ryby.eu"
@@ -69,6 +70,61 @@ def commercial_ordering(content):
             "firstCtaBeforeSecondH2": len(re.findall(r"<h2\b", prefix, re.I)) < 2,
             "firstCtaVisiblePrefixChars": len(visible),
             "firstCtaHtmlOffset": first}
+
+
+
+class PriceContextParser(HTMLParser):
+    """Count visible currency mentions, excluding same-site guide navigation.
+
+    Triage only, not a price freshness or entitlement check. Never return
+    prices, merchant URLs or HTML in public evidence.
+    """
+    PRICE = re.compile(r"\b\d[\d \u00a0\u202f]{0,8}\s*(?:Kč|CZK)\b", re.I)
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.anchors = []
+        self.hidden = 0
+        self.all_parts = []
+        self.outside_internal_parts = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ("script", "style", "noscript", "template"):
+            self.hidden += 1
+        if tag == "a":
+            href = dict(attrs).get("href", "") or ""
+            parsed = urlsplit(html.unescape(href))
+            internal = (
+                parsed.hostname in ("na-ryby.eu", "www.na-ryby.eu")
+                and parsed.scheme in ("http", "https")
+            ) or (not parsed.scheme and not parsed.netloc and href.startswith("/"))
+            self.anchors.append(internal)
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self.anchors:
+            self.anchors.pop()
+        if tag in ("script", "style", "noscript", "template"):
+            self.hidden = max(0, self.hidden - 1)
+
+    def handle_data(self, data):
+        if self.hidden:
+            return
+        self.all_parts.append(data)
+        if not any(self.anchors):
+            self.outside_internal_parts.append(data)
+
+
+def price_context(content):
+    """Count-only public signal, never a stale-price diagnosis."""
+    parser = PriceContextParser()
+    parser.feed(content)
+    total = len(parser.PRICE.findall(" ".join(parser.all_parts)))
+    outside = len(parser.PRICE.findall(" ".join(parser.outside_internal_parts)))
+    return {
+        "visibleNumericPriceMentions": total,
+        "numericPriceMentionsOutsideInternalLinks": outside,
+        "priceOnlyInInternalGuideLinks": total > 0 and outside == 0,
+    }
 
 
 def answer_first_pilot(content, first_shop_offset):
@@ -137,6 +193,7 @@ def summarize(role, slug, *, fetch=read):
             r'<a\b[^>]*\bhref\s*=\s*["\']([^"\']+)["\']', content, flags=re.I)]
         internal = [u for u in hrefs if u.startswith(SITE + "/")]
         commercial = commercial_ordering(content)
+        prices = price_context(content)
         result.update({
             "state": "PUBLIC_EVIDENCE",
             "postId": item["id"],
@@ -154,7 +211,8 @@ def summarize(role, slug, *, fetch=read):
             "linksToBoat": sum(u.rstrip("/") == DESTINATIONS["boat"].rstrip("/") for u in internal),
             "has2023Language": bool(re.search(r"\b2023\b", visible)),
             "hasVisibleKeywordStuffing": "klíčová slova:" in visible.lower(),
-            "hasNumericPrice": bool(re.search(r"\b\d[\d ]{0,8}\s*(?:Kč|CZK)\b", visible, re.I)),
+            "hasNumericPrice": prices["visibleNumericPriceMentions"] > 0,
+            **prices,
             "historicPricingVerified": False,
             "merchantStockVerified": False,
             **{k: v for k, v in commercial.items() if k != "firstCtaHtmlOffset"},
