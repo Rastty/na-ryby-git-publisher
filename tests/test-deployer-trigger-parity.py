@@ -127,4 +127,18 @@ assert "current_bytes=39897" in budget_step
 assert "current_gmt='2026-11-08 07:56:27'" in budget_step
 assert "assert all(raw[key]==0 and safe[key]==0 for key in keys)" in budget_step
 assert 'NRY_118455_HISTORIC_OFFERS_COUNTS' in budget_step
+# Both sonar decisions were actually posted, with local native WP readback
+# and independent public semantic HTTP200 2/2 in run 42466004322.
+# Persist precise post-write source identity for every future guarded deploy.
+sonar_step=workflow.split(
+    '      - name: Read-only exact source pins for sonar boat and historic buyer guides'
+)[1].split('      - name: Verify exact published alarm buyer guide raw source metadata')[0]
+assert "'boat':('dd8d6636546c31a19d75c28cb5d5b0e1700c19f5ff14b77c498b4f7da33911d8',17797,'2026-11-08 08:53:49')" in sonar_step
+assert "'historic':('13336a1be9598d5a86d88658b0348f4ecc70062aa8e669c0c2802ede6a607500',18364,'2026-11-08 08:53:51')" in sonar_step
+assert "expected_sha,expected_bytes,expected_gmt=post_write_source_pins[role]" in sonar_step
+assert "assert row['source_sha256']==expected_sha" in sonar_step
+assert "assert row['source_bytes']==expected_bytes" in sonar_step
+assert "assert row['source_modified_gmt']==expected_gmt" in sonar_step
+assert "9bb01284048286d24943bef620c7c0b1932cc1bdf3a23ba6f2efc8fa2b23a53f" not in sonar_step
+assert "9beca265ca965aaea75649e69aadbcef3def1007bb3f4285752e9bf20b394940" not in sonar_step
 print("PASS: all live publisher modules trigger PR review and guarded main deploy")

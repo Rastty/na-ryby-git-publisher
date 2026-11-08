@@ -735,6 +735,10 @@ jobs:
             ('boat',60637,'jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare'),
             ('historic',36518,'porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023'),
           )
+          post_write_source_pins={
+              'boat':('dd8d6636546c31a19d75c28cb5d5b0e1700c19f5ff14b77c498b4f7da33911d8',17797,'2026-11-08 08:53:49'),
+              'historic':('13336a1be9598d5a86d88658b0348f4ecc70062aa8e669c0c2802ede6a607500',18364,'2026-11-08 08:53:51'),
+          }
           for role,post_id,slug in scopes:
               url='https://na-ryby.eu/poradce-vybavy/?nry_echolot_'+role+'_source_proof=1'
               for attempt in range(3):
@@ -760,6 +764,10 @@ jobs:
               assert re.fullmatch(r'20\d\d-\d\d-\d\d \d\d:\d\d:\d\d',row['source_modified_gmt'])
               assert 1000<row['source_bytes']<250000
               assert 'post_content' not in row and 'cj_urls' not in row
+              expected_sha,expected_bytes,expected_gmt=post_write_source_pins[role]
+              assert row['source_sha256']==expected_sha
+              assert row['source_bytes']==expected_bytes
+              assert row['source_modified_gmt']==expected_gmt
               print('NRY_SONAR_'+role.upper()+'_SOURCE_METADATA',json.dumps({
                   k:row[k] for k in ('id','slug','source_sha256',
                      'source_bytes','source_modified_gmt')},sort_keys=True))
