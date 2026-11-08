@@ -7,6 +7,12 @@ on:
       - 'scripts/audit-buyer-click-live-readiness.py'
       - 'tests/test-buyer-click-live-readiness.py'
       - '.github/workflows/guarded-auto-public-readback.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/audit-buyer-click-live-readiness.py'
+      - 'tests/test-buyer-click-live-readiness.py'
+      - '.github/workflows/guarded-auto-public-readback.yml'
   schedule:
     - cron: '41 * * * *'
   workflow_dispatch:
