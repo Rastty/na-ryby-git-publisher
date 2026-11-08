@@ -69,7 +69,16 @@ def inspect_document(html):
 def audit(fetch=checked_fetch):
     observed = {}
     for role, path in PAGES.items():
-        count = inspect_document(fetch(SITE + path, 400000))
+        try:
+            count = inspect_document(fetch(SITE + path, 400000))
+        except Exception as exc:
+            safe_reason = str(exc) if str(exc) in (
+                "EXACT_PUBLIC_READBACK_UNVERIFIABLE",
+                "READONLY_REDIRECT_OR_ORIGIN_DRIFT",
+                "READONLY_HTTP_NON_200",
+                "READONLY_EXACT_SITE_REQUIRED",
+            ) else type(exc).__name__
+            raise ValueError("PAGE_" + role.upper() + "_" + safe_reason) from None
         observed[role] = {
             "scriptTagCount": count,
             "state": ("DIRECT_SCRIPT_ENQUEUED" if count == 1
@@ -79,7 +88,15 @@ def audit(fetch=checked_fetch):
     if observed["pipaky_guide"]["scriptTagCount"] == 1 or observed["alarm_guide"]["scriptTagCount"] == 1:
         # The bundled asset may be served from WordPress; only a fixed local
         # same-origin path is requested, never a captured arbitrary src URL.
-        live = fetch(SITE + ASSET + "?ver=1.0.0", 20000)
+        try:
+            live = fetch(SITE + ASSET + "?ver=1.0.0", 20000)
+        except Exception as exc:
+            safe_reason = str(exc) if str(exc) in (
+                "EXACT_PUBLIC_READBACK_UNVERIFIABLE",
+                "READONLY_REDIRECT_OR_ORIGIN_DRIFT",
+                "READONLY_HTTP_NON_200",
+            ) else type(exc).__name__
+            raise ValueError("LOCAL_JS_ASSET_" + safe_reason) from None
         expected = (ROOT / "assets/nry-buyer-clicks-v1.js").read_bytes()
         asset_state = "BYTE_IDENTICAL_TO_REVIEWED_JS" if hashlib.sha256(live).digest() == hashlib.sha256(expected).digest() else "ASSET_DRIFT_UNVERIFIED"
     else:
@@ -101,6 +118,8 @@ def main():
         result = {
             "site": SITE, "mode": "ANONYMOUS_GET_ONLY",
             "state": "PUBLIC_RUNTIME_UNVERIFIABLE", "errorType": type(exc).__name__,
+            "errorCode": str(exc) if str(exc).startswith(("PAGE_", "LOCAL_JS_ASSET_"))
+                         and len(str(exc)) < 110 else "UNCLASSIFIED_READBACK_FAILURE",
             "wordpressWrites": 0, "merchantRequests": 0,
             "syntheticClickEvents": 0, "ga4DeliveryProven": False,
         }
