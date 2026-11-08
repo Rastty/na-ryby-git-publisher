@@ -1128,6 +1128,29 @@ final class NRY_Git_Publisher {
                     'lukavecu'=>substr_count($post->post_content,'rybarske-potreby-na-lukavecu.cz')
                 );
             }
+            if ($scope==='echolot-budget') {
+                // Three historically public product-price and stock sentences.
+                // Source-only counts: no body, merchant href, stock price
+                // entitlement or future edit authority is returned.
+                $targets=array(
+                    'eagle4x_old_offer'=>'v době přípravy článku skladem za 4 509 Kč',
+                    'hook5_old_offer'=>'aktuálně 10 542 Kč a skladem 1 ks',
+                    'eagle7_old_offer'=>'v době přípravy článku skladem za 13 889 Kč',
+                );
+                $raw=array();$plain=array();
+                foreach ($targets as $key=>$phrase) {
+                    $raw[$key]=substr_count($post->post_content,$phrase);
+                    $plain[$key]=0;$offset=0;
+                    while (($pos=strpos($post->post_content,$phrase,$offset))!==false) {
+                        if (self::plain_text_span($post->post_content,$pos,strlen($phrase))) {
+                            $plain[$key]++;
+                        }
+                        $offset=$pos+strlen($phrase);
+                    }
+                }
+                $row['historical_offer_raw_counts']=$raw;
+                $row['historical_offer_safe_plain_counts']=$plain;
+            }
             if ($scope==='alarm-ranking') {
                 // Fixed phrases from the public 2023 article; disclose ONLY
                 // raw/visible-safe occurrence counts, never source fragments.
