@@ -258,6 +258,64 @@ def check_target(target, fetch=read_public):
             and 'href="https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/"' in html
             and 'href="https://na-ryby.eu/poradce-vybavy/"' in html
         )
+    elif target["post_id"] == 60637 and target["edit_id"] == "echolot-boat-decision-60637-20261108-v1":
+        # Buyer help on a boat: no evidence for an added affiliate link.
+        # Marker alone never verifies an actual useful decision path.
+        start = html.find('<section ' + marker)
+        end = html.find('</section>', start) if start >= 0 else -1
+        panel = html[start:end] if end > start else ""
+        routes = (
+            'href="https://na-ryby.eu/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/"',
+            'href="https://na-ryby.eu/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/"',
+            'href="https://na-ryby.eu/poradce-vybavy/"',
+        )
+        semantic_ok = (
+            panel.startswith('<section ' + marker)
+            and '<h2>Echolot na loď: vyberte funkční sestavu, ne jen displej</h2>' in panel
+            and '<h3>Čtyři kontroly před objednávkou</h3>' in panel
+            and panel.count('<ul>') == 1 and panel.count('<ol>') == 1
+            and panel.count('<li>') == 8
+            and all(phrase in panel for phrase in (
+                'Malý člun na známé vodě',
+                'Kajak nebo přenosná sestava',
+                'Hledáte hrany a překážky vedle člunu',
+                'Chcete se vracet na vybraná místa',
+                'kompatibilní sondy',
+                'nemusíte kupovat novou',
+                'Starší ceny a tvrzení o skladovosti nejsou důkazem aktuální nabídky.',
+            ))
+            and all(panel.count(route) == 1 for route in routes)
+            and panel.count('<a href=') == 3
+        )
+    elif target["post_id"] == 36518 and target["edit_id"] == "echolot-historic-decision-36518-20261108-v1":
+        # Historic comparison must not masquerade as current test, price
+        # or stock data; ensure the actual four route decision guide exists.
+        start = html.find('<section ' + marker)
+        end = html.find('</section>', start) if start >= 0 else -1
+        panel = html[start:end] if end > start else ""
+        routes = (
+            'href="https://na-ryby.eu/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/"',
+            'href="https://na-ryby.eu/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/"',
+            'href="https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/"',
+            'href="https://na-ryby.eu/poradce-vybavy/"',
+        )
+        semantic_ok = (
+            panel.startswith('<section ' + marker)
+            and '<h2>Historické srovnání echolotů: co z něj využít při dnešním výběru</h2>' in panel
+            and '<h3>Jak pokračovat bez zbytečného nákupu</h3>' in panel
+            and panel.count('<li>') == 4
+            and all(phrase in panel for phrase in (
+                'Nejde o aktuální žebříček',
+                'Chytáte převážně ze břehu',
+                'Máte malý člun',
+                'Vracíte se na stejné lovné body',
+                'Chcete zkoumat prostor vedle člunu',
+                'kompatibilitu a typ sondy',
+                'nový echolot nepotřebujete',
+            ))
+            and all(panel.count(route) == 1 for route in routes)
+            and panel.count('<a href=') == 4
+        )
     elif target["post_id"] == 118553:
         # Require actual answer-first decision section, not a marker elsewhere
         # or duplicated existing links in the long historical article.
@@ -328,7 +386,7 @@ def check_target(target, fetch=read_public):
               and (count == 1 or (semantic_only and semantic_ok)) and semantic_ok)
     return {"post_id": target["post_id"], "url": target["url"],
             "http": response.get("http"), "marker_count": count,
-            "semantic_trust_verified": semantic_ok if target["post_id"] in (60354,42401,35755,36702,60341,118455,118553,118218) else None,
+            "semantic_trust_verified": semantic_ok if target["post_id"] in (60354,42401,35755,36702,60341,118455,118553,118218,60637,36518) else None,
             "status": "PUBLIC_MARKER_VERIFIED" if passed else
                       ("NOT_PUBLIC_OR_CACHE_STALE" if response.get("status") == "READ_OK"
                        else response.get("status", "READER_ERROR"))}
