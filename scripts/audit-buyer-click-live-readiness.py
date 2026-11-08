@@ -54,8 +54,10 @@ def checked_fetch(url, maximum):
     }, method="GET")
     with guarded_urlopen(req, timeout=25) as response:
         data = response.read(maximum + 1)
-        if response.status != 200 or len(data) > maximum:
+        if response.status != 200:
             raise ValueError("EXACT_PUBLIC_READBACK_UNVERIFIABLE")
+        if len(data) > maximum:
+            raise ValueError("MAX_BYTES_EXCEEDED")
     return data
 
 
@@ -70,10 +72,11 @@ def audit(fetch=checked_fetch):
     observed = {}
     for role, path in PAGES.items():
         try:
-            count = inspect_document(fetch(SITE + path, 400000))
+            count = inspect_document(fetch(SITE + path, 2000000))
         except Exception as exc:
             safe_reason = str(exc) if str(exc) in (
                 "EXACT_PUBLIC_READBACK_UNVERIFIABLE",
+                "MAX_BYTES_EXCEEDED",
                 "READONLY_REDIRECT_OR_ORIGIN_DRIFT",
                 "READONLY_HTTP_NON_200",
                 "READONLY_EXACT_SITE_REQUIRED",
@@ -93,6 +96,7 @@ def audit(fetch=checked_fetch):
         except Exception as exc:
             safe_reason = str(exc) if str(exc) in (
                 "EXACT_PUBLIC_READBACK_UNVERIFIABLE",
+                "MAX_BYTES_EXCEEDED",
                 "READONLY_REDIRECT_OR_ORIGIN_DRIFT",
                 "READONLY_HTTP_NON_200",
             ) else type(exc).__name__
