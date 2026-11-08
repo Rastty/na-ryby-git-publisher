@@ -214,7 +214,8 @@ def check_target(target, fetch=read_public):
             and '<h2>Pípák pípá bez záběru, nebo naopak mlčí?' in panel
             and panel.count('<li>') == 4
             and all(phrase in panel for phrase in required)
-            and sonar_bounded_rendered_links(panel,routes,'boat')
+            and all(panel.count(route) == 1 for route in routes)
+            and panel.count('<a href=') == 3
         )
     elif target["post_id"] == 36702 and target.get("placement") == "price_corrections_only":
         # The existing advanced-buyer section is deliberately unchanged.
@@ -325,8 +326,7 @@ def check_target(target, fetch=read_public):
                 'nemusíte kupovat novou',
                 'Starší ceny a tvrzení o skladovosti nejsou důkazem aktuální nabídky.',
             ))
-            and all(panel.count(route) == 1 for route in routes)
-            and panel.count('<a href=') == 3
+            and sonar_bounded_rendered_links(panel,routes,'boat')
         )
     elif target["post_id"] == 36518 and target["edit_id"] == "echolot-historic-decision-36518-20261108-v1":
         # Historic comparison must not masquerade as current test, price
