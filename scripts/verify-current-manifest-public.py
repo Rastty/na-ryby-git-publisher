@@ -378,6 +378,51 @@ def check_target(target, fetch=read_public):
             and 'akce 1+1 může skončit' in section
             and all(route in section for route in allowed)
         )
+    # Privacy-safe developer diagnostic for two pre-reviewed post IDs only.
+    # Booleans/counts reveal render-vs-source shape drift but never raw
+    # article HTML, click IDs, existing affiliate destination URLs or cookies.
+    diagnostic = None
+    if target["post_id"] in (60637,36518) and target["edit_id"] in (
+            "echolot-boat-decision-60637-20261108-v1",
+            "echolot-historic-decision-36518-20261108-v1"):
+        is_boat = target["post_id"] == 60637
+        diagnostic = {
+            "sectionStarts": panel.startswith('<section ' + marker),
+            "sectionPresent": bool(panel),
+            "renderedH2Exact": (
+                "<h2>Echolot na loď: vyberte funkční sestavu, ne jen displej</h2>" in panel
+                if is_boat else
+                "<h2>Historické srovnání echolotů: co z něj využít při dnešním výběru</h2>" in panel),
+            "renderedH3Exact": (
+                "<h3>Čtyři kontroly před objednávkou</h3>" in panel
+                if is_boat else
+                "<h3>Jak pokračovat bez zbytečného nákupu</h3>" in panel),
+            "ulCount": panel.count("<ul>"),
+            "olCount": panel.count("<ol>"),
+            "liCount": panel.count("<li>"),
+            "hrefCount": panel.count("<a href="),
+            "requiredSameSiteRoutesPresent": [panel.count(route) == 1 for route in routes],
+            "requiredPhrasesPresent": [
+                key in panel for key in (
+                    (
+                        "Malý člun na známé vodě",
+                        "Kajak nebo přenosná sestava",
+                        "Hledáte hrany a překážky vedle člunu",
+                        "Chcete se vracet na vybraná místa",
+                        "kompatibilní sondy",
+                        "nemusíte kupovat novou",
+                        "Starší ceny a tvrzení o skladovosti nejsou důkazem aktuální nabídky.",
+                    ) if is_boat else (
+                        "Nejde o aktuální žebříček",
+                        "Chytáte převážně ze břehu",
+                        "Máte malý člun",
+                        "Vracíte se na stejné lovné body",
+                        "Chcete zkoumat prostor vedle člunu",
+                        "kompatibilitu a typ sondy",
+                        "nový echolot nepotřebujete",
+                    ))
+            ],
+        }
     semantic_only = (
         target["post_id"] == 60354 and target.get("placement") == "ranking_claims_only"
     ) or (
@@ -388,6 +433,7 @@ def check_target(target, fetch=read_public):
     return {"post_id": target["post_id"], "url": target["url"],
             "http": response.get("http"), "marker_count": count,
             "semantic_trust_verified": semantic_ok if target["post_id"] in (60354,42401,35755,36702,60341,118455,118553,118218,60637,36518) else None,
+            **({"semantic_diagnostic": diagnostic} if diagnostic is not None else {}),
             "status": "PUBLIC_MARKER_VERIFIED" if passed else
                       ("NOT_PUBLIC_OR_CACHE_STALE" if response.get("status") == "READ_OK"
                        else response.get("status", "READER_ERROR"))}
