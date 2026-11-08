@@ -73,6 +73,11 @@ final class NRY_Git_Publisher {
                 // A single correction-only release removes six invented 1–10
                 // numerical ratings without adding another redundant top panel.
                 // All other schema v8 operations remain the original prepend flow.
+                if (($e['placement'] ?? '') === 'sonar_spec_bonus_only') {
+                    $check=self::validate_sonar_spec_bonus_correction($e,$data);
+                    if (is_wp_error($check)) return $check;
+                    continue;
+                }
                 if (($e['placement'] ?? '') === 'historic_sonar_offers_only') {
                     $check=self::validate_sonar_historic_offer_correction($e,$data);
                     if (is_wp_error($check)) return $check;
@@ -416,6 +421,97 @@ final class NRY_Git_Publisher {
         preg_match_all($pattern,$candidate,$after);
         if ($before[0]!==$after[0]) {
             return array('error'=>'protected_affiliate_or_media_drift');
+        }
+        return array('candidate'=>$candidate);
+    }
+
+
+    /** Fixed manufacturer-spec correction and unverified historic bonus terms.
+     * Manufacturer: Lowrance Eagle 4x Bullet is a fishfinder without GPS.
+     * Preflight counts and private raw SHA independently verified 2026-11-08.
+     */
+    private static function sonar_spec_bonus_corrections() {
+        return array(
+            array('old_text'=>'Nízká cena, GPS, jednoduchost, bonus baterie.',
+                  'new_text'=>'Základní 2D sonar a jednoduché ovládání; model Eagle 4X nemá GPS. Bonusy ověřte u prodejce.','count'=>1),
+            array('old_text'=>'baterie zdarma v balení',
+                  'new_text'=>'případnou baterii v balení ověřte u prodejce','count'=>1),
+            array('old_text'=>'Chyť a pusť tu má rozumnou aktuální nabídku včetně baterie a nabíječky.',
+                  'new_text'=>'Před koupí ověřte aktuální cenu a zda jsou baterie a nabíječka součástí přesné varianty balení.','count'=>1),
+            array('old_text'=>'V Chyť a pusť aktuálně dává větší smysl i díky přibalené baterii a nabíječce.',
+                  'new_text'=>'Porovnejte skutečný obsah balení a konečnou cenu, včetně případné baterie a nabíječky.','count'=>1),
+            array('old_text'=>'Lowrance Eagle 4X se sondou Bullet + baterie ZDARMA',
+                  'new_text'=>'Lowrance Eagle 4X se sondou Bullet (bonusy ověřte)','count'=>2),
+            array('old_text'=>'Lowrance Eagle 7 se sondou SplitShot HD + baterie + nabíječka ZDARMA',
+                  'new_text'=>'Lowrance Eagle 7 se sondou SplitShot HD (balení ověřte)','count'=>2),
+        );
+    }
+
+    private static function validate_sonar_spec_bonus_correction($edit,$manifest) {
+        $keys=array_keys($edit);
+        $expected=array('post_id','slug','source_modified_gmt','source_min_bytes',
+            'source_max_bytes','source_sha256','edit_id','placement','text_corrections');
+        sort($keys);sort($expected);
+        if (($manifest['batch_id']??'')!=='echolot-budget-118455-spec-bonus-fix-20261108-v1'
+            || count($manifest['edits']??array())!==1
+            || ($edit['post_id']??null)!==118455
+            || ($edit['slug']??'')!=='nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz'
+            || ($edit['edit_id']??'')!=='echolot-budget-118455-spec-bonus-20261108-v1'
+            || ($edit['placement']??'')!=='sonar_spec_bonus_only'
+            || $keys!==$expected
+            || ($edit['source_sha256']??'')!=='6d8736d5d2f62a5f6170871a7630d9e097f6dc6839a461e97da53d95cb166f7e'
+            || ($edit['source_modified_gmt']??'')!=='2026-11-08 07:56:27'
+            || ($edit['source_min_bytes']??0)!==39897
+            || ($edit['source_max_bytes']??0)!==39898
+            || ($edit['text_corrections']??null)!==self::sonar_spec_bonus_corrections()) {
+            return new WP_Error('v8_sonar_spec_bonus_scope',
+                'Only the six exact current buyer-trust assertions on post 118455 may change.');
+        }
+        return true;
+    }
+
+    private static function build_sonar_spec_bonus_candidate($source,$edit) {
+        $rules=self::sonar_spec_bonus_corrections();
+        $already=true;
+        foreach ($rules as $rule) {
+            if (substr_count($source,$rule['old_text'])!==0
+                || substr_count($source,$rule['new_text'])!==$rule['count']) {
+                $already=false;break;
+            }
+        }
+        if ($already) return array('already'=>true);
+        $candidate=$source;
+        foreach ($rules as $rule) {
+            $old=$rule['old_text'];$new=$rule['new_text'];$count=$rule['count'];
+            if (substr_count($candidate,$old)!==$count
+                || substr_count($candidate,$new)!==0) {
+                return array('error'=>'sonar_spec_bonus_ambiguous_source');
+            }
+            $offset=0;$safe=0;
+            while (($at=strpos($candidate,$old,$offset))!==false) {
+                if (!self::plain_text_span($candidate,$at,strlen($old))) {
+                    return array('error'=>'sonar_spec_bonus_protected_html');
+                }
+                $safe++;$offset=$at+strlen($old);
+            }
+            if ($safe!==$count) return array('error'=>'sonar_spec_bonus_plain_count_mismatch');
+            $replacement=htmlspecialchars($new,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');
+            $candidate=str_replace($old,$replacement,$candidate,$changed);
+            if ($changed!==$count) return array('error'=>'sonar_spec_bonus_replace_count_mismatch');
+        }
+        foreach ($rules as $rule) {
+            if (substr_count($candidate,$rule['old_text'])!==0
+                || substr_count($candidate,$rule['new_text'])!==$rule['count']) {
+                return array('error'=>'sonar_spec_bonus_postcondition');
+            }
+        }
+        // Merchant hrefs, images, embeds and original shortcode tokens
+        // must be byte-for-byte unchanged and retain their relative order.
+        $pattern='~(?:<a\\b[^>]*>|<img\\b[^>]*>|<iframe\\b[^>]*>|\\[[a-zA-Z][^\\]]*\\])~iu';
+        preg_match_all($pattern,$source,$before);
+        preg_match_all($pattern,$candidate,$after);
+        if ($before[0]!==$after[0]) {
+            return array('error'=>'sonar_spec_bonus_affiliate_or_media_drift');
         }
         return array('candidate'=>$candidate);
     }
@@ -894,7 +990,9 @@ final class NRY_Git_Publisher {
         if (isset($edit['placement'])) {
             // The source is captured on the actual WordPress server. No
             // outbound REST authentication or WPVibe is needed.
-            $built = ($edit['placement']==='historic_sonar_offers_only')
+            $built = ($edit['placement']==='sonar_spec_bonus_only')
+                ? self::build_sonar_spec_bonus_candidate($source,$edit)
+                : (($edit['placement']==='historic_sonar_offers_only')
                 ? self::build_sonar_historic_offer_candidate($source,$edit)
                 : (($edit['placement']==='ranking_claims_only')
                     ? self::build_alarm_ranking_candidate($source,$edit)
@@ -902,7 +1000,7 @@ final class NRY_Git_Publisher {
                     ? self::build_alarm_score_candidate($source,$edit)
                     : (($edit['placement']==='price_corrections_only')
                         ? self::build_pipaky_price_candidate($source,$edit)
-                        : self::build_v5_candidate($source,$edit))));
+                        : self::build_v5_candidate($source,$edit)))));
             if (isset($built['already'])) {
                 return array('id' => $post->ID, 'status' => 'already_applied');
             }
