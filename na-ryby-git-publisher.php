@@ -1125,6 +1125,16 @@ final class NRY_Git_Publisher {
         } elseif ($scope==='echolot-pillar') {
             // Exact known published sonar decision guide, no open-ended IDs.
             $allow = array(118553 => 'jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce');
+        } elseif ($scope==='echolot-boat') {
+            // Boat-only buyer guide: source identity needed before a fresh
+            // problem-first internal navigation improvement, not raw HTML.
+            $allow = array(60637 =>
+                'jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare');
+        } elseif ($scope==='echolot-historic') {
+            // Historic buying comparison: keep URL intact, never relaunch
+            // the old current-prices claims or change existing merchant hrefs.
+            $allow = array(36518 =>
+                'porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023');
         } elseif ($scope==='echolot-budget') {
             // One exact verified published buyer guide, no arbitrary ID.
             $allow = array(118455 => 'nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz');
@@ -1316,6 +1326,10 @@ final class NRY_Git_Publisher {
             && $_GET['nry_echolot_budget_source_proof']==='1';
         $pillar=isset($_GET['nry_echolot_pillar_source_proof'])
             && $_GET['nry_echolot_pillar_source_proof']==='1';
+        $boat=isset($_GET['nry_echolot_boat_source_proof'])
+            && $_GET['nry_echolot_boat_source_proof']==='1';
+        $historic=isset($_GET['nry_echolot_historic_source_proof'])
+            && $_GET['nry_echolot_historic_source_proof']==='1';
         $alarm=isset($_GET['nry_alarm_guide_source_proof'])
             && $_GET['nry_alarm_guide_source_proof']==='1';
         $beginner=isset($_GET['nry_pipaky_beginner_source_proof'])
@@ -1327,14 +1341,14 @@ final class NRY_Git_Publisher {
         $pipakyMain=isset($_GET['nry_pipaky_main_source_proof'])
             && $_GET['nry_pipaky_main_source_proof']==='1';
         // Exactly one explicitly allowlisted GET selector; never arbitrary IDs.
-        if (((int)$chairs+(int)$evergreen+(int)$hub+(int)$echolot+(int)$pillar+(int)$alarm+(int)$beginner+(int)$professional+(int)$pipakyMain+(int)$ranking)!==1
+        if (((int)$chairs+(int)$evergreen+(int)$hub+(int)$echolot+(int)$pillar+(int)$boat+(int)$historic+(int)$alarm+(int)$beginner+(int)$professional+(int)$pipakyMain+(int)$ranking)!==1
             || !function_exists('is_page') || !is_page('poradce-vybavy')) return;
         if (rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return;
         nocache_headers();
         header('Content-Type: application/json; charset=utf-8');
         header('X-Robots-Tag: noindex, nofollow');
         echo wp_json_encode(self::buyer_source_proof_snapshot(
-            $ranking ? 'alarm-ranking' : ($pipakyMain ? 'pipaky-main' : ($professional ? 'pipaky-professional' : ($beginner ? 'pipaky-beginner' : ($alarm ? 'alarm-guide' : ($pillar ? 'echolot-pillar' : ($echolot ? 'echolot-budget' : ($hub ? 'buyer-hub' : ($evergreen ? 'evergreen' : 'chairs'))))))))));
+            $boat ? 'echolot-boat' : ($historic ? 'echolot-historic' : ($ranking ? 'alarm-ranking' : ($pipakyMain ? 'pipaky-main' : ($professional ? 'pipaky-professional' : ($beginner ? 'pipaky-beginner' : ($alarm ? 'alarm-guide' : ($pillar ? 'echolot-pillar' : ($echolot ? 'echolot-budget' : ($hub ? 'buyer-hub' : ($evergreen ? 'evergreen' : 'chairs'))))))))))));
         exit;
     }
 
