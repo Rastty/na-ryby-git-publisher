@@ -37,4 +37,20 @@ no=mod.audit(no_script)
 assert no['assetIntegrity']=='NO_DIRECT_SCRIPT_TAG_TO_VALIDATE'
 assert len(calls)==3
 assert all(item['state']=='DIRECT_SCRIPT_NOT_OBSERVABLE' for item in no['pages'].values())
+def safe_failed_page(url, maximum):
+    if url.endswith(mod.PAGES['alarm_guide']):
+        raise ValueError("READONLY_REDIRECT_OR_ORIGIN_DRIFT")
+    return one
+try:
+    mod.audit(safe_failed_page)
+    assert False, "failure must not turn into verified instrumentation"
+except ValueError as exc:
+    assert str(exc)=="PAGE_ALARM_GUIDE_READONLY_REDIRECT_OR_ORIGIN_DRIFT"
+def sensitive_failed_page(url, maximum):
+    raise ValueError("secret URL ?affiliate_id=123")
+try:
+    mod.audit(sensitive_failed_page)
+    assert False, "failed network cannot pass"
+except ValueError as exc:
+    assert str(exc)=="PAGE_PIPAKY_GUIDE_ValueError", "never leak arbitrary underlying exceptions"
 print("PASS buyer-click audit: three exact GETs, 1 local asset only if used, no GA4/CJ/fake-click proofs")
