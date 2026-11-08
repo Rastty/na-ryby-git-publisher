@@ -18,8 +18,8 @@ head=(
  '<a href="https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/">Loď</a>'
  '<a href="https://na-ryby.eu/poradce-vybavy/">Poradce</a></section>')
 good='<h1>Echoloty do 15 000 Kč</h1>'+head+''.join(
- '<p>'+r["new_text"]+'</p>'*0 if False else
- ''.join('<p>'+r["new_text"]+'</p>' for _ in range(r["count"])) for r in rules)
+    '<p>'+r["new_text"]+'</p>'
+    for r in rules for _ in range(r["count"]))
 def proof(body):
  return m.check_target(target,lambda _ : {"status":"READ_OK","http":200,"html":body})
 assert proof(good)["status"]=="PUBLIC_MARKER_VERIFIED"
