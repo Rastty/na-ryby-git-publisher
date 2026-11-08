@@ -2,7 +2,9 @@
 """Offline negative controls: no merchant contacts/clicks/GA4 claims."""
 import importlib.util
 from pathlib import Path
+import sys
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT / "scripts"))
 spec = importlib.util.spec_from_file_location("buyer_live", ROOT / "scripts/audit-buyer-click-live-readiness.py")
 mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mod)
