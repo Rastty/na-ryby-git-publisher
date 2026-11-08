@@ -73,6 +73,11 @@ final class NRY_Git_Publisher {
                 // A single correction-only release removes six invented 1–10
                 // numerical ratings without adding another redundant top panel.
                 // All other schema v8 operations remain the original prepend flow.
+                if (($e['placement'] ?? '') === 'historic_sonar_offers_only') {
+                    $check=self::validate_sonar_historic_offer_correction($e,$data);
+                    if (is_wp_error($check)) return $check;
+                    continue;
+                }
                 if (($e['placement'] ?? '') === 'ranking_claims_only') {
                     $check=self::validate_alarm_ranking_correction($e,$data);
                     if (is_wp_error($check)) return $check;
@@ -329,6 +334,89 @@ final class NRY_Git_Publisher {
         preg_match_all($pattern,$source,$before);
         preg_match_all($pattern,$candidate,$after);
         if ($before[0]!==$after[0]) return array('error'=>'protected_affiliate_or_media_drift');
+        return array('candidate'=>$candidate);
+    }
+
+    /**
+     * Existing budget sonar guide #118455, three live source-counted unsafe
+     * historical offers only. Not an unbounded price editor.
+     */
+    private static function sonar_historic_offer_corrections() {
+        return array(
+          array(
+            'old_text'=>'v době přípravy článku skladem za 4 509 Kč',
+            'new_text'=>'historická nabídka Eagle 4X – aktuální cenu a sklad ověřte u prodejce'),
+          array(
+            'old_text'=>'aktuálně 10 542 Kč a skladem 1 ks',
+            'new_text'=>'historická nabídka Hook Reveal 5 – aktuální cenu a sklad ověřte u prodejce'),
+          array(
+            'old_text'=>'v době přípravy článku skladem za 13 889 Kč',
+            'new_text'=>'historická nabídka Eagle 7 – aktuální cenu a sklad ověřte u prodejce'),
+        );
+    }
+
+    private static function validate_sonar_historic_offer_correction($edit,$manifest) {
+        $keys=array_keys($edit);
+        $expected=array('post_id','slug','source_modified_gmt','source_min_bytes',
+          'source_max_bytes','source_sha256','edit_id','placement','text_corrections');
+        sort($keys);sort($expected);
+        if (($manifest['batch_id']??'')!=='echolot-budget-118455-three-offers-fix-20261108-v1'
+          || count($manifest['edits']??array())!==1
+          || ($edit['post_id']??null)!==118455
+          || ($edit['slug']??'')!=='nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz'
+          || ($edit['edit_id']??'')!=='echolot-budget-118455-three-offers-20261108-v1'
+          || ($edit['placement']??'')!=='historic_sonar_offers_only'
+          || $keys!==$expected
+          || ($edit['source_sha256']??'')!=='f0ba0b4dcd29646d470d084af077623b12fa687935347e626203a13107e7be79'
+          || ($edit['source_modified_gmt']??'')!=='2026-11-04 11:04:24'
+          || ($edit['source_min_bytes']??0)!==39795
+          || ($edit['source_max_bytes']??0)!==39796
+          || ($edit['text_corrections']??null)!==self::sonar_historic_offer_corrections()) {
+            return new WP_Error('v8_sonar_historic_offer_scope',
+                'Only the three reviewed plain historical 118455 offers may change.');
+        }
+        return true;
+    }
+
+    private static function build_sonar_historic_offer_candidate($source,$edit) {
+        $rules=self::sonar_historic_offer_corrections();
+        $already=true;
+        foreach ($rules as $rule) {
+            if (substr_count($source,$rule['old_text'])!==0
+                || substr_count($source,$rule['new_text'])!==1) {
+                $already=false;
+                break;
+            }
+        }
+        if ($already) return array('already'=>true);
+        $candidate=$source;
+        foreach ($rules as $rule) {
+            $old=$rule['old_text'];$new=$rule['new_text'];
+            if (substr_count($candidate,$old)!==1
+                || substr_count($candidate,$new)!==0) {
+                return array('error'=>'sonar_offer_missing_or_not_unique');
+            }
+            $at=strpos($candidate,$old);
+            if (!self::plain_text_span($candidate,$at,strlen($old))) {
+                return array('error'=>'sonar_offer_in_protected_html');
+            }
+            $replacement=htmlspecialchars($new,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');
+            $candidate=substr_replace($candidate,$replacement,$at,strlen($old));
+        }
+        foreach ($rules as $rule) {
+            if (substr_count($candidate,$rule['new_text'])!==1
+                || strpos($candidate,$rule['old_text'])!==false) {
+                return array('error'=>'sonar_offer_not_fully_corrected');
+            }
+        }
+        // Original affiliate anchors, images, embeds, shortcodes must survive
+        // exactly, in order, with zero target/revenue attribution rewrites.
+        $pattern='~(?:<a\b[^>]*>|<img\b[^>]*>|<iframe\b[^>]*>|\[[a-zA-Z][^\]]*\])~iu';
+        preg_match_all($pattern,$source,$before);
+        preg_match_all($pattern,$candidate,$after);
+        if ($before[0]!==$after[0]) {
+            return array('error'=>'protected_affiliate_or_media_drift');
+        }
         return array('candidate'=>$candidate);
     }
 
@@ -806,13 +894,15 @@ final class NRY_Git_Publisher {
         if (isset($edit['placement'])) {
             // The source is captured on the actual WordPress server. No
             // outbound REST authentication or WPVibe is needed.
-            $built = ($edit['placement']==='ranking_claims_only')
-                ? self::build_alarm_ranking_candidate($source,$edit)
+            $built = ($edit['placement']==='historic_sonar_offers_only')
+                ? self::build_sonar_historic_offer_candidate($source,$edit)
+                : (($edit['placement']==='ranking_claims_only')
+                    ? self::build_alarm_ranking_candidate($source,$edit)
                 : (($edit['placement']==='corrections_only')
                     ? self::build_alarm_score_candidate($source,$edit)
                     : (($edit['placement']==='price_corrections_only')
                         ? self::build_pipaky_price_candidate($source,$edit)
-                        : self::build_v5_candidate($source,$edit)));
+                        : self::build_v5_candidate($source,$edit))));
             if (isset($built['already'])) {
                 return array('id' => $post->ID, 'status' => 'already_applied');
             }
