@@ -174,6 +174,38 @@ $guarded=NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-budget');
 must($guarded['rows'][0]['historical_offer_raw_counts']['hook5_old_offer']===1
   && $guarded['rows'][0]['historical_offer_safe_plain_counts']['hook5_old_offer']===0,
   'text inside anchor attribute cannot be treated as safe visible prose');
+$GLOBALS['sources'][118455]->post_content=
+    '<p>Nízká cena, GPS, jednoduchost, bonus baterie.</p>'
+    .'<li>baterie zdarma v balení</li>'
+    .'<p>Chyť a pusť tu má rozumnou aktuální nabídku včetně baterie a nabíječky.</p>'
+    .'<p>V Chyť a pusť aktuálně dává větší smysl i díky přibalené baterii a nabíječce.</p>'
+    .'<h3>Lowrance Eagle 4X se sondou Bullet + baterie ZDARMA</h3>'
+    .'<p>Lowrance Eagle 4X se sondou Bullet + baterie ZDARMA</p>'
+    .'<h3>Lowrance Eagle 7 se sondou SplitShot HD + baterie + nabíječka ZDARMA</h3>'
+    .'<p>Lowrance Eagle 7 se sondou SplitShot HD + baterie + nabíječka ZDARMA</p>'
+    .str_repeat('<p>Praktický výběr echolotu.</p>',250);
+$claimProof=NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-budget');
+$expectedClaims=array(
+    'eagle4x_false_gps'=>1,'eagle4x_battery_assertion'=>1,
+    'eagle7_current_bundle'=>1,'eagle7_current_cta'=>1,
+    'eagle4x_bonus_title'=>2,'eagle7_bonus_title'=>2,
+);
+must($claimProof['rows'][0]['fixed_offer_claim_raw_counts']===$expectedClaims,
+     'fixed six buyer claims counted in raw source');
+must($claimProof['rows'][0]['fixed_offer_claim_safe_plain_counts']===$expectedClaims,
+     'only plain readable text counted as safe');
+must($claimProof['wordpress_writes']===0
+    && $claimProof['publication_authorized']===false
+    && !isset($claimProof['rows'][0]['post_content'])
+    && !isset($claimProof['rows'][0]['hrefs']),
+    'six claim audit cannot expose private HTML or publish');
+$GLOBALS['sources'][118455]->post_content=
+    '<a href="https://merchant.invalid/?q=Nízká cena, GPS, jednoduchost, bonus baterie.">Shop</a>'
+    .str_repeat('<p>Praktický výběr echolotu.</p>',250);
+$attributeProof=NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-budget');
+must($attributeProof['rows'][0]['fixed_offer_claim_raw_counts']['eagle4x_false_gps']===1
+    && $attributeProof['rows'][0]['fixed_offer_claim_safe_plain_counts']['eagle4x_false_gps']===0,
+    'untrusted merchant URL attribute not eligible for prose editing');
 $GLOBALS['sources'][118455]->post_status='draft';
 must(NRY_Git_Publisher::buyer_source_proof_snapshot('echolot-budget')['rows'][0]['state']
     ==='BLOCKED_IDENTITY_OR_SOURCE', 'echolot draft rejected');
