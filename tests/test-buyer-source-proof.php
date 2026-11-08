@@ -95,6 +95,41 @@ $GLOBALS['sources'][60341]->post_status='publish';
 $GLOBALS['sources'][60341]->post_name='wrong-article';
 must(NRY_Git_Publisher::buyer_source_proof_snapshot('buyer-hub')['rows'][0]['state']
   ==='BLOCKED_IDENTITY_OR_SOURCE','buyer hub slug drift blocked');
+foreach(array(
+  'echolot-boat'=>array(60637,'jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare'),
+  'echolot-historic'=>array(36518,'porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023'),
+) as $scope=>$idSlug) {
+    list($id,$slug)=$idSlug;
+    $GLOBALS['sources'][$id]=(object)array(
+      'ID'=>$id,'post_type'=>'post','post_status'=>'publish',
+      'post_name'=>$slug,'post_modified_gmt'=>'2026-10-22 12:48:00',
+      'post_content'=>str_repeat('<p>Historický průvodce výběrem echolotu.</p>',150),
+    );
+    $proof=NRY_Git_Publisher::buyer_source_proof_snapshot($scope);
+    must($proof['publication_authorized']===false&&$proof['wordpress_writes']===0,
+       $scope.' metadata scope never writes WordPress');
+    must(count($proof['rows'])===1&&$proof['rows'][0]['id']===$id,
+       $scope.' only exact fixed post');
+    must($proof['rows'][0]['source_sha256']===hash('sha256',$GLOBALS['sources'][$id]->post_content),
+       $scope.' source SHA exact raw content');
+    must($proof['rows'][0]['source_modified_gmt']==='2026-10-22 12:48:00',
+       $scope.' exact modified GMT');
+    must(!isset($proof['rows'][0]['post_content'])&&!isset($proof['rows'][0]['rendered'])
+      &&!isset($proof['rows'][0]['cj_urls']),
+      $scope.' no editable raw source, merchant URL or user data released');
+    $GLOBALS['sources'][$id]->post_status='draft';
+    must($proof['rows'][0]['state']==='SOURCE_SHA_AVAILABLE_NOT_PUBLICATION_AUTHORITY',
+      $scope.' published row original');
+    $blocked=NRY_Git_Publisher::buyer_source_proof_snapshot($scope);
+    must($blocked['rows'][0]['state']==='BLOCKED_IDENTITY_OR_SOURCE',
+       $scope.' draft cannot be claimed public');
+    $GLOBALS['sources'][$id]->post_status='publish';
+    $GLOBALS['sources'][$id]->post_name='arbitrary-article';
+    $blocked=NRY_Git_Publisher::buyer_source_proof_snapshot($scope);
+    must($blocked['rows'][0]['state']==='BLOCKED_IDENTITY_OR_SOURCE',
+       $scope.' slug drift cannot be claimed public');
+    $GLOBALS['sources'][$id]->post_name=$slug;
+}
 $GLOBALS['sources'][118455]=(object)array(
     'ID'=>118455, 'post_type'=>'post','post_status'=>'publish',
     'post_name'=>'nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz',
