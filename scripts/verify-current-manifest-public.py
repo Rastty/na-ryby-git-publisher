@@ -386,6 +386,24 @@ def check_target(target, fetch=read_public):
             "echolot-boat-decision-60637-20261108-v1",
             "echolot-historic-decision-36518-20261108-v1"):
         is_boat = target["post_id"] == 60637
+        import html as html_utils
+        from urllib.parse import urlsplit
+        # Classify publicly rendered link identities without exposing any
+        # actual href, query, private token or merchant redirect URL.
+        expected_paths = [urlsplit(route.split('href="', 1)[1].rstrip('"')).path
+                          for route in routes]
+        observed_hrefs = re.findall(r'<a\\b[^>]*?href\\s*=\\s*["\\']([^"\\']+)["\\']',panel,re.I)
+        def role_for_href(href):
+            parsed=urlsplit(html_utils.unescape(href))
+            if parsed.scheme not in ("https","") or parsed.netloc not in ("na-ryby.eu",""):
+                return "EXTERNAL_OR_INVALID"
+            if parsed.query or parsed.fragment:
+                return "TRACKED_OR_NONCANONICAL"
+            if parsed.path in expected_paths:
+                return "EXPECTED_"+str(expected_paths.index(parsed.path))
+            return "OTHER_INTERNAL"
+        observed_roles=[role_for_href(h) for h in observed_hrefs]
+        visible_text=' '.join(html_utils.unescape(re.sub(r'<[^>]+>',' ',panel)).split())
         diagnostic = {
             "sectionStarts": panel.startswith('<section ' + marker),
             "sectionPresent": bool(panel),
@@ -402,6 +420,13 @@ def check_target(target, fetch=read_public):
             "liCount": panel.count("<li>"),
             "hrefCount": panel.count("<a href="),
             "requiredSameSiteRoutesPresent": [panel.count(route) == 1 for route in routes],
+            "renderedLinkRoleSequence": observed_roles,
+            "visibleNoBuySentence": (
+                "nemusíte kupovat novou" in visible_text
+                if is_boat else "nový echolot nepotřebujete" in visible_text),
+            "visibleHasBoatGuideAnchorText": (
+                "průvodce echolotem na loď" in visible_text),
+
             "requiredPhrasesPresent": [
                 key in panel for key in (
                     (
