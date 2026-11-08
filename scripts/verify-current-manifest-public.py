@@ -392,7 +392,7 @@ def check_target(target, fetch=read_public):
         # actual href, query, private token or merchant redirect URL.
         expected_paths = [urlsplit(route.split('href="', 1)[1].rstrip('"')).path
                           for route in routes]
-        observed_hrefs = re.findall(r'<a\\b[^>]*?href\\s*=\\s*["\\']([^"\\']+)["\\']',panel,re.I)
+        observed_hrefs = re.findall(r"""<a\b[^>]*?href\s*=\s*["']([^"']+)["']""", panel, re.I)
         def role_for_href(href):
             parsed=urlsplit(html_utils.unescape(href))
             if parsed.scheme not in ("https","") or parsed.netloc not in ("na-ryby.eu",""):
