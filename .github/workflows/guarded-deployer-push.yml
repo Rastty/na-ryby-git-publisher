@@ -682,6 +682,20 @@ jobs:
           assert r['source_bytes']==current_bytes
           assert r['source_modified_gmt']==current_gmt
           assert all(raw[key]==0 and safe[key]==0 for key in keys)
+          trust_raw=r.get('fixed_offer_claim_raw_counts')
+          trust_safe=r.get('fixed_offer_claim_safe_plain_counts')
+          trust_keys={'eagle4x_false_gps','eagle4x_battery_assertion',
+                     'eagle7_current_bundle','eagle7_current_cta',
+                     'eagle4x_bonus_title','eagle7_bonus_title'}
+          assert isinstance(trust_raw,dict) and isinstance(trust_safe,dict)
+          assert set(trust_raw)==trust_keys and set(trust_safe)==trust_keys
+          assert all(type(trust_raw[k]) is int and type(trust_safe[k]) is int
+                     and 0<=trust_safe[k]<=trust_raw[k]<=20 for k in trust_keys)
+          print('NRY_118455_FIXED_TRUST_CLAIM_PREFLIGHT',json.dumps({
+              'sourceSha256':r['source_sha256'],'modifiedGmt':r['source_modified_gmt'],
+              'raw':trust_raw,'safePlain':trust_safe,
+              'wordpressWrites':0,'publicationAuthorized':False
+          },sort_keys=True))
           print('NRY_118455_HISTORIC_OFFERS_COUNTS',json.dumps({
               'postId':r['id'],'sourceSha256':r['source_sha256'],
               'modifiedGmt':r['source_modified_gmt'],'sourceBytes':r['source_bytes'],
