@@ -36,6 +36,13 @@ def verify_manifest(data):
                 or not isinstance(slug, str) or not re.fullmatch(r"[a-z0-9-]{10,140}", slug)
                 or not isinstance(marker, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{7,63}", marker)):
             raise ValueError("INVALID_EDIT_IDENTITY")
+        if edit.get("placement") == "historic_sonar_offers_only":
+            if (data.get("schema_version") != 8
+                    or data.get("batch_id") != "echolot-budget-118455-three-offers-fix-20261108-v1"
+                    or post_id != 118455
+                    or marker != "echolot-budget-118455-three-offers-20261108-v1"
+                    or len(edits) != 1):
+                raise ValueError("UNAUTHORIZED_SONAR_OFFER_CORRECTION")
         if edit.get("placement") == "price_corrections_only":
             if (data.get("schema_version") != 8 or
                     data.get("batch_id") != "pipaky-pokrocile-five-price-fix-36702-20261107-v1" or
@@ -217,6 +224,30 @@ def check_target(target, fetch=read_public):
             and "Jsme si jisti, že si u nás vyberete židličku na ryby" not in html
             and "Na-ryby.eu je rybářský informační magazín" in html
         )
+    elif target["post_id"] == 118455 and target.get("placement") == "historic_sonar_offers_only":
+        # No invented marker. The actual three exact unsafe historical
+        # price/stock claims must be absent, replaced by accurate warnings.
+        old = (
+            "v době přípravy článku skladem za 4 509 Kč",
+            "aktuálně 10 542 Kč a skladem 1 ks",
+            "v době přípravy článku skladem za 13 889 Kč",
+        )
+        expected = (
+            "historická nabídka Eagle 4X – aktuální cenu a sklad ověřte u prodejce",
+            "historická nabídka Hook Reveal 5 – aktuální cenu a sklad ověřte u prodejce",
+            "historická nabídka Eagle 7 – aktuální cenu a sklad ověřte u prodejce",
+        )
+        # Keep the previous independently verified practical buying
+        # guidance and full three internal routes, not just three substitutions.
+        semantic_ok = (
+            all(x not in html for x in old)
+            and all(html.count(x) == 1 for x in expected)
+            and "nepředstavují dnes ověřený ceník" in html
+            and "nemusíte kupovat nové" in html
+            and 'href="https://na-ryby.eu/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/"' in html
+            and 'href="https://na-ryby.eu/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/"' in html
+            and 'href="https://na-ryby.eu/poradce-vybavy/"' in html
+        )
     elif target["post_id"] == 118455:
         # An inserted marker alone is not a buyer-journey improvement:
         # independently require the price warning and the three intended routes.
@@ -288,8 +319,11 @@ def check_target(target, fetch=read_public):
             and 'akce 1+1 může skončit' in section
             and all(route in section for route in allowed)
         )
-    semantic_only = (target["post_id"] == 60354
-                     and target.get("placement") == "ranking_claims_only")
+    semantic_only = (
+        target["post_id"] == 60354 and target.get("placement") == "ranking_claims_only"
+    ) or (
+        target["post_id"] == 118455 and target.get("placement") == "historic_sonar_offers_only"
+    )
     passed = (response.get("status") == "READ_OK" and response.get("http") == 200
               and (count == 1 or (semantic_only and semantic_ok)) and semantic_ok)
     return {"post_id": target["post_id"], "url": target["url"],
