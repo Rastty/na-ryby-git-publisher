@@ -1250,6 +1250,30 @@ final class NRY_Git_Publisher {
                 }
                 $row['historical_offer_raw_counts']=$raw;
                 $row['historical_offer_safe_plain_counts']=$plain;
+                // 2026-11-08 fixed public buyer-trust verification only.
+                // Count exact claims in server-side raw source and plain text,
+                // never disclose HTML or enable writing/affiliate changes.
+                $trustTargets=array(
+                    'eagle4x_false_gps'=>'Nízká cena, GPS, jednoduchost, bonus baterie.',
+                    'eagle4x_battery_assertion'=>'baterie zdarma v balení',
+                    'eagle7_current_bundle'=>'Chyť a pusť tu má rozumnou aktuální nabídku včetně baterie a nabíječky.',
+                    'eagle7_current_cta'=>'V Chyť a pusť aktuálně dává větší smysl i díky přibalené baterii a nabíječce.',
+                    'eagle4x_bonus_title'=>'Lowrance Eagle 4X se sondou Bullet + baterie ZDARMA',
+                    'eagle7_bonus_title'=>'Lowrance Eagle 7 se sondou SplitShot HD + baterie + nabíječka ZDARMA',
+                );
+                $trustRaw=array();$trustSafe=array();
+                foreach ($trustTargets as $key=>$phrase) {
+                    $trustRaw[$key]=substr_count($post->post_content,$phrase);
+                    $trustSafe[$key]=0;$offset=0;
+                    while (($pos=strpos($post->post_content,$phrase,$offset))!==false) {
+                        if (self::plain_text_span($post->post_content,$pos,strlen($phrase))) {
+                            $trustSafe[$key]++;
+                        }
+                        $offset=$pos+strlen($phrase);
+                    }
+                }
+                $row['fixed_offer_claim_raw_counts']=$trustRaw;
+                $row['fixed_offer_claim_safe_plain_counts']=$trustSafe;
             }
             if ($scope==='alarm-ranking') {
                 // Fixed phrases from the public 2023 article; disclose ONLY
