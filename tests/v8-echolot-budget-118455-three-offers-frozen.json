@@ -1,0 +1,31 @@
+{
+  "schema_version": 8,
+  "batch_id": "echolot-budget-118455-three-offers-fix-20261108-v1",
+  "site": "https://na-ryby.eu",
+  "edits": [
+    {
+      "post_id": 118455,
+      "slug": "nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz",
+      "source_modified_gmt": "2026-11-04 11:04:24",
+      "source_min_bytes": 39795,
+      "source_max_bytes": 39796,
+      "source_sha256": "f0ba0b4dcd29646d470d084af077623b12fa687935347e626203a13107e7be79",
+      "edit_id": "echolot-budget-118455-three-offers-20261108-v1",
+      "placement": "historic_sonar_offers_only",
+      "text_corrections": [
+        {
+          "old_text": "v době přípravy článku skladem za 4 509 Kč",
+          "new_text": "historická nabídka Eagle 4X – aktuální cenu a sklad ověřte u prodejce"
+        },
+        {
+          "old_text": "aktuálně 10 542 Kč a skladem 1 ks",
+          "new_text": "historická nabídka Hook Reveal 5 – aktuální cenu a sklad ověřte u prodejce"
+        },
+        {
+          "old_text": "v době přípravy článku skladem za 13 889 Kč",
+          "new_text": "historická nabídka Eagle 7 – aktuální cenu a sklad ověřte u prodejce"
+        }
+      ]
+    }
+  ]
+}
