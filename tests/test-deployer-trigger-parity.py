@@ -98,23 +98,17 @@ assert "NRY_60354_POST_WRITE_SOURCE_REPIN_REQUIRED" not in workflow
 assert "NRY_60354_POST_WRITE_SOURCE_REPIN_REQUIRED" not in workflow
 assert "NRY_118455_NEW_SOURCE_PIN_REQUIRED" not in workflow
 assert "old_sha='f0ba0b4dcd29646d470d084af077623b12fa687935347e626203a13107e7be79'" not in workflow
-# A NEW, explicitly source-locked factual correction for the same post is
-# permitted only when its exact reviewed batch is actually active. Do not
-# rewrite source pin for unrelated releases, or trust GitHub CI as WP write.
-assert "old_sha='6d8736d5d2f62a5f6170871a7630d9e097f6dc6839a461e97da53d95cb166f7e'" in workflow
-assert "old_bytes=39897" in workflow
-assert "old_gmt='2026-11-08 07:56:27'" in workflow
-assert "active.get('batch_id')=='echolot-budget-118455-spec-bonus-fix-20261108-v1'" in workflow
-assert "active['edits'][0].get('source_sha256')==old_sha" in workflow
-assert "active['edits'][0].get('placement')=='sonar_spec_bonus_only'" in workflow
-assert "if not reviewed:" in workflow
-assert "assert r['source_sha256']==old_sha" in workflow
-assert "assert r['source_bytes']==old_bytes" in workflow
-assert "assert r['source_modified_gmt']==old_gmt" in workflow
-assert "assert health.get('last_auto_receipt_status')=='applied_and_verified_local'" in workflow
-assert "assert health.get('candidate_matches') is True" in workflow
-assert "assert health.get('backup_present') is True" in workflow
-assert "NRY_118455_SPEC_BONUS_POSTWRITE_SHA_REPIN_REQUIRED" in workflow
+# Actual WordPress release #42471028934 has finished. Reject any old
+# source, any unverified post-write exception, and all six old claims.
+assert "current_sha='ff506044d0b7f494a901085c4fe01b5f44706afb69a03a8733329772b9ef8d82'" in workflow
+assert "current_bytes=39987" in workflow
+assert "current_gmt='2026-11-08 10:21:01'" in workflow
+assert "assert r['source_sha256']==current_sha" in workflow
+assert "assert r['source_bytes']==current_bytes" in workflow
+assert "assert r['source_modified_gmt']==current_gmt" in workflow
+assert "assert all(trust_raw[k]==0 and trust_safe[k]==0 for k in trust_keys)" in workflow
+assert "NRY_118455_SPEC_BONUS_POSTWRITE_SHA_REPIN_REQUIRED" not in workflow
+assert "active.get('batch_id')=='echolot-budget-118455-spec-bonus-fix-20261108-v1'" not in workflow
 assert "assert all(raw[key]==0 and safe[key]==0 for key in keys)" in workflow
 import re
 import textwrap
@@ -133,9 +127,9 @@ budget_step=workflow.split(
 )[1].split('      - name: Read-only exact echolot pillar source proof from live WordPress')[0]
 assert 'NRY_60354_SOURCE_CLAIM_COUNTS' in rank_step
 assert "expected_source='36a361eb839948cb41b81490b2969a6b0e12540862cf7c572ffef0893ec39005'" in rank_step
-assert "old_sha='6d8736d5d2f62a5f6170871a7630d9e097f6dc6839a461e97da53d95cb166f7e'" in budget_step
-assert "old_bytes=39897" in budget_step
-assert "old_gmt='2026-11-08 07:56:27'" in budget_step
+assert "current_sha='ff506044d0b7f494a901085c4fe01b5f44706afb69a03a8733329772b9ef8d82'" in budget_step
+assert "current_bytes=39987" in budget_step
+assert "current_gmt='2026-11-08 10:21:01'" in budget_step
 assert "assert all(trust_raw[k]==0 and trust_safe[k]==0 for k in trust_keys)" in budget_step
 assert "assert all(raw[key]==0 and safe[key]==0 for key in keys)" in budget_step
 assert 'NRY_118455_HISTORIC_OFFERS_COUNTS' in budget_step
