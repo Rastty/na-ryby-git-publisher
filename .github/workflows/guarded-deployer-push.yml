@@ -363,44 +363,7 @@ jobs:
           assert set(raw)==keys and set(safe)==keys
           assert all(type(raw[k]) is int and type(safe[k]) is int
                      and raw[k]>=safe[k]>=0 for k in keys)
-          # Fresh independent preflight: run 42460178190, 2026-11-08,
-          # exact WP post-content SHA/39795 bytes/GMT and 3 visible-safe spans.
-          # For the exact staged one-post batch only, WordPress has already
-          # written before this read-only proof step. A post-write SHA change
-          # must be tied to same-batch native candidate receipt and backup.
-          old_sha='f0ba0b4dcd29646d470d084af077623b12fa687935347e626203a13107e7be79'
-          old_gmt='2026-11-04 11:04:24'
-          with open('manifest.json',encoding='utf8') as fd:
-              current=json.load(fd)
-          reviewed=(current.get('schema_version')==8
-                    and current.get('batch_id')=='echolot-budget-118455-three-offers-fix-20261108-v1'
-                    and len(current.get('edits',[]))==1
-                    and current['edits'][0].get('post_id')==118455
-                    and current['edits'][0].get('slug')==r['slug']
-                    and current['edits'][0].get('placement')=='historic_sonar_offers_only'
-                    and current['edits'][0].get('source_sha256')==old_sha
-                    and current['edits'][0].get('source_modified_gmt')==old_gmt
-                    and current['edits'][0].get('source_min_bytes')==39795
-                    and current['edits'][0].get('source_max_bytes')==39796)
-          if reviewed:
-              url='https://na-ryby.eu/poradce-vybavy/?nry_release_health=1'
-              check=urllib.request.Request(url,headers={
-                  'Cache-Control':'no-cache,no-store',
-                  'User-Agent':'Nry118455PostWriteReadOnlyAudit/1.0'})
-              with guarded_urlopen(check,timeout=25) as resp:
-                  assert resp.status==200
-                  health=json.loads(resp.read(5000))
-              assert health.get('publisher_version')=='0.16.0'
-              assert health.get('last_auto_batch_id')==current['batch_id']
-              assert health.get('last_auto_receipt_status')=='applied_and_verified_local'
-              assert health.get('candidate_matches') is True
-              assert health.get('source_matches') is False
-              assert health.get('backup_present') is True
-              assert health.get('guarded_publisher_enabled') is True
-              assert r['source_sha256']!=old_sha
-              assert r['source_modified_gmt']>old_gmt
-              assert 39000<r['source_bytes']<43000
-              assert all(raw[k]==0 and safe[k]==0 for k in keys)
+          assert all(raw[k]==0 and safe[k]==0 for k in keys)
               print('NRY_118455_NEW_SOURCE_PIN_REQUIRED',json.dumps({
                 'sha':r['source_sha256'],'bytes':r['source_bytes'],
                 'gmt':r['source_modified_gmt'],'oldClaims':raw,
@@ -715,7 +678,44 @@ jobs:
           assert set(raw)==keys and set(safe)==keys
           assert all(type(raw[k]) is int and type(safe[k]) is int
                      and raw[k]>=safe[k]>=0 for k in keys)
-          print('NRY_118455_HISTORIC_OFFERS_COUNTS',json.dumps({
+          # Fresh independent preflight: run 42460178190, 2026-11-08,
+          # exact WP post-content SHA/39795 bytes/GMT and 3 visible-safe spans.
+          # For the exact staged one-post batch only, WordPress has already
+          # written before this read-only proof step. A post-write SHA change
+          # must be tied to same-batch native candidate receipt and backup.
+          old_sha='f0ba0b4dcd29646d470d084af077623b12fa687935347e626203a13107e7be79'
+          old_gmt='2026-11-04 11:04:24'
+          with open('manifest.json',encoding='utf8') as fd:
+              current=json.load(fd)
+          reviewed=(current.get('schema_version')==8
+                    and current.get('batch_id')=='echolot-budget-118455-three-offers-fix-20261108-v1'
+                    and len(current.get('edits',[]))==1
+                    and current['edits'][0].get('post_id')==118455
+                    and current['edits'][0].get('slug')==r['slug']
+                    and current['edits'][0].get('placement')=='historic_sonar_offers_only'
+                    and current['edits'][0].get('source_sha256')==old_sha
+                    and current['edits'][0].get('source_modified_gmt')==old_gmt
+                    and current['edits'][0].get('source_min_bytes')==39795
+                    and current['edits'][0].get('source_max_bytes')==39796)
+          if reviewed:
+              url='https://na-ryby.eu/poradce-vybavy/?nry_release_health=1'
+              check=urllib.request.Request(url,headers={
+                  'Cache-Control':'no-cache,no-store',
+                  'User-Agent':'Nry118455PostWriteReadOnlyAudit/1.0'})
+              with guarded_urlopen(check,timeout=25) as resp:
+                  assert resp.status==200
+                  health=json.loads(resp.read(5000))
+              assert health.get('publisher_version')=='0.16.0'
+              assert health.get('last_auto_batch_id')==current['batch_id']
+              assert health.get('last_auto_receipt_status')=='applied_and_verified_local'
+              assert health.get('candidate_matches') is True
+              assert health.get('source_matches') is False
+              assert health.get('backup_present') is True
+              assert health.get('guarded_publisher_enabled') is True
+              assert r['source_sha256']!=old_sha
+              assert r['source_modified_gmt']>old_gmt
+              assert 39000<r['source_bytes']<43000
+              print('NRY_118455_HISTORIC_OFFERS_COUNTS',json.dumps({
               'postId':r['id'],'sourceSha256':r['source_sha256'],
               'modifiedGmt':r['source_modified_gmt'],'sourceBytes':r['source_bytes'],
               'raw':raw,'safe':safe,'wordpressWrites':0,'publicationAuthorized':False

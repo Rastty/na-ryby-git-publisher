@@ -100,4 +100,14 @@ assert "current['edits'][0].get('post_id')==118455" in workflow
 assert "current.get('batch_id')=='echolot-budget-118455-three-offers-fix-20261108-v1'" in workflow
 assert "health.get('candidate_matches') is True" in workflow
 assert "health.get('backup_present') is True" in workflow
+# A prior draft inserted the transient 118455 logic into the permanent
+# 60354 rank-proof step and failed before any public confirmation. Guard
+# stage order and the live row variable so the mix-up cannot recur.
+rank_start=workflow.index("          print('NRY_60354_SOURCE_CLAIM_COUNTS'")
+budget_start=workflow.index("          raw=r.get('historical_offer_raw_counts')")
+budget_transition=workflow.index("          # Fresh independent preflight: run 42460178190")
+budget_receipt=workflow.index("          print('NRY_118455_HISTORIC_OFFERS_COUNTS'")
+assert rank_start<budget_start<budget_transition<budget_receipt
+assert "old_sha='f0ba0b4dcd29646d470d084af077623b12fa687935347e626203a13107e7be79'" not in workflow[rank_start:budget_start]
+assert "r['source_sha256']!=old_sha" in workflow[budget_start:budget_receipt]
 print("PASS: all live publisher modules trigger PR review and guarded main deploy")
