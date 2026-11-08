@@ -303,6 +303,7 @@ def check_target(target, fetch=read_public):
             panel.startswith('<section ' + marker)
             and '<h2>Historické srovnání echolotů: co z něj využít při dnešním výběru</h2>' in panel
             and '<h3>Jak pokračovat bez zbytečného nákupu</h3>' in panel
+            and panel.count('<ul>') == 1
             and panel.count('<li>') == 4
             and all(phrase in panel for phrase in (
                 'Nejde o aktuální žebříček',
