@@ -19,6 +19,9 @@ on:
       - 'tests/test-buyer-hub-trust-repair-v8.php'
       - 'tests/test-echolot-budget-118455-v8.php'
       - 'tests/test-echolot-pillar-118553-v8.php'
+      - 'tests/v8-echolot-boat-historic-two-guides-20261108-frozen.json'
+      - 'tests/test-echolot-boat-historic-two-guides-v8.php'
+      - 'tests/test-echolot-boat-historic-two-public-semantic.py'
       - 'tests/test-alarm-guide-trust-118218-v8.php'
       - 'tests/test-alarm-score-cleanup-118218-v8.php'
       - 'tests/test-three-chair-guides-v8.php'
@@ -104,6 +107,7 @@ jobs:
           php tests/test-production-buyer-hub-60341-v8.php
           php tests/test-echolot-budget-118455-v8.php
           php tests/test-echolot-pillar-118553-v8.php
+          php tests/test-echolot-boat-historic-two-guides-v8.php
           php tests/test-alarm-guide-trust-118218-v8.php
           php tests/test-alarm-score-cleanup-118218-v8.php
           php tests/test-buyer-source-proof.php
@@ -136,6 +140,7 @@ jobs:
           python3 tests/test-42401-public-semantic.py
           python3 tests/test-60354-public-semantic.py
           python3 tests/test-118455-three-offers-public-semantic.py
+          python3 tests/test-echolot-boat-historic-two-public-semantic.py
   deploy:
     needs: verify
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.NRY_AUTO_DEPLOY_ENABLED == 'true'
