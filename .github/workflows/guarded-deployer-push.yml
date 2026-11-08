@@ -652,6 +652,18 @@ jobs:
           assert 1000<r['source_bytes']<350000
           print('ECH_BUDGET_EXACT_SOURCE_PROOF',json.dumps({k:r[k] for k in (
               'id','slug','source_bytes','source_modified_gmt','source_sha256')},sort_keys=True))
+          raw=r.get('historical_offer_raw_counts')
+          safe=r.get('historical_offer_safe_plain_counts')
+          keys={'eagle4x_old_offer','hook5_old_offer','eagle7_old_offer'}
+          assert type(raw) is dict and type(safe) is dict
+          assert set(raw)==keys and set(safe)==keys
+          assert all(type(raw[k]) is int and type(safe[k]) is int
+                     and raw[k]>=safe[k]>=0 for k in keys)
+          print('NRY_118455_HISTORIC_OFFERS_COUNTS',json.dumps({
+              'postId':r['id'],'sourceSha256':r['source_sha256'],
+              'modifiedGmt':r['source_modified_gmt'],'sourceBytes':r['source_bytes'],
+              'raw':raw,'safe':safe,'wordpressWrites':0,'publicationAuthorized':False
+          },sort_keys=True))
           print('PASS: only exact source metadata; WordPress writes 0')
           PY
 
