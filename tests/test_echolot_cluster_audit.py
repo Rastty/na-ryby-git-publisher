@@ -107,6 +107,35 @@ class AuditContract(TestCase):
         self.assertEqual(mod.summarize("boat", slug,
             fetch=lambda _: (200, "{oops"))["state"], "PUBLIC_PARSE_UNVERIFIABLE")
 
+    def test_price_in_internal_guide_link_is_not_body_price(self):
+        import json
+        row = self.example()
+        row["content"]["rendered"] = (
+            '<p>Průvodce: <a href="' + mod.DESTINATIONS["budget"] +
+            '">Echoloty do 15 000 Kč</a></p>')
+        result = mod.summarize("boat", row["slug"],
+            fetch=lambda _: (200, json.dumps([row])))
+        self.assertTrue(result["hasNumericPrice"])
+        self.assertEqual(result["visibleNumericPriceMentions"], 1)
+        self.assertEqual(result["numericPriceMentionsOutsideInternalLinks"], 0)
+        self.assertTrue(result["priceOnlyInInternalGuideLinks"])
+
+    def test_actual_content_price_remains_flagged_without_urls(self):
+        import json
+        row = self.example()
+        row["content"]["rendered"] = (
+            '<p>Historická cena 8 490 Kč není dnes ověřena.</p>'
+            '<a href="' + mod.DESTINATIONS["budget"] + '">Do 15 000 Kč</a>'
+            '<script>const tracking = "1 234 Kč";</script>'
+            '<a href="https://merchant.invalid/?secret=private">Koupit</a>')
+        result = mod.summarize("boat", row["slug"],
+            fetch=lambda _: (200, json.dumps([row])))
+        self.assertEqual(result["visibleNumericPriceMentions"], 2)
+        self.assertEqual(result["numericPriceMentionsOutsideInternalLinks"], 1)
+        self.assertFalse(result["priceOnlyInInternalGuideLinks"])
+        self.assertFalse(result["historicPricingVerified"])
+        self.assertNotIn("merchant.invalid", str(result))
+
     def test_no_unverified_prices_claimed(self):
         import json
         row = self.example()
