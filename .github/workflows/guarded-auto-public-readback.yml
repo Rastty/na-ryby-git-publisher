@@ -4,6 +4,14 @@ on:
     paths:
       - 'scripts/verify-current-manifest-public.py'
       - 'tests/test-auto-public-readback.py'
+      - 'scripts/audit-buyer-click-live-readiness.py'
+      - 'tests/test-buyer-click-live-readiness.py'
+      - '.github/workflows/guarded-auto-public-readback.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/audit-buyer-click-live-readiness.py'
+      - 'tests/test-buyer-click-live-readiness.py'
       - '.github/workflows/guarded-auto-public-readback.yml'
   schedule:
     - cron: '41 * * * *'
@@ -17,10 +25,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Offline verification tests
-        run: python3 tests/test-auto-public-readback.py -v
+        run: |
+          python3 tests/test-auto-public-readback.py -v
+          python3 tests/test-buyer-click-live-readiness.py
       - name: Public HTTP readback of exact current manifest
         if: github.event_name != 'pull_request'
         run: python3 scripts/verify-current-manifest-public.py manifest.json
+      - name: Anonymous public click instrumentation presence (no real clicks)
+        if: always() && github.event_name != 'pull_request'
+        continue-on-error: true
+        run: python3 scripts/audit-buyer-click-live-readiness.py
+      - name: Readiness evidence (not GA4 attribution)
+        if: always() && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: naryby-buyer-click-readiness
+          path: buyer-click-live-readonly.json
+          retention-days: 14
+          if-no-files-found: warn
       - name: Evidence (read-only)
         if: always() && github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
