@@ -6,6 +6,7 @@ on:
       - 'scripts/verify-current-manifest-public.py'
       - 'tests/test-alarm-ranking-60354-v8.php'
       - 'tests/test-echolot-budget-three-old-offers-v8.php'
+      - 'tests/test-echolot-budget-118455-spec-bonus-v8.php'
       - 'tests/test-118455-three-offers-public-semantic.py'
       - 'tests/v8-echolot-budget-118455-three-offers-frozen.json'
       - 'tests/test-60354-public-semantic.py'
@@ -54,6 +55,7 @@ on:
       - 'scripts/verify-current-manifest-public.py'
       - 'tests/test-alarm-ranking-60354-v8.php'
       - 'tests/test-echolot-budget-three-old-offers-v8.php'
+      - 'tests/test-echolot-budget-118455-spec-bonus-v8.php'
       - 'tests/test-118455-three-offers-public-semantic.py'
       - 'tests/v8-echolot-budget-118455-three-offers-frozen.json'
       - 'tests/test-60354-public-semantic.py'
@@ -114,6 +116,7 @@ jobs:
           php tests/test-60354-trust-source-proof.php
           php tests/test-alarm-ranking-60354-v8.php
           php tests/test-echolot-budget-three-old-offers-v8.php
+          php tests/test-echolot-budget-118455-spec-bonus-v8.php
           php -l buyer-click-telemetry-v1.php
           php tests/test-buyer-click-telemetry-v1.php
           node --check assets/nry-buyer-clicks-v1.js
