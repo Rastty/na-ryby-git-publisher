@@ -23,7 +23,9 @@ final class NRY_Winter_Ice_Safety_45070 {
     const OLD_DEFINITION='Toto speciální rybaření probíhá na zamrzlých vodách, které jsou kryty ledem.';
     const NEW_DEFINITION='Zimní přívlač z bezpečně přístupného břehu se od lovu pod ledem liší; nejprve ověřte pravidla příslušného revíru, období lovu a hájení jednotlivých druhů.';
     public static function boot() {
-        add_filter('the_content',array(__CLASS__,'render'),8);
+        // Standalone PHP publisher regression harnesses do not define WP hooks.
+        if (function_exists('add_filter'))
+            add_filter('the_content',array(__CLASS__,'render'),8);
     }
     /** Pure presentation transform. A single missing marker leaves source unchanged. */
     public static function transform($html) {
