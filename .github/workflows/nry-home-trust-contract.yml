@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'home-trust-cleanup-118641-v1.php'
+      - 'receiver-trust-46573-v1.php'
+      - 'tests/test-receiver-trust-46573.php'
       - 'na-ryby-git-publisher.php'
       - 'tests/test-home-trust-cleanup-118641.php'
       - '.github/workflows/nry-home-trust-contract.yml'
@@ -17,7 +19,12 @@ jobs:
       - name: PHP strict syntax check
         run: |
           php -l home-trust-cleanup-118641-v1.php
+          php -l receiver-trust-46573-v1.php
           php -l na-ryby-git-publisher.php
           php -l tests/test-home-trust-cleanup-118641.php
+          php -l tests/test-receiver-trust-46573.php
       - name: Offline source drift and bounded URL contract
-        run: php tests/test-home-trust-cleanup-118641.php
+        run: |
+          set -euo pipefail
+          php tests/test-home-trust-cleanup-118641.php
+          php tests/test-receiver-trust-46573.php
