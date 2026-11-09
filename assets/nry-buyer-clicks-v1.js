@@ -5,9 +5,17 @@
  */
 (() => {
   'use strict';
+  // This role map must match the PHP post-id/permalink allowlist exactly.
+  // Advisor /poradce-vybavy/ has independent nry_advisor_product_click events.
   const allowedPages = Object.freeze({
     '/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/':'pipaky_guide',
-    '/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/':'alarm_guide'
+    '/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/':'alarm_guide',
+    '/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/':'pipaky_beginner',
+    '/pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu/':'pipaky_advanced',
+    '/pipaky-na-ryby-s-priposlechem-ucinna-pomucka-pro-kazdeho-rybare/':'pipaky_receiver',
+    '/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/':'echolot_budget',
+    '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/':'sonar_boat',
+    '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/':'sonar_historic'
   });
   if (location.origin !== 'https://na-ryby.eu' ||
       !Object.prototype.hasOwnProperty.call(allowedPages, location.pathname)) return;
