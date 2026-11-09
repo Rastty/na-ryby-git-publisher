@@ -50,6 +50,12 @@ on:
       - 'tests/test-pipaky-36702-five-price-fix-v8.php'
       - 'tests/test-pipaky-advanced-description-36702-v1.php'
       - 'buyer-click-telemetry-v1.php'
+      - 'advisor-guide-click-telemetry-v1.php'
+      - 'assets/nry-advisor-guide-click-v1.js'
+      - 'tests/test-advisor-guide-click-v1.php'
+      - 'tests/test-advisor-guide-click-v1.mjs'
+      - 'scripts/verify-advisor-guide-click-public.py'
+      - '.github/workflows/advisor-guide-click-public.yml'
       - 'tests/test-buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.mjs'
       - '.github/workflows/guarded-deployer-push.yml'
@@ -93,6 +99,12 @@ on:
       - 'editorial/receiver-46573-decision-guide-20261109.html'
       - 'tests/test-receiver-buyer-release-46573.php'
       - 'buyer-click-telemetry-v1.php'
+      - 'advisor-guide-click-telemetry-v1.php'
+      - 'assets/nry-advisor-guide-click-v1.js'
+      - 'tests/test-advisor-guide-click-v1.php'
+      - 'tests/test-advisor-guide-click-v1.mjs'
+      - 'scripts/verify-advisor-guide-click-public.py'
+      - '.github/workflows/advisor-guide-click-public.yml'
       - 'tests/test-buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.mjs'
       - 'seo-snippet-pilot.php'
@@ -152,6 +164,10 @@ jobs:
           php tests/test-echolot-budget-118455-spec-bonus-v8.php
           php -l buyer-click-telemetry-v1.php
           php tests/test-buyer-click-telemetry-v1.php
+          php -l advisor-guide-click-telemetry-v1.php
+          php tests/test-advisor-guide-click-v1.php
+          node --check assets/nry-advisor-guide-click-v1.js
+          node tests/test-advisor-guide-click-v1.mjs
           node --check assets/nry-buyer-clicks-v1.js
           node tests/test-buyer-click-telemetry-v1.mjs
           php tests/test-three-chair-guides-v8.php
