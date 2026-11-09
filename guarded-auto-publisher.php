@@ -19,6 +19,7 @@ final class NRY_Guarded_Auto_Publisher {
         add_action(self::EVENT, array(__CLASS__, 'tick'));
         // Deploy is followed by a public GET; run a new bounded manifest immediately.
         add_action('wp_loaded', array(__CLASS__, 'recover_price_manifest_after_update'), 29);
+        add_action('wp_loaded', array(__CLASS__, 'recover_carp_3m_manifest_after_update'), 29);
         add_action('wp_loaded', array(__CLASS__, 'tick_on_new_manifest'), 30);
         add_action('admin_menu', array(__CLASS__, 'menu'));
         add_action('admin_post_nry_gp_auto_toggle', array(__CLASS__, 'toggle'));
@@ -98,6 +99,60 @@ final class NRY_Guarded_Auto_Publisher {
         $receipt=array('batch'=>$manifest['batch_id'],
             'at'=>gmdate('c'),'reason'=>'owner_validated_single_price_batch');
         if (!add_option('nry_gp_owner_price_recovery_20261107',$receipt,'','no')) return;
+        update_option(self::ENABLED,'yes',false);
+        self::schedule();
+        self::receipt('owner_recovered_validated_manifest',array(
+            'batch_id'=>$manifest['batch_id'],'writes'=>0));
+    }
+
+
+    /**
+     * Owner-approved one-shot recovery for the already reviewed 54272 carp-rod
+     * factual correction. The previous manifest was applied, then the native
+     * publisher stopped on invalid_manifest_on_deploy while the next Git
+     * deployment was in progress. Do not recover admin disables or any other
+     * stop. Never perform a write here; regular tick() keeps all safety gates.
+     */
+    public static function recover_carp_3m_manifest_after_update() {
+        if (rtrim(home_url('/'),'/')!=='https://na-ryby.eu'
+            || get_option(self::ENABLED,'no')==='yes'
+            || get_option('nry_gp_owner_bootstrap_20261102',false)!=='yes'
+            || get_option('nry_gp_owner_carp_3m_recovery_20261109',false)!==false
+            || get_option(self::LOCK,false)!==false
+            || get_option(self::LAST_BATCH,'')!=='echolot-budget-118455-spec-bonus-fix-20261108-v1'
+            || !is_string(get_option(self::LAST_MANIFEST_SHA,''))
+            || !preg_match('/^[a-f0-9]{64}$/D',get_option(self::LAST_MANIFEST_SHA,''))) return;
+        $prior=get_option(self::RECEIPT,array());
+        if (!is_array($prior)
+            || ($prior['status']??'')!=='stopped'
+            || ($prior['reason']??'')!=='invalid_manifest_on_deploy') return;
+        $manifest=NRY_Git_Publisher::manifest();
+        if (is_wp_error($manifest) || ($manifest['schema_version']??null)!==8
+            || ($manifest['batch_id']??'')!=='carp-rods-3m-54272-source-trust-20261109-v1'
+            || count($manifest['edits']??array())!==1) return;
+        $e=$manifest['edits'][0];
+        if (($e['post_id']??null)!==54272
+            || ($e['slug']??'')!=='kaprove-pruty-3m-recenze-nejlepsich-vyrobku-na-trhu'
+            || ($e['edit_id']??'')!=='kaprove-pruty-3m-54272-20261109-v1'
+            || ($e['placement']??'')!=='prepend'
+            || ($e['source_sha256']??'')!=='73cd04df7abb7199f68397323a9139ae791f3f0a20bb79333da9d7d65df60751'
+            || ($e['source_modified_gmt']??'')!=='2023-06-12 22:16:22'
+            || ($e['source_min_bytes']??0)!==10207
+            || ($e['source_max_bytes']??0)!==10208
+            || count($e['text_corrections']??array())!==9) return;
+        $rows=NRY_Git_Publisher::plan($manifest);
+        if (is_wp_error($rows) || count($rows)!==1
+            || ($rows[0]['id']??null)!==54272
+            || ($rows[0]['status']??'')!=='ready'
+            || ($rows[0]['source_sha']??'')!==$e['source_sha256']
+            || !is_string($rows[0]['candidate_sha']??null)
+            || !preg_match('/^[a-f0-9]{64}$/D',$rows[0]['candidate_sha'])) return;
+        // Atomic single-use owner gate: a concurrent worker cannot claim twice.
+        if (get_option(self::ENABLED,'no')==='yes'
+            || get_option(self::LOCK,false)!==false
+            || get_option(self::RECEIPT,array())!==$prior) return;
+        if (!add_option('nry_gp_owner_carp_3m_recovery_20261109',
+                array('batch'=>$manifest['batch_id'],'at'=>gmdate('c')),'','no')) return;
         update_option(self::ENABLED,'yes',false);
         self::schedule();
         self::receipt('owner_recovered_validated_manifest',array(

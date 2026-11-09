@@ -212,4 +212,82 @@ NRY_Guarded_Auto_Publisher::recover_price_manifest_after_update();
 ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no',
  'single-use recovery guard is irreversible even after a failure');
 
+
+function carp_recovery_case() {
+    reset_case(8);
+    $GLOBALS['options']=array(
+        NRY_Guarded_Auto_Publisher::ENABLED=>'no',
+        'nry_gp_owner_bootstrap_20261102'=>'yes',
+        NRY_Guarded_Auto_Publisher::LAST_BATCH=>
+            'echolot-budget-118455-spec-bonus-fix-20261108-v1',
+        NRY_Guarded_Auto_Publisher::LAST_MANIFEST_SHA=>str_repeat('a',64),
+        NRY_Guarded_Auto_Publisher::RECEIPT=>array('status'=>'stopped',
+            'reason'=>'invalid_manifest_on_deploy','at'=>'2026-11-09T11:51:00Z')
+    );
+    NRY_Git_Publisher::$manifest=array(
+        'schema_version'=>8,
+        'batch_id'=>'carp-rods-3m-54272-source-trust-20261109-v1',
+        'edits'=>array(array('post_id'=>54272,
+            'slug'=>'kaprove-pruty-3m-recenze-nejlepsich-vyrobku-na-trhu',
+            'edit_id'=>'kaprove-pruty-3m-54272-20261109-v1',
+            'placement'=>'prepend',
+            'source_sha256'=>'73cd04df7abb7199f68397323a9139ae791f3f0a20bb79333da9d7d65df60751',
+            'source_modified_gmt'=>'2023-06-12 22:16:22',
+            'source_min_bytes'=>10207,'source_max_bytes'=>10208,
+            'text_corrections'=>array_fill(0,9,array('old_text'=>'a','new_text'=>'b'))))
+    );
+    NRY_Git_Publisher::$rows=array(array('id'=>54272,'status'=>'ready',
+        'source_sha'=>'73cd04df7abb7199f68397323a9139ae791f3f0a20bb79333da9d7d65df60751',
+        'candidate_sha'=>str_repeat('b',64)));
+}
+carp_recovery_case();
+NRY_Guarded_Auto_Publisher::recover_carp_3m_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='yes'
+ &&get_option('nry_gp_owner_carp_3m_recovery_20261109',false)!==false
+ &&get_option(NRY_Guarded_Auto_Publisher::RECEIPT)['status']==='owner_recovered_validated_manifest'
+ &&$GLOBALS['exec_calls']===0,'54272 recovery only re-enables; no direct WordPress mutation');
+NRY_Guarded_Auto_Publisher::tick_on_new_manifest();
+ok($GLOBALS['exec_calls']===1
+ &&get_option(NRY_Guarded_Auto_Publisher::LAST_BATCH)==='carp-rods-3m-54272-source-trust-20261109-v1',
+ '54272 reviewed source goes through normal guarded single writer');
+NRY_Guarded_Auto_Publisher::recover_carp_3m_manifest_after_update();
+NRY_Guarded_Auto_Publisher::tick_on_new_manifest();
+ok($GLOBALS['exec_calls']===1,'54272 cannot replay after local application');
+carp_recovery_case();
+$GLOBALS['options'][NRY_Guarded_Auto_Publisher::RECEIPT]=array('status'=>'disabled_by_admin');
+NRY_Guarded_Auto_Publisher::recover_carp_3m_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no','explicit admin disable never recovered');
+carp_recovery_case();
+$GLOBALS['options'][NRY_Guarded_Auto_Publisher::RECEIPT]['reason']='preflight_blocked';
+NRY_Guarded_Auto_Publisher::recover_carp_3m_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no','other stop reasons cannot recover');
+carp_recovery_case();
+$GLOBALS['options'][NRY_Guarded_Auto_Publisher::LOCK]=array('token'=>'unknown','expires'=>time()-1);
+NRY_Guarded_Auto_Publisher::recover_carp_3m_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no','stale lock never stolen');
+carp_recovery_case();
+NRY_Git_Publisher::$manifest['edits'][0]['source_sha256']=str_repeat('0',64);
+NRY_Guarded_Auto_Publisher::recover_carp_3m_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no','unexpected source SHA blocks recovery');
+carp_recovery_case();
+NRY_Git_Publisher::$manifest['edits'][0]['text_corrections']=array();
+NRY_Guarded_Auto_Publisher::recover_carp_3m_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no','edited correction count blocks recovery');
+carp_recovery_case();
+NRY_Git_Publisher::$rows[0]['status']='blocked';
+NRY_Guarded_Auto_Publisher::recover_carp_3m_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no','live source preflight block never recovered');
+carp_recovery_case();
+$GLOBALS['options'][NRY_Guarded_Auto_Publisher::LAST_BATCH]='unexpected-batch';
+NRY_Guarded_Auto_Publisher::recover_carp_3m_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no','unexpected prior processed batch never recovered');
+carp_recovery_case();
+$GLOBALS['options']['nry_gp_owner_carp_3m_recovery_20261109']='used';
+NRY_Guarded_Auto_Publisher::recover_carp_3m_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no','recovery one-shot option cannot be reused');
+carp_recovery_case();
+unset($GLOBALS['options']['nry_gp_owner_bootstrap_20261102']);
+NRY_Guarded_Auto_Publisher::recover_carp_3m_manifest_after_update();
+ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no','owner bootstrap prerequisite remains required');
+
 echo "Guarded auto publisher tests successful.\n";
