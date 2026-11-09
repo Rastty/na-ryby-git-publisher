@@ -13,7 +13,10 @@ final class NRY_Reel_Dashboard_Nextsteps_V1 {
     const MARKER = 'data-nry-reel-nextsteps="v1"';
 
     public static function boot() {
-        add_filter('the_content', array(__CLASS__, 'render'), 35);
+        // Register only in a fully loaded WordPress runtime, never in isolated publisher contract fixtures.
+        if (function_exists('is_page') && function_exists('add_filter')) {
+            add_filter('the_content', array(__CLASS__, 'render'), 35);
+        }
     }
 
     public static function render($content) {
