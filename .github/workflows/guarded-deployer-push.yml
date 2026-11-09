@@ -42,6 +42,10 @@ on:
       - 'reel-dashboard-nextsteps-v1.php'
       - 'tests/test-reel-dashboard-nextsteps-v1.php'
       - 'scripts/verify-reel-dashboard-nextsteps-public.py'
+      - 'assets/nry-reel-handoff-v1.js'
+      - 'tests/test-reel-handoff-v1.mjs'
+      - 'tests/test-reel-handoff-enqueue-v1.php'
+      - 'scripts/verify-reel-handoff-public-v1.py'
       - 'tests/test-winter-ice-safety-45070.php'
       - 'editorial/receiver-46573-decision-guide-20261109.html'
       - 'tests/test-receiver-buyer-release-46573.php'
@@ -105,6 +109,10 @@ on:
       - 'reel-dashboard-nextsteps-v1.php'
       - 'tests/test-reel-dashboard-nextsteps-v1.php'
       - 'scripts/verify-reel-dashboard-nextsteps-public.py'
+      - 'assets/nry-reel-handoff-v1.js'
+      - 'tests/test-reel-handoff-v1.mjs'
+      - 'tests/test-reel-handoff-enqueue-v1.php'
+      - 'scripts/verify-reel-handoff-public-v1.py'
       - 'tests/test-winter-ice-safety-45070.php'
       - 'editorial/receiver-46573-decision-guide-20261109.html'
       - 'tests/test-receiver-buyer-release-46573.php'
@@ -158,6 +166,10 @@ jobs:
           php -l winter-ice-safety-45070-v1.php
           php -l reel-dashboard-nextsteps-v1.php
           php tests/test-reel-dashboard-nextsteps-v1.php
+          php tests/test-reel-handoff-enqueue-v1.php
+          node --check assets/nry-reel-handoff-v1.js
+          node tests/test-reel-handoff-v1.mjs
+          python3 -m py_compile scripts/verify-reel-handoff-public-v1.py
           python3 -m py_compile scripts/verify-reel-dashboard-nextsteps-public.py
           php tests/test-winter-ice-safety-45070.php
           php tests/test-carp-pillar-trust-118541.php
