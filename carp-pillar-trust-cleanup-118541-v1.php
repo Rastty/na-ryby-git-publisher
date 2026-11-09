@@ -50,8 +50,8 @@ final class NRY_Carp_Pillar_Trust_118541 {
             '~\\bsrc\\s*=\\s*(["\\x27])(.*?)\\1~is',
             '~\\[[a-z][^\\]\\r\\n]*\\]~i'
         ) as $rx) {
-            preg_match_all($rx,$raw,$before);
-            preg_match_all($rx,$candidate,$after);
+            if (preg_match_all($rx,$raw,$before)===false
+                || preg_match_all($rx,$candidate,$after)===false) return null;
             if (($before[0]??array())!==($after[0]??array())) return null;
         }
         return $candidate;
