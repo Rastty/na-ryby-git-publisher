@@ -1,0 +1,29 @@
+name: Na-Ryby Carp Pillar Exact Source Proof (read only)
+on:
+  pull_request:
+    paths:
+      - 'carp-pillar-source-proof-118541-v1.php'
+      - 'tests/test-carp-pillar-source-proof-118541.php'
+      - 'scripts/probe-carp-pillar-source.py'
+      - '.github/workflows/carp-pillar-source-proof.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  proof:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify PHP and Python syntax without network
+        run: |
+          php -l carp-pillar-source-proof-118541-v1.php
+          php tests/test-carp-pillar-source-proof-118541.php
+          python3 -m py_compile scripts/probe-carp-pillar-source.py
+      - name: Exact published post source digest (anonymous read only)
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/probe-carp-pillar-source.py
