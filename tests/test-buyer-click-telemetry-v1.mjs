@@ -56,7 +56,30 @@ assert.equal(b.calls[0][2].buyer_cta_type,'cj_product_link');
 assert.ok(!JSON.stringify(b.calls).includes('tkqlhce'));
 assert.ok(!JSON.stringify(b.calls).includes('chytapust'));
 assert.ok(!JSON.stringify(b.calls).includes('sample'));
+// New source-verified buyer routes must collect only a genuine first-party
+// event on an actual approved CJ click, without URL or user data.
+const additional=[
+ ['/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/','pipaky_beginner'],
+ ['/pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu/','pipaky_advanced'],
+ ['/pipaky-na-ryby-s-priposlechem-ucinna-pomucka-pro-kazdeho-rybare/','pipaky_receiver'],
+ ['/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/','echolot_budget'],
+ ['/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/','sonar_boat'],
+ ['/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/','sonar_historic']
+];
+for(const [page,role] of additional){
+ const client=browser({page});
+ assert.equal(client.callbacks.length,1);
+ client.click('https://www.jdoqocy.com/click-8287231-15320199?url=https%3A%2F%2Fwww.chytapust.cz%2Fsome-product');
+ assert.equal(client.calls.length,1);
+ assert.equal(client.calls[0][2].buyer_page,role);
+ assert.equal(client.calls[0][2].buyer_cta_type,'cj_product_link');
+ assert.ok(!JSON.stringify(client.calls).includes('chytapust'));
+ client.click('https://www.jdoqocy.com/click-8287231-15320199',{trusted:false});
+ assert.equal(client.calls.length,1,'never emit test/synthetic clicks');
+}
 const c=browser({gtagEnabled:false});c.click('https://na-ryby.eu/signalizatory');assert.equal(c.calls.length,0);
 const d=browser({page:'/some-article/'});assert.equal(d.callbacks.length,0);
 const e=browser({host:'https://other.example'});assert.equal(e.callbacks.length,0);
-console.log('PASS: true clicks on two allowlisted buyer articles only, consent-respecting gtag, no synthetic visits or raw URL data');
+const advisor=browser({page:'/poradce-vybavy/'});
+assert.equal(advisor.callbacks.length,0,'advisor has separate measurement, no double count');
+console.log('PASS: 8 exact published buyer posts only; consent-respecting events, no synthetic or raw URL tracking');
