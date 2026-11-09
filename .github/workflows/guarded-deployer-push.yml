@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - 'manifest.json'
+      - 'tests/test-carp-3m-54272-v8.php'
+      - 'tests/test-54272-public-semantic.py'
+      - 'tests/v8-carp-3m-54272-20261109-frozen.json'
       - 'scripts/verify-current-manifest-public.py'
       - 'tests/test-alarm-ranking-60354-v8.php'
       - 'tests/test-echolot-budget-three-old-offers-v8.php'
@@ -52,6 +55,9 @@ on:
     branches: [main]
     paths:
       - 'manifest.json'
+      - 'tests/test-carp-3m-54272-v8.php'
+      - 'tests/test-54272-public-semantic.py'
+      - 'tests/v8-carp-3m-54272-20261109-frozen.json'
       - 'scripts/verify-current-manifest-public.py'
       - 'tests/test-alarm-ranking-60354-v8.php'
       - 'tests/test-echolot-budget-three-old-offers-v8.php'
@@ -106,6 +112,7 @@ jobs:
           php tests/test-advisor-existing-page-release-v1.php
           php tests/test-native-kses-write-contract.php
           php tests/test-buyer-hub-trust-repair-v8.php
+          php tests/test-carp-3m-54272-v8.php
           php tests/test-production-buyer-hub-60341-v8.php
           php tests/test-echolot-budget-118455-v8.php
           php tests/test-echolot-pillar-118553-v8.php
@@ -144,6 +151,7 @@ jobs:
           python3 tests/test-60354-public-semantic.py
           python3 tests/test-118455-three-offers-public-semantic.py
           python3 tests/test-118455-spec-bonus-public-semantic.py
+          python3 tests/test-54272-public-semantic.py
           python3 tests/test-echolot-boat-historic-two-public-semantic.py
   deploy:
     needs: verify

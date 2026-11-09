@@ -1,47 +1,54 @@
 {
   "schema_version": 8,
-  "batch_id": "echolot-budget-118455-spec-bonus-fix-20261108-v1",
+  "batch_id": "carp-rods-3m-54272-source-trust-20261109-v1",
   "site": "https://na-ryby.eu",
   "edits": [
     {
-      "post_id": 118455,
-      "slug": "nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz",
-      "source_modified_gmt": "2026-11-08 07:56:27",
-      "source_min_bytes": 39897,
-      "source_max_bytes": 39898,
-      "source_sha256": "6d8736d5d2f62a5f6170871a7630d9e097f6dc6839a461e97da53d95cb166f7e",
-      "edit_id": "echolot-budget-118455-spec-bonus-20261108-v1",
-      "placement": "sonar_spec_bonus_only",
+      "post_id": 54272,
+      "slug": "kaprove-pruty-3m-recenze-nejlepsich-vyrobku-na-trhu",
+      "source_modified_gmt": "2023-06-12 22:16:22",
+      "source_min_bytes": 10207,
+      "source_max_bytes": 10208,
+      "source_sha256": "73cd04df7abb7199f68397323a9139ae791f3f0a20bb79333da9d7d65df60751",
+      "edit_id": "kaprove-pruty-3m-54272-20261109-v1",
+      "placement": "prepend",
+      "insert_html": "<section data-nry-editorial-edit=\"kaprove-pruty-3m-54272-20261109-v1\"><h2>Jak skutečně vybrat kaprový prut dlouhý 3 m</h2><p><strong>Rychlý verdikt:</strong> Nejdříve ověřte skutečnou délku konkrétní varianty. Označení 12 ft znamená přibližně 3,66 m, nikoli 3 m. Názvy modelových řad ani údaj 3 lb nejsou dokladem třímetrové délky. Níže uvedené starší modelové příklady a ceny nejsou současným produktovým testem ani ověřenou aktuální nabídkou.</p><table><thead><tr><th>Vaše situace</th><th>Co zvažovat</th><th>Hlavní kompromis</th></tr></thead><tbody><tr><td>Menší voda nebo omezený břeh</td><td>Skutečnou délku kolem 3 m, ovladatelnost a prostor pro nához</td><td>Kratší prut nemusí být ideální pro velmi dlouhé náhozy</td></tr><tr><td>Časté převážení a krátký transport</td><td>Délku složeného prutu, počet dílů a ochranu při přepravě</td><td>Nezaměňujte skladnost za automaticky lepší výkon</td></tr><tr><td>Těžší montáž, proud nebo delší nához</td><td>Vhodnou testovací křivku a doporučení výrobce k celé montáži</td><td>Nestačí vybírat jen podle délky a marketingové síly</td></tr></tbody></table><h3>Kontrola před objednáním</h3><ul><li>Ověřte délku v metrech a jednotku ft u přesné produktové varianty.</li><li>Odlište chytací kaprový prut od spodového, markerového a přívlačového prutu.</li><li>Zkontrolujte testovací křivku, montáž, vyvážení s navijákem a transportní délku.</li><li>Aktuální cenu, sklad a obsah balení ověřte přímo v nabídce prodejce; staré částky v tomto článku nejsou ceníkem.</li></ul><p>Pro širší rozhodování použijte <a href=\"https://na-ryby.eu/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/\">průvodce výběrem kaprového prutu</a> a pro rozpočet <a href=\"https://na-ryby.eu/nejlepsi-kaprove-pruty-do-3-000-kc-srovnani-a-vyber/\">srovnání prutů do 3 000 Kč</a>. Neznamená to, že aktuální dostupnost nebo cena kteréhokoli výrobku byla nezávisle ověřena.</p></section>",
       "text_corrections": [
         {
-          "old_text": "Nízká cena, GPS, jednoduchost, bonus baterie.",
-          "new_text": "Základní 2D sonar a jednoduché ovládání; model Eagle 4X nemá GPS. Bonusy ověřte u prodejce.",
-          "count": 1
+          "old_text": "Jeho cena se pohybuje okolo 4 000 Kč.",
+          "new_text": "Cena uvedená v původním přehledu je historická a nyní neověřená; aktuální cenu a variantu je nutné ověřit u prodejce."
         },
         {
-          "old_text": "baterie zdarma v balení",
-          "new_text": "případnou baterii v balení ověřte u prodejce",
-          "count": 1
+          "old_text": "Má naprosto dokonalé zpracování a stojí okolo 3 000 Kč.",
+          "new_text": "Kvalitu zpracování nelze bez doloženého testu hodnotit jako dokonalou. Historická cena není aktuálně ověřená."
         },
         {
-          "old_text": "Chyť a pusť tu má rozumnou aktuální nabídku včetně baterie a nabíječky.",
-          "new_text": "Před koupí ověřte aktuální cenu a zda jsou baterie a nabíječka součástí přesné varianty balení.",
-          "count": 1
+          "old_text": "Jeho cena se pohybuje okolo 5 000 Kč.",
+          "new_text": "Jde o historickou a nyní neověřenou cenu; před nákupem ověřte přesnou variantu, její účel a dostupnost."
         },
         {
-          "old_text": "V Chyť a pusť aktuálně dává větší smysl i díky přibalené baterii a nabíječce.",
-          "new_text": "Porovnejte skutečný obsah balení a konečnou cenu, včetně případné baterie a nabíječky.",
-          "count": 1
+          "old_text": "Fox Horizon X3 12ft 3lbs je vynikající kaprový prut v délce 3 metry.",
+          "new_text": "Označení 12 ft znamená přibližně 3,66 m, nikoli 3 m; tento model tedy nelze uvádět jako přesně třímetrovou variantu."
         },
         {
-          "old_text": "Lowrance Eagle 4X se sondou Bullet + baterie ZDARMA",
-          "new_text": "Lowrance Eagle 4X se sondou Bullet (bonusy ověřte)",
-          "count": 2
+          "old_text": "Fox Horizon X5 Spod and Marker rod",
+          "new_text": "Fox Horizon X5 Spod and Marker rod (speciální spodový a značkovací prut, ne běžný chytací model 3 m)"
         },
         {
-          "old_text": "Lowrance Eagle 7 se sondou SplitShot HD + baterie + nabíječka ZDARMA",
-          "new_text": "Lowrance Eagle 7 se sondou SplitShot HD (balení ověřte)",
-          "count": 2
+          "old_text": "Cenex Toure Spin 3m je další vynikající kaprový prut.",
+          "new_text": "Uvedený přívlačový model není ověřený třímetrový kaprový prut; nepovažujte tento historický příklad za aktuální nákupní doporučení."
+        },
+        {
+          "old_text": "Shimano Tribal TX-3 3lb je další skvělou volbou pro zkušené rybáře.",
+          "new_text": "Označení 3 lb vyjadřuje testovací křivku, nikoli délku prutu. Přesnou délku a variantu je nutné ověřit."
+        },
+        {
+          "old_text": "DAM Shadow Tele Mini Spin",
+          "new_text": "DAM Shadow Tele Mini Spin (přívlačový model, nikoli vhodné srovnání třímetrových kaprových prutů)"
+        },
+        {
+          "old_text": "nedisponují takovou pevností jako karbonové pruty.",
+          "new_text": "nelze obecně považovat za slabší než karbonové pruty: teleskopický i dělený prut může být z karbonu a záleží na konstrukci konkrétního modelu."
         }
       ]
     }

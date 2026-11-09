@@ -36,6 +36,12 @@ def verify_manifest(data):
                 or not isinstance(slug, str) or not re.fullmatch(r"[a-z0-9-]{10,140}", slug)
                 or not isinstance(marker, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{7,63}", marker)):
             raise ValueError("INVALID_EDIT_IDENTITY")
+        if post_id == 54272:
+            if (data.get("schema_version") != 8 or
+                    data.get("batch_id") != "carp-rods-3m-54272-source-trust-20261109-v1" or
+                    marker != "kaprove-pruty-3m-54272-20261109-v1" or
+                    edit.get("placement") != "prepend" or len(edits) != 1):
+                raise ValueError("UNAUTHORIZED_CARP_3M_RELEASE")
         if edit.get("placement") == "sonar_spec_bonus_only":
             if (data.get("schema_version") != 8
                     or data.get("batch_id") != "echolot-budget-118455-spec-bonus-fix-20261108-v1"
@@ -165,6 +171,46 @@ def check_target(target, fetch=read_public):
                 'Ceny, sklad a kompatibilitu konkrétní varianty',
             ))
             and all(panel.count(route) == 1 for route in routes)
+        )
+    elif target["post_id"] == 54272 and target["edit_id"] == "kaprove-pruty-3m-54272-20261109-v1":
+        # Prove actual visitor value and all nine corrections, not a bare marker.
+        import html as html_utils
+        text = " ".join(html_utils.unescape(re.sub(r"<[^>]+>", " ", html)).split())
+        begin=html.find('<section '+marker)
+        end=html.find('</section>',begin) if begin >= 0 else -1
+        panel=html[begin:end] if end>begin else ""
+        replacements = (
+            "Cena uvedená v původním přehledu je historická a nyní neověřená",
+            "Kvalitu zpracování nelze bez doloženého testu hodnotit jako dokonalou",
+            "Jde o historickou a nyní neověřenou cenu",
+            "Označení 12 ft znamená přibližně 3,66 m, nikoli 3 m; tento model",
+            "Fox Horizon X5 Spod and Marker rod (speciální spodový",
+            "Uvedený přívlačový model není ověřený třímetrový kaprový prut",
+            "Označení 3 lb vyjadřuje testovací křivku, nikoli délku prutu",
+            "DAM Shadow Tele Mini Spin (přívlačový model",
+            "nelze obecně považovat za slabší než karbonové pruty",
+        )
+        obsolete = (
+            "Jeho cena se pohybuje okolo 4 000 Kč.",
+            "Má naprosto dokonalé zpracování a stojí okolo 3 000 Kč.",
+            "Jeho cena se pohybuje okolo 5 000 Kč.",
+            "Fox Horizon X3 12ft 3lbs je vynikající kaprový prut v délce 3 metry.",
+            "Cenex Toure Spin 3m je další vynikající kaprový prut.",
+            "Shimano Tribal TX-3 3lb je další skvělou volbou",
+            "nedisponují takovou pevností jako karbonové pruty.",
+        )
+        routes=(
+            'href="https://na-ryby.eu/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/"',
+            'href="https://na-ryby.eu/nejlepsi-kaprove-pruty-do-3-000-kc-srovnani-a-vyber/"',
+        )
+        semantic_ok = (
+            panel.startswith('<section '+marker)
+            and '<h2>Jak skutečně vybrat kaprový prut dlouhý 3 m</h2>' in panel
+            and panel.count('<tr>') == 4
+            and panel.count('<li>') == 4
+            and all(panel.count(route)==1 for route in routes)
+            and all(phrase in text for phrase in replacements)
+            and all(phrase not in text for phrase in obsolete)
         )
     elif target["post_id"] == 60354 and target.get("placement") == "ranking_claims_only":
         # One immutable historic-score correction with NO new section marker.
@@ -529,7 +575,7 @@ def check_target(target, fetch=read_public):
               and (count == 1 or (semantic_only and semantic_ok)) and semantic_ok)
     return {"post_id": target["post_id"], "url": target["url"],
             "http": response.get("http"), "marker_count": count,
-            "semantic_trust_verified": semantic_ok if target["post_id"] in (60354,42401,35755,36702,60341,118455,118553,118218,60637,36518) else None,
+            "semantic_trust_verified": semantic_ok if target["post_id"] in (60354,42401,35755,36702,60341,118455,118553,118218,60637,36518,54272) else None,
             **({"semantic_diagnostic": diagnostic} if diagnostic is not None else {}),
             "status": "PUBLIC_MARKER_VERIFIED" if passed else
                       ("NOT_PUBLIC_OR_CACHE_STALE" if response.get("status") == "READ_OK"
