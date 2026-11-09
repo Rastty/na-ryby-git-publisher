@@ -16,9 +16,9 @@ def read():
             raise RuntimeError('WRONG_HTTP_OR_REDIRECT')
         source=resp.read(1200000).decode('utf-8','replace')
     if source.count(MARKER)!=1:return 'MISSING_OR_MULTIPLE_MARKERS'
-    if not re.search(r'<body\\b',source,re.I):return 'NOT_WP_BODY'
+    if not re.search(r'<body\b',source,re.I):return 'NOT_WP_BODY'
     # Strip scripts/styles to avoid false matches from theme markup.
-    visible=re.sub(r'<script\\b[^>]*>.*?</script>|<style\\b[^>]*>.*?</style>',
+    visible=re.sub(r'<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>',
         ' ',source,flags=re.I|re.S)
     visible=html.unescape(re.sub(r'<[^>]+>',' ',visible))
     visible=' '.join(visible.split())
