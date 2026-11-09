@@ -73,8 +73,8 @@ if __name__=='__main__':
         row={'id':POST_ID,'slug':SLUG,'status':'publish','link':URL,
              'modified_gmt':'2026-10-16T11:38:12',
              'title':{'rendered':BEFORE_TITLE},
-             'content':{'rendered':'<a href="'+BOAT+'">Navazující průvodce</a>'+
-                ('X'*(13396-len('<a href="'+BOAT+'">Navazující průvodce</a>')))},
+             'content':{'rendered':'<a href="'+BOAT+'">Guide</a>'+
+                ('X'*(13396-len('<a href="'+BOAT+'">Guide</a>')))},
              'yoast_head_json':{'canonical':URL,'title':BEFORE_TITLE,'description':NEW_META}}
         assert verify([row])=='PUBLIC_VERIFIED_SONAR_49275_EXACT_SERP_META_AND_BODY'
         for wrong in [
