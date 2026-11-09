@@ -11,6 +11,7 @@ final class NRY_Reel_Dashboard_Nextsteps_V1 {
     const SLUG = 'navijaky-dashboard';
     const PERMALINK = 'https://na-ryby.eu/navijaky-dashboard/';
     const MARKER = 'data-nry-reel-nextsteps="v1"';
+    const SITUATIONS_MARKER = 'data-nry-reel-situations="v1"';
 
     public static function boot() {
         // Isolated PHP publisher tests do not implement the full WordPress hook API.
@@ -76,6 +77,48 @@ final class NRY_Reel_Dashboard_Nextsteps_V1 {
         $nav = '<nav class="nry-reel-nextsteps" '.self::MARKER
             .' aria-label="Další kroky pro výběr navijáku">'
             .'<p><strong>Vyberte další krok podle toho, co řešíte:</strong></p><ul>';
+        foreach ($links as $link) {
+            $nav .= '<li><a href="'.esc_url($link[1]).'">'.esc_html($link[0]).'</a></li>';
+        }
+        $nav .= '</ul></nav>';
+        $updated = substr($content, 0, $insert_at) . $nav . substr($content, $insert_at);
+        return self::add_situations_nav($updated);
+    }
+
+    private static function add_situations_nav($content) {
+        // Separate optional decision navigation. The existing bottom nav stays
+        // untouched if this section is edited, already linked or structurally
+        // different from the current source.
+        if (strpos($content, self::SITUATIONS_MARKER) !== false
+            || substr_count($content, 'Vyber podle situace') !== 1) return $content;
+        $heading = strpos($content, 'Vyber podle situace');
+        $open = strripos(substr($content, 0, $heading), '<h2');
+        if ($open === false || $heading - $open > 150) return $content;
+        $after_heading = stripos($content, '</h2>', $heading);
+        if ($after_heading === false || $after_heading - $heading > 120) return $content;
+        $insert_at = $after_heading + strlen('</h2>');
+        $next_h2 = stripos($content, '<h2', $insert_at);
+        if ($next_h2 === false || $next_h2 - $insert_at > 6000) return $content;
+        $section = substr($content, $insert_at, $next_h2 - $insert_at);
+        foreach (array('Jsem začátečník', 'Chytám přívlačí',
+            'Chci naviják na feeder', 'Řeším kaprařinu') as $required) {
+            if (substr_count($section, $required) !== 1) return $content;
+        }
+        if (preg_match('~<a\\b[^>]*\\bhref\\s*=~i', $section)) return $content;
+
+        $links = array(
+            array('Začínám: jak vybrat první naviják',
+                'https://na-ryby.eu/jak-vybrat-rybarsky-navijak-velikost-prevod-brzda-a-typy-navijaku/'),
+            array('Chytám přívlačí: srovnání přívlačových navijáků',
+                'https://na-ryby.eu/nejlepsi-privlacove-navijaky-jak-vybrat/'),
+            array('Chytám na feeder: výběr feederového navijáku',
+                'https://na-ryby.eu/nejlepsi-feederove-navijaky-srovnani/'),
+            array('Chytám kapry: výběr kaprového navijáku',
+                'https://na-ryby.eu/nejlepsi-kaprove-navijaky/'),
+        );
+        $nav = '<nav '.self::SITUATIONS_MARKER
+            .' aria-label="Vyberte průvodce podle způsobu rybolovu">'
+            .'<p><strong>Kam pokračovat podle situace:</strong></p><ul>';
         foreach ($links as $link) {
             $nav .= '<li><a href="'.esc_url($link[1]).'">'.esc_html($link[0]).'</a></li>';
         }
