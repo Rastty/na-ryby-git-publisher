@@ -29,6 +29,20 @@ final class NRY_Git_Publisher {
 
     // V1 is immutable legacy compatibility. New cohorts must use the
     // source-hash-bound, insert-only v2 contract.
+    private static function carp_3m_trust_corrections() {
+        return array(
+            array('old_text'=>'Jeho cena se pohybuje okolo 4 000 Kč.', 'new_text'=>'Cena uvedená v původním přehledu je historická a nyní neověřená; aktuální cenu a variantu je nutné ověřit u prodejce.'),
+            array('old_text'=>'Má naprosto dokonalé zpracování a stojí okolo 3 000 Kč.', 'new_text'=>'Kvalitu zpracování nelze bez doloženého testu hodnotit jako dokonalou. Historická cena není aktuálně ověřená.'),
+            array('old_text'=>'Jeho cena se pohybuje okolo 5 000 Kč.', 'new_text'=>'Jde o historickou a nyní neověřenou cenu; před nákupem ověřte přesnou variantu, její účel a dostupnost.'),
+            array('old_text'=>'Fox Horizon X3 12ft 3lbs je vynikající kaprový prut v délce 3 metry.', 'new_text'=>'Označení 12 ft znamená přibližně 3,66 m, nikoli 3 m; tento model tedy nelze uvádět jako přesně třímetrovou variantu.'),
+            array('old_text'=>'Fox Horizon X5 Spod and Marker rod', 'new_text'=>'Fox Horizon X5 Spod and Marker rod (speciální spodový a značkovací prut, ne běžný chytací model 3 m)'),
+            array('old_text'=>'Cenex Toure Spin 3m je další vynikající kaprový prut.', 'new_text'=>'Uvedený přívlačový model není ověřený třímetrový kaprový prut; nepovažujte tento historický příklad za aktuální nákupní doporučení.'),
+            array('old_text'=>'Shimano Tribal TX-3 3lb je další skvělou volbou pro zkušené rybáře.', 'new_text'=>'Označení 3 lb vyjadřuje testovací křivku, nikoli délku prutu. Přesnou délku a variantu je nutné ověřit.'),
+            array('old_text'=>'DAM Shadow Tele Mini Spin', 'new_text'=>'DAM Shadow Tele Mini Spin (přívlačový model, nikoli vhodné srovnání třímetrových kaprových prutů)'),
+            array('old_text'=>'nedisponují takovou pevností jako karbonové pruty.', 'new_text'=>'nelze obecně považovat za slabší než karbonové pruty: teleskopický i dělený prut může být z karbonu a záleží na konstrukci konkrétního modelu.'),
+        );
+    }
+
     public static function validate_manifest($data) {
         if (!is_array($data) || !in_array($data['schema_version'] ?? null, array(1, 2, 3, 4, 5, 6, 7, 8), true)
             || ($data['site'] ?? '') !== 'https://na-ryby.eu'
@@ -100,7 +114,24 @@ final class NRY_Git_Publisher {
                 }
                 // Trust repair is confined to one exact public hub/batch.
                 if (isset($e['text_corrections'])) {
-                    if ($e['post_id']!==60341
+                    // One exact reviewed 3m carp rod correction + problem-first guidance.
+                    // No production authority for other KEEP/PROTECT topics.
+                    if ($e['post_id']===54272) {
+                        if ($data['batch_id']!=='carp-rods-3m-54272-source-trust-20261109-v1'
+                            || count($data['edits'])!==1
+                            || ($e['slug']??'')!=='kaprove-pruty-3m-recenze-nejlepsich-vyrobku-na-trhu'
+                            || ($e['edit_id']??'')!=='kaprove-pruty-3m-54272-20261109-v1'
+                            || ($e['placement']??'')!=='prepend'
+                            || ($e['source_sha256']??'')!=='73cd04df7abb7199f68397323a9139ae791f3f0a20bb79333da9d7d65df60751'
+                            || ($e['source_modified_gmt']??'')!=='2023-06-12 22:16:22'
+                            || ($e['source_min_bytes']??0)!==10207
+                            || ($e['source_max_bytes']??0)!==10208
+                            || ($e['text_corrections']??null)!==self::carp_3m_trust_corrections()
+                            || !is_string($e['insert_html']??null)
+                            || hash('sha256',$e['insert_html'])!=='d45ba94885e5e5573ad3c7a72e4b138ba9377ace94f2b00c12235230b2947c7b') {
+                            return new WP_Error('v8_carp_3m_scope','Only the exact current 3m buyer-trust repair may change.');
+                        }
+                    } elseif ($e['post_id']!==60341
                         || $data['batch_id']!=='chair-buyer-trust-60341-20261104-v1'
                         || count($data['edits'])!==1
                         || !is_array($e['text_corrections'])
