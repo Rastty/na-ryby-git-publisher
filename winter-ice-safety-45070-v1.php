@@ -24,7 +24,7 @@ final class NRY_Winter_Ice_Safety_45070 {
     const NEW_DEFINITION='Zimní přívlač z bezpečně přístupného břehu se od lovu pod ledem liší; nejprve ověřte pravidla příslušného revíru, období lovu a hájení jednotlivých druhů.';
     public static function boot() {
         // Standalone PHP publisher regression harnesses do not define WP hooks.
-        if (function_exists('add_filter'))
+        if (function_exists('add_filter') && function_exists('did_action'))
             add_filter('the_content',array(__CLASS__,'render'),8);
     }
     /** Pure presentation transform. A single missing marker leaves source unchanged. */
