@@ -290,4 +290,29 @@ unset($GLOBALS['options']['nry_gp_owner_bootstrap_20261102']);
 NRY_Guarded_Auto_Publisher::recover_carp_3m_manifest_after_update();
 ok(get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no','owner bootstrap prerequisite remains required');
 
+
+// A normal frontend request is not evidence that a partially staged
+// deployment is permanently invalid. No content writes are possible until
+// the manifest parser returns a valid source-bound batch.
+reset_case(8);
+NRY_Git_Publisher::$manifest = new WP_Error();
+NRY_Guarded_Auto_Publisher::tick_on_new_manifest();
+ok($GLOBALS['exec_calls']===0
+ &&get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='yes',
+ 'transient invalid manifest on public request performs no write and can retry');
+NRY_Git_Publisher::$manifest=array('schema_version'=>8,
+ 'batch_id'=>'valid-after-atomic-pull-20261109',
+ 'edits'=>array(array('post_id'=>54272)));
+NRY_Guarded_Auto_Publisher::tick_on_new_manifest();
+ok($GLOBALS['exec_calls']===1
+ &&get_option(NRY_Guarded_Auto_Publisher::LAST_BATCH)==='valid-after-atomic-pull-20261109',
+ 'valid manifest after deploy retries through full source-bound writer exactly once');
+reset_case(8);
+NRY_Git_Publisher::$manifest=new WP_Error();
+NRY_Guarded_Auto_Publisher::tick();
+ok($GLOBALS['exec_calls']===0
+ &&get_option(NRY_Guarded_Auto_Publisher::ENABLED)==='no'
+ &&get_option(NRY_Guarded_Auto_Publisher::RECEIPT)['reason']==='invalid_manifest',
+ 'scheduled authoritative worker still permanently stops an invalid manifest');
+
 echo "Guarded auto publisher tests successful.\n";

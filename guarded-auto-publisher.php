@@ -165,7 +165,13 @@ final class NRY_Guarded_Auto_Publisher {
         // No stale batch replay; the tick itself performs all schema/identity/
         // source-SHA/backup/atomic-lock and readback gates before any write.
         $manifest=NRY_Git_Publisher::manifest();
-        if (is_wp_error($manifest)) { self::stop('invalid_manifest_on_deploy'); return; }
+        if (is_wp_error($manifest)) {
+            // An ordinary GET can arrive while Deployer for Git replaces the
+            // manifest on disk. Never execute with incomplete bytes; defer the
+            // permanent stop to the independently scheduled tick(), which
+            // still fail-closes on a persistently invalid manifest.
+            return;
+        }
         if (($manifest['batch_id']??'')===get_option(self::LAST_BATCH,'')) return;
         self::tick();
     }

@@ -32,3 +32,16 @@ Emergency stop: Tools → Na-Ryby Auto Publisher → Vypnout automatiku. If an a
 4. The central Fleet is independently configured for **read-only dispatch**. This PR does not change Fleet production authorization or unilaterally grant publishing privileges.
 
 **Production readiness requires proving each hop:** reviewed manifest in Git → authenticated Deployer Git update → current plugin/manifest readback → guarded WordPress-local apply → independent public HTTP proof → immutable release receipt. Do not merge/enable this PR as a shortcut around missing transport or release authorization.
+
+## Transient manifest bytes during Deployer pull (2026-11-09)
+
+A frontend `wp_loaded` hook may run while Deployer for Git is exchanging
+plugin files. A temporary `WP_Error` from the manifest reader **never executes
+an edit** but also must not permanently disable a previously healthy publisher
+on that one anonymous HTTP read. The request returns without a write and a later
+valid manifest is handled by the existing source/backup/lock/idempotency gates.
+The independent scheduled `tick()` remains authoritative: if it reads an
+invalid manifest, it still sets `ENABLED=no`, records `invalid_manifest`, and
+requires explicit examination before reactivation. This is not a bypass for
+unsupported schemas, blocked source SHA, altered manifest identity, or admin
+shutdown. Normal admin disable remains unchanged.
