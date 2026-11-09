@@ -19,7 +19,7 @@ require __DIR__.'/../reel-dashboard-nextsteps-v1.php';
 must(isset($GLOBALS['hooks']['wp_enqueue_scripts']),'safe WordPress enqueue hook registered');
 NRY_Reel_Dashboard_Nextsteps_V1::enqueue();
 must(count($GLOBALS['scripts'])===1,'exact page enqueues one local asset');
-must($GLOBALS['scripts'][0]['ver']==='1.0.0','version matches GET-only asset probe');
+must($GLOBALS['scripts'][0]['ver']==='1.1.0','version matches GET-only asset probe');
 must(str_ends_with($GLOBALS['scripts'][0]['src'],'/assets/nry-reel-handoff-v1.js'),'exact local asset');
 must($GLOBALS['scripts'][0]['footer']===true && $GLOBALS['scripts'][0]['deps']===array(),'no external dependency');
 foreach(array('page','singular','id','canonical','home') as $name){
