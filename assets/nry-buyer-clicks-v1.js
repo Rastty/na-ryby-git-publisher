@@ -15,7 +15,8 @@
     '/pipaky-na-ryby-s-priposlechem-ucinna-pomucka-pro-kazdeho-rybare/':'pipaky_receiver',
     '/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/':'echolot_budget',
     '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/':'sonar_boat',
-    '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/':'sonar_historic'
+    '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/':'sonar_historic',
+    '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/':'sonar_practical'
   });
   if (location.origin !== 'https://na-ryby.eu' ||
       !Object.prototype.hasOwnProperty.call(allowedPages, location.pathname)) return;
@@ -36,6 +37,18 @@
     try { url = new URL(link.href, location.href); }
     catch { return; }
     if (url.protocol !== 'https:' || url.username || url.password || url.port) return;
+    // Genuine first-party buyer-guide navigation, not an affiliate conversion.
+    if (page === 'sonar_practical' &&
+        url.origin === 'https://na-ryby.eu' &&
+        url.pathname === '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/' &&
+        !url.search && !url.hash) {
+      try {
+        window.gtag('event','nry_buyer_guide_click',{
+          buyer_page:page,guide_type:'sonar_boat',transport_type:'beacon'
+        });
+      } catch { /* Keep navigation intact; never override consent. */ }
+      return;
+    }
     let kind = null;
     if (url.origin === 'https://na-ryby.eu' &&
         (url.pathname === '/signalizatory' || url.pathname === '/signalizatory/')) {
