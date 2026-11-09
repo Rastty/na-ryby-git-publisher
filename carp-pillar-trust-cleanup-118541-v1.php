@@ -136,7 +136,7 @@ final class NRY_Carp_Pillar_Trust_118541 {
                 // editor's concurrent changes or fake a successful release.
                 self::record('post_write_uncertain_manual_review',$candidateSha);
             }
-        } catch (\\Throwable $ex) {
+        } catch (\Throwable $ex) {
             self::record('unexpected_exception_manual_review');
         } finally {
             if (get_option(self::LOCK,null)===$lock) delete_option(self::LOCK);
