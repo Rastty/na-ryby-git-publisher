@@ -36,7 +36,7 @@ def request(url):
         return r.read(1600000).decode('utf-8','replace')
 def check(page,proof):
     if page.count(MARKER)!=1:return 'MISSING_UNIQUE_RELEASE_MARKER'
-    plain=re.sub(r'<script\\b[^>]*>[\\s\\S]*?</script>|<style\\b[^>]*>[\\s\\S]*?</style>',' ',page,flags=re.I)
+    plain=re.sub(r'<script\b[^>]*>[\s\S]*?</script>|<style\b[^>]*>[\s\S]*?</style>',' ',page,flags=re.I)
     plain=html.unescape(re.sub(r'<[^>]+>',' ',plain))
     plain=' '.join(plain.split())
     if not all(v in plain for v in NEEDED):return 'READER_DECISION_CONTENT_MISSING'
