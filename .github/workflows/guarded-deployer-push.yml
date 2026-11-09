@@ -44,6 +44,7 @@ on:
       - 'scripts/verify-reel-dashboard-nextsteps-public.py'
       - 'assets/nry-reel-handoff-v1.js'
       - 'tests/test-reel-handoff-v1.mjs'
+      - 'tests/test-reel-situations-handoff-v1.mjs'
       - 'tests/test-reel-handoff-enqueue-v1.php'
       - 'scripts/verify-reel-handoff-public-v1.py'
       - 'tests/test-winter-ice-safety-45070.php'
@@ -111,6 +112,7 @@ on:
       - 'scripts/verify-reel-dashboard-nextsteps-public.py'
       - 'assets/nry-reel-handoff-v1.js'
       - 'tests/test-reel-handoff-v1.mjs'
+      - 'tests/test-reel-situations-handoff-v1.mjs'
       - 'tests/test-reel-handoff-enqueue-v1.php'
       - 'scripts/verify-reel-handoff-public-v1.py'
       - 'tests/test-winter-ice-safety-45070.php'
@@ -169,6 +171,7 @@ jobs:
           php tests/test-reel-handoff-enqueue-v1.php
           node --check assets/nry-reel-handoff-v1.js
           node tests/test-reel-handoff-v1.mjs
+          node tests/test-reel-situations-handoff-v1.mjs
           python3 -m py_compile scripts/verify-reel-handoff-public-v1.py
           python3 -m py_compile scripts/verify-reel-dashboard-nextsteps-public.py
           php tests/test-winter-ice-safety-45070.php
