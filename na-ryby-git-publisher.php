@@ -22,6 +22,7 @@ require_once __DIR__ . '/carp-pillar-source-proof-118541-v1.php';
 require_once __DIR__ . '/carp-pillar-trust-cleanup-118541-v1.php';
 require_once __DIR__ . '/receiver-buyer-guide-release-46573-v1.php';
 require_once __DIR__ . '/winter-ice-safety-45070-v1.php';
+require_once __DIR__ . '/reel-dashboard-nextsteps-v1.php';
 
 final class NRY_Git_Publisher {
     const MARKER = 'data-nry-advisor-internal-link="cohort-01"';
