@@ -36,7 +36,7 @@ final class NRY_Reel_Dashboard_Nextsteps_V1 {
         wp_enqueue_script(
             'nry-reel-guide-handoff-v1',
             plugins_url('assets/nry-reel-handoff-v1.js', __FILE__),
-            array(), '1.0.0', true
+            array(), '1.1.0', true
         );
     }
 
