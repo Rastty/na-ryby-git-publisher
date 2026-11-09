@@ -64,7 +64,8 @@ const additional=[
  ['/pipaky-na-ryby-s-priposlechem-ucinna-pomucka-pro-kazdeho-rybare/','pipaky_receiver'],
  ['/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/','echolot_budget'],
  ['/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/','sonar_boat'],
- ['/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/','sonar_historic']
+ ['/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/','sonar_historic'],
+ ['/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/','sonar_practical']
 ];
 for(const [page,role] of additional){
  const client=browser({page});
@@ -77,9 +78,31 @@ for(const [page,role] of additional){
  client.click('https://www.jdoqocy.com/click-8287231-15320199',{trusted:false});
  assert.equal(client.calls.length,1,'never emit test/synthetic clicks');
 }
+const boatGuide='/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/';
+const practical=browser({page:'/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/'});
+practical.click('https://na-ryby.eu'+boatGuide);
+assert.equal(practical.calls.length,1);
+assert.equal(practical.calls[0][0],'event');
+assert.equal(practical.calls[0][1],'nry_buyer_guide_click');
+assert.equal(practical.calls[0][2].buyer_page,'sonar_practical');
+assert.equal(practical.calls[0][2].guide_type,'sonar_boat');
+assert.ok(!JSON.stringify(practical.calls).includes(boatGuide),'no raw URL');
+for(const href of [
+ 'https://other.example'+boatGuide,'https://na-ryby.eu'+boatGuide+'?secret=x',
+ 'https://na-ryby.eu'+boatGuide+'#secret','http://na-ryby.eu'+boatGuide,
+ 'https://na-ryby.eu/poradce-vybavy/'
+]) practical.click(href);
+practical.click('https://na-ryby.eu'+boatGuide,{trusted:false});
+assert.equal(practical.calls.length,1,'reject foreign, altered, untrusted handoffs');
+const noGtag=browser({page:'/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/',gtagEnabled:false});
+noGtag.click('https://na-ryby.eu'+boatGuide);
+assert.equal(noGtag.calls.length,0,'no consent bypass');
+const notSource=browser({page:'/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/'});
+notSource.click('https://na-ryby.eu'+boatGuide);
+assert.equal(notSource.calls.length,0,'only practical source page');
 const c=browser({gtagEnabled:false});c.click('https://na-ryby.eu/signalizatory');assert.equal(c.calls.length,0);
 const d=browser({page:'/some-article/'});assert.equal(d.callbacks.length,0);
 const e=browser({host:'https://other.example'});assert.equal(e.callbacks.length,0);
 const advisor=browser({page:'/poradce-vybavy/'});
 assert.equal(advisor.callbacks.length,0,'advisor has separate measurement, no double count');
-console.log('PASS: 8 exact published buyer posts only; consent-respecting events, no synthetic or raw URL tracking');
+console.log('PASS: exact practical buyer handoff, eight existing buyer routes, genuine consent-gated clicks only');
