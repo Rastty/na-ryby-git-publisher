@@ -24,6 +24,7 @@ final class NRY_Receiver_Buyer_46573_V1 {
     const RECEIPT='nry_receiver_46573_release_receipt_20261109_v1';
     public static function boot() {
         add_action('wp_loaded',array(__CLASS__,'release'),47);
+        add_action('template_redirect',array(__CLASS__,'handle_readback'),24);
     }
     public static function candidate() {
         $path=__DIR__.'/'.self::CANDIDATE_FILE;
@@ -94,6 +95,50 @@ final class NRY_Receiver_Buyer_46573_V1 {
             && strlen($p->post_content)===self::SOURCE_BYTES
             && hash_equals(self::SOURCE_SHA,hash('sha256',$p->post_content));
     }
+
+    /**
+     * Fixed, first-party read-only proof: only exact saved post identity,
+     * hashes, matching one-time backup and status; never raw HTML or links.
+     */
+    public static function readback() {
+        $p=get_post(self::ID);
+        $identity=is_object($p)
+            && (int)($p->ID??0)===self::ID
+            && ($p->post_type??'')==='post'
+            && ($p->post_status??'')==='publish'
+            && ($p->post_name??'')===self::SLUG
+            && get_permalink(self::ID)===self::URL
+            && is_string($p->post_content??null);
+        $sha=$identity?hash('sha256',$p->post_content):'';
+        $bk=get_option(self::BACKUP,null);
+        $saved=get_option(self::RECEIPT,array());
+        $backupOk=is_array($bk) && ($bk['postId']??null)===self::ID
+            && ($bk['sha256']??'')===self::SOURCE_SHA
+            && is_string($bk['source']??null)
+            && hash_equals(self::SOURCE_SHA,hash('sha256',$bk['source']));
+        $localOk=$identity && hash_equals(self::CANDIDATE_SHA,$sha)
+            && $backupOk && is_array($saved)
+            && ($saved['state']??'')==='applied_and_verified_local'
+            && ($saved['candidateSha']??'')===self::CANDIDATE_SHA;
+        return array(
+            'schema'=>1,'postId'=>self::ID,'canonical'=>self::URL,
+            'state'=>$localOk?'APPLIED_AND_VERIFIED_LOCAL':'NOT_VERIFIED',
+            'savedCandidateMatches'=>$identity&&hash_equals(self::CANDIDATE_SHA,$sha),
+            'backupVerified'=>$backupOk,'publicHtmlVerificationRequired'=>true,
+            'wordpressWrites'=>0,'rawSourceExposed'=>false);
+    }
+    public static function handle_readback() {
+        if (!isset($_GET['nry_receiver_46573_readback'])
+            || $_GET['nry_receiver_46573_readback']!=='1'
+            || !function_exists('is_page') || !is_page('poradce-vybavy')
+            || rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return;
+        nocache_headers();
+        header('Content-Type: application/json; charset=utf-8');
+        header('X-Robots-Tag: noindex, nofollow');
+        echo wp_json_encode(self::readback());
+        exit;
+    }
+
     public static function release() {
         if (rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return;
         if (!self::approved_current(get_post(self::ID))) return;
