@@ -1,0 +1,36 @@
+name: Na-Ryby Sonar 49275 Public Exact SERP Readback
+on:
+  pull_request:
+    paths:
+      - 'seo-sonar-practical-description-49275-v1.php'
+      - 'tests/test-seo-sonar-practical-description-49275-v1.php'
+      - 'scripts/verify-sonar-practical-serp-49275-public.py'
+      - '.github/workflows/sonar-practical-serp-49275-public.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+permissions:
+  contents: read
+jobs:
+  sonar-exact-public:
+    if: >-
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Exact source pinned PHP and idempotent no-content-write tests
+        run: |
+          set -euo pipefail
+          php -l seo-sonar-practical-description-49275-v1.php
+          php tests/test-seo-sonar-practical-description-49275-v1.php
+          python3 -m py_compile scripts/verify-sonar-practical-serp-49275-public.py
+          python3 scripts/verify-sonar-practical-serp-49275-public.py --selftest
+      - name: Independent anonymous GET of public WordPress Yoast SEO and unchanged article body
+        if: github.event_name == 'workflow_run'
+        run: python3 scripts/verify-sonar-practical-serp-49275-public.py
