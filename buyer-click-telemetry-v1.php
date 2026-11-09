@@ -1,7 +1,9 @@
 <?php
 /**
  * Na-Ryby Buyer Offer Click Measurement V1 (consent-aware).
- * Only on two exact existing public posts. No new tracking cookies, visitor IDs,
+ * Only on eight exactly named, existing buyer posts. The advisor is a separate
+ * WordPress page with its own funnel events; do not instrument it again here.
+ * No new tracking cookies, visitor IDs,
  * redirects, affiliate click probes, private content or WordPress mutations.
  */
 if (!defined('ABSPATH')) { exit; }
@@ -9,7 +11,13 @@ if (!defined('ABSPATH')) { exit; }
 function nry_buyer_click_approved_scope($post_id, $public_path) {
     $allowed = array(
         42401 => '/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/',
-        118218 => '/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/'
+        118218 => '/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/',
+        35755 => '/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/',
+        36702 => '/pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu/',
+        46573 => '/pipaky-na-ryby-s-priposlechem-ucinna-pomucka-pro-kazdeho-rybare/',
+        118455 => '/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/',
+        60637 => '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/',
+        36518 => '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/'
     );
     return is_int($post_id) && isset($allowed[$post_id])
         && is_string($public_path) && $public_path === $allowed[$post_id];
