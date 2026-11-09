@@ -27,7 +27,10 @@ $candidate=$built['candidate'];
 must(strpos($candidate,$edit['insert_html']."\n")===0,'editorial decision panel not first');
 must(substr_count($candidate,$original)===1,'original merchant/media/shortcode drift');
 foreach($edit['text_corrections'] as $rule) {
-  must(substr_count($candidate,$rule['old_text'])===0,'stale claim survived');
+  // Some corrected model labels intentionally preserve the old model name as
+  // a prefix and append a critical type distinction; full old count is then 1.
+  $expectedOldCount = strpos($rule['new_text'],$rule['old_text'])!==false ? 1 : 0;
+  must(substr_count($candidate,$rule['old_text'])===$expectedOldCount,'stale claim survived or duplicate');
   must(substr_count($candidate,$rule['new_text'])===1,'reviewed replacement absent');
 }
 must(($builder->invoke(null,$candidate,$edit)['already']??false)===true,'idempotent rewrite refused');
