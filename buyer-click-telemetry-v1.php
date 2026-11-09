@@ -1,7 +1,7 @@
 <?php
 /**
  * Na-Ryby Buyer Offer Click Measurement V1 (consent-aware).
- * Only on eight exactly named, existing buyer posts. The advisor is a separate
+ * Eight buyer guides and one exact practical sonar post. Advisor is separately
  * WordPress page with its own funnel events; do not instrument it again here.
  * No new tracking cookies, visitor IDs,
  * redirects, affiliate click probes, private content or WordPress mutations.
@@ -17,7 +17,8 @@ function nry_buyer_click_approved_scope($post_id, $public_path) {
         46573 => '/pipaky-na-ryby-s-priposlechem-ucinna-pomucka-pro-kazdeho-rybare/',
         118455 => '/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/',
         60637 => '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/',
-        36518 => '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/'
+        36518 => '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/',
+        49275 => '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/'
     );
     return is_int($post_id) && isset($allowed[$post_id])
         && is_string($public_path) && $public_path === $allowed[$post_id];
@@ -41,7 +42,7 @@ function nry_buyer_click_enqueue() {
         'nry-buyer-offer-click-v1',
         plugins_url('assets/nry-buyer-clicks-v1.js', __FILE__),
         array(),
-        '1.0.0',
+        '1.1.0',
         true
     );
 }
