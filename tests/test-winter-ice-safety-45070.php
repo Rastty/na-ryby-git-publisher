@@ -2,6 +2,7 @@
 define('ABSPATH','/test/');
 $GLOBALS['filters']=array();
 function add_filter($hook,$cb,$prio){$GLOBALS['filters'][]=array($hook,$cb,$prio);}
+function did_action($name){return 1;}
 function is_singular($type){return $type==='post';}
 function in_the_loop(){return true;}
 function get_the_ID(){return 45070;}
