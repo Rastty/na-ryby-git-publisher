@@ -15,6 +15,7 @@ require_once __DIR__ . '/checklist-release-v1.php';
 require_once __DIR__ . '/guarded-auto-publisher.php';
 require_once __DIR__ . '/advisor-existing-page-release-v1.php';
 require_once __DIR__ . '/buyer-click-telemetry-v1.php';
+require_once __DIR__ . '/home-trust-cleanup-118641-v1.php';
 
 final class NRY_Git_Publisher {
     const MARKER = 'data-nry-advisor-internal-link="cohort-01"';
