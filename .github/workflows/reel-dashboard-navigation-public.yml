@@ -7,6 +7,7 @@ on:
       - 'scripts/verify-reel-dashboard-nextsteps-public.py'
       - 'assets/nry-reel-handoff-v1.js'
       - 'tests/test-reel-handoff-v1.mjs'
+      - 'tests/test-reel-situations-handoff-v1.mjs'
       - 'tests/test-reel-handoff-enqueue-v1.php'
       - 'scripts/verify-reel-handoff-public-v1.py'
       - '.github/workflows/reel-dashboard-navigation-public.yml'
@@ -32,6 +33,7 @@ jobs:
           php tests/test-reel-handoff-enqueue-v1.php
           node --check assets/nry-reel-handoff-v1.js
           node tests/test-reel-handoff-v1.mjs
+          node tests/test-reel-situations-handoff-v1.mjs
           python3 -m py_compile scripts/verify-reel-handoff-public-v1.py
           python3 -m py_compile scripts/verify-reel-dashboard-nextsteps-public.py
   live-readback:
