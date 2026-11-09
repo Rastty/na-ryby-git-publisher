@@ -34,6 +34,7 @@ on:
       - 'tests/test-buyer-source-proof.php'
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
+      - 'home-trust-cleanup-118641-v1.php'
       - 'seo-pipaky-beginner-35755-v1.php'
       - 'seo-pipaky-advanced-description-36702-v1.php'
       - 'tests/test-pipaky-beginner-serp-35755-v1.php'
@@ -76,6 +77,7 @@ on:
       - 'tests/test-buyer-source-proof.php'
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
+      - 'home-trust-cleanup-118641-v1.php'
       - 'buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.mjs'
@@ -108,6 +110,8 @@ jobs:
           python3 tests/test-readonly-urlopen-retry.py -v
           php -l advisor-existing-page-release-v1.php
           php -l guarded-auto-publisher.php
+          php -l home-trust-cleanup-118641-v1.php
+          php tests/test-home-trust-cleanup-118641.php
           php -l na-ryby-git-publisher.php
           php tests/test-advisor-existing-page-release-v1.php
           php tests/test-native-kses-write-contract.php
