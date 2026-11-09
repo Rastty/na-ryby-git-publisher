@@ -21,6 +21,28 @@ class AuditContract(TestCase):
                             '<a href="' + mod.DESTINATIONS["pillar"] + '">Průvodce</a>'
                             '<a href="https://affiliate.invalid/?private=do-not-log">Koupit</a>'}}
 
+    def test_public_yoast_serp_fields_fail_closed_and_do_not_grant_edit(self):
+        from copy import deepcopy
+        item = self.example(mod.GUIDES[4][1])
+        item["id"] = 49275
+        item["yoast_head_json"] = {
+            "title": "Jak používat sonar na lodi | Na-ryby.eu",
+            "description": "Sonda, citlivost a čtení dna: konkrétní nastavení na člunu.",
+            "canonical": mod.DESTINATIONS["practical"]
+        }
+        data = mod.public_serp_metadata(item)
+        self.assertEqual(data["status"], "PUBLIC_YOAST_REST_FIELDS_OBSERVED")
+        self.assertTrue(data["canonicalVerified"])
+        self.assertEqual(data["description"], item["yoast_head_json"]["description"])
+        self.assertNotIn("publicationAuthorized", data)
+        self.assertEqual(mod.public_serp_metadata({})["status"], "YOAST_REST_NOT_EXPOSED")
+        self.assertEqual(mod.public_serp_metadata({"yoast_head_json": {"title": 1}})["status"], "MISSING_PUBLIC_YOAST_FIELDS")
+        bad = deepcopy(item)
+        bad["yoast_head_json"]["canonical"] = "https://evil.example/"
+        self.assertFalse(mod.public_serp_metadata(bad)["canonicalVerified"])
+        bad["yoast_head_json"]["description"] = "X"*500
+        self.assertEqual(mod.public_serp_metadata(bad)["status"], "INVALID_PUBLIC_YOAST_LENGTH")
+
     def test_practical_49275_existing_and_missing_handoff(self):
         import json
         self.assertEqual(mod.GUIDES[4], (

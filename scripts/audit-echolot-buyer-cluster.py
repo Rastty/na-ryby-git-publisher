@@ -164,9 +164,34 @@ def answer_first_pilot(content, first_shop_offset):
     }
 
 
+def public_serp_metadata(item):
+    """Read ONLY public Yoast REST response, never assume it is a WP meta write.
+
+    Search crawlers can use different snippets; a REST field only proves the
+    current source metadata, not actual Google SERP rendering or CTR.
+    """
+    data = item.get("yoast_head_json")
+    if not isinstance(data, dict):
+        return {"status": "YOAST_REST_NOT_EXPOSED", "title": None,
+                "description": None, "canonicalVerified": False}
+    title = data.get("title")
+    description = data.get("description")
+    canonical = data.get("canonical")
+    if not isinstance(title, str) or not isinstance(description, str):
+        return {"status": "MISSING_PUBLIC_YOAST_FIELDS", "title": None,
+                "description": None, "canonicalVerified": False}
+    if not (0 < len(title) < 250 and 0 < len(description) < 500):
+        return {"status": "INVALID_PUBLIC_YOAST_LENGTH", "title": None,
+                "description": None, "canonicalVerified": False}
+    return {"status": "PUBLIC_YOAST_REST_FIELDS_OBSERVED",
+            "title": html.unescape(re.sub(r"<[^>]+>", "", title)),
+            "description": html.unescape(re.sub(r"<[^>]+>", "", description)),
+            "canonicalVerified": canonical == item.get("link")}
+
+
 def summarize(role, slug, *, fetch=read):
     url = (SITE + "/wp-json/wp/v2/posts?slug=" + quote(slug) +
-           "&_fields=id,slug,status,link,title,modified_gmt,content")
+           "&_fields=id,slug,status,link,title,modified_gmt,content,yoast_head_json")
     status, raw = fetch(url)
     result = {"role": role, "slug": slug, "restStatus": status,
               "readOnly": True, "sourceShaVerified": False,
@@ -225,6 +250,8 @@ def summarize(role, slug, *, fetch=read):
                 else "NOT_APPLICABLE"
             ),
             "publicationAuthorized": False,
+            "serpMetadata": public_serp_metadata(item)
+                if role == "practical" else {"status":"NOT_SCOPED"},
             "has2023Language": bool(re.search(r"\b2023\b", visible)),
             "hasVisibleKeywordStuffing": "klíčová slova:" in visible.lower(),
             "hasNumericPrice": prices["visibleNumericPriceMentions"] > 0,
