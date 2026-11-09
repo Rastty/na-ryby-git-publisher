@@ -13,10 +13,10 @@ ok(NRY_Carp_Pillar_Source_118541::snapshot()['state']==='BLOCKED_EXACT_POST_IDEN
 $GLOBALS['fixture']=(object)array('ID'=>118541,'post_type'=>'post','post_status'=>'publish',
  'post_name'=>NRY_Carp_Pillar_Source_118541::SLUG,
  'post_modified_gmt'=>'2026-03-21 10:00:00',
- 'post_content'=>str_repeat('Kapr prut a vyber; ',65).NRY_Carp_Pillar_Source_118541::EDITORIAL_PHRASE);
+ 'post_content'=>str_repeat('Kapr prut a vyber; ',65).NRY_Carp_Pillar_Source_118541::EDITORIAL_PHRASE .str_repeat(chr(96),3));
 $r=NRY_Carp_Pillar_Source_118541::snapshot();
 ok($r['state']==='SOURCE_ONLY_NO_PUBLICATION' && $r['publicationAuthorized']===false && $r['wordpressWrites']===0,'snapshot never authorizes publication');
-ok($r['sourceSha256']===hash('sha256',$GLOBALS['fixture']->post_content) && $r['literalCounts']['editorialPhraseExact']===1,'exact source/counts, no raw text');
+ok($r['sourceSha256']===hash('sha256',$GLOBALS['fixture']->post_content) && $r['literalCounts']['editorialPhraseExact']===1 && $r['literalCounts']['backtickFence']===1,'exact source/counts, no raw text');
 ok(!isset($r['post_content']) && !isset($r['affiliateUrl']) && !isset($r['body']),'no private content or merchant URL in public receipt');
 $GLOBALS['fixture']->post_name='other';ok(NRY_Carp_Pillar_Source_118541::snapshot()['state']==='BLOCKED_EXACT_POST_IDENTITY','slug drift blocked');
 $GLOBALS['fixture']->post_name=NRY_Carp_Pillar_Source_118541::SLUG;
