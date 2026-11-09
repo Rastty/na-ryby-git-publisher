@@ -37,6 +37,9 @@ on:
       - 'home-trust-cleanup-118641-v1.php'
       - 'carp-pillar-source-proof-118541-v1.php'
       - 'carp-pillar-trust-cleanup-118541-v1.php'
+      - 'receiver-buyer-guide-release-46573-v1.php'
+      - 'editorial/receiver-46573-decision-guide-20261109.html'
+      - 'tests/test-receiver-buyer-release-46573.php'
       - 'seo-pipaky-beginner-35755-v1.php'
       - 'seo-pipaky-advanced-description-36702-v1.php'
       - 'tests/test-pipaky-beginner-serp-35755-v1.php'
@@ -82,6 +85,9 @@ on:
       - 'home-trust-cleanup-118641-v1.php'
       - 'carp-pillar-source-proof-118541-v1.php'
       - 'carp-pillar-trust-cleanup-118541-v1.php'
+      - 'receiver-buyer-guide-release-46573-v1.php'
+      - 'editorial/receiver-46573-decision-guide-20261109.html'
+      - 'tests/test-receiver-buyer-release-46573.php'
       - 'buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.mjs'
@@ -117,6 +123,8 @@ jobs:
           php -l home-trust-cleanup-118641-v1.php
           php -l carp-pillar-source-proof-118541-v1.php
           php -l carp-pillar-trust-cleanup-118541-v1.php
+          php -l receiver-buyer-guide-release-46573-v1.php
+          php tests/test-receiver-buyer-release-46573.php
           php tests/test-carp-pillar-trust-118541.php
           php tests/test-carp-pillar-source-proof-118541.php
           php tests/test-home-trust-cleanup-118641.php
