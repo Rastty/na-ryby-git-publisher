@@ -12,7 +12,6 @@ final class NRY_Carp_Pillar_Source_118541 {
     const MARKDOWN_FENCE='&#96;&#96;&#96;';
     const EDITORIAL_PHRASE='Tady je přesně místo, kde má pillar článek fungovat jako rozcestník celé tématické clustery.';
     const EDITORIAL_HEADING='Interní rozcestník: kam pokračovat podle toho, co řešíte';
-    const OLD_FENCE='\x60\x60\x60';
     public static function boot() {
         add_action('template_redirect',array(__CLASS__,'handle'),23);
     }
