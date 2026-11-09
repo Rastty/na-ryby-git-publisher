@@ -34,7 +34,7 @@ jobs:
           set -euo pipefail
           python3 -m py_compile scripts/audit-echolot-buyer-cluster.py
           python3 tests/test_echolot_cluster_audit.py -v
-      - name: Audit four live echolot articles using anonymous read-only REST
+      - name: Audit five live echolot articles using anonymous read-only REST
         run: python3 scripts/audit-echolot-buyer-cluster.py
       - name: Share evidence
         if: always()
@@ -52,6 +52,8 @@ jobs:
                       f"state={row.get('state')} modified={row.get('modifiedGmt')} "
                       f"pillarLinks={row.get('linksToPillar','?')} "
                       f"advisorLinks={row.get('linksToAdvisor','?')} "
+                      f"practicalLinks={row.get('linksToPractical','?')} "
+                      f"navigationDecision={row.get('navigationDecision','?')} "
                       f"shopCTABeforeSecondH2={row.get('firstCtaBeforeSecondH2','?')} "
                       f"answerFirstPilotVerified={row.get('answerFirstPilotVerified','N/A')} "
                       f"bodyH1={row.get('h1InBody','?')}")

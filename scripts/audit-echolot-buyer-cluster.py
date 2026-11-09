@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only, public WordPress REST audit of four existing sonar buyer journeys.
+"""Read-only, public WordPress REST audit of five existing sonar buyer journeys.
 
 Does not request merchant URLs, expose affiliate hrefs, write WordPress or assume
 a listed model is available. Evidence is public rendered HTML, not raw source.
@@ -20,12 +20,14 @@ GUIDES = (
     ("boat", "jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare"),
     ("budget", "nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz"),
     ("historic", "porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023"),
+    ("practical", "jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun"),
 )
 DESTINATIONS = {
     "pillar": SITE + "/" + GUIDES[0][1] + "/",
     "advisor": SITE + "/poradce-vybavy/",
     "budget": SITE + "/" + GUIDES[2][1] + "/",
     "boat": SITE + "/" + GUIDES[1][1] + "/",
+    "practical": SITE + "/" + GUIDES[4][1] + "/",
 }
 
 
@@ -209,6 +211,20 @@ def summarize(role, slug, *, fetch=read):
             "linksToAdvisor": sum(u.rstrip("/") == DESTINATIONS["advisor"].rstrip("/") for u in internal),
             "linksToBudget": sum(u.rstrip("/") == DESTINATIONS["budget"].rstrip("/") for u in internal),
             "linksToBoat": sum(u.rstrip("/") == DESTINATIONS["boat"].rstrip("/") for u in internal),
+            "linksToPractical": sum(u.rstrip("/") == DESTINATIONS["practical"].rstrip("/") for u in internal),
+            "navigationDecision": (
+                "REVIEW_SINGLE_BOUNDED_INTERNAL_HANDOFF_NO_EDIT_AUTHORITY"
+                if role == "practical" and not any(u.rstrip("/") in {
+                    DESTINATIONS["pillar"].rstrip("/"),
+                    DESTINATIONS["budget"].rstrip("/"),
+                    DESTINATIONS["boat"].rstrip("/"),
+                    DESTINATIONS["advisor"].rstrip("/"),
+                } for u in internal)
+                else "EXISTING_BUYER_OR_ADVISOR_HANDOFF_PRESENT"
+                if role == "practical"
+                else "NOT_APPLICABLE"
+            ),
+            "publicationAuthorized": False,
             "has2023Language": bool(re.search(r"\b2023\b", visible)),
             "hasVisibleKeywordStuffing": "klíčová slova:" in visible.lower(),
             "hasNumericPrice": prices["visibleNumericPriceMentions"] > 0,
@@ -225,10 +241,10 @@ def summarize(role, slug, *, fetch=read):
 
 
 def main():
-    with ThreadPoolExecutor(max_workers=4) as pool:
+    with ThreadPoolExecutor(max_workers=5) as pool:
         rows = list(pool.map(lambda item: summarize(*item), GUIDES))
     evidence = {"checkedAtUtc": datetime.now(timezone.utc).isoformat(),
-                "scope": "four-existing-sonar-buyer-guides",
+                "scope": "five-existing-sonar-buyer-guides",
                 "readOnly": True, "wordpressWrites": 0, "merchantCalls": 0,
                 "rawPostContentExposed": False, "guides": rows}
     print(json.dumps(evidence, ensure_ascii=False))
@@ -239,6 +255,12 @@ def main():
     pillar = next(x for x in rows if x["role"] == "pillar")
     if pillar.get("postId") != 118553 or pillar.get("answerFirstPilotVerified") is not True:
         raise SystemExit("BLOCKED: post-release answer-before-offer pillar regression")
+    # Keep legacy pillar guard, but explicitly prove the new practical-page
+    # identity before accepting navigation evidence; a slug match alone is not
+    # an authenticated editorial source and never grants write authority.
+    practical = next(x for x in rows if x["role"] == "practical")
+    if practical.get("postId") != 49275 or practical.get("state") != "PUBLIC_EVIDENCE":
+        raise SystemExit("BLOCKED: practical sonar post #49275 public identity drift")
 
 
 if __name__ == "__main__":

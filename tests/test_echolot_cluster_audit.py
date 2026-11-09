@@ -21,6 +21,32 @@ class AuditContract(TestCase):
                             '<a href="' + mod.DESTINATIONS["pillar"] + '">Průvodce</a>'
                             '<a href="https://affiliate.invalid/?private=do-not-log">Koupit</a>'}}
 
+    def test_practical_49275_existing_and_missing_handoff(self):
+        import json
+        self.assertEqual(mod.GUIDES[4], (
+            "practical", "jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun"))
+        row = self.example(mod.GUIDES[4][1])
+        row["id"] = 49275
+        row["content"]["rendered"] = "<h2>Výběr</h2><p>Rozhodnutí podle typu lodi.</p>"
+        missing = mod.summarize("practical", row["slug"],
+                                fetch=lambda _: (200, json.dumps([row])))
+        self.assertEqual(missing["postId"], 49275)
+        self.assertEqual(missing["linksToPillar"], 0)
+        self.assertEqual(missing["linksToBoat"], 0)
+        self.assertFalse(missing["publicationAuthorized"])
+        self.assertEqual(missing["navigationDecision"],
+            "REVIEW_SINGLE_BOUNDED_INTERNAL_HANDOFF_NO_EDIT_AUTHORITY")
+        row["content"]["rendered"] += (
+            '<p>Pro konkrétní výběr navštivte <a href="' +
+            mod.DESTINATIONS["boat"] + '">echoloty na loď</a></p>')
+        existing = mod.summarize("practical", row["slug"],
+                                 fetch=lambda _: (200, json.dumps([row])))
+        self.assertEqual(existing["linksToBoat"], 1)
+        self.assertEqual(existing["navigationDecision"],
+                         "EXISTING_BUYER_OR_ADVISOR_HANDOFF_PRESENT")
+        self.assertFalse(existing["publicationAuthorized"])
+        self.assertNotIn("private", str(existing))
+
     def test_only_public_evidence_without_shop_urls(self):
         import json
         row = self.example()
