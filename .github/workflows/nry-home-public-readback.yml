@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'home-trust-cleanup-118641-v1.php'
+      - 'receiver-trust-46573-v1.php'
+      - 'scripts/verify-receiver-46573-public.py'
       - 'scripts/verify-home-118641-public.py'
       - '.github/workflows/nry-home-public-readback.yml'
   workflow_run:
@@ -19,7 +21,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Standalone verifier syntax
-        run: python3 -m py_compile scripts/verify-home-118641-public.py
+        run: |
+          python3 -m py_compile scripts/verify-home-118641-public.py
+          python3 -m py_compile scripts/verify-receiver-46573-public.py
       - name: Public HTTP GET-only verification
         if: github.event_name != 'pull_request'
-        run: python3 scripts/verify-home-118641-public.py
+        run: |
+          set -euo pipefail
+          python3 scripts/verify-home-118641-public.py
+          python3 scripts/verify-receiver-46573-public.py
