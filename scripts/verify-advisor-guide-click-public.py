@@ -72,9 +72,9 @@ def get_text(url,limit):
 
 if __name__=='__main__':
     if '--selftest' in sys.argv:
-        page='<html><body><section class="nry-setup"><div data-nry-results></div></section>'+(
-          '<p>Poradce rybářské výbavy.</p>'*120)+
-          '<script src="'+ASSET+'?ver=1.0.0"></script></body></html>'
+        page=('<html><body><section class="nry-setup"><div data-nry-results></div></section>'
+          +('<p>Poradce rybářské výbavy.</p>'*120)
+          +'<script src="'+ASSET+'?ver=1.0.0"></script></body></html>')
         assert verify_html(page)=='ONE_EXACT_INTERNAL_GUIDE_SCRIPT_OBSERVED'
         try:
             verify_html(page.replace('nry-advisor-guide-click-v1.js','wrong.js'))
