@@ -5,6 +5,8 @@ on:
       - 'na-ryby-git-publisher.php'
       - 'manifest.json'
       - 'tests/**'
+      - 'buyer-click-telemetry-v1.php'
+      - 'assets/nry-buyer-clicks-v1.js'
       - '.github/workflows/v5-php-contract.yml'
   push:
     branches: [main]
@@ -12,6 +14,8 @@ on:
       - 'na-ryby-git-publisher.php'
       - 'manifest.json'
       - 'tests/**'
+      - 'buyer-click-telemetry-v1.php'
+      - 'assets/nry-buyer-clicks-v1.js'
       - '.github/workflows/v5-php-contract.yml'
 permissions:
   contents: read
@@ -27,8 +31,12 @@ jobs:
           php -l tests/test-v5-native-release.php
           php -l tests/test-v6-chair-native-release.php
           php -l tests/test-v7-chair-native-release.php
+          php -l buyer-click-telemetry-v1.php
+          php -l tests/test-buyer-click-telemetry-v1.php
       - name: Source-bound and reversible v5 contract
         run: |
           php tests/test-v5-native-release.php
           php tests/test-v6-chair-native-release.php
           php tests/test-v7-chair-native-release.php
+          php tests/test-buyer-click-telemetry-v1.php
+          node tests/test-buyer-click-telemetry-v1.mjs
