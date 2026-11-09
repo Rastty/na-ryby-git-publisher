@@ -31,7 +31,7 @@ def verify(html):
         return 'ORIGINAL_MEDIA_OR_LINK_NOT_PUBLIC'
     if OLD_HEAD in html or 'S použitím pípáků s příposlechem můžete být o několik kroků' in html:
         return 'REPEATED_OR_UNSUPPORTED_SOURCE_TEXT_REMAINS'
-    if len(re.findall(r'<h2\\b',html,re.I))<4:
+    if len(re.findall(r'<h2\b',html,re.I))<4:
         return 'RENDERED_HEADINGS_INCOMPLETE'
     return 'PUBLIC_VERIFIED_RECEIVER_GUIDE'
 def read():
