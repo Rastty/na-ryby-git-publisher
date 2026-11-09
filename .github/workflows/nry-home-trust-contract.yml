@@ -1,0 +1,23 @@
+name: Na-Ryby homepage source-bound trust cleanup contract
+on:
+  pull_request:
+    paths:
+      - 'home-trust-cleanup-118641-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-home-trust-cleanup-118641.php'
+      - '.github/workflows/nry-home-trust-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  home-trust-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP strict syntax check
+        run: |
+          php -l home-trust-cleanup-118641-v1.php
+          php -l na-ryby-git-publisher.php
+          php -l tests/test-home-trust-cleanup-118641.php
+      - name: Offline source drift and bounded URL contract
+        run: php tests/test-home-trust-cleanup-118641.php
