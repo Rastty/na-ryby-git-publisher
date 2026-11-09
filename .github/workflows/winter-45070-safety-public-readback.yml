@@ -1,0 +1,36 @@
+name: Na-Ryby Winter Ice 45070 Public Safety Readback
+on:
+  pull_request:
+    paths:
+      - 'winter-ice-safety-45070-v1.php'
+      - 'tests/test-winter-ice-safety-45070.php'
+      - 'scripts/verify-winter-ice-45070-public.py'
+      - '.github/workflows/winter-45070-safety-public-readback.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+permissions:
+  contents: read
+jobs:
+  winter-safety-public:
+    if: >-
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate exact reversible PHP safety overlay
+        run: |
+          set -euo pipefail
+          php -l winter-ice-safety-45070-v1.php
+          php tests/test-winter-ice-safety-45070.php
+          python3 -m py_compile scripts/verify-winter-ice-45070-public.py
+          python3 scripts/verify-winter-ice-45070-public.py --selftest
+      - name: Real public safety proof after successful main deployment
+        if: github.event_name == 'workflow_run'
+        run: python3 scripts/verify-winter-ice-45070-public.py
