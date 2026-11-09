@@ -16,6 +16,7 @@ require_once __DIR__ . '/guarded-auto-publisher.php';
 require_once __DIR__ . '/advisor-existing-page-release-v1.php';
 require_once __DIR__ . '/buyer-click-telemetry-v1.php';
 require_once __DIR__ . '/home-trust-cleanup-118641-v1.php';
+require_once __DIR__ . '/receiver-trust-46573-v1.php';
 require_once __DIR__ . '/carp-pillar-source-proof-118541-v1.php';
 require_once __DIR__ . '/carp-pillar-trust-cleanup-118541-v1.php';
 
