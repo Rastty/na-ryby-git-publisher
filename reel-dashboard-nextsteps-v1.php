@@ -13,10 +13,30 @@ final class NRY_Reel_Dashboard_Nextsteps_V1 {
     const MARKER = 'data-nry-reel-nextsteps="v1"';
 
     public static function boot() {
-        // Register only in a fully loaded WordPress runtime, never in isolated publisher contract fixtures.
+        // Isolated PHP publisher tests do not implement the full WordPress hook API.
         if (function_exists('is_page') && function_exists('add_filter')) {
             add_filter('the_content', array(__CLASS__, 'render'), 35);
         }
+        if (function_exists('is_page') && function_exists('add_action')) {
+            add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue'), 26);
+        }
+    }
+
+    public static function enqueue() {
+        if (!function_exists('is_page') || !is_page(self::ID)
+            || !function_exists('is_singular') || !is_singular('page')
+            || !function_exists('get_queried_object_id')
+            || !function_exists('get_permalink') || !function_exists('home_url')
+            || !function_exists('wp_enqueue_script') || !function_exists('plugins_url'))
+            return;
+        $id = (int) get_queried_object_id();
+        if ($id !== self::ID || get_permalink($id) !== self::PERMALINK
+            || rtrim(home_url('/'), '/') !== 'https://na-ryby.eu') return;
+        wp_enqueue_script(
+            'nry-reel-guide-handoff-v1',
+            plugins_url('assets/nry-reel-handoff-v1.js', __FILE__),
+            array(), '1.0.0', true
+        );
     }
 
     public static function render($content) {
