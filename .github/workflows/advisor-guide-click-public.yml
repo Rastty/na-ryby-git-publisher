@@ -1,0 +1,40 @@
+name: Na-Ryby Advisor Guide Handoff Public Readback
+on:
+  pull_request:
+    paths:
+      - 'advisor-guide-click-telemetry-v1.php'
+      - 'assets/nry-advisor-guide-click-v1.js'
+      - 'tests/test-advisor-guide-click-v1.php'
+      - 'tests/test-advisor-guide-click-v1.mjs'
+      - 'scripts/verify-advisor-guide-click-public.py'
+      - '.github/workflows/advisor-guide-click-public.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+permissions:
+  contents: read
+jobs:
+  verify-guide-handoff:
+    if: >-
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify exact advisor-only first-party event script and offline policy
+        run: |
+          set -euo pipefail
+          php -l advisor-guide-click-telemetry-v1.php
+          php tests/test-advisor-guide-click-v1.php
+          node --check assets/nry-advisor-guide-click-v1.js
+          node tests/test-advisor-guide-click-v1.mjs
+          python3 -m py_compile scripts/verify-advisor-guide-click-public.py
+          python3 scripts/verify-advisor-guide-click-public.py --selftest
+      - name: Independent real public JS and page readback, no synthetic events
+        if: github.event_name == 'workflow_run'
+        run: python3 scripts/verify-advisor-guide-click-public.py
