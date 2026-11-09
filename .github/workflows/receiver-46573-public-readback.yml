@@ -1,0 +1,30 @@
+name: Na-Ryby Receiver 46573 Buyer Public Readback
+on:
+  pull_request:
+    paths:
+      - 'receiver-buyer-guide-release-46573-v1.php'
+      - 'editorial/receiver-46573-decision-guide-20261109.html'
+      - 'tests/test-receiver-buyer-release-46573.php'
+      - 'scripts/verify-receiver-46573-public.py'
+      - '.github/workflows/receiver-46573-public-readback.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-receiver:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact source-bound article and public verifier syntax
+        run: |
+          php -l receiver-buyer-guide-release-46573-v1.php
+          php tests/test-receiver-buyer-release-46573.php
+          python3 -m py_compile scripts/verify-receiver-46573-public.py
+      - name: Independent real WordPress SHA + public reader HTML (GET only)
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/verify-receiver-46573-public.py
