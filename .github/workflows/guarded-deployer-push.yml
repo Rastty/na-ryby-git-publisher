@@ -35,6 +35,7 @@ on:
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
       - 'home-trust-cleanup-118641-v1.php'
+      - 'carp-pillar-source-proof-118541-v1.php'
       - 'seo-pipaky-beginner-35755-v1.php'
       - 'seo-pipaky-advanced-description-36702-v1.php'
       - 'tests/test-pipaky-beginner-serp-35755-v1.php'
@@ -78,6 +79,7 @@ on:
       - 'tests/test-advisor-existing-page-release-v1.php'
       - 'na-ryby-git-publisher.php'
       - 'home-trust-cleanup-118641-v1.php'
+      - 'carp-pillar-source-proof-118541-v1.php'
       - 'buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.mjs'
@@ -111,6 +113,8 @@ jobs:
           php -l advisor-existing-page-release-v1.php
           php -l guarded-auto-publisher.php
           php -l home-trust-cleanup-118641-v1.php
+          php -l carp-pillar-source-proof-118541-v1.php
+          php tests/test-carp-pillar-source-proof-118541.php
           php tests/test-home-trust-cleanup-118641.php
           php -l na-ryby-git-publisher.php
           php tests/test-advisor-existing-page-release-v1.php
