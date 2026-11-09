@@ -44,6 +44,10 @@ on:
       - 'tests/test-receiver-buyer-release-46573.php'
       - 'seo-pipaky-beginner-35755-v1.php'
       - 'seo-pipaky-advanced-description-36702-v1.php'
+      - 'seo-sonar-practical-description-49275-v1.php'
+      - 'tests/test-seo-sonar-practical-description-49275-v1.php'
+      - 'scripts/verify-sonar-practical-serp-49275-public.py'
+      - '.github/workflows/sonar-practical-serp-49275-public.yml'
       - 'tests/test-pipaky-beginner-serp-35755-v1.php'
       - 'tests/test-pipaky-diagnostics-35755-v8.php'
       - 'tests/test-pipaky-advanced-36702-v8.php'
@@ -112,6 +116,10 @@ on:
       - 'assets/**'
       - 'seo-pipaky-beginner-35755-v1.php'
       - 'seo-pipaky-advanced-description-36702-v1.php'
+      - 'seo-sonar-practical-description-49275-v1.php'
+      - 'tests/test-seo-sonar-practical-description-49275-v1.php'
+      - 'scripts/verify-sonar-practical-serp-49275-public.py'
+      - '.github/workflows/sonar-practical-serp-49275-public.yml'
       - '.github/workflows/guarded-deployer-push.yml'
       - 'scripts/readonly_urlopen_retry.py'
       - 'tests/test-readonly-urlopen-retry.py'
@@ -176,6 +184,8 @@ jobs:
           php -l seo-snippet-pilot.php
           php -l seo-pipaky-beginner-35755-v1.php
           php -l seo-pipaky-advanced-description-36702-v1.php
+          php -l seo-sonar-practical-description-49275-v1.php
+          php tests/test-seo-sonar-practical-description-49275-v1.php
           php tests/test-pipaky-beginner-serp-35755-v1.php
           php tests/test-pipaky-diagnostics-35755-v8.php
           php tests/test-pipaky-advanced-36702-v8.php
