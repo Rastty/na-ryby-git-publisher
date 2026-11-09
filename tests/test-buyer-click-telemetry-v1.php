@@ -28,11 +28,35 @@ $GLOBALS['id']=118218;
 $GLOBALS['path']='https://na-ryby.eu/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/';
 nry_buyer_click_enqueue();
 must(count($GLOBALS['queue'])===1,'buyer guide is approved');
+// Six additional source-verified live buyer articles use the same consent-aware,
+ // read-only script without introducing another data or WordPress write path.
+$more=array(
+  35755 => '/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/',
+  36702 => '/pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu/',
+  46573 => '/pipaky-na-ryby-s-priposlechem-ucinna-pomucka-pro-kazdeho-rybare/',
+  118455 => '/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/',
+  60637 => '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/',
+  36518 => '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/'
+);
+foreach($more as $id=>$route) {
+  $GLOBALS['queue']=array();
+  $GLOBALS['id']=$id;
+  $GLOBALS['path']='https://na-ryby.eu'.$route;
+  nry_buyer_click_enqueue();
+  must(count($GLOBALS['queue'])===1,'exact released buyer must have script');
+  must(nry_buyer_click_approved_scope($id,$route),'whitelisted ID/path binding');
+  must($GLOBALS['queue'][0]['handle']==='nry-buyer-offer-click-v1','same local JS');
+}
 $GLOBALS['queue']=array();
-$GLOBALS['id']=35755;
-$GLOBALS['path']='https://na-ryby.eu/pipaky-na-ryby-prakticke-rady-pro-zacatecniky/';
+$GLOBALS['id']=119865;
+$GLOBALS['path']='https://na-ryby.eu/poradce-vybavy/';
 nry_buyer_click_enqueue();
-must(count($GLOBALS['queue'])===0,'unapproved sibling has no telemetry');
+must(count($GLOBALS['queue'])===0,'advisor owns separate funnel; no duplicate instrumentation');
+$GLOBALS['queue']=array();
+$GLOBALS['id']=999999;
+$GLOBALS['path']='https://na-ryby.eu/neschvaleny-novy-clanek/';
+nry_buyer_click_enqueue();
+must(count($GLOBALS['queue'])===0,'unregistered buyer post blocked');
 $GLOBALS['id']=42401;
 $GLOBALS['path']='https://other.example/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/';
 nry_buyer_click_enqueue();
@@ -43,4 +67,4 @@ nry_buyer_click_enqueue();
 must(count($GLOBALS['queue'])===0,'nonpost context blocked');
 must(nry_buyer_click_approved_scope(42401,'/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/'),'exact approved canonical');
 must(!nry_buyer_click_approved_scope(42401,'/signalizatory/'),'no arbitrary target');
-echo "PASS: only two exact published routes enqueue privacy-bounded first-party JS\n";
+echo "PASS: exactly eight real buyer posts use privacy-bounded JS; other routes and advisor remain excluded\n";
