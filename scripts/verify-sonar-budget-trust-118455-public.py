@@ -17,6 +17,10 @@ REQUIRED = (
     "U vybraných variant Hook Reveal 5 stojí za prověření",
     "Větší displej může zlepšit čitelnost",
     "Jednoduchý začátek pro rybáře, kteří potřebují hlavně hloubku",
+    "Modely Lowrance v tomto starším přehledu slouží jako příklady",
+    "Tři praktické příklady podle způsobu použití",
+    "Garmin Striker Vivid může být jednou z možností",
+    "příslušenství v balení ověřte u prodejce",
 )
 # Earlier source-bound editorial cleanup already made case five safe on live
 # WordPress. Preserve it: do not overwrite an editor's safer current statement.
@@ -31,6 +35,10 @@ FORBIDDEN = (
     "Hook Reveal 5 je v této chvíli z těchto dvou obchodů",
     "Chyť a pusť tu má rozumnou aktuální nabídku",
     "Oba obchody patří mezi moje ověřené top volby",
+    "mi v danou chvíli vychází lépe reálně dostupné nabídky Lowrance",
+    "Za mě jsou dnes v rámci dvou preferovaných obchodů nejlepší tři scénáře",
+    "hlavní doporučení stavím jen na aktuálně dohledatelných nabídkách",
+    "bonus baterie a nabíječka",
 )
 
 
@@ -77,7 +85,7 @@ def verify(html):
     for bad in FORBIDDEN:
         assert bad not in text, "EDITORIAL_ARTIFACT_OR_STALE_CURRENT_CLAIM"
     return {"status": "PUBLIC_VERIFIED", "safe_cases": len(REQUIRED),
-            "newly_corrected_cases": 5 if case5_existing_safe else 6,
+            "newly_corrected_cases": 9 if case5_existing_safe else 10,
             "already_safe_cases": 1 if case5_existing_safe else 0,
             "old_claims": 0, "merchant_requests": 0, "wordpress_writes": 0}
 
