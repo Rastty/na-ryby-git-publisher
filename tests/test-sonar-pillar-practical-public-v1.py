@@ -21,8 +21,9 @@ page={"id":118553,"slug":"jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce",
 html='<html> '+m["PAGE"]+' '+('test site '*7000)+'</html>'
 assert m["evaluate"](page,html,False)["status"]=="PUBLIC_PREFLIGHT_VERIFIED"
 result=section+paragraph+trailer+'<p>'+('obsah článku '*100)+'</p>'
-page["content"]["rendered"]=result
-html='<html>'+m["PAGE"]+' '+m["NEW_MARKER"]+' '+('test site '*7000)+'</html>'
+# Render-only main-loop filter does not mutate the REST API representation.
+page["content"]["rendered"]=content
+html='<html>'+m["PAGE"]+' '+result+' '+('test site '*7000)+'</html>'
 assert m["evaluate"](page,html,True)["status"]=="PUBLIC_HANDOFF_VERIFIED"
 assert m["evaluate"](page,html,True)["affiliateLinksRewritten"]==0
 assert m["evaluate"](page,html,True)["ga4GuideHandoffProven"] is False
@@ -33,8 +34,8 @@ for name,altered in [
  ("duplicate marker",result+paragraph),
  ("broken decision list",result.replace('<li>','<li/>',1))
 ]:
- p={**page,"content":{"rendered":altered}}
- try:m["evaluate"](p,html,True)
+ p={**page,"content":{"rendered":content}}
+ try:m["evaluate"](p,'<html>'+m["PAGE"]+altered+('test site '*7000)+'</html>',True)
  except AssertionError:pass
  else:raise AssertionError(name+" must block")
 try:m["live_get"]("https://example.com/unknown",500)
