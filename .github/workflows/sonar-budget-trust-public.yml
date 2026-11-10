@@ -5,6 +5,8 @@ on:
       - 'sonar-budget-trust-118455-v1.php'
       - 'tests/test-sonar-budget-trust-118455-v1.php'
       - 'scripts/verify-sonar-budget-trust-118455-public.py'
+      - 'scripts/audit-sonar-faq-schema-origin.py'
+      - 'tests/test-sonar-faq-schema-origin.py'
       - 'tests/test-sonar-budget-trust-public.py'
       - '.github/workflows/sonar-budget-trust-public.yml'
   workflow_dispatch:
@@ -27,6 +29,11 @@ jobs:
           php tests/test-sonar-budget-trust-118455-v1.php
           python3 -m py_compile scripts/verify-sonar-budget-trust-118455-public.py
           python3 tests/test-sonar-budget-trust-public.py
+          python3 -m py_compile scripts/audit-sonar-faq-schema-origin.py
+          python3 tests/test-sonar-faq-schema-origin.py
+      - name: Read-only public JSON-LD origin proof on PR
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/audit-sonar-faq-schema-origin.py
   public:
     needs: contract
     if: >-
