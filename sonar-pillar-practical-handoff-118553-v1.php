@@ -72,7 +72,7 @@ final class NRY_Sonar_Pillar_Practical_Handoff_118553_V1 {
         }
         $after = $close + strlen('</section>');
         $next = substr($html, $after, 400);
-        if (strpos($next, '<h2>Jak vybrat echolot pro rybaření:') === false)
+        if (!preg_match('~<h2\\b[^>]*>\\s*Jak vybrat echolot pro rybaření:~iu', $next))
             return $html;
 
         $handoff = "\n".'<p '.self::MARKER.'>'
