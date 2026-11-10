@@ -30,9 +30,9 @@ jobs:
           php tests/test-sonar-pillar-practical-handoff-118553-v1.php
           python3 -m py_compile scripts/verify-sonar-pillar-practical-public-v1.py
           python3 tests/test-sonar-pillar-practical-public-v1.py
-      - name: Live first-party GET-only preflight before the site change
+      - name: Confirm previously deployed buyer-facing main-loop HTML (REST stays unchanged)
         if: github.event_name == 'pull_request'
-        run: python3 scripts/verify-sonar-pillar-practical-public-v1.py --preflight
+        run: python3 scripts/verify-sonar-pillar-practical-public-v1.py --verify
   production:
     needs: contract
     if: >-
