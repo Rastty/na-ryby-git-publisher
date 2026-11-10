@@ -26,7 +26,7 @@ nry_advisor_guide_click_enqueue();
 ok(count($GLOBALS['calls'])===1,'only exact advisor page receives script');
 ok($GLOBALS['calls'][0][0]==='nry-advisor-guide-click-v1','handle');
 ok(strpos($GLOBALS['calls'][0][1],'assets/nry-advisor-guide-click-v1.js')!==false,'local asset');
-ok($GLOBALS['calls'][0][2]===array()&&$GLOBALS['calls'][0][3]==='1.1.0'&&$GLOBALS['calls'][0][4]===true,'local footer script');
+ok($GLOBALS['calls'][0][2]===array()&&$GLOBALS['calls'][0][3]==='1.2.0'&&$GLOBALS['calls'][0][4]===true,'local footer script');
 $GLOBALS['calls']=array();
 $GLOBALS['post_id']=123;
 nry_advisor_guide_click_enqueue();
