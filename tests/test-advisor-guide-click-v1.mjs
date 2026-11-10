@@ -149,3 +149,40 @@ for (const config of [
   assert.equal(other.anchor.href,config.originalHref||'https://na-ryby.eu/jak-vybrat-rybarsky-navijak-velikost-prevod-brzda-a-typy-navijaku/');
 }
 console.log('PASS: relevant feeder buyer guide first, general guide retained, fail-closed guards');
+
+
+function testChange({field='style',tag='SELECT',fromForm=true,shown=true}={}) {
+  const handlers=[];
+  let clears=0;
+  const form={};
+  const hint={hidden:true};
+  const panel={hidden:!shown,replaceChildren(){clears++;}};
+  const root={
+    querySelector(selector){
+      if(selector==='form')return form;
+      if(selector==='[data-nry-results]')return panel;
+      if(selector==='[data-nry-refresh]')return hint;
+      return null;
+    },
+    addEventListener(type,cb){handlers.push({type,cb});}
+  };
+  const document={readyState:'complete',querySelector(s){return s==='.nry-setup'?root:null;}};
+  const window={dataLayer:[]};
+  const location={origin:'https://na-ryby.eu',pathname:'/poradce-vybavy/',search:'',hash:''};
+  vm.runInNewContext(source,{URL,document,window,location},{timeout:5000});
+  const onChange=handlers.find(x=>x.type==='change');
+  assert(onChange,'single root change handler');
+  onChange.cb({target:{name:field,tagName:tag,form:fromForm?form:{}}});
+  return {clears,hidden:panel.hidden,hintVisible:!hint.hidden};
+}
+for(const field of ['style','water','travel','experience','budget']){
+  const x=testChange({field});
+  assert.deepEqual(x,{clears:1,hidden:true,hintVisible:true},'decision field invalidates stale UI');
+}
+for(const invalid of [
+  {field:'unrelated'},{tag:'INPUT'},{fromForm:false},{shown:false}
+]){
+  const x=testChange(invalid);
+  assert.equal(x.clears,0,'unrelated or inactive change does not mutate result');
+}
+console.log('PASS: any decision change hides stale results and removes old links before next submit');
