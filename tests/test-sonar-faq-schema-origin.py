@@ -41,6 +41,34 @@ assert summary["rest_content_jsonld_script_matches"] == 0
 assert summary["public_html_script_matches"] == 1
 assert summary["wordpress_writes"] == 0
 assert m["audit"](page, "{}")["rest_status"] == "IDENTITY_NOT_PROVEN"
+# The previous release now repairs the original WP REST FAQPage on public
+# render. Prove the correct one-safe-answer / one-exact-old-source pairing.
+old_root = json.loads(json.dumps(tree))
+old_root["mainEntity"][0]["acceptedAnswer"]["text"] = m["OLD_FULL"]
+old_schema = '<script type="application/ld+json">' + json.dumps(
+    old_root, ensure_ascii=False) + '</script>'
+safe_root = json.loads(json.dumps(tree))
+safe_root["mainEntity"][0]["acceptedAnswer"]["text"] = m["SAFE_FULL"]
+safe_schema = '<script type="application/ld+json">' + json.dumps(
+    safe_root, ensure_ascii=False) + '</script>'
+safe_page = "<html><main>" + safe + "</main>" + safe_schema + "</html>"
+old_rest = json.dumps([{
+    "id": 118455, "slug": m["SLUG"],
+    "content": {"rendered": old_schema}, "yoast_head_json": None,
+}], ensure_ascii=False)
+repaired = m["audit"](safe_page, old_rest)
+assert repaired["public_html_script_matches"] == 0
+assert repaired["public_safe_faq_answers"] == 1
+assert repaired["rest_exact_old_faq_source"] is True
+assert m["verified_live_repair"](repaired) is True
+assert m["verified_live_repair"](m["audit"](page, old_rest)) is False
+assert m["verified_live_repair"](m["audit"](safe_page, "{}")) is False
+assert m["verified_live_repair"](m["audit"](
+    "<html><main>" + safe + "</main></html>", old_rest)) is False
+assert m["verified_live_repair"](m["audit"](
+    safe_page + safe_schema, old_rest)) is False
+assert m["verified_live_repair"](m["audit"](
+    safe_page + "<p>" + old + "</p>", old_rest)) is False
 for forbidden in ("https://other.example/", m["PAGE"]+"?unexpected=1"):
     try:
         m["audited_get"](forbidden)
