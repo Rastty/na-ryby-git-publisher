@@ -10,7 +10,7 @@ import json
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qsl
 from urllib.request import Request
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -30,6 +30,11 @@ class Page(HTMLParser):
         self.canonicals = []
         self.dognet_links = 0
         self.merchant_links = 0
+        self.merchant_bare_links = 0
+        self.merchant_affiliate_parameter_hints = 0
+        self.merchant_campaign_only_links = 0
+        self.merchant_unclassified_query_links = 0
+        self._merchant_distinct_targets = set()
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -55,6 +60,27 @@ class Page(HTMLParser):
                 self.dognet_links += 1
             if parsed.hostname == "www.chytapust.cz" and len(parsed.path) > 1:
                 self.merchant_links += 1
+                # Do not emit paths, query values, affiliate codes, SKUs or
+                # target hashes. A parameter hint is NOT proof that a partner
+                # program credited an order or even recognized the tag.
+                self._merchant_distinct_targets.add(url)
+                try:
+                    keys = {name.lower() for name, _ in parse_qsl(
+                        parsed.query, keep_blank_values=True, max_num_fields=32)}
+                except ValueError:
+                    self.merchant_unclassified_query_links += 1
+                    return
+                if not keys:
+                    self.merchant_bare_links += 1
+                elif keys.intersection({
+                    "a_box", "affiliate", "affiliate_id", "aff", "affid",
+                    "ref", "refid", "partner", "partner_id", "subid"
+                }):
+                    self.merchant_affiliate_parameter_hints += 1
+                elif any(key.startswith("utm_") for key in keys):
+                    self.merchant_campaign_only_links += 1
+                else:
+                    self.merchant_unclassified_query_links += 1
 
 
 def verify(html: bytes, installed_js: bytes, reviewed_js: bytes):
@@ -64,11 +90,22 @@ def verify(html: bytes, installed_js: bytes, reviewed_js: bytes):
     assert page.tags == [VERSION], "BUYER_JS_TAG_MISSING_OR_VERSION_DRIFT"
     assert page.dognet_links > 0, "DOGNET_CTA_NOT_OBSERVABLE"
     assert page.merchant_links > 0, "DIRECT_MERCHANT_CTA_NOT_OBSERVABLE"
+    assert (page.merchant_bare_links + page.merchant_affiliate_parameter_hints
+            + page.merchant_campaign_only_links
+            + page.merchant_unclassified_query_links == page.merchant_links), (
+        "MERCHANT_LINK_CLASSIFICATION_CARDINALITY_DRIFT")
     assert hashlib.sha256(installed_js).digest() == hashlib.sha256(reviewed_js).digest(), (
         "INSTALLED_JS_BYTES_DIFFER_FROM_REVIEWED_SOURCE")
     return {"status": "PUBLIC_ASSET_VERIFIED", "buyer_page": "echolot_budget",
             "dognet_cta_count": page.dognet_links,
             "merchant_cta_count": page.merchant_links,
+            "merchant_distinct_destination_count": len(page._merchant_distinct_targets),
+            "merchant_bare_url_count": page.merchant_bare_links,
+            "merchant_affiliate_parameter_hint_count":
+                page.merchant_affiliate_parameter_hints,
+            "merchant_campaign_only_url_count": page.merchant_campaign_only_links,
+            "merchant_other_query_url_count": page.merchant_unclassified_query_links,
+            "attribution_qualification": "URL_HINTS_ONLY_NOT_VERIFIED_AFFILIATE_CREDIT",
             "asset_byte_identical": True,
             "wordPressWrites": 0, "merchantRequests": 0,
             "syntheticClicks": 0, "ga4DeliveryProven": False,
