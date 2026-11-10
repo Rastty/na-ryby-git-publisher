@@ -52,18 +52,21 @@ jobs:
           from pathlib import Path
           from scripts.readonly_urlopen_retry import guarded_urlopen
           import json
-          url=('https://na-ryby.eu/wp-json/wp/v2/posts/118455'
-               '?_fields=id,slug,status,link,content')
+          # REST rendered content omits front-end is_single filters, so it
+          # cannot prove the verified trust marker is present. Use the actual
+          # public HTML and isolate the article from its exact marker onward.
+          url=('https://na-ryby.eu/'
+               'nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/')
           req=Request(url,headers={'User-Agent':'NRY-BudgetOwner-PR-AnonymousRead/1.0',
                                    'Cache-Control':'no-cache, no-store'})
           with guarded_urlopen(req,timeout=25) as response:
               assert response.status==200 and response.geturl()==url
-              row=json.loads(response.read(300000))
-          assert row['id']==118455 and row['status']=='publish'
-          assert row['slug']=='nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz'
-          data=row['content']['rendered']
-          assert isinstance(data,str) and 3000<len(data)<150000
-          Path('nry-budget-ephemeral.html').write_text(data,encoding='utf8')
+              html=response.read(1200000).decode('utf8','replace')
+          trust='<!-- nry-sonar-budget-trust-118455-v1 -->'
+          assert html.count(trust)==1, 'LIVE_TRUST_MARKER_NOT_UNIQUE'
+          content=html[html.index(trust):]
+          assert 3000<len(content)<750000
+          Path('nry-budget-ephemeral.html').write_text(content,encoding='utf8')
           PY
           php tests/probe-sonar-budget-owner-first-118455.php nry-budget-ephemeral.html
       - name: Read-only public JSON-LD origin proof on PR
