@@ -36,7 +36,8 @@ chk(substr_count($fixed,$c::MARKER)===1,'one unique marker');
 chk(substr_count($fixed,$c::ADVISOR)===1,'one internal advisor route');
 chk(substr_count($fixed,$c::PROBLEMS_MARKER)===1,'one problem navigation');
 foreach(array($c::CARP_GUIDE,$c::SONAR_BUDGET,$c::SONAR_OWNER) as $link){
- chk(substr_count($fixed,'href="'.$link.'"')===1,'one exact problem route: '.$link);
+ chk(substr_count($fixed,'href="'.$link.'"')===substr_count($source,'href="'.$link.'"')+1,
+  'exactly one additional problem route without altering pre-existing links: '.$link);
 }
 $navStart=strpos($fixed,'<nav '.$c::PROBLEMS_MARKER);
 $navEnd=strpos($fixed,'</nav>',$navStart);
