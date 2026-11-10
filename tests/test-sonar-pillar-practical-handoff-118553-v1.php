@@ -73,7 +73,7 @@ $changed=str_replace('další nákup není nutný','kupte nový hned',$original)
 check($cls::render($changed)===$changed,'changed core reader advice blocks');
 $changed=str_replace('aktuální konečnou cenu kompletu','starší cenu',$original);
 check($cls::render($changed)===$changed,'changed price guard blocks');
-$changed=str_replace('Z člunu</li>','',$original);
+$changed=str_replace('<li>Z člunu</li>','',$original);
 check($cls::render($changed)===$changed,'four-case assumption drift blocks');
 $changed=str_replace('https://na-ryby.eu/poradce-vybavy/','https://malicious.example/',$original);
 check($cls::render($changed)===$changed,'source links drift blocks');
