@@ -65,7 +65,12 @@ final class NRY_Sonar_Pillar_Merchant_Neutral_118553_V1 {
         // Do not rewrite embedded hyperlinks, HTML-heavy promo paragraphs or
         // an anchor containing the claim. Preserve every preexisting href.
         $p=substr($html,$open,$close+4-$open);
-        if (preg_match('~<a\b|</a>|<script\b|<iframe\b~i',$p))return $html;
+        $openEnd=strpos($p,'>');
+        if ($openEnd===false)return $html;
+        $body=substr($p,$openEnd+1,-4);
+        // The original sentence must be in a plain paragraph. An editor
+        // wrapping it in a link, emphasis or shortcode forces re-review.
+        if (preg_match('~<[^>]+>~s',$body))return $html;
         $before=self::hrefs($html);
         if ($before===null)return $html;
         $updated=substr_replace($html,self::REPLACEMENT,$position,strlen(self::OLD));
