@@ -37,6 +37,11 @@ on:
       - 'home-trust-cleanup-118641-v1.php'
       - 'carp-pillar-source-proof-118541-v1.php'
       - 'carp-pillar-trust-cleanup-118541-v1.php'
+      - 'carp-pillar-choice-before-shop-118541-v1.php'
+      - 'tests/test-carp-pillar-choice-before-shop-118541-v1.php'
+      - 'scripts/verify-carp-pillar-choice-118541-public.py'
+      - 'tests/test-carp-pillar-choice-public.py'
+      - '.github/workflows/carp-pillar-choice-public.yml'
       - 'receiver-buyer-guide-release-46573-v1.php'
       - 'winter-ice-safety-45070-v1.php'
       - 'reel-dashboard-nextsteps-v1.php'
@@ -115,6 +120,11 @@ on:
       - 'home-trust-cleanup-118641-v1.php'
       - 'carp-pillar-source-proof-118541-v1.php'
       - 'carp-pillar-trust-cleanup-118541-v1.php'
+      - 'carp-pillar-choice-before-shop-118541-v1.php'
+      - 'tests/test-carp-pillar-choice-before-shop-118541-v1.php'
+      - 'scripts/verify-carp-pillar-choice-118541-public.py'
+      - 'tests/test-carp-pillar-choice-public.py'
+      - '.github/workflows/carp-pillar-choice-public.yml'
       - 'receiver-buyer-guide-release-46573-v1.php'
       - 'winter-ice-safety-45070-v1.php'
       - 'reel-dashboard-nextsteps-v1.php'
@@ -183,6 +193,10 @@ jobs:
           php -l home-trust-cleanup-118641-v1.php
           php -l carp-pillar-source-proof-118541-v1.php
           php -l carp-pillar-trust-cleanup-118541-v1.php
+          php -l carp-pillar-choice-before-shop-118541-v1.php
+          php tests/test-carp-pillar-choice-before-shop-118541-v1.php
+          python3 -m py_compile scripts/verify-carp-pillar-choice-118541-public.py
+          python3 tests/test-carp-pillar-choice-public.py
           php -l receiver-buyer-guide-release-46573-v1.php
           php tests/test-receiver-buyer-release-46573.php
           php -l winter-ice-safety-45070-v1.php
