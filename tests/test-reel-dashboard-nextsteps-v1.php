@@ -83,7 +83,7 @@ $notThisPage=NRY_Reel_Dashboard_Nextsteps_V1::render($original);
 ok(strpos($notThisPage,NRY_Reel_Dashboard_Nextsteps_V1::SITUATIONS_MARKER)===false,
  'unrelated page source never receives situation links');
 
-\n// SERP improvement is scoped to the real public page only and never writes metadata.
+// SERP improvement is scoped to the real public page only and never writes metadata.
 ok(isset($GLOBALS['hooks']['wpseo_title']) && isset($GLOBALS['hooks']['wpseo_metadesc']),
  'Yoast SEO read-only filters are registered');
 ok(NRY_Reel_Dashboard_Nextsteps_V1::seo_title('Navijáky – Dashboard')
