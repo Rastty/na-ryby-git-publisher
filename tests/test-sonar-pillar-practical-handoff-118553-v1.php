@@ -54,6 +54,13 @@ check(strpos($good,'Echolot už máte?')<
 check(strpos($good,'https://www.chytapust.cz/test?k=private')!==false,
     'all original affiliate links untouched');
 check($cls::render($good)===$good,'idempotent');
+$unicodeTail = str_replace(
+    '<h2>Jak vybrat echolot pro rybaření: Kompletní průvodce funkcemi</h2>',
+    '<h2>Jak vybrat echolot pro rybaření: Kompletní průvodce funkcemi</h2>'.str_repeat('ř', 300),
+    $original);
+check(strpos($cls::render($unicodeTail),$cls::MARKER)!==false,
+    'UTF-8 excerpt ending inside a multibyte character must not suppress valid heading');
+
 check($cls::transform($good)===$good,'pure transform idempotent');
 check(substr_count($good,'<li>')===4,'four original cases preserved');
 foreach(array('id','main','loop','admin','preview','slug','status','modified') as $key){

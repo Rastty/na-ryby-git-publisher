@@ -63,26 +63,43 @@ def evaluate(payload, html, expect_new):
     content = payload.get("content", {}).get("rendered", "")
     assert isinstance(content, str) and 600 < len(content) < 240000, (
         "PUBLIC_POST_CONTENT_UNAVAILABLE")
-    position = assert_original_section(content)
+    assert_original_section(content)
     assert len(html) > 40000 and PAGE in html, "PUBLIC_PAGE_UNAVAILABLE"
     if expect_new:
-        assert content.count(NEW_MARKER) == 1, "PRACTICAL_HANDOFF_NOT_ONCE"
-        assert content.count(PRACTICAL) == 1, "PRACTICAL_DESTINATION_NOT_ONCE"
+        print(json.dumps({
+            "diagnostic": "BOUND_SOURCE_MARKER_COUNTS_ONLY",
+            "rest_source_marker_count": content.count(SOURCE_MARKER),
+            "html_source_marker_count": html.count(SOURCE_MARKER),
+            "html_owned_handoff_marker_count": html.count(NEW_MARKER),
+            "html_practical_destination_count": html.count(PRACTICAL),
+            "html_source_heading_count": html.count(PILLAR_HEADING),
+            "rest_owned_handoff_marker_count": content.count(NEW_MARKER),
+            "html_bytes": len(html.encode("utf8")),
+            "wordpressWrites": 0, "merchantRequests": 0
+        }, sort_keys=True), flush=True)
+    page_position = assert_original_section(html)
+    # The code's main-loop guard is intentionally FALSE inside the REST API.
+    # REST is immutable source/identity evidence, not the buyer-facing output.
+    assert NEW_MARKER not in content and PRACTICAL not in content, (
+        "REST_MAIN_LOOP_SCOPE_LEAK")
+    if expect_new:
         assert html.count(NEW_MARKER) == 1, "PUBLIC_HTML_MISSING_ONE_HANDOFF"
-        assert content.find(NEW_MARKER) > position, "HANDOFF_NOT_AFTER_SOURCE"
-        assert content.find(NEW_MARKER) - position < 40, "HANDOFF_NOT_ADJACENT"
-        assert content.find(NEW_MARKER) < content.find(
-            "Jak vybrat echolot pro rybaření:", position), (
+        assert html.count(PRACTICAL) == 1, "PUBLIC_HTML_PRACTICAL_LINK_NOT_ONCE"
+        assert html.find(NEW_MARKER) > page_position, "HANDOFF_NOT_AFTER_SOURCE"
+        assert html.find(NEW_MARKER) - page_position < 40, "HANDOFF_NOT_ADJACENT"
+        assert html.find(NEW_MARKER) < html.find(
+            "Jak vybrat echolot pro rybaření:", page_position), (
                 "HANDOFF_TOO_LATE")
     else:
-        assert NEW_MARKER not in content and PRACTICAL not in content, (
+        assert NEW_MARKER not in html and PRACTICAL not in html, (
             "ALREADY_PRESENT_OR_CONCURRENT_EDIT")
     return {
         "status": "PUBLIC_HANDOFF_VERIFIED" if expect_new else "PUBLIC_PREFLIGHT_VERIFIED",
         "postId": 118553, "targetPostId": 49275,
         "exactPublicSourceMarker": True,
         "alreadyOwnDeviceDecisionAdjacentToTopAnswer": expect_new,
-        "firstPartyPracticalHandoffCount": content.count(PRACTICAL),
+        "firstPartyPracticalHandoffCount": html.count(PRACTICAL),
+        "restMainLoopScopeConserved": True,
         "wordpressWrites": 0, "merchantRequests": 0,
         "syntheticGA4Events": 0, "affiliateLinksRewritten": 0,
         "gscClickUpliftProven": False, "ga4GuideHandoffProven": False
