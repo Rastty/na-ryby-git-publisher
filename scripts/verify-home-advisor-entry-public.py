@@ -16,6 +16,17 @@ COPY="Spustit průvodce výběrem výbavy"
 CAUTION="Konkrétní produktové nabídky zobrazujeme jen po ověření jejich aktuálnosti."
 HERO="Průvodci výběrem vybavení"
 CATEGORY="Vybavení podle hlavních kategorií"
+ROUTES_MARKER='data-nry-home-problem-shortcuts="v1"'
+ROUTES={
+    "carp":"https://na-ryby.eu/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/",
+    "sonar_budget":"https://na-ryby.eu/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/",
+    "sonar_owner":"https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/",
+}
+ROUTE_COPY=(
+    "Vybírám kaprový prut podle vody a stylu lovu",
+    "Hledám echolot do 15 000 Kč",
+    "Echolot už mám: jak ho správně nastavit",
+)
 
 class Tags(HTMLParser):
     def __init__(self):
@@ -37,7 +48,18 @@ def verify(html):
     local=html[max(0,m-80):m+900]
     assert 'href="'+ADVISOR+'"' in local, "ORIGINAL_ADVISOR_ROUTE_NOT_VISIBLE"
     assert COPY in local and CAUTION in local, "ADVICE_COPY_MISSING"
+    assert html.count(ROUTES_MARKER)==1, "PROBLEM_SHORTCUTS_NOT_UNIQUE"
+    start=html.find('<nav '+ROUTES_MARKER)
+    end=html.find('</nav>',start)
+    assert start>m and end>start and end-start<2500, "PROBLEM_ROUTES_NOT_BOUNDED"
+    assert end<html.find(CATEGORY), "PROBLEM_ROUTES_AFTER_CATEGORY_GRID"
+    block=html[start:end]
+    import re
+    hrefs=re.findall(r'href=["\\']([^"\\']+)["\\']',block)
+    assert hrefs==list(ROUTES.values()), "PROBLEM_SHORTCUT_DESTINATIONS_DRIFT"
+    assert all(copy in block for copy in ROUTE_COPY), "PROBLEM_SHORTCUT_COPY_DRIFT"
     return {"state":"PUBLIC_VERIFIED","homepage_entry_count":1,
+            "problem_shortcuts_count":3,
             "merchant_requests":0,"wordpress_writes":0,"analytics_events":0}
 
 if __name__=="__main__":
