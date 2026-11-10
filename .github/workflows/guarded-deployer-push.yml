@@ -40,6 +40,11 @@ on:
       - 'receiver-buyer-guide-release-46573-v1.php'
       - 'winter-ice-safety-45070-v1.php'
       - 'reel-dashboard-nextsteps-v1.php'
+      - 'sonar-budget-trust-118455-v1.php'
+      - 'tests/test-sonar-budget-trust-118455-v1.php'
+      - 'scripts/verify-sonar-budget-trust-118455-public.py'
+      - 'tests/test-sonar-budget-trust-public.py'
+      - '.github/workflows/sonar-budget-trust-public.yml'
       - 'tests/test-reel-dashboard-nextsteps-v1.php'
       - 'scripts/verify-reel-dashboard-nextsteps-public.py'
       - 'assets/nry-reel-handoff-v1.js'
@@ -108,6 +113,11 @@ on:
       - 'receiver-buyer-guide-release-46573-v1.php'
       - 'winter-ice-safety-45070-v1.php'
       - 'reel-dashboard-nextsteps-v1.php'
+      - 'sonar-budget-trust-118455-v1.php'
+      - 'tests/test-sonar-budget-trust-118455-v1.php'
+      - 'scripts/verify-sonar-budget-trust-118455-public.py'
+      - 'tests/test-sonar-budget-trust-public.py'
+      - '.github/workflows/sonar-budget-trust-public.yml'
       - 'tests/test-reel-dashboard-nextsteps-v1.php'
       - 'scripts/verify-reel-dashboard-nextsteps-public.py'
       - 'assets/nry-reel-handoff-v1.js'
@@ -167,6 +177,10 @@ jobs:
           php tests/test-receiver-buyer-release-46573.php
           php -l winter-ice-safety-45070-v1.php
           php -l reel-dashboard-nextsteps-v1.php
+          php -l sonar-budget-trust-118455-v1.php
+          php tests/test-sonar-budget-trust-118455-v1.php
+          python3 -m py_compile scripts/verify-sonar-budget-trust-118455-public.py
+          python3 tests/test-sonar-budget-trust-public.py
           php tests/test-reel-dashboard-nextsteps-v1.php
           php tests/test-reel-handoff-enqueue-v1.php
           node --check assets/nry-reel-handoff-v1.js
