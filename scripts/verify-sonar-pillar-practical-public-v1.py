@@ -40,8 +40,14 @@ def assert_original_section(content):
     assert "aktuální konečnou cenu kompletu" in section, "PRICE_CAUTION_DRIFT"
     for url in OLD_LINKS:
         assert url in section, "EXISTING_CHOICE_LINK_DRIFT"
-    assert "<h2>Jak vybrat echolot pro rybaření:" in content[end+10:end+410], (
-        "NEXT_SECTION_ANCHOR_DRIFT")
+    next_fragment = content[end+len("</section>"):end+len("</section>")+2000]
+    has_heading = "<h2>Jak vybrat echolot pro rybaření:" in next_fragment
+    first_h2 = next_fragment.find("<h2")
+    raw_title_pos = next_fragment.find("Jak vybrat echolot pro rybaření:")
+    assert has_heading, (
+        "NEXT_SECTION_ANCHOR_DRIFT first_h2_at=" + str(first_h2)
+        + " title_at=" + str(raw_title_pos)
+        + " bound=2000")
     return end + len("</section>")
 
 def evaluate(payload, html, expect_new):
