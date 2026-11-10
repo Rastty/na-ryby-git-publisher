@@ -1,0 +1,48 @@
+name: Na-Ryby Sonar Pillar Owned Device Practical Handoff Public Readback
+on:
+  pull_request:
+    paths:
+      - 'sonar-pillar-practical-handoff-118553-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-sonar-pillar-practical-handoff-118553-v1.php'
+      - 'scripts/verify-sonar-pillar-practical-public-v1.py'
+      - 'tests/test-sonar-pillar-practical-public-v1.py'
+      - '.github/workflows/sonar-pillar-practical-public-v1.yml'
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Bound one exact existing owned-device use case to public buyer intent
+        run: |
+          set -euo pipefail
+          php -l sonar-pillar-practical-handoff-118553-v1.php
+          php -l na-ryby-git-publisher.php
+          php tests/test-sonar-pillar-practical-handoff-118553-v1.php
+          python3 -m py_compile scripts/verify-sonar-pillar-practical-public-v1.py
+          python3 tests/test-sonar-pillar-practical-public-v1.py
+      - name: Live first-party GET-only preflight before the site change
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-sonar-pillar-practical-public-v1.py --preflight
+  production:
+    needs: contract
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Independently verify one new practical handoff on published sonar pillar
+        run: python3 scripts/verify-sonar-pillar-practical-public-v1.py --verify
