@@ -25,6 +25,9 @@ OLD_TAIL = ("V tomto článku ale hlavní doporučení stavím jen na aktuálně
             "dohledatelných nabídkách z OKfish a Chyť a pusť.")
 OLD_FULL = ("Ano jako obecně známý referenční model ano. " + OLD_TAIL)
 SAFE = "Garmin Striker Vivid může být jednou z možností"
+SAFE_FULL = ("Garmin Striker Vivid může být jednou z možností. Porovnejte přesnou "
+             "variantu, kompatibilní sondu a celkovou cenu; historické odkazy "
+             "zde nedokládají nejlepší dnešní nabídku.")
 ALLOWED_PATHS = frozenset({
     "@graph", "@context", "@type", "mainEntity", "acceptedAnswer", "text",
     "name", "description", "articleBody", "headline", "about", "itemListElement",
@@ -131,10 +134,54 @@ def script_findings(markup):
     return matches
 
 
+def public_exact_safe_faq_count(markup):
+    """Count only exact, correctly typed FAQPage accepted answers on public HTML."""
+    reader = ScriptReader()
+    reader.feed(markup)
+    matches = 0
+    for script in reader.records:
+        if script["type"].lower() != "application/ld+json":
+            continue
+        try:
+            root = json.loads(script["body"])
+        except (ValueError, TypeError):
+            continue
+        if not isinstance(root, dict) or root.get("@type") != "FAQPage":
+            continue
+        questions = root.get("mainEntity")
+        if not isinstance(questions, list):
+            continue
+        for question in questions:
+            if not isinstance(question, dict) or question.get("@type") != "Question":
+                continue
+            answer = question.get("acceptedAnswer")
+            if (isinstance(answer, dict) and answer.get("@type") == "Answer"
+                    and answer.get("text") == SAFE_FULL):
+                matches += 1
+    return matches
+
+
+def verified_live_repair(result):
+    """A stale REST source is acceptable ONLY with exact public repair proof.
+
+    The separate strict buyer-public verifier still enforces all current claims.
+    This origin probe cannot authorize WordPress writes or a future release.
+    """
+    return (
+        result.get("rest_status") == "POST_118455_IDENTIFIED"
+        and result.get("rest_exact_old_faq_source") is True
+        and result.get("public_safe_faq_answers") == 1
+        and result.get("public_html_script_matches") == 0
+        and result.get("legacy_phrase_in_public_page") is False
+        and result.get("visible_safe_phrase_present") is True
+    )
+
+
 def audit(page_html, rest_html=None):
     findings = script_findings(page_html)
     result = {
         "public_html_script_matches": len(findings),
+        "public_safe_faq_answers": public_exact_safe_faq_count(page_html),
         "public_script_structure": findings[:3],
         "visible_safe_phrase_present": SAFE in page_html,
         "legacy_phrase_in_public_page": OLD in page_html,
@@ -159,11 +206,22 @@ def audit(page_html, rest_html=None):
                 and posts[0].get("slug") == SLUG):
                 post = posts[0]
                 rendered = post.get("content", {}).get("rendered", "")
+                source_findings = script_findings(rendered)
+                exact_source = (
+                    len(source_findings) == 1
+                    and source_findings[0]["type"].lower() == "application/ld+json"
+                    and source_findings[0]["json_valid"]
+                    and source_findings[0]["root_type"] == "FAQPage"
+                    and source_findings[0]["old_full_exact_in_script"]
+                    and "mainEntity.[].acceptedAnswer.text" in
+                        source_findings[0]["matching_json_paths"]
+                )
                 yoast = post.get("yoast_head_json")
                 result.update({
                     "rest_status": "POST_118455_IDENTIFIED",
                     "rest_content_old_claim": OLD in rendered,
-                    "rest_content_jsonld_script_matches": len(script_findings(rendered)),
+                    "rest_content_jsonld_script_matches": len(source_findings),
+                    "rest_exact_old_faq_source": exact_source,
                     "rest_yoast_json_old_claim": OLD in json.dumps(
                         yoast, ensure_ascii=False) if yoast else False,
                 })
@@ -182,5 +240,6 @@ if __name__ == "__main__":
         rest = None
     result = audit(page, rest)
     print(json.dumps(result, ensure_ascii=False, sort_keys=True))
-    if not result["public_html_script_matches"]:
-        raise SystemExit("BLOCKED: exact stale source script not visible; no edit authorized")
+    if not verified_live_repair(result):
+        raise SystemExit("BLOCKED: public FAQPage answer or exact REST source unverified")
+    print("PUBLIC_FAQ_SCHEMA_RENDER_SAFE_SOURCE_BOUND: GET only; 0 WP writes")
