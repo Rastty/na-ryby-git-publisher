@@ -55,7 +55,7 @@ def verify(html):
     assert end<html.find(CATEGORY), "PROBLEM_ROUTES_AFTER_CATEGORY_GRID"
     block=html[start:end]
     import re
-    hrefs=re.findall(r'href=["\\']([^"\\']+)["\\']',block)
+    hrefs=re.findall(r'href="([^"]+)"',block)
     assert hrefs==list(ROUTES.values()), "PROBLEM_SHORTCUT_DESTINATIONS_DRIFT"
     assert all(copy in block for copy in ROUTE_COPY), "PROBLEM_SHORTCUT_COPY_DRIFT"
     return {"state":"PUBLIC_VERIFIED","homepage_entry_count":1,
