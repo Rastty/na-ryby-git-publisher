@@ -14,6 +14,29 @@ source = ('<html><head>' + canonical + '</head><body>' + tag +
 script = b"/* reviewed exact JS */\n"
 assert m["verify"](source, script, script)["status"] == "PUBLIC_ASSET_VERIFIED"
 assert m["verify"](source, script, script)["ga4DeliveryProven"] is False
+
+# Tracking-parameter presence is an attribution HINT only, not affiliate proof.
+# Four different merchant URLs, deliberately with disjoint query shapes.
+plain='<a href="https://www.chytapust.cz/prod/123">Bare</a>'
+affiliate='<a href="https://www.chytapust.cz/prod/234?a_box=PRIVATE_AFFILIATE_TAG">Affiliate hint</a>'
+campaign='<a href="https://www.chytapust.cz/prod/345?utm_source=site">Campaign</a>'
+other='<a href="https://www.chytapust.cz/prod/456?variant=blue">Unknown query</a>'
+classified=source.replace(merchant.encode(),
+    (plain+affiliate+campaign+other).encode())
+status=m["verify"](classified,script,script)
+assert status["merchant_cta_count"] == 4
+assert status["merchant_distinct_destination_count"] == 4
+assert status["merchant_bare_url_count"] == 1
+assert status["merchant_affiliate_parameter_hint_count"] == 1
+assert status["merchant_campaign_only_url_count"] == 1
+assert status["merchant_other_query_url_count"] == 1
+assert status["attribution_qualification"] == "URL_HINTS_ONLY_NOT_VERIFIED_AFFILIATE_CREDIT"
+assert "PRIVATE_AFFILIATE_TAG" not in str(status)
+assert "chytapust.cz/prod" not in str(status)
+duplicate=source.replace(merchant.encode(),(plain+plain).encode())
+assert m["verify"](duplicate,script,script)["merchant_distinct_destination_count"] == 1
+assert m["verify"](duplicate,script,script)["merchant_cta_count"] == 2
+
 def should_block(name, html=source, installed=script, expected=script):
     try:
         m["verify"](html, installed, expected)
