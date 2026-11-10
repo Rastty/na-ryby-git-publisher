@@ -23,6 +23,8 @@ echo json_encode(['scope'=>'PUBLIC_REST_RENDERED_ONLY_NOT_WP_SOURCE',
  'sourceBytes'=>strlen($source),'candidateChanged'=>$after!==$source,
  'markerCount'=>$marker,'correctionCounts'=>$counts,
  'headingExactCount'=>preg_match_all('~<h2\\b[^>]*>\\s*Jak efektivně používat echolot a sonar na loď nebo člun\\s*</h2>~u',$source),
+ 'h2Labels'=>preg_match_all('~<h2\\b[^>]*>(.*?)</h2>~isu',$source,$h2Labels)===false
+     ? array() : array_map(function($x){return trim(strip_tags($x));},$h2Labels[1]),
  'pillarLiteralPresent'=>strpos($source,$c::PILLAR)!==false,
  'budgetLiteralPresent'=>strpos($source,$c::BUDGET)!==false,
  'wordpressWrites'=>0,'merchantRequests'=>0],JSON_UNESCAPED_UNICODE)."\n";
