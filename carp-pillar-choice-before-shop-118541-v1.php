@@ -16,7 +16,10 @@ final class NRY_Carp_Pillar_Choice_118541_V1 {
     const NEW_BODY = '<span data-nry-carp-choice-before-shop="v1"></span><strong>Nejdřív vyberte typ prutu, potom obchod.</strong> Na menší vodě nebo úzkém břehu rozhoduje ovladatelnost a prostor pro nához; při lovu na větší vzdálenost správná délka a akce; ke krmení raketou slouží samostatný spodový prut. U přesné varianty porovnejte délku, testovací křivku, transportní rozměry a celkovou cenu. Odkaz níže vede do kategorie obchodu, není důkazem dnešní nejvýhodnější ceny ani dostupnosti.';
 
     public static function boot() {
-        if (function_exists('add_filter')) {
+        // Avoid activating the front-end hook in standalone publisher/KSES
+        // contracts, which intentionally lack the WordPress query runtime.
+        if (function_exists('add_filter') && function_exists('is_single')
+            && function_exists('is_singular') && function_exists('get_queried_object_id')) {
             add_filter('the_content', array(__CLASS__, 'render'), 52);
         }
     }
