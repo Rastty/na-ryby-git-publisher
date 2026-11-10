@@ -18,5 +18,11 @@ $result=[
  'merchant_requests'=>0,'wordpress_writes'=>0,
 ];
 echo json_encode($result,JSON_UNESCAPED_UNICODE)."\n";
-exit($result['changed'] && $result['old_marker_count']===1 &&
-     $result['new_marker_count']===1 && $result['original_owner_href_count']===0?0:1);
+$candidateReady=$result['changed'] && $result['old_marker_count']===1
+    && $result['new_marker_count']===1 && $result['original_owner_href_count']===0
+    && $result['new_owner_href_count']===1;
+$alreadyPresent=!$result['changed'] && $result['old_marker_count']===1
+    && $result['new_marker_count']===1 && $result['original_owner_href_count']===1
+    && $result['new_owner_href_count']===1;
+echo 'state='.($candidateReady?'CANDIDATE_READY':($alreadyPresent?'ALREADY_VISIBLE_REQUIRES_PUBLIC_PROOF':'BLOCKED'))."\n";
+exit($candidateReady||$alreadyPresent?0:1);

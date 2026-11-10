@@ -33,7 +33,13 @@ def verify(html):
     assert end>start and 0<end-start<2500,'ONE_BOUNDED_ADVICE_PANEL'
     section=html[start:end]
     assert section.count('href="'+TARGET+'"')==1,'EXACT_EXISTING_GUIDE_LINK_MISSING'
-    assert COPY in section and CAUTION in section,'DECISION_COPY_MISSING'
+    # Verify the buyer-visible content, not fragile raw HTML bytes that
+    # WordPress may split with inline markup or encode as entities.
+    from html import unescape
+    import re
+    visible=' '.join(unescape(re.sub(r'<[^>]+>',' ',section)).split())
+    assert COPY in visible,'DECISION_HEADLINE_MISSING'
+    assert CAUTION in visible,'DECISION_CAUTION_MISSING'
     # Clear visual meaning: owner-first CTA must precede the first shopping CTA.
     shop=html.find('Zjistit cenu',start)
     assert shop<0 or end<shop,'ADVICE_AFTER_SHOPPING_CTA'
@@ -52,6 +58,9 @@ if __name__=='__main__':
                 data=response.read(1200000).decode('utf8','replace')
             print(verify(data));sys.exit(0)
         except Exception as exc:
-            print('PUBLIC_RETRY',attempt+1,type(exc).__name__,flush=True)
+            # Emit only a bounded fixed assertion code, never page HTML or
+            # visitor / merchant data. Fail closed for every unknown error.
+            reason=str(exc) if isinstance(exc,AssertionError) else type(exc).__name__
+            print('PUBLIC_RETRY',attempt+1,reason[:80],flush=True)
             if attempt<2:time.sleep(6)
     sys.exit('BLOCKED: owner handoff not independently visible on live site')

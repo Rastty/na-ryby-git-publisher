@@ -62,15 +62,22 @@ final class NRY_Budget_Owner_First_118455_V1 {
     }
     public static function transform($html) {
         if (!is_string($html) || strlen($html)<3000
-            || strpos($html,self::TRUST)!==0
             || substr_count($html,self::TRUST)!==1
             || strpos($html,self::MARKER)!==false
             || strpos($html,self::PRACTICAL)!==false
-            || substr_count($html,self::INTRO)!==1
-            || strpos($html,self::INTRO)>1800) return $html;
+            || substr_count($html,self::INTRO)!==1) return $html;
+        // Earlier main-loop editorial filters may prepend an answer-first
+        // section after the trust filter. Bound both marker and the first
+        // buyer heading in the same exact published article instead of
+        // incorrectly requiring the trust marker at byte zero.
+        $markerAt=strpos($html,self::TRUST);
+        $introAt=strpos($html,self::INTRO);
+        if ($markerAt===false || $markerAt>12000
+            || $introAt===false || $introAt<$markerAt
+            || $introAt-$markerAt>1800) return $html;
         $before=self::hrefs($html);
         if ($before===null) return $html;
-        $at=strlen(self::TRUST);
+        $at=$markerAt+strlen(self::TRUST);
         $updated=substr($html,0,$at)."\n".self::PANEL.substr($html,$at);
         $links=self::hrefs($updated);
         if ($links===null || substr_count($updated,self::MARKER)!==1) return $html;
