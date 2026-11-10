@@ -6,6 +6,8 @@ from urllib.request import Request
 from readonly_urlopen_retry import guarded_urlopen
 
 TARGET = 'https://na-ryby.eu/navijaky-dashboard/'
+EXPECTED_SERP_TITLE = 'Jak vybrat rybářský naviják: přívlač, feeder, kaprařina'
+EXPECTED_SERP_DESCRIPTION = 'Jaký naviják zvolit na přívlač, feeder nebo kapry? Rozdíly velikostí, brzdy a použití. Srovnejte možnosti a pokračujte do podrobného průvodce.'
 EXPECTED_SITUATIONS = [
     'https://na-ryby.eu/jak-vybrat-rybarsky-navijak-velikost-prevod-brzda-a-typy-navijaku/',
     'https://na-ryby.eu/nejlepsi-privlacove-navijaky-jak-vybrat/',
@@ -29,9 +31,17 @@ class Nextsteps(HTMLParser):
         self.situation_inside = False
         self.situation_hrefs = []
         self.canonicals = []
+        self.titles = []
+        self.in_title = False
+        self.descriptions = []
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
+        if tag == 'title':
+            self.in_title = True
+            self.titles.append('')
+        if tag == 'meta' and (a.get('name') or '').lower() == 'description':
+            self.descriptions.append(a.get('content', ''))
         if tag == 'link' and 'canonical' in (a.get('rel') or '').lower().split():
             self.canonicals.append(a.get('href', ''))
         if tag == 'nav' and a.get('data-nry-reel-nextsteps') == 'v1':
@@ -48,7 +58,13 @@ class Nextsteps(HTMLParser):
             else:
                 self.situation_hrefs.append(a.get('href'))
 
+    def handle_data(self, data):
+        if self.in_title:
+            self.titles[-1] += data
+
     def handle_endtag(self, tag):
+        if tag == 'title':
+            self.in_title = False
         if tag == 'nav' and self.inside:
             self.inside = False
         elif tag == 'nav' and self.situation_inside:
@@ -77,11 +93,16 @@ def verify(html):
         raise RuntimeError('NOT_APPLIED: EXACT_FOUR_SITUATION_GUIDES_REQUIRED')
     if document.canonicals != [TARGET]:
         raise RuntimeError('NOT_APPLIED: CANONICAL_DRIFT')
+    if len(document.titles) != 1 or not document.titles[0].strip().startswith(EXPECTED_SERP_TITLE):
+        raise RuntimeError('NOT_APPLIED: REEL_SEARCH_INTENT_TITLE_NOT_LIVE')
+    if document.descriptions != [EXPECTED_SERP_DESCRIPTION]:
+        raise RuntimeError('NOT_APPLIED: REEL_SEARCH_INTENT_DESCRIPTION_NOT_LIVE')
     if 'DOPLNIT-URL' in html[html.index('data-nry-reel-nextsteps="v1"'):][:3000]:
         raise RuntimeError('NOT_APPLIED: PLACEHOLDER_IN_NAV')
     return {'state': 'PUBLIC_RENDERED_NAV_VERIFIED', 'target': TARGET,
             'internal_guides': len(document.hrefs),
-            'situation_guides': len(document.situation_hrefs), 'wordpress_writes': 0,
+            'situation_guides': len(document.situation_hrefs), 'serp_title_verified': True,
+            'serp_description_verified': True, 'wordpress_writes': 0,
             'merchant_requests': 0, 'affiliate_clicks': 0}
 
 if __name__ == '__main__':
