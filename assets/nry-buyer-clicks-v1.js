@@ -56,6 +56,16 @@
     } else if (networkHosts.has(url.hostname) &&
                /^\/click-8287231-[0-9]{6,16}$/.test(url.pathname)) {
       kind = 'cj_product_link';
+    } else if (page === 'echolot_budget' &&
+               url.hostname === 'go.dognet.com' &&
+               (url.pathname.length > 1 || url.search.length > 1)) {
+      // Current sonar budget guide contains genuine Dognet destinations.
+      // Classify the outbound action, NOT a purchase or merchant conversion.
+      kind = 'dognet_outbound';
+    } else if (page === 'echolot_budget' && url.pathname.length > 1 &&
+               url.hostname === 'www.chytapust.cz') {
+      // Direct merchant links do not prove an affiliate attribution.
+      kind = 'merchant_outbound';
     }
     if (!kind) return;
     // Existing gtag/GTM consent is never overridden or initialized here.

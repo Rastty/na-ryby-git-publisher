@@ -78,6 +78,51 @@ for(const [page,role] of additional){
  client.click('https://www.jdoqocy.com/click-8287231-15320199',{trusted:false});
  assert.equal(client.calls.length,1,'never emit test/synthetic clicks');
 }
+// Two real outbound destination types observed on budget echolot #118455.
+// They are visitor handoffs only, never a sale, fee or verified affiliate credit.
+const sonarBudget=browser({page:'/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/'});
+sonarBudget.click('https://go.dognet.com/?some-id=1');
+assert.equal(sonarBudget.calls.length,1,'tracking query on Dognet root is legitimate outbound');
+sonarBudget.click('https://go.dognet.com/path/to/offer?affiliate=REDACTED');
+assert.equal(sonarBudget.calls.length,2);
+assert.equal(sonarBudget.calls[0][1],'nry_buyer_offer_click');
+assert.equal(sonarBudget.calls[0][2].buyer_page,'echolot_budget');
+assert.equal(sonarBudget.calls[0][2].buyer_cta_type,'dognet_outbound');
+sonarBudget.click('https://www.chytapust.cz/echolot-model/?a=secret');
+assert.equal(sonarBudget.calls.length,3);
+assert.equal(sonarBudget.calls[2][2].buyer_cta_type,'merchant_outbound');
+assert.equal(sonarBudget.calls[2][2].transport_type,'beacon');
+for (const call of sonarBudget.calls) {
+  assert.deepEqual(Object.keys(call[2]).sort(),
+    ['buyer_cta_type','buyer_page','transport_type'].sort(),
+    'no href, product identifier or user answers in event');
+  assert.ok(!JSON.stringify(call).includes('secret'),'no link parameters');
+  assert.ok(!JSON.stringify(call).includes('dognet.com'),'no merchant URL');
+  assert.ok(!JSON.stringify(call).includes('chytapust.cz'),'no merchant URL');
+}
+for(const href of [
+ 'https://evilchytapust.cz/echolot', 'https://chytapust.cz/echolot',
+ 'http://www.chytapust.cz/echolot', 'https://go.dognet.com:444/offer',
+ 'https://user:pass@go.dognet.com/offer', 'https://go.dognet.com/',
+ 'https://www.chytapust.cz/', 'https://go.dognet.com.evil.test/offer',
+ 'https://example.com/offer'
+]) sonarBudget.click(href);
+sonarBudget.click('https://www.chytapust.cz/echolot/',{trusted:false});
+assert.equal(sonarBudget.calls.length,3,'invalid or untrusted offsite clicks ignored');
+const sonarNoGtag=browser({
+  page:'/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/',
+  gtagEnabled:false
+});
+sonarNoGtag.click('https://go.dognet.com/promo/path');
+assert.equal(sonarNoGtag.calls.length,0,'no gtag/consent bypass');
+for(const page of ['/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/',
+                    '/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/']) {
+  const control=browser({page});
+  control.click('https://go.dognet.com/offer');
+  control.click('https://www.chytapust.cz/echolot/');
+  assert.equal(control.calls.length,0,'only source-bound budget article classified');
+}
+
 const boatGuide='/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/';
 const practical=browser({page:'/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/'});
 practical.click('https://na-ryby.eu'+boatGuide);
@@ -105,4 +150,4 @@ const d=browser({page:'/some-article/'});assert.equal(d.callbacks.length,0);
 const e=browser({host:'https://other.example'});assert.equal(e.callbacks.length,0);
 const advisor=browser({page:'/poradce-vybavy/'});
 assert.equal(advisor.callbacks.length,0,'advisor has separate measurement, no double count');
-console.log('PASS: exact practical buyer handoff, eight existing buyer routes, genuine consent-gated clicks only');
+console.log('PASS: sonar real merchant handoffs, practical guide, eight buyer routes, genuine consent-gated clicks only');

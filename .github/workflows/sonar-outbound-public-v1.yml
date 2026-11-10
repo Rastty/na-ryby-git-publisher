@@ -1,0 +1,48 @@
+name: Na-Ryby Sonar Buyer Outbound Public Byte Readback
+on:
+  pull_request:
+    paths:
+      - 'assets/nry-buyer-clicks-v1.js'
+      - 'buyer-click-telemetry-v1.php'
+      - 'tests/test-buyer-click-telemetry-v1.mjs'
+      - 'tests/test-buyer-click-telemetry-v1.php'
+      - 'scripts/verify-sonar-outbound-public-v1.py'
+      - 'tests/test-sonar-outbound-public-v1.py'
+      - '.github/workflows/sonar-outbound-public-v1.yml'
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Test only real site-scoped consent-aware browser handoffs
+        run: |
+          set -euo pipefail
+          php -l buyer-click-telemetry-v1.php
+          php tests/test-buyer-click-telemetry-v1.php
+          node --check assets/nry-buyer-clicks-v1.js
+          node tests/test-buyer-click-telemetry-v1.mjs
+          python3 -m py_compile scripts/verify-sonar-outbound-public-v1.py
+          python3 tests/test-sonar-outbound-public-v1.py
+  public:
+    needs: contract
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Independently prove exact live JS and existing CTA types (GET only)
+        run: python3 scripts/verify-sonar-outbound-public-v1.py
