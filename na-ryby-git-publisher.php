@@ -20,6 +20,7 @@ require_once __DIR__ . '/advisor-guide-click-telemetry-v1.php';
 require_once __DIR__ . '/home-trust-cleanup-118641-v1.php';
 require_once __DIR__ . '/carp-pillar-source-proof-118541-v1.php';
 require_once __DIR__ . '/carp-pillar-trust-cleanup-118541-v1.php';
+require_once __DIR__ . '/carp-pillar-choice-before-shop-118541-v1.php';
 require_once __DIR__ . '/receiver-buyer-guide-release-46573-v1.php';
 require_once __DIR__ . '/winter-ice-safety-45070-v1.php';
 require_once __DIR__ . '/reel-dashboard-nextsteps-v1.php';
