@@ -22,6 +22,11 @@ REQUIRED = (
     "Tři praktické příklady podle způsobu použití",
     "Garmin Striker Vivid může být jednou z možností",
     "příslušenství v balení ověřte u prodejce",
+    "Příklad sestavy s mapováním",
+    "Lowrance Hook Reveal 5 je starší příklad sestavy s mapováním",
+    "Příklad jednoduchého základu",
+    "Větší displej může zlepšit čitelnost. Zvažte však i sondu",
+    "Jeden univerzálně nejlepší model bez ověření aktuálních sestav",
 )
 # Earlier source-bound editorial cleanup already made case five safe on live
 # WordPress. Preserve it: do not overwrite an editor's safer current statement.
@@ -40,6 +45,11 @@ FORBIDDEN = (
     "Za mě jsou dnes v rámci dvou preferovaných obchodů nejlepší tři scénáře",
     "hlavní doporučení stavím jen na aktuálně dohledatelných nabídkách",
     "bonus baterie a nabíječka",
+    "Nejlepší rozumná volba",
+    "Lowrance Hook Reveal 5, pokud chceš vyvážený sonar",
+    "Nejlepší budget",
+    "Nejlepší volba pro toho, kdo nechce za rok litovat",
+    "Kdybych měl vybrat jen jeden model pro většinu lidí",
 )
 
 
@@ -151,7 +161,7 @@ def verify(html):
     for bad in FORBIDDEN:
         assert bad not in text, "EDITORIAL_ARTIFACT_OR_STALE_CURRENT_CLAIM"
     return {"status": "PUBLIC_VERIFIED", "safe_cases": len(REQUIRED),
-            "newly_corrected_cases": 9 if case5_existing_safe else 10,
+            "newly_corrected_cases": len(REQUIRED) - 1 if case5_existing_safe else len(REQUIRED),
             "already_safe_cases": 1 if case5_existing_safe else 0,
             "old_claims": 0, "merchant_requests": 0, "wordpress_writes": 0}
 
