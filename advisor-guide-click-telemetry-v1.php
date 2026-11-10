@@ -24,7 +24,7 @@ function nry_advisor_guide_click_enqueue() {
         'nry-advisor-guide-click-v1',
         plugins_url('assets/nry-advisor-guide-click-v1.js', __FILE__),
         array(),
-        '1.1.0',
+        '1.2.0',
         true
     );
 }
