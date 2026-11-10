@@ -31,4 +31,18 @@ for name, changed in [
         pass
     else:
         raise AssertionError("Verifier must fail closed for " + name)
+# Diagnostic classification must preserve and identify context without
+# weakening the existing fail-closed visible/hidden assertion.
+probe = m["Document"]()
+old = m["FORBIDDEN"][8]
+probe.feed("<main><p>" + old + "</p></main><script type=\"application/ld+json\">"
+           + old + "</script><style>" + old + "</style>")
+assert old in " ".join(probe.visible_parts)
+assert old in " ".join(probe.script_parts)
+assert old in " ".join(probe.hidden_parts)
+only_schema = m["Document"]()
+only_schema.feed("<main><p>Safe buyer FAQ</p></main><script>" + old + "</script>")
+assert old not in " ".join(only_schema.visible_parts)
+assert old in " ".join(only_schema.script_parts)
+
 print("OK sonar-budget-public-verifier-offline-contract")
