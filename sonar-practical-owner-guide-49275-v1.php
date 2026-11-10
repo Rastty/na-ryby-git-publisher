@@ -97,13 +97,28 @@ final class NRY_Sonar_Practical_Owner_49275_V1 {
         return $matches[2];
     }
 
+    private static function first_heading_end($html) {
+        if (preg_match_all('~<h2\b[^>]*>(.*?)</h2>~isu',$html,$headings,
+            PREG_SET_ORDER | PREG_OFFSET_CAPTURE) === false) return null;
+        $exact=array();
+        foreach ($headings as $heading) {
+            $label=html_entity_decode(strip_tags($heading[1][0]),
+                ENT_QUOTES | ENT_HTML5,'UTF-8');
+            $label=trim(preg_replace('/[\s\x{00A0}]+/u',' ',$label));
+            if ($label==='Jak efektivně používat echolot a sonar na loď nebo člun') {
+                $exact[]=$heading[0][1]+strlen($heading[0][0]);
+            }
+        }
+        return count($exact)===1?$exact[0]:null;
+    }
+
     public static function transform($html) {
         if (!is_string($html) || strlen($html) < 6000
             || strpos($html, self::MARKER) !== false
             || strpos($html, self::PILLAR) !== false
             || strpos($html, self::BUDGET) !== false) return $html;
-        $heading = '~<h2\b[^>]*>\s*Jak efektivně používat echolot a sonar na loď nebo člun\s*</h2>~u';
-        if (preg_match_all($heading,$html,$headings,PREG_OFFSET_CAPTURE) !== 1) return $html;
+        $headingPos=self::first_heading_end($html);
+        if ($headingPos===null || $headingPos>3000) return $html;
         $originalLinks=self::links($html);
         if ($originalLinks === null) return $html;
         // Never edit text inside an existing link, even if an editor later
@@ -118,8 +133,8 @@ final class NRY_Sonar_Practical_Owner_49275_V1 {
                 || strpos($updated,$pair[1]) !== false) return $html;
             $updated=str_replace($pair[0],$pair[1],$updated);
         }
-        if (preg_match_all($heading,$updated,$heads,PREG_OFFSET_CAPTURE) !== 1) return $html;
-        $at=$heads[0][0][1]+strlen($heads[0][0][0]);
+        $at=self::first_heading_end($updated);
+        if ($at===null || $at>3000) return $html;
         $updated=substr_replace($updated,"\n".self::panel(),$at,0);
         $afterLinks=self::links($updated);
         if ($afterLinks === null || substr_count($updated,self::MARKER)!==1
