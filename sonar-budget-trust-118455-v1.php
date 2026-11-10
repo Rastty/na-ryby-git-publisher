@@ -54,7 +54,18 @@ final class NRY_Sonar_Budget_Trust_118455_V1 {
             'Pokud chceš vytěžit maximum z limitu do 15 tisíc, tady už dává větší smysl připlatit hlavně za displej. Chyť a pusť tu má rozumnou aktuální nabídku včetně baterie a nabíječky.'
                 => 'Větší displej může zlepšit čitelnost, ale hlídejte cenu celé sestavy. Obsah konkrétního balení včetně baterie, nabíječky a sondy ověřte v současné nabídce prodejce.',
             'Jednoduchý začátek pro člověka, který potřebuje hlavně hloubku, přehled a základní orientaci pod lodí. Oba obchody patří mezi moje ověřené top volby, ale tady aktuálně dává větší smysl nabídka z Chyť a pusť.'
-                => 'Jednoduchý začátek pro rybáře, kteří potřebují hlavně hloubku a orientaci pod lodí. U konkrétní nabídky zkontrolujte cenu, vhodnou sondu a obsah balení.'
+                => 'Jednoduchý začátek pro rybáře, kteří potřebují hlavně hloubku a orientaci pod lodí. U konkrétní nabídky zkontrolujte cenu, vhodnou sondu a obsah balení.',
+            // 2026-11-10: independent public buyer journey confirmed four
+            // additional time-sensitive assertions below the first-screen
+            // corrections. Preserve all original merchant hrefs and prices.
+            'Jenže v rámci dvou preferovaných obchodů, se kterými v článku pracuju, mi v danou chvíli vychází lépe reálně dostupné nabídky Lowrance. Proto jsem článek postavil na nich – ne kvůli shopu, ale kvůli aktuální nabídce pro čtenáře.'
+                => 'Modely Lowrance v tomto starším přehledu slouží jako příklady různých sestav, nikoli jako dnes nezávisle ověřená nejvýhodnější nabídka. Před nákupem porovnejte také vhodné varianty Garmin podle sondy, funkcí a konečné ceny.',
+            'Za mě jsou dnes v rámci dvou preferovaných obchodů nejlepší tři scénáře tyto:'
+                => 'Tři praktické příklady podle způsobu použití (nikoli ověřené dnešní pořadí podle ceny a dostupnosti):',
+            'Ano jako obecně známý referenční model ano. V tomto článku ale hlavní doporučení stavím jen na aktuálně dohledatelných nabídkách z OKfish a Chyť a pusť.'
+                => 'Garmin Striker Vivid může být jednou z možností. Porovnejte přesnou variantu, kompatibilní sondu a celkovou cenu; historické odkazy zde nedokládají nejlepší dnešní nabídku.',
+            'bonus baterie a nabíječka'
+                => 'příslušenství v balení ověřte u prodejce'
         );
     }
 
