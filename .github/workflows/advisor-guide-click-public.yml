@@ -7,6 +7,7 @@ on:
       - 'tests/test-advisor-guide-click-v1.php'
       - 'tests/test-advisor-guide-click-v1.mjs'
       - 'scripts/verify-advisor-guide-click-public.py'
+      - 'scripts/verify-advisor-feeder-browser.py'
       - '.github/workflows/advisor-guide-click-public.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
@@ -35,6 +36,27 @@ jobs:
           node tests/test-advisor-guide-click-v1.mjs
           python3 -m py_compile scripts/verify-advisor-guide-click-public.py
           python3 scripts/verify-advisor-guide-click-public.py --selftest
+          python3 -m py_compile scripts/verify-advisor-feeder-browser.py
+          python3 scripts/verify-advisor-feeder-browser.py --selftest
       - name: Independent real public JS and page readback, no synthetic events
         if: github.event_name == 'workflow_run'
         run: python3 scripts/verify-advisor-guide-click-public.py
+
+  live-feeder-browser:
+    needs: verify-guide-handoff
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install pinned read-only browser
+        run: |
+          python3 -m pip install playwright==1.56.0
+          python3 -m playwright install chromium
+      - name: Prove true feeder submission routes to the reviewed first-party guide
+        run: python3 scripts/verify-advisor-feeder-browser.py
