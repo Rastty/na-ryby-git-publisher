@@ -21,6 +21,47 @@ final class NRY_Reel_Dashboard_Nextsteps_V1 {
         if (function_exists('is_page') && function_exists('add_action')) {
             add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue'), 26);
         }
+        // Search-intent snippet only, never a post/meta write. Editor Yoast
+        // overrides win; no titles or descriptions are changed elsewhere.
+        if (function_exists('is_page') && function_exists('add_filter')) {
+            add_filter('wpseo_title', array(__CLASS__, 'seo_title'), 20);
+            add_filter('wpseo_metadesc', array(__CLASS__, 'seo_description'), 20);
+        }
+    }
+
+    private static function seo_eligible($meta_key) {
+        if (!function_exists('is_page') || !is_page(self::ID)
+            || !function_exists('is_singular') || !is_singular('page')
+            || !function_exists('get_queried_object_id')
+            || (int) get_queried_object_id() !== self::ID
+            || !function_exists('home_url')
+            || rtrim(home_url('/'), '/') !== 'https://na-ryby.eu'
+            || !function_exists('get_permalink')
+            || get_permalink(self::ID) !== self::PERMALINK
+            || !function_exists('get_post')
+            || !function_exists('metadata_exists')
+            || metadata_exists('post', self::ID, $meta_key)
+            || (function_exists('is_admin') && is_admin())
+            || (function_exists('is_preview') && is_preview())) return false;
+        $post = get_post(self::ID);
+        if (!$post || (int)($post->ID ?? 0) !== self::ID
+            || ($post->post_type ?? '') !== 'page'
+            || ($post->post_status ?? '') !== 'publish'
+            || ($post->post_name ?? '') !== self::SLUG
+            || !in_array(($post->post_title ?? ''), array('Navijáky – Dashboard', 'Navijáky - Dashboard'), true)) return false;
+        return true;
+    }
+
+    public static function seo_title($current) {
+        if (!is_string($current)
+            || !self::seo_eligible('_yoast_wpseo_title')) return $current;
+        return 'Jak vybrat rybářský naviják: přívlač, feeder, kaprařina';
+    }
+
+    public static function seo_description($current) {
+        if (!is_string($current)
+            || !self::seo_eligible('_yoast_wpseo_metadesc')) return $current;
+        return 'Jaký naviják zvolit na přívlač, feeder nebo kapry? Rozdíly velikostí, brzdy a použití. Srovnejte možnosti a pokračujte do podrobného průvodce.';
     }
 
     public static function enqueue() {

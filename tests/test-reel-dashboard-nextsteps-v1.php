@@ -3,14 +3,18 @@
 define('ABSPATH', __DIR__);
 $GLOBALS['mode'] = array('page'=>true,'admin'=>false,'loop'=>true,'main'=>true,'slug'=>'navijaky-dashboard','status'=>'publish');
 $GLOBALS['hook_name'] = null;
-function add_filter($name,$cb,$priority=10){$GLOBALS['hook_name']=$name;}
+function add_filter($name,$cb,$priority=10){$GLOBALS['hooks'][$name]=$cb; if ($name==='the_content') $GLOBALS['hook_name']=$name;}
 function is_page($id){return $GLOBALS['mode']['page'] && $id===118015;}
 function is_admin(){return $GLOBALS['mode']['admin'];}
 function is_main_query(){return $GLOBALS['mode']['main'];}
 function in_the_loop(){return $GLOBALS['mode']['loop'];}
 function home_url($path='/'){return 'https://na-ryby.eu/';}
 function get_permalink($id){return 'https://na-ryby.eu/navijaky-dashboard/';}
-function get_post($id){return (object)array('ID'=>118015,'post_type'=>'page','post_status'=>$GLOBALS['mode']['status'],'post_name'=>$GLOBALS['mode']['slug']);}
+function get_post($id){return (object)array('ID'=>118015,'post_type'=>'page','post_status'=>$GLOBALS['mode']['status'],'post_name'=>$GLOBALS['mode']['slug'],'post_title'=>$GLOBALS['mode']['title']??'Navijáky – Dashboard');}
+function is_singular($type){return $type==='page';}
+function get_queried_object_id(){return $GLOBALS['mode']['queried_id']??118015;}
+function is_preview(){return !empty($GLOBALS['mode']['preview']);}
+function metadata_exists($type,$id,$key){return !empty($GLOBALS['mode']['yoast'][$key]);}
 function esc_url($value){return htmlspecialchars($value,ENT_QUOTES,'UTF-8');}
 function esc_html($value){return htmlspecialchars($value,ENT_QUOTES,'UTF-8');}
 function ok($truth,$message){if(!$truth)throw new RuntimeException($message); echo "PASS: $message\n";}
@@ -78,3 +82,37 @@ ok(strpos($drifted,NRY_Reel_Dashboard_Nextsteps_V1::MARKER)!==false,
 $notThisPage=NRY_Reel_Dashboard_Nextsteps_V1::render($original);
 ok(strpos($notThisPage,NRY_Reel_Dashboard_Nextsteps_V1::SITUATIONS_MARKER)===false,
  'unrelated page source never receives situation links');
+
+// SERP improvement is scoped to the real public page only and never writes metadata.
+ok(isset($GLOBALS['hooks']['wpseo_title']) && isset($GLOBALS['hooks']['wpseo_metadesc']),
+ 'Yoast SEO read-only filters are registered');
+ok(NRY_Reel_Dashboard_Nextsteps_V1::seo_title('Navijáky – Dashboard')
+    ==='Jak vybrat rybářský naviják: přívlač, feeder, kaprařina',
+ 'decision-focused title on exact default page');
+ok(strpos(NRY_Reel_Dashboard_Nextsteps_V1::seo_description(''),
+    'Jaký naviják zvolit')===0, 'useful description on default page');
+foreach (array('page','admin','slug','status') as $key) {
+    $old=$GLOBALS['mode'][$key];
+    $GLOBALS['mode'][$key] = $key==='page'?false:($key==='admin'?true:($key==='slug'?'other':'draft'));
+    ok(NRY_Reel_Dashboard_Nextsteps_V1::seo_title('original')==='original',
+       'SEO scope blocks wrong '.$key);
+    $GLOBALS['mode'][$key]=$old;
+}
+$GLOBALS['mode']['queried_id']=123;
+ok(NRY_Reel_Dashboard_Nextsteps_V1::seo_title('original')==='original',
+ 'SEO rejects unexpected queried object');
+unset($GLOBALS['mode']['queried_id']);
+$GLOBALS['mode']['title']='Editorially revised title';
+ok(NRY_Reel_Dashboard_Nextsteps_V1::seo_title('original')==='original',
+ 'Editorial page heading drift prevents override');
+unset($GLOBALS['mode']['title']);
+$GLOBALS['mode']['yoast']['_yoast_wpseo_title']=true;
+ok(NRY_Reel_Dashboard_Nextsteps_V1::seo_title('editor custom')==='editor custom',
+ 'Existing editor Yoast title wins');
+$GLOBALS['mode']['yoast']['_yoast_wpseo_metadesc']=true;
+ok(NRY_Reel_Dashboard_Nextsteps_V1::seo_description('editor custom')==='editor custom',
+ 'Existing editor Yoast description wins');
+unset($GLOBALS['mode']['yoast']);
+ok(NRY_Reel_Dashboard_Nextsteps_V1::seo_title(array('unexpected'))===array('unexpected'),
+ 'Non-string SEO field is not overwritten');
+echo "PASS: SEO filters have no database writes and do not alter canonical, href or product offers\\n";
