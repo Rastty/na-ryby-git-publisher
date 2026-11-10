@@ -138,6 +138,15 @@ def audit(page_html, rest_html=None):
         "public_script_structure": findings[:3],
         "visible_safe_phrase_present": SAFE in page_html,
         "legacy_phrase_in_public_page": OLD in page_html,
+        "old_schema_in_page_head": (
+            page_html.find(OLD_FULL) >= 0 and
+            page_html.lower().find("<body") > page_html.find(OLD_FULL)
+        ),
+        "old_schema_before_content_marker": (
+            page_html.find(OLD_FULL) >= 0 and
+            page_html.find("<!-- nry-sonar-budget-trust-118455-v1 -->") >
+            page_html.find(OLD_FULL)
+        ),
         "rest_status": "NOT_READ",
         "wordpress_writes": 0, "merchant_requests": 0,
         "analytics_events": 0,
