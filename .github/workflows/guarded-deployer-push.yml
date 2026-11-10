@@ -55,6 +55,11 @@ on:
       - 'tests/test-sonar-pillar-practical-public-v1.py'
       - '.github/workflows/sonar-pillar-practical-public-v1.yml'
       - 'sonar-budget-trust-118455-v1.php'
+      - 'sonar-budget-owner-first-118455-v1.php'
+      - 'tests/test-sonar-budget-owner-first-118455-v1.php'
+      - 'tests/probe-sonar-budget-owner-first-118455.php'
+      - 'scripts/verify-sonar-budget-owner-first-public.py'
+      - 'tests/test-sonar-budget-owner-first-public.py'
       - 'tests/test-sonar-budget-trust-118455-v1.php'
       - 'scripts/verify-sonar-budget-trust-118455-public.py'
       - 'tests/test-sonar-budget-trust-public.py'
@@ -122,6 +127,7 @@ on:
       - 'reel-dashboard-nextsteps-v1.php'
       - 'sonar-pillar-practical-handoff-118553-v1.php'
       - 'sonar-budget-trust-118455-v1.php'
+      - 'sonar-budget-owner-first-118455-v1.php'
       - 'assets/nry-reel-handoff-v1.js'
       - 'editorial/receiver-46573-decision-guide-20261109.html'
       - 'buyer-click-telemetry-v1.php'
@@ -175,6 +181,11 @@ jobs:
           python3 tests/test-sonar-pillar-practical-public-v1.py
           php -l sonar-budget-trust-118455-v1.php
           php tests/test-sonar-budget-trust-118455-v1.php
+          php -l sonar-budget-owner-first-118455-v1.php
+          php tests/test-sonar-budget-owner-first-118455-v1.php
+          php -l tests/probe-sonar-budget-owner-first-118455.php
+          python3 -m py_compile scripts/verify-sonar-budget-owner-first-public.py
+          python3 tests/test-sonar-budget-owner-first-public.py
           python3 -m py_compile scripts/verify-sonar-budget-trust-118455-public.py
           python3 tests/test-sonar-budget-trust-public.py
           php tests/test-reel-dashboard-nextsteps-v1.php

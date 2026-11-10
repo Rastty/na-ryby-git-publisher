@@ -3,6 +3,12 @@ on:
   pull_request:
     paths:
       - 'sonar-budget-trust-118455-v1.php'
+      - 'sonar-budget-owner-first-118455-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-sonar-budget-owner-first-118455-v1.php'
+      - 'tests/probe-sonar-budget-owner-first-118455.php'
+      - 'scripts/verify-sonar-budget-owner-first-public.py'
+      - 'tests/test-sonar-budget-owner-first-public.py'
       - 'tests/test-sonar-budget-trust-118455-v1.php'
       - 'scripts/verify-sonar-budget-trust-118455-public.py'
       - 'scripts/audit-sonar-faq-schema-origin.py'
@@ -29,8 +35,40 @@ jobs:
           php tests/test-sonar-budget-trust-118455-v1.php
           python3 -m py_compile scripts/verify-sonar-budget-trust-118455-public.py
           python3 tests/test-sonar-budget-trust-public.py
+          php -l sonar-budget-owner-first-118455-v1.php
+          php tests/test-sonar-budget-owner-first-118455-v1.php
+          python3 -m py_compile scripts/verify-sonar-budget-owner-first-public.py
+          python3 tests/test-sonar-budget-owner-first-public.py
           python3 -m py_compile scripts/audit-sonar-faq-schema-origin.py
           python3 tests/test-sonar-faq-schema-origin.py
+      - name: Exercise exact source-scoped owner handoff on public REST HTML
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          umask 077
+          trap 'rm -f nry-budget-ephemeral.html' EXIT
+          python3 - <<'PY'
+          from urllib.request import Request
+          from pathlib import Path
+          from scripts.readonly_urlopen_retry import guarded_urlopen
+          import json
+          # REST rendered content omits front-end is_single filters, so it
+          # cannot prove the verified trust marker is present. Use the actual
+          # public HTML and isolate the article from its exact marker onward.
+          url=('https://na-ryby.eu/'
+               'nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/')
+          req=Request(url,headers={'User-Agent':'NRY-BudgetOwner-PR-AnonymousRead/1.0',
+                                   'Cache-Control':'no-cache, no-store'})
+          with guarded_urlopen(req,timeout=25) as response:
+              assert response.status==200 and response.geturl()==url
+              html=response.read(1200000).decode('utf8','replace')
+          trust='<!-- nry-sonar-budget-trust-118455-v1 -->'
+          assert html.count(trust)==1, 'LIVE_TRUST_MARKER_NOT_UNIQUE'
+          content=html[html.index(trust):]
+          assert 3000<len(content)<750000
+          Path('nry-budget-ephemeral.html').write_text(content,encoding='utf8')
+          PY
+          php tests/probe-sonar-budget-owner-first-118455.php nry-budget-ephemeral.html
       - name: Read-only public JSON-LD origin proof on PR
         if: github.event_name == 'pull_request'
         run: python3 scripts/audit-sonar-faq-schema-origin.py
@@ -44,4 +82,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Verify exact correction appeared on public site (GET only)
-        run: python3 scripts/verify-sonar-budget-trust-118455-public.py
+        run: |
+          python3 scripts/verify-sonar-budget-trust-118455-public.py
+          python3 scripts/verify-sonar-budget-owner-first-public.py
