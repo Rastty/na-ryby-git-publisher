@@ -5,6 +5,8 @@ No WordPress writes, merchant requests, user events, external links or identifie
 Only after guarded deploy; a green commit is not public proof.
 """
 from html.parser import HTMLParser
+from html import unescape as html_unescape
+import re
 from urllib.request import Request, urlopen
 
 URL = ("https://na-ryby.eu/"
@@ -50,6 +52,27 @@ def verify(html):
     doc.feed(html)
     assert doc.canonicals == [URL], "CANONICAL_DRIFT"
     text = " ".join(doc.parts)
+    # Public page text only; log at most one source paragraph without any
+    # HTML/links or customer data to locate the sole remaining source drift.
+    if REQUIRED[4] not in text:
+        needle = "Pokud chceš vytěžit maximum z limitu do 15 tisíc"
+        candidates = []
+        for match in re.finditer(r"<p\b[^>]*>(.*?)</p>", html,
+                                 flags=re.IGNORECASE | re.DOTALL):
+            body = match.group(1)
+            visible = " ".join(html_unescape(re.sub(r"<[^>]*>", " ", body)).split())
+            if needle in visible:
+                candidates.append({
+                    "text_prefix": visible[:420],
+                    "inline_tag_names": sorted(set(re.findall(
+                        r"<\s*/?\s*([a-z][a-z0-9]*)\b", body,
+                        flags=re.IGNORECASE))),
+                    "has_anchor": bool(re.search(r"<\s*a\b", body,
+                                                flags=re.IGNORECASE)),
+                    "visible_length": len(visible)
+                })
+        print({"missing_case_5_public_paragraph_shape": candidates[:2],
+               "candidate_count": len(candidates)}, flush=True)
     # Boolean-only evidence: avoid writing page bodies, visitors or merchant hrefs
     # to public Actions logs. Keep the original exact public assertions.
     expected_present = [i + 1 for i, signal in enumerate(REQUIRED)
