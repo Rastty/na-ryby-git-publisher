@@ -15,6 +15,9 @@ final class NRY_Sonar_Budget_Trust_118455_V1 {
     public static function boot() {
         if (function_exists('add_filter') && function_exists('is_single')) {
             add_filter('the_content', array(__CLASS__, 'render'), 32);
+            // The original post's FAQPage JSON-LD is appended by a later
+            // content filter; only repair that exact schema after it exists.
+            add_filter('the_content', array(__CLASS__, 'render_faq_schema'), 999999);
         }
     }
 
@@ -76,6 +79,69 @@ final class NRY_Sonar_Budget_Trust_118455_V1 {
      * normalization. Do not touch hrefs, nested blocks or editor-rewritten text.
      * Return null if there is no unique unambiguous candidate.
      */
+    // Source-proven 2026-11-10 public + REST: FAQPage in the_content (not
+    // Yoast), mainEntity[].acceptedAnswer.text carries the full OLD sentence.
+    // This is the same approved answer visible above on the article.
+    const FAQ_JSONLD_OLD = 'Ano jako obecně známý referenční model ano. V tomto článku ale hlavní doporučení stavím jen na aktuálně dohledatelných nabídkách z OKfish a Chyť a pusť.';
+    const FAQ_JSONLD_SAFE = 'Garmin Striker Vivid může být jednou z možností. Porovnejte přesnou variantu, kompatibilní sondu a celkovou cenu; historické odkazy zde nedokládají nejlepší dnešní nabídku.';
+
+    /**
+     * This JSON-LD is injected AFTER the earlier 32-priority editorial pass.
+     * Locate one exact FAQPage script and one Question/Answer path only.
+     * Patch strictly the old answer string in the ORIGINAL script bytes;
+     * refuse invalid/ambiguous JSON or any other schema shape.
+     */
+    public static function render_faq_schema($content) {
+        if (!is_string($content)
+            || strpos($content, self::MARKER) === false
+            || !self::eligible()
+            || substr_count($content, self::FAQ_JSONLD_OLD) !== 1
+            || !preg_match_all('~<script\b[^>]*>.*?</script\s*>~is', $content, $scripts,
+                PREG_OFFSET_CAPTURE)) return $content;
+
+        $edits = array();
+        foreach ($scripts[0] as $hit) {
+            $full = $hit[0];
+            if (strpos($full, self::FAQ_JSONLD_OLD) === false) continue;
+            if (!preg_match('~^<script\b([^>]*)>(.*?)</script\s*>$~is', $full, $parts)
+                || !preg_match('~\btype\s*=\s*(["\x27])application/ld\+json\1~i', $parts[1])) {
+                return $content;
+            }
+            $json = $parts[2];
+            if (substr_count($json, self::FAQ_JSONLD_OLD) !== 1) return $content;
+            $data = json_decode($json, true);
+            if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)
+                || ($data['@type'] ?? null) !== 'FAQPage'
+                || !isset($data['mainEntity']) || !is_array($data['mainEntity'])) return $content;
+            $expected = $data;
+            $matched = 0;
+            foreach ($data['mainEntity'] as $i => $question) {
+                if (!is_array($question)
+                    || ($question['@type'] ?? null) !== 'Question'
+                    || !is_array($question['acceptedAnswer'] ?? null)
+                    || ($question['acceptedAnswer']['@type'] ?? null) !== 'Answer'
+                    || !is_string($question['acceptedAnswer']['text'] ?? null)
+                    || strpos($question['acceptedAnswer']['text'], self::FAQ_JSONLD_OLD) === false) continue;
+                if (substr_count($question['acceptedAnswer']['text'], self::FAQ_JSONLD_OLD) !== 1)
+                    return $content;
+                $expected['mainEntity'][$i]['acceptedAnswer']['text'] =
+                    str_replace(self::FAQ_JSONLD_OLD, self::FAQ_JSONLD_SAFE,
+                        $question['acceptedAnswer']['text']);
+                ++$matched;
+            }
+            if ($matched !== 1) return $content;
+            $updated_json = str_replace(self::FAQ_JSONLD_OLD, self::FAQ_JSONLD_SAFE, $json);
+            $updated_data = json_decode($updated_json, true);
+            if (json_last_error() !== JSON_ERROR_NONE || $updated_data !== $expected) return $content;
+            $updated_script = str_replace($json, $updated_json, $full);
+            if ($updated_script === $full) return $content;
+            $edits[] = array('offset'=>$hit[1], 'old'=>$full, 'new'=>$updated_script);
+        }
+        if (count($edits) !== 1) return $content;
+        $edit = $edits[0];
+        return substr_replace($content, $edit['new'], $edit['offset'], strlen($edit['old']));
+    }
+
     private static function guarded_paragraph_replacement($content, $old, $replacement) {
         if (!preg_match_all('~<p\b[^>]*>(.*?)</p>~isu', $content, $found,
             PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) return null;
