@@ -37,6 +37,34 @@ assert "seo-pipaky-beginner-35755-v1.php" in pr & push
 assert "checklist-release-v1.php" in pr & push
 assert "seo-snippet-pilot.php" in pr & push
 assert "assets/**" in pr & push
+# Fast lane: site-independent PR checks never occupy the single live deploy
+# concurrency group. Only a new PR revision may cancel the prior PR check.
+assert ("group: ${{ github.event_name == 'pull_request' && "
+        "format('nry-review-pr-{0}', github.event.pull_request.number) || "
+        "'nry-guarded-deployer-live' }}") in workflow
+assert "cancel-in-progress: ${{ github.event_name == 'pull_request' }}" in workflow
+assert "github.event_name != 'pull_request'" in workflow
+assert "environment: na-ryby-production" in workflow
+assert "vars.NRY_AUTO_DEPLOY_ENABLED == 'true'" in workflow
+# Only PR tests change: still reviewed without a pointless live site deploy.
+for filename in (
+    "tests/test-carp-pillar-choice-before-shop-118541-v1.php",
+    "tests/test-sonar-budget-trust-118455-v1.php",
+    "scripts/verify-carp-pillar-choice-118541-public.py",
+    ".github/workflows/carp-pillar-choice-public.yml",
+):
+    assert filename in pr, f"PR coverage lost: {filename}"
+    assert filename not in push, f"non-runtime edit unnecessarily deploys: {filename}"
+assert all(not p.startswith(("tests/test-", "scripts/verify-"))
+           for p in push), "tests-only changes must not call production"
+assert all((not p.startswith(".github/workflows/")
+            or p == ".github/workflows/guarded-deployer-push.yml")
+           for p in push), "unrelated workflow edits must not deploy"
+# Actual WordPress payload and exact frozen content still trigger deployment.
+assert "editorial/receiver-46573-decision-guide-20261109.html" in push
+assert "tests/v8-carp-3m-54272-20261109-frozen.json" in push
+assert "tests/v8-echolot-budget-118455-three-offers-frozen.json" in push
+assert ".github/workflows/guarded-deployer-push.yml" in push
 # Preserve the original production-only release gate.
 assert "github.event_name != 'pull_request'" in workflow
 assert "vars.NRY_AUTO_DEPLOY_ENABLED == 'true'" in workflow
