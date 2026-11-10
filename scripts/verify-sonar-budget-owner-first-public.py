@@ -33,7 +33,13 @@ def verify(html):
     assert end>start and 0<end-start<2500,'ONE_BOUNDED_ADVICE_PANEL'
     section=html[start:end]
     assert section.count('href="'+TARGET+'"')==1,'EXACT_EXISTING_GUIDE_LINK_MISSING'
-    assert COPY in section and CAUTION in section,'DECISION_COPY_MISSING'
+    # Verify the buyer-visible content, not fragile raw HTML bytes that
+    # WordPress may split with inline markup or encode as entities.
+    from html import unescape
+    import re
+    visible=' '.join(unescape(re.sub(r'<[^>]+>',' ',section)).split())
+    assert COPY in visible,'DECISION_HEADLINE_MISSING'
+    assert CAUTION in visible,'DECISION_CAUTION_MISSING'
     # Clear visual meaning: owner-first CTA must precede the first shopping CTA.
     shop=html.find('Zjistit cenu',start)
     assert shop<0 or end<shop,'ADVICE_AFTER_SHOPPING_CTA'
