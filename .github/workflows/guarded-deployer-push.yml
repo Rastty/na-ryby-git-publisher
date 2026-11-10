@@ -72,6 +72,12 @@ on:
       - 'seo-pipaky-beginner-35755-v1.php'
       - 'seo-pipaky-advanced-description-36702-v1.php'
       - 'seo-sonar-practical-description-49275-v1.php'
+      - 'sonar-practical-owner-guide-49275-v1.php'
+      - 'tests/test-sonar-practical-owner-49275-v1.php'
+      - 'tests/probe-sonar-practical-owner-public-render-49275.php'
+      - 'scripts/verify-sonar-practical-owner-49275-public.py'
+      - 'tests/test-sonar-practical-owner-public.py'
+      - '.github/workflows/sonar-practical-owner-public.yml'
       - 'tests/test-seo-sonar-practical-description-49275-v1.php'
       - 'scripts/verify-sonar-practical-serp-49275-public.py'
       - '.github/workflows/sonar-practical-serp-49275-public.yml'
@@ -127,6 +133,7 @@ on:
       - 'seo-pipaky-beginner-35755-v1.php'
       - 'seo-pipaky-advanced-description-36702-v1.php'
       - 'seo-sonar-practical-description-49275-v1.php'
+      - 'sonar-practical-owner-guide-49275-v1.php'
       - '.github/workflows/guarded-deployer-push.yml'
   workflow_dispatch:
 permissions:
@@ -217,6 +224,11 @@ jobs:
           php -l seo-pipaky-advanced-description-36702-v1.php
           php -l seo-sonar-practical-description-49275-v1.php
           php tests/test-seo-sonar-practical-description-49275-v1.php
+          php -l sonar-practical-owner-guide-49275-v1.php
+          php tests/test-sonar-practical-owner-49275-v1.php
+          php -l tests/probe-sonar-practical-owner-public-render-49275.php
+          python3 -m py_compile scripts/verify-sonar-practical-owner-49275-public.py
+          python3 tests/test-sonar-practical-owner-public.py
           php tests/test-pipaky-beginner-serp-35755-v1.php
           php tests/test-pipaky-diagnostics-35755-v8.php
           php tests/test-pipaky-advanced-36702-v8.php
