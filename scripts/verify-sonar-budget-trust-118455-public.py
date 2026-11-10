@@ -57,7 +57,7 @@ def verify(html):
     if REQUIRED[4] not in text:
         needle = "Pokud chceš vytěžit maximum z limitu do 15 tisíc"
         candidates = []
-        for match in re.finditer(r"<p\\b[^>]*>(.*?)</p>", html,
+        for match in re.finditer(r"<p\b[^>]*>(.*?)</p>", html,
                                  flags=re.IGNORECASE | re.DOTALL):
             body = match.group(1)
             visible = " ".join(html_unescape(re.sub(r"<[^>]*>", " ", body)).split())
@@ -65,9 +65,9 @@ def verify(html):
                 candidates.append({
                     "text_prefix": visible[:420],
                     "inline_tag_names": sorted(set(re.findall(
-                        r"<\\s*/?\\s*([a-z][a-z0-9]*)\\b", body,
+                        r"<\s*/?\s*([a-z][a-z0-9]*)\b", body,
                         flags=re.IGNORECASE))),
-                    "has_anchor": bool(re.search(r"<\\s*a\\b", body,
+                    "has_anchor": bool(re.search(r"<\s*a\b", body,
                                                 flags=re.IGNORECASE)),
                     "visible_length": len(visible)
                 })
