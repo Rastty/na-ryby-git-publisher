@@ -35,6 +35,25 @@ check(substr_count($fixed,$c::PRACTICAL)===1,'one new route');
 check(strpos($fixed,$merchant)!==false&&strpos($fixed,$buyer)!==false,'all original URLs immutable');
 check(strpos($fixed,$c::MARKER)<strpos($fixed,$c::INTRO),'before buyer guide');
 check($c::transform($fixed)===$fixed,'idempotent');
+
+// WordPress may prepend the approved answer-first section to the_content
+// before this late filter. The one exact marker and first heading remain
+// together; unrelated preceding reader copy must not disable the fix.
+$front='<section class="answer-first"><p>Nejdřív vyberte sestavu, pak obchod.</p></section>';
+$prefixed=$front.$source;
+$prefixedUpdated=$c::transform($prefixed);
+check($prefixedUpdated!==$prefixed
+ && substr_count($prefixedUpdated,$c::MARKER)===1,
+ 'preserve bounded marker when preceding answer-first copy exists');
+check($c::transform($prefixedUpdated)===$prefixedUpdated,
+ 'prefixed source remains idempotent');
+$farPrefix=str_repeat('Z',12500).$source;
+check($c::transform($farPrefix)===$farPrefix,
+ 'long unreviewed content before source marker blocks release');
+$introBefore=$c::INTRO.' '.$source;
+check($c::transform($introBefore)===$introBefore,
+ 'duplicate heading outside source marker blocks release');
+
 check($c::transform(str_replace($c::TRUST,'NO_TRUST',$source))===
  str_replace($c::TRUST,'NO_TRUST',$source),'missing trust fails closed');
 $edited=str_replace($c::INTRO,'Redaktor upravil rozcestník',$source);

@@ -52,6 +52,9 @@ if __name__=='__main__':
                 data=response.read(1200000).decode('utf8','replace')
             print(verify(data));sys.exit(0)
         except Exception as exc:
-            print('PUBLIC_RETRY',attempt+1,type(exc).__name__,flush=True)
+            # Emit only a bounded fixed assertion code, never page HTML or
+            # visitor / merchant data. Fail closed for every unknown error.
+            reason=str(exc) if isinstance(exc,AssertionError) else type(exc).__name__
+            print('PUBLIC_RETRY',attempt+1,reason[:80],flush=True)
             if attempt<2:time.sleep(6)
     sys.exit('BLOCKED: owner handoff not independently visible on live site')
