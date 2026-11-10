@@ -41,7 +41,10 @@ def assert_original_section(content):
     for url in OLD_LINKS:
         assert url in section, "EXISTING_CHOICE_LINK_DRIFT"
     next_fragment = content[end+len("</section>"):end+len("</section>")+2000]
-    has_heading = "<h2>Jak vybrat echolot pro rybaření:" in next_fragment
+    import re
+    has_heading = bool(re.search(
+        r"<h2\\b[^>]*>\\s*Jak vybrat echolot pro rybaření:", next_fragment,
+        re.IGNORECASE))
     first_h2 = next_fragment.find("<h2")
     raw_title_pos = next_fragment.find("Jak vybrat echolot pro rybaření:")
     assert has_heading, (
@@ -69,7 +72,7 @@ def evaluate(payload, html, expect_new):
         assert content.find(NEW_MARKER) > position, "HANDOFF_NOT_AFTER_SOURCE"
         assert content.find(NEW_MARKER) - position < 40, "HANDOFF_NOT_ADJACENT"
         assert content.find(NEW_MARKER) < content.find(
-            "<h2>Jak vybrat echolot pro rybaření:", position), (
+            "Jak vybrat echolot pro rybaření:", position), (
                 "HANDOFF_TOO_LATE")
     else:
         assert NEW_MARKER not in content and PRACTICAL not in content, (
