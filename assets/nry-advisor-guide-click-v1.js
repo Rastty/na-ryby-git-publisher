@@ -14,7 +14,8 @@
   const GUIDE_ROLES = Object.freeze({
     '/vse-o-kaprovych-prutech-jak-vybrat-delku-akci-a-libraz/':'carp_rod',
     '/jak-vybrat-rybarsky-navijak-velikost-prevod-brzda-a-typy-navijaku/':'reel',
-    '/nejlepsi-privlacove-navijaky-jak-vybrat/':'spinning_reel'
+    '/nejlepsi-privlacove-navijaky-jak-vybrat/':'spinning_reel',
+    '/nejlepsi-feederove-navijaky-srovnani/':'feeder_reel'
   });
 
   if (location.origin !== ORIGIN || location.pathname !== ADVISOR ||
@@ -26,6 +27,34 @@
     if (!root || !root.querySelector('[data-nry-results]')) return;
     if (window.__nryAdvisorGuideClickV1 === true) return;
     window.__nryAdvisorGuideClickV1 = true;
+
+    // Exact feeder result: prefer the more relevant existing comparison,
+    // retain the generic guide as a secondary link, never touch products.
+    // Submit bubbles from the form only AFTER its existing inline renderer.
+    // An editor-changed result/anchor must win: fail closed.
+    root.addEventListener('submit', event => {
+      if (event?.isTrusted !== true) return;
+      const form = root.querySelector('form');
+      const panel = root.querySelector('[data-nry-results]');
+      if (!form || event.target !== form || !panel || panel.hidden !== false ||
+          form.elements?.style?.value !== 'feeder') return;
+      const headline = panel.querySelector('.nry-result__title');
+      const links = panel.querySelector('.nry-result__links');
+      if (!headline || !/^Feeder\s*[–-]\s*sestava pro /u.test(headline.textContent || '') ||
+          !links) return;
+      const anchors = links.querySelectorAll('a[href]');
+      if (anchors.length !== 1) return;
+      const old = anchors[0];
+      const original = ORIGIN + '/jak-vybrat-rybarsky-navijak-velikost-prevod-brzda-a-typy-navijaku/';
+      if (old.getAttribute('href') !== original ||
+          old.textContent !== 'Průvodce výběrem rybářského navijáku →') return;
+      const supplemental = document.createElement('a');
+      supplemental.href = original;
+      supplemental.textContent = 'Obecný průvodce výběrem navijáku →';
+      old.href = ORIGIN + '/nejlepsi-feederove-navijaky-srovnani/';
+      old.textContent = 'Feederové navijáky: praktické srovnání →';
+      links.append(supplemental);
+    });
 
     root.addEventListener('click', event => {
       if (event?.isTrusted !== true ||
