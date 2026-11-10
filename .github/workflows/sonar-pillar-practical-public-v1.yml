@@ -58,9 +58,9 @@ jobs:
           PY
           php tests/probe-sonar-pillar-actual-render-v1.php nry-pillar-live-body-ephemeral.html
           rm -f nry-pillar-live-body-ephemeral.html
-      - name: Confirm previously deployed buyer-facing main-loop HTML (REST stays unchanged)
+      - name: Confirm current public original before corrected release (no click)
         if: github.event_name == 'pull_request'
-        run: python3 scripts/verify-sonar-pillar-practical-public-v1.py --verify
+        run: python3 scripts/verify-sonar-pillar-practical-public-v1.py --preflight
   production:
     needs: contract
     if: >-
