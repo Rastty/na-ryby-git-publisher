@@ -7,6 +7,7 @@ on:
       - 'tests/test-sonar-pillar-practical-handoff-118553-v1.php'
       - 'scripts/verify-sonar-pillar-practical-public-v1.py'
       - 'tests/test-sonar-pillar-practical-public-v1.py'
+      - 'tests/probe-sonar-pillar-actual-render-v1.php'
       - '.github/workflows/sonar-pillar-practical-public-v1.yml'
   workflow_dispatch:
   workflow_run:
@@ -30,6 +31,33 @@ jobs:
           php tests/test-sonar-pillar-practical-handoff-118553-v1.php
           python3 -m py_compile scripts/verify-sonar-pillar-practical-public-v1.py
           python3 tests/test-sonar-pillar-practical-public-v1.py
+      - name: Probe source-matched transform with actual anonymous REST body (never upload body)
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          umask 077
+          python3 - <<'PY'
+          from urllib.request import Request
+          from pathlib import Path
+          from scripts.readonly_urlopen_retry import guarded_urlopen
+          import json
+          url=('https://na-ryby.eu/wp-json/wp/v2/posts/118553'
+            '?_fields=id,slug,status,link,modified_gmt,content')
+          req=Request(url,method='GET',headers={
+            'User-Agent':'NaRyby-RenderOnly-SourceDiagnostic/1.0',
+            'Cache-Control':'no-cache, no-store'})
+          with guarded_urlopen(req,timeout=25) as r:
+            assert r.status==200
+            data=json.loads(r.read(450000))
+          assert data['id']==118553 and data['status']=='publish'
+          assert data['slug']=='jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce'
+          content=data['content']['rendered']
+          assert 600<len(content)<240000
+          Path('nry-pillar-live-body-ephemeral.html').write_text(
+              content,encoding='utf8')
+          PY
+          php tests/probe-sonar-pillar-actual-render-v1.php nry-pillar-live-body-ephemeral.html
+          rm -f nry-pillar-live-body-ephemeral.html
       - name: Confirm previously deployed buyer-facing main-loop HTML (REST stays unchanged)
         if: github.event_name == 'pull_request'
         run: python3 scripts/verify-sonar-pillar-practical-public-v1.py --verify
