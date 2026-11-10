@@ -1,0 +1,81 @@
+name: Na-Ryby Sonar Practical Owner Trust Public Readback
+on:
+  pull_request:
+    paths:
+      - 'sonar-practical-owner-guide-49275-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-sonar-practical-owner-49275-v1.php'
+      - 'tests/probe-sonar-practical-owner-public-render-49275.php'
+      - 'scripts/verify-sonar-practical-owner-49275-public.py'
+      - 'tests/test-sonar-practical-owner-public.py'
+      - '.github/workflows/sonar-practical-owner-public.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Standalone source-scope, SEO preservation and public verifier tests
+        run: |
+          set -euo pipefail
+          php -l sonar-practical-owner-guide-49275-v1.php
+          php tests/test-sonar-practical-owner-49275-v1.php
+          php -l tests/probe-sonar-practical-owner-public-render-49275.php
+          python3 -m py_compile scripts/verify-sonar-practical-owner-49275-public.py
+          python3 tests/test-sonar-practical-owner-public.py
+  live-source-probe:
+    if: github.event_name == 'pull_request'
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Exercise PHP transformation against real public REST HTML (read only)
+        run: |
+          set -euo pipefail
+          umask 077
+          trap 'rm -f nry-sonar-49275-temporary.html' EXIT
+          python3 - <<'PY'
+          from pathlib import Path
+          from urllib.request import Request
+          from scripts.readonly_urlopen_retry import guarded_urlopen
+          import json
+          url='https://na-ryby.eu/wp-json/wp/v2/posts/49275?_fields=id,slug,status,link,content'
+          req=Request(url,headers={'User-Agent':'NaRyby-SonarOwner-PR-SourceProbe/1.0',
+                                   'Cache-Control':'no-cache'})
+          with guarded_urlopen(req,timeout=25) as resp:
+              assert resp.status==200 and resp.geturl()==url
+              data=json.loads(resp.read(300000))
+          assert data['id']==49275 and data['slug']=='jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun'
+          assert data['status']=='publish' and data['link']=='https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/'
+          content=data['content']['rendered']
+          assert isinstance(content,str) and 6000<len(content)<120000
+          Path('nry-sonar-49275-temporary.html').write_text(content,encoding='utf8')
+          PY
+          php tests/probe-sonar-practical-owner-public-render-49275.php nry-sonar-49275-temporary.html
+  public-readback:
+    needs: contract
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Anonymous public HTML after guarded WordPress deployment
+        run: python3 scripts/verify-sonar-practical-owner-49275-public.py
