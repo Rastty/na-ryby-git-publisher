@@ -47,15 +47,36 @@ class Document(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.canonicals = []
         self.parts = []
+        self.visible_parts = []
+        self.script_parts = []
+        self.hidden_parts = []
+        self.script_depth = 0
+        self.hidden_depth = 0
 
     def handle_starttag(self, tag, attrs):
         if tag == "link":
             data = dict(attrs)
             if data.get("rel") == "canonical":
                 self.canonicals.append(data.get("href"))
+        if tag == "script":
+            self.script_depth += 1
+        elif tag in ("style", "template", "noscript"):
+            self.hidden_depth += 1
+
+    def handle_endtag(self, tag):
+        if tag == "script":
+            self.script_depth = max(0, self.script_depth - 1)
+        elif tag in ("style", "template", "noscript"):
+            self.hidden_depth = max(0, self.hidden_depth - 1)
 
     def handle_data(self, text):
         self.parts.append(text)
+        if self.script_depth:
+            self.script_parts.append(text)
+        elif self.hidden_depth:
+            self.hidden_parts.append(text)
+        else:
+            self.visible_parts.append(text)
 
 
 def verify(html):
@@ -71,6 +92,18 @@ def verify(html):
                         if signal in text or (i == 4 and case5_existing_safe)]
     old_claims_present = [i + 1 for i, bad in enumerate(FORBIDDEN)
                           if bad in text]
+    # Case 9 still occurs somewhere despite corrected reader-facing copy.
+    # Identify whether the stale assertion is from visible DOM or embedded SEO
+    # script / hidden markup, without publishing a single page URL/href/body.
+    old_faq_claim = FORBIDDEN[8]
+    context = {
+        "case9_in_visible_text": old_faq_claim in " ".join(doc.visible_parts),
+        "case9_in_script": old_faq_claim in " ".join(doc.script_parts),
+        "case9_in_hidden": old_faq_claim in " ".join(doc.hidden_parts),
+        "case9_total_match_count": text.count(old_faq_claim),
+    }
+    print({"case9_origin_diagnostic": context}, flush=True)
+
     print({"expected_correction_indices": expected_present,
            "old_claim_indices": old_claims_present,
            "missing_correction_indices":
