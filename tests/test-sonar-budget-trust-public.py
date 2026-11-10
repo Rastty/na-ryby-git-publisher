@@ -41,7 +41,12 @@ assert old in " ".join(probe.visible_parts)
 assert old in " ".join(probe.script_parts)
 assert old in " ".join(probe.hidden_parts)
 only_schema = m["Document"]()
-only_schema.feed("<main><p>Safe buyer FAQ</p></main><script>" + old + "</script>")
+only_schema.feed("<main><p>Safe buyer FAQ</p></main>"
+                 "<script type=\"application/ld+json\" class=\"yoast-schema-graph\">"
+                 + old + "</script>")
+assert only_schema.script_records[0]["type"] == "application/ld+json"
+assert only_schema.script_records[0]["class"] == "yoast-schema-graph"
+assert old in only_schema.script_records[0]["body"]
 assert old not in " ".join(only_schema.visible_parts)
 assert old in " ".join(only_schema.script_parts)
 
