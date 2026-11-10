@@ -46,7 +46,7 @@ $drift=str_replace($rules[1][0],'editor revised this claim',$source);
 chk($c::transform($drift)===$drift,'editor change fails closed');
 $noHeading=str_replace($heading,'<h2>Different heading</h2>',$source);
 chk($c::transform($noHeading)===$noHeading,'heading drift fails closed');
-$linked=str_replace($rules[0][0],$rules[0][0].' <a href="https://merchant.example/new">x</a>',$source);
+$linked=str_replace($rules[0][0],'<a href="https://merchant.example/new">'.$rules[0][0].'</a>',$source);
 chk($c::transform($linked)===$linked,'unauthorized new link blocks change');
 $noPin=$GLOBALS['ctx']['source'];
 chk($c::render($source)===$source,'unknown WP exact sha blocks render');
