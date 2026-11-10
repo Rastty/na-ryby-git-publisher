@@ -1,0 +1,40 @@
+name: Na-Ryby Sonar Budget Trust Public Readback
+on:
+  pull_request:
+    paths:
+      - 'sonar-budget-trust-118455-v1.php'
+      - 'tests/test-sonar-budget-trust-118455-v1.php'
+      - 'scripts/verify-sonar-budget-trust-118455-public.py'
+      - 'tests/test-sonar-budget-trust-public.py'
+      - '.github/workflows/sonar-budget-trust-public.yml'
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Offline source and public verifier contract
+        run: |
+          set -euo pipefail
+          php -l sonar-budget-trust-118455-v1.php
+          php tests/test-sonar-budget-trust-118455-v1.php
+          python3 -m py_compile scripts/verify-sonar-budget-trust-118455-public.py
+          python3 tests/test-sonar-budget-trust-public.py
+  public:
+    needs: contract
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact correction appeared on public site (GET only)
+        run: python3 scripts/verify-sonar-budget-trust-118455-public.py
