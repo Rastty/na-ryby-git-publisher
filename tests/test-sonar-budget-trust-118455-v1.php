@@ -26,7 +26,7 @@ function check($ok,$label) { if (!$ok) { fwrite(STDERR,"FAIL: $label\n"); exit(1
 check(count($GLOBALS['filters']['the_content']??array())===2,'bounded editorial and late FAQ filters registered');
 $reflection=new ReflectionMethod('NRY_Sonar_Budget_Trust_118455_V1','corrections');
 $pairs=$reflection->invoke(null);
-check(count($pairs)===10,'ten bounded corrections');
+check(count($pairs)===15,'fifteen bounded corrections');
 $href='<a href="https://go.dognet.com/unchanged-example?a=1&amp;b=2">Zjistit cenu</a>';
 $source='<h2>Echolot</h2><p>'.implode('</p><p>',array_keys($pairs)).'</p><p>'.$href.'</p>';
 check(strlen($source)>300,'valid fixture');
@@ -172,4 +172,4 @@ $duplicate=$source.'<p>'.array_keys($pairs)[1].'</p>';
 $dup=$render::render($duplicate);
 check(substr_count($dup,array_keys($pairs)[1])===2,'ambiguous span untouched');
 check(strpos($dup,$href)!==false,'no affiliate rewrite on duplicate');
-echo "OK sonar-budget-render-only-contract: ten fixes, identities, editor precedence, idempotence, href unchanged\n";
+echo "OK sonar-budget-render-only-contract: fifteen fixes, identities, editor precedence, idempotence, href unchanged\n";

@@ -68,7 +68,19 @@ final class NRY_Sonar_Budget_Trust_118455_V1 {
             'Ano jako obecně známý referenční model ano. V tomto článku ale hlavní doporučení stavím jen na aktuálně dohledatelných nabídkách z OKfish a Chyť a pusť.'
                 => 'Garmin Striker Vivid může být jednou z možností. Porovnejte přesnou variantu, kompatibilní sondu a celkovou cenu; historické odkazy zde nedokládají nejlepší dnešní nabídku.',
             'bonus baterie a nabíječka'
-                => 'příslušenství v balení ověřte u prodejce'
+                => 'příslušenství v balení ověřte u prodejce',
+            // Exact live public 2026-11-10 buyer-page winner claims without
+            // a current SKU/price comparison; correct copy, NEVER hrefs.
+            'Nejlepší rozumná volba'
+                => 'Příklad sestavy s mapováním',
+            'Lowrance Hook Reveal 5, pokud chceš vyvážený sonar s mapováním a poctivým čtením dna.'
+                => 'Lowrance Hook Reveal 5 je starší příklad sestavy s mapováním. Bez ověřených dnešních cen a variant nejde o univerzálního vítěze.',
+            'Nejlepší budget'
+                => 'Příklad jednoduchého základu',
+            'Nejlepší volba pro toho, kdo nechce za rok litovat, že šel do malého displeje.'
+                => 'Větší displej může zlepšit čitelnost. Zvažte však i sondu, celkovou cenu, montáž a napájení.',
+            'Kdybych měl vybrat jen jeden model pro většinu lidí, beru Hook Reveal 5. Není to nejlevnější ani největší, ale jako celek mi dává nejrozumnější smysl. Pokud ale víš, že jsi na displej citlivý a mžourání tě u vody štve, pak bych se nebál připlatit za Eagle 7.'
+                => 'Jeden univerzálně nejlepší model bez ověření aktuálních sestav a cen určit nelze. Pro mapování porovnejte GPS, kompatibilní sondu a funkce; pro čitelnost velikost displeje, montáž, napájení a konečnou cenu.'
         );
     }
 
