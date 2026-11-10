@@ -90,6 +90,31 @@ $alteredMarkup=$result.'<script type="application/ld+json">'
     .json_encode($alteredNode,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES).'</script>';
 check($render::render_faq_schema($alteredMarkup)===$alteredMarkup,
     'unrelated JSON-LD field must not be rewritten');
+// A real public readback found the long last verdict unchanged after the
+// literal correction; WordPress inline emphasis / entities can split it.
+$longOriginal=array_keys($pairs)[14];
+$longReplacement=array_values($pairs)[14];
+$formattedLong=str_replace('Hook Reveal 5',
+    '<strong>Hook Reveal 5</strong>', $longOriginal);
+$formattedLong=str_replace('model pro většinu lidí',
+    'model&nbsp;pro většinu lidí', $formattedLong);
+$longFixture='<p class="final-verdict">'.$formattedLong.'</p>'
+    .'<p>'.$href.'</p><p>Other editor-approved content remains intact.</p>';
+check(strlen($longFixture)>300,'long formatted verdict fixture nontrivial');
+$longFixed=$render::render($longFixture);
+check(substr_count($longFixed,$longReplacement)===1,
+    'long formatted verdict corrected once');
+check(strpos($longFixed,$href)!==false,'merchant href untouched in verdict fixture');
+check(strpos($longFixed,'Other editor-approved content remains intact.')!==false,
+    'surrounding editor content unchanged');
+check($render::render($longFixed)===$longFixed,'long verdict idempotent');
+$longWithLink='<p>'.$formattedLong.' <a href="https://na-ryby.eu/review/">Compare</a></p>';
+check($render::render($longWithLink)===$longWithLink,
+    'link-bearing edited long verdict remains protected');
+$longDuplicate='<p>'.$formattedLong.'</p><p>'.$formattedLong.'</p>';
+check($render::render($longDuplicate)===$longDuplicate,
+    'duplicate long verdict paragraphs are ambiguous and untouched');
+
 $GLOBALS['ctx']['id']=118456;
 check($render::render_faq_schema($withSchema)===$withSchema,'FAQ wrong post untouched');
 $GLOBALS['ctx']['id']=118455;
