@@ -47,7 +47,7 @@ foreach($more as $id=>$route) {
   must(count($GLOBALS['queue'])===1,'exact released buyer must have script');
   must(nry_buyer_click_approved_scope($id,$route),'whitelisted ID/path binding');
   must($GLOBALS['queue'][0]['handle']==='nry-buyer-offer-click-v1','same local JS');
-  must($GLOBALS['queue'][0]['version']==='1.1.0','new script version');
+  must($GLOBALS['queue'][0]['version']==='1.2.0','new script version');
 }
 $GLOBALS['queue']=array();
 $GLOBALS['id']=119865;
