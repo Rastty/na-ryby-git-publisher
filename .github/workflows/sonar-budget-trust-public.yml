@@ -69,6 +69,9 @@ jobs:
           Path('nry-budget-ephemeral.html').write_text(content,encoding='utf8')
           PY
           php tests/probe-sonar-budget-owner-first-118455.php nry-budget-ephemeral.html
+      - name: Verify complete owner-first visitor experience on PR
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-sonar-budget-owner-first-public.py
       - name: Read-only public JSON-LD origin proof on PR
         if: github.event_name == 'pull_request'
         run: python3 scripts/audit-sonar-faq-schema-origin.py
