@@ -41,9 +41,18 @@ def verify(html):
             "merchant_requests":0,"wordpress_writes":0,"analytics_events":0}
 
 if __name__=="__main__":
-    req=Request(HOME,headers={"User-Agent":"NaRybyHomeAdvisorEntryReadOnly/1.0",
-                              "Cache-Control":"no-cache"})
-    with urlopen(req,timeout=24) as response:
-        assert response.status==200 and response.geturl()==HOME, "WRONG_LIVE_URL"
-        html=response.read(1300000).decode('utf-8','replace')
-    print(verify(html))
+    import time
+    for attempt in range(3):
+        try:
+            req=Request(HOME,headers={"User-Agent":"NaRybyHomeAdvisorEntryReadOnly/1.0",
+                                      "Cache-Control":"no-cache, no-store"})
+            with urlopen(req,timeout=24) as response:
+                assert response.status==200 and response.geturl()==HOME, "WRONG_LIVE_URL"
+                html=response.read(1300000).decode('utf-8','replace')
+            print(verify(html))
+            break
+        except Exception as error:
+            print("PUBLIC_RETRY",attempt+1,type(error).__name__,flush=True)
+            if attempt==2:
+                raise SystemExit("BLOCKED: homepage advisor entry not independently verified")
+            time.sleep(5)
