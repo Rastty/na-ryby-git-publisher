@@ -50,6 +50,19 @@ def verify(html):
     doc.feed(html)
     assert doc.canonicals == [URL], "CANONICAL_DRIFT"
     text = " ".join(doc.parts)
+    # Boolean-only evidence: avoid writing page bodies, visitors or merchant hrefs
+    # to public Actions logs. Keep the original exact public assertions.
+    expected_present = [i + 1 for i, signal in enumerate(REQUIRED)
+                        if signal in text]
+    old_claims_present = [i + 1 for i, bad in enumerate(FORBIDDEN)
+                          if bad in text]
+    print({"expected_correction_indices": expected_present,
+           "old_claim_indices": old_claims_present,
+           "missing_correction_indices":
+               [i for i in range(1, len(REQUIRED) + 1)
+                if i not in expected_present],
+           "marker_verified": True, "canonical_verified": True},
+          flush=True)
     for signal in REQUIRED:
         assert signal in text, "EXPECTED_CORRECTION_NOT_PUBLIC"
     for bad in FORBIDDEN:
