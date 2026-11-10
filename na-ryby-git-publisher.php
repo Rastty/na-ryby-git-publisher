@@ -29,6 +29,7 @@ require_once __DIR__ . '/reel-dashboard-nextsteps-v1.php';
 require_once __DIR__ . '/sonar-budget-trust-118455-v1.php';
 require_once __DIR__ . '/sonar-budget-owner-first-118455-v1.php';
 require_once __DIR__ . '/sonar-pillar-practical-handoff-118553-v1.php';
+require_once __DIR__ . '/sonar-pillar-merchant-neutral-118553-v1.php';
 
 final class NRY_Git_Publisher {
     const MARKER = 'data-nry-advisor-internal-link="cohort-01"';

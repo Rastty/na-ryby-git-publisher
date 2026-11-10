@@ -3,6 +3,10 @@ on:
   pull_request:
     paths:
       - 'sonar-pillar-practical-handoff-118553-v1.php'
+      - 'sonar-pillar-merchant-neutral-118553-v1.php'
+      - 'tests/test-sonar-pillar-merchant-neutral-118553-v1.php'
+      - 'scripts/verify-sonar-pillar-merchant-neutral-118553-public.py'
+      - 'tests/test-sonar-pillar-merchant-neutral-public.py'
       - 'na-ryby-git-publisher.php'
       - 'tests/test-sonar-pillar-practical-handoff-118553-v1.php'
       - 'scripts/verify-sonar-pillar-practical-public-v1.py'
@@ -29,6 +33,10 @@ jobs:
           php -l sonar-pillar-practical-handoff-118553-v1.php
           php -l na-ryby-git-publisher.php
           php tests/test-sonar-pillar-practical-handoff-118553-v1.php
+          php -l sonar-pillar-merchant-neutral-118553-v1.php
+          php tests/test-sonar-pillar-merchant-neutral-118553-v1.php
+          python3 -m py_compile scripts/verify-sonar-pillar-merchant-neutral-118553-public.py
+          python3 tests/test-sonar-pillar-merchant-neutral-public.py
           python3 -m py_compile scripts/verify-sonar-pillar-practical-public-v1.py
           python3 tests/test-sonar-pillar-practical-public-v1.py
       - name: Probe source-matched transform with actual anonymous REST body (never upload body)
@@ -77,6 +85,9 @@ jobs:
           else
             python3 scripts/verify-sonar-pillar-practical-public-v1.py --preflight
           fi
+      - name: Confirm unverified merchant claim is still publicly visible before review
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-sonar-pillar-merchant-neutral-118553-public.py --preflight
   production:
     needs: contract
     if: >-
@@ -89,4 +100,6 @@ jobs:
       - uses: actions/checkout@v4
         with: {persist-credentials: false}
       - name: Independently verify one new practical handoff on published sonar pillar
-        run: python3 scripts/verify-sonar-pillar-practical-public-v1.py --verify
+        run: |
+          python3 scripts/verify-sonar-pillar-practical-public-v1.py --verify
+          python3 scripts/verify-sonar-pillar-merchant-neutral-118553-public.py --verify
