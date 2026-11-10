@@ -1,0 +1,41 @@
+name: Na-Ryby Carp Pillar Decision First Public Readback
+on:
+  pull_request:
+    paths:
+      - 'carp-pillar-choice-before-shop-118541-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-carp-pillar-choice-before-shop-118541-v1.php'
+      - 'scripts/verify-carp-pillar-choice-118541-public.py'
+      - 'tests/test-carp-pillar-choice-public.py'
+      - '.github/workflows/carp-pillar-choice-public.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Local source, context and public verifier regression
+        run: |
+          set -euo pipefail
+          php -l carp-pillar-choice-before-shop-118541-v1.php
+          php tests/test-carp-pillar-choice-before-shop-118541-v1.php
+          python3 -m py_compile scripts/verify-carp-pillar-choice-118541-public.py
+          python3 tests/test-carp-pillar-choice-public.py
+  public:
+    needs: contract
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exact independent public HTTP GET proof (no merchant calls)
+        run: python3 scripts/verify-carp-pillar-choice-118541-public.py
