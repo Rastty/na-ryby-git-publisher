@@ -40,7 +40,7 @@
           form.elements?.style?.value !== 'feeder') return;
       const headline = panel.querySelector('.nry-result__title');
       const links = panel.querySelector('.nry-result__links');
-      if (!headline || !/^Feeder\\s*[–-]\\s*sestava pro /u.test(headline.textContent || '') ||
+      if (!headline || !/^Feeder\s*[–-]\s*sestava pro /u.test(headline.textContent || '') ||
           !links) return;
       const anchors = links.querySelectorAll('a[href]');
       if (anchors.length !== 1) return;
