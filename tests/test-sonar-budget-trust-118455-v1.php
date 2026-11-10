@@ -23,7 +23,7 @@ function get_post($id) {
 }
 require dirname(__DIR__).'/sonar-budget-trust-118455-v1.php';
 function check($ok,$label) { if (!$ok) { fwrite(STDERR,"FAIL: $label\n"); exit(1); } }
-check(count($GLOBALS['filters']['the_content']??array())===1,'hook registered once');
+check(count($GLOBALS['filters']['the_content']??array())===2,'bounded editorial and late FAQ filters registered');
 $reflection=new ReflectionMethod('NRY_Sonar_Budget_Trust_118455_V1','corrections');
 $pairs=$reflection->invoke(null);
 check(count($pairs)===10,'ten bounded corrections');
@@ -40,6 +40,63 @@ foreach($pairs as $before=>$after) {
 }
 check(strpos($result,$href)!==false,'affiliate href byte-preserved');
 check($render::render($result)===$result,'idempotent double filter');
+
+// Public + REST-proven schema has a FAQPage/Question/Answer path containing the
+// uncorrected full answer AFTER the 32-priority buyer article corrections.
+$faqSchema = array(
+    '@context' => 'https://schema.org',
+    '@type' => 'FAQPage',
+    'mainEntity' => array(
+        array('@type'=>'Question', 'name'=>'Lze porovnat Garmin?',
+              'acceptedAnswer'=>array('@type'=>'Answer',
+                  'text'=>$render::FAQ_JSONLD_OLD)),
+        array('@type'=>'Question', 'name'=>'Co je součástí?',
+              'acceptedAnswer'=>array('@type'=>'Answer', 'text'=>'Další odpověď se nemění.')),
+    )
+);
+$json = json_encode($faqSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+$oldScript='<script type="application/ld+json">'.$json.'</script>';
+$withSchema=$result . $oldScript;
+$schemaFixed=$render::render_faq_schema($withSchema);
+check($schemaFixed!==$withSchema,'late, matching FAQ schema is repaired');
+check(strpos($schemaFixed,$render::FAQ_JSONLD_OLD)===false,'no old FAQ sentence in released HTML');
+check(substr_count($schemaFixed,$render::FAQ_JSONLD_SAFE)===2,
+    'approved FAQ text present in both visible paragraph and structured answer');
+check(strpos($schemaFixed,$href)!==false,'schema fix preserves affiliate link byte-for-byte');
+check($render::render_faq_schema($schemaFixed)===$schemaFixed,'FAQ schema correction idempotent');
+preg_match('~<script type="application/ld\+json">(.*?)</script>~s',$schemaFixed,$repairedScript);
+$decoded=json_decode($repairedScript[1], true);
+check(json_last_error()===JSON_ERROR_NONE,'repaired FAQ JSON remains parseable');
+check($decoded['mainEntity'][0]['acceptedAnswer']['text']===$render::FAQ_JSONLD_SAFE,
+    'only exact FAQ acceptedAnswer updated');
+check($decoded['mainEntity'][1]===$faqSchema['mainEntity'][1],
+    'other FAQ answer byte/semantic content unchanged');
+$unrelatedJson=$faqSchema;
+$unrelatedJson['@type']='Article';
+$unrelatedMarkup=$result.'<script type="application/ld+json">'
+    .json_encode($unrelatedJson, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES).'</script>';
+check($render::render_faq_schema($unrelatedMarkup)===$unrelatedMarkup,
+    'wrong JSON-LD schema type protected');
+$brokenSchema=$result.'<script type="application/ld+json">{invalid '
+    .$render::FAQ_JSONLD_OLD.'</script>';
+check($render::render_faq_schema($brokenSchema)===$brokenSchema,'malformed JSON ignored');
+$duplicateSchema=$result.$oldScript.$oldScript;
+check($render::render_faq_schema($duplicateSchema)===$duplicateSchema,
+    'duplicate FAQ schema fail closed');
+$alteredNode=$faqSchema;
+$alteredNode['mainEntity'][0]['acceptedAnswer']['text']='Přepsané redakční znění.';
+$alteredNode['headline']=$render::FAQ_JSONLD_OLD;
+$alteredMarkup=$result.'<script type="application/ld+json">'
+    .json_encode($alteredNode,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES).'</script>';
+check($render::render_faq_schema($alteredMarkup)===$alteredMarkup,
+    'unrelated JSON-LD field must not be rewritten');
+$GLOBALS['ctx']['id']=118456;
+check($render::render_faq_schema($withSchema)===$withSchema,'FAQ wrong post untouched');
+$GLOBALS['ctx']['id']=118455;
+$GLOBALS['ctx']['preview']=true;
+check($render::render_faq_schema($withSchema)===$withSchema,'FAQ preview untouched');
+$GLOBALS['ctx']['preview']=false;
+
 
 $keys=array_keys($pairs);
 $values=array_values($pairs);
