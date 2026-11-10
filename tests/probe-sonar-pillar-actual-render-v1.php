@@ -22,7 +22,7 @@ $safe=array(
   'fourCases'=>substr_count($section,'<li>'),
   'alreadyOwnLanguage'=>strpos($section,'další nákup není nutný')!==false,
   'priceCaution'=>strpos($section,'aktuální konečnou cenu kompletu')!==false,
-  'h2NextMatch'=>(bool) preg_match('~<h2\b[^>]*>\s*Jak vybrat echolot pro rybaření:~iu',$next),
+  'h2NextMatch'=>(bool) preg_match('~<h2\b[^>]*>\s*Jak vybrat echolot pro rybaření:~i',$next),
   'previousPracticalHref'=>strpos($raw,$c::PRACTICAL)!==false,
   'pureTransformAddsMarker'=>false,
   'wordpressWrites'=>0,'merchantRequests'=>0,
