@@ -5,6 +5,7 @@ on:
       - 'reel-dashboard-nextsteps-v1.php'
       - 'tests/test-reel-dashboard-nextsteps-v1.php'
       - 'scripts/verify-reel-dashboard-nextsteps-public.py'
+      - 'tests/test-reel-dashboard-serp-public.py'
       - 'assets/nry-reel-handoff-v1.js'
       - 'tests/test-reel-handoff-v1.mjs'
       - 'tests/test-reel-situations-handoff-v1.mjs'
@@ -36,6 +37,7 @@ jobs:
           node tests/test-reel-situations-handoff-v1.mjs
           python3 -m py_compile scripts/verify-reel-handoff-public-v1.py
           python3 -m py_compile scripts/verify-reel-dashboard-nextsteps-public.py
+          python3 tests/test-reel-dashboard-serp-public.py
   live-readback:
     needs: contract
     if: >-
