@@ -32,6 +32,23 @@
     // retain the generic guide as a secondary link, never touch products.
     // Submit bubbles from the form only AFTER its existing inline renderer.
     // An editor-changed result/anchor must win: fail closed.
+    // Invalidate previous advice as soon as a decision input changes.
+    // Some live WordPress versions leave the result visible despite form
+    // changes. Never show an answer for the wrong fishing style or budget.
+    // The existing inline engine is still responsible for recalculation.
+    root.addEventListener('change', event => {
+      const form = root.querySelector('form');
+      const panel = root.querySelector('[data-nry-results]');
+      const control = event?.target;
+      if (!form || !panel || panel.hidden === true ||
+          !control || control.form !== form || control.tagName !== 'SELECT' ||
+          !['style','water','travel','experience','budget'].includes(control.name)) return;
+      panel.hidden = true;
+      panel.replaceChildren();
+      const hint = root.querySelector('[data-nry-refresh]');
+      if (hint) hint.hidden = false;
+    });
+
     root.addEventListener('submit', event => {
       if (event?.isTrusted !== true) return;
       const form = root.querySelector('form');
