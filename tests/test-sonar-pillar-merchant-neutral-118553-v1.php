@@ -46,7 +46,7 @@ $wrapped=str_replace($c::OLD,'<a href="https://merchant.example.invalid/">'
  .$c::OLD.'</a>',$source);
 check($c::transform($wrapped)===$wrapped,'linked merchant phrase cannot be changed');
 $inline=str_replace($c::OLD,'<strong>'.$c::OLD.'</strong>',$source);
-check($c::transform($inline)===$source?false:$c::transform($inline)===$inline,
+check($c::transform($inline)===$inline,
  'editor markup cannot silently change');
 // Correct source scope and post metadata are required before modifying HTML.
 check($c::render($source)===$fixed,'real post eligible');
