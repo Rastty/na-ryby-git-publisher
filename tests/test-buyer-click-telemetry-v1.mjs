@@ -82,16 +82,16 @@ for(const [page,role] of additional){
 // They are visitor handoffs only, never a sale, fee or verified affiliate credit.
 const sonarBudget=browser({page:'/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/'});
 sonarBudget.click('https://go.dognet.com/?some-id=1');
-assert.equal(sonarBudget.calls.length,0,'homepage/root Dognet destination not classified');
+assert.equal(sonarBudget.calls.length,1,'tracking query on Dognet root is legitimate outbound');
 sonarBudget.click('https://go.dognet.com/path/to/offer?affiliate=REDACTED');
-assert.equal(sonarBudget.calls.length,1);
+assert.equal(sonarBudget.calls.length,2);
 assert.equal(sonarBudget.calls[0][1],'nry_buyer_offer_click');
 assert.equal(sonarBudget.calls[0][2].buyer_page,'echolot_budget');
 assert.equal(sonarBudget.calls[0][2].buyer_cta_type,'dognet_outbound');
 sonarBudget.click('https://www.chytapust.cz/echolot-model/?a=secret');
-assert.equal(sonarBudget.calls.length,2);
-assert.equal(sonarBudget.calls[1][2].buyer_cta_type,'merchant_outbound');
-assert.equal(sonarBudget.calls[1][2].transport_type,'beacon');
+assert.equal(sonarBudget.calls.length,3);
+assert.equal(sonarBudget.calls[2][2].buyer_cta_type,'merchant_outbound');
+assert.equal(sonarBudget.calls[2][2].transport_type,'beacon');
 for (const call of sonarBudget.calls) {
   assert.deepEqual(Object.keys(call[2]).sort(),
     ['buyer_cta_type','buyer_page','transport_type'].sort(),
@@ -108,7 +108,7 @@ for(const href of [
  'https://example.com/offer'
 ]) sonarBudget.click(href);
 sonarBudget.click('https://www.chytapust.cz/echolot/',{trusted:false});
-assert.equal(sonarBudget.calls.length,2,'invalid or untrusted offsite clicks ignored');
+assert.equal(sonarBudget.calls.length,3,'invalid or untrusted offsite clicks ignored');
 const sonarNoGtag=browser({
   page:'/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/',
   gtagEnabled:false
