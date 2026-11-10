@@ -58,6 +58,51 @@ final class NRY_Sonar_Budget_Trust_118455_V1 {
         );
     }
 
+    /**
+     * Two reviewed legacy paragraphs can have harmless inline formatting or
+     * HTML entities that defeat byte-exact text matching. Require ONE whole
+     * paragraph with text equal to the reviewed old claim after whitespace
+     * normalization. Do not touch hrefs, nested blocks or editor-rewritten text.
+     * Return null if there is no unique unambiguous candidate.
+     */
+    private static function guarded_paragraph_replacement($content, $old, $replacement) {
+        if (!preg_match_all('~<p\b[^>]*>(.*?)</p>~isu', $content, $found,
+            PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) return null;
+
+        $matches = array();
+        $normalise = function($text) {
+            $decoded = html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            return trim(preg_replace('/[\s\x{00A0}\x{202F}]+/u', ' ', $decoded));
+        };
+        $expected = $normalise($old);
+        foreach ($found as $match) {
+            $body = $match[1][0];
+            if ($normalise($body) !== $expected) continue;
+            // Old sentences contain no links, images, shortcode or nested
+            // block content. An editorial change introducing any is protected.
+            if (preg_match('~<\s*/?\s*([a-z][a-z0-9]*)\b~i', $body, $tags)) {
+                preg_match_all('~<\s*/?\s*([a-z][a-z0-9]*)\b~i', $body, $all_tags);
+                foreach ($all_tags[1] as $tag) {
+                    if (!in_array(strtolower($tag),
+                        array('strong','b','em','i','span','u','small','br'), true)) {
+                        continue 2;
+                    }
+                }
+            }
+            $matches[] = $match;
+        }
+        if (count($matches) !== 1) return null;
+        $match = $matches[0];
+        $full = $match[0][0];
+        $body = $match[1][0];
+        $start = strpos($full, $body);
+        if ($start === false) return null;
+        $updated = substr($full, 0, $start)
+            . htmlspecialchars($replacement, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            . substr($full, $start + strlen($body));
+        return substr_replace($content, $updated, $match[0][1], strlen($full));
+    }
+
     public static function render($content) {
         if (!is_string($content) || strlen($content) < 300
             || strpos($content, self::MARKER) !== false
@@ -65,10 +110,22 @@ final class NRY_Sonar_Budget_Trust_118455_V1 {
 
         $updated = $content;
         $changes = 0;
-        foreach (self::corrections() as $old => $replacement) {
+        foreach (self::corrections() as $index => $replacement) {
             // Respect editor changes; never replace an ambiguous occurrence.
-            if (substr_count($updated, $old) !== 1) continue;
-            $updated = str_replace($old, $replacement, $updated);
+            // Each key is the exact pre-reviewed legacy statement.
+            $old = $index;
+            if (substr_count($updated, $old) === 1) {
+                $updated = str_replace($old, $replacement, $updated);
+                ++$changes;
+                continue;
+            }
+            // Only the two demonstrated non-matching paragraphs (#3 and #5)
+            // are eligible for the safe whole-paragraph fallback.
+            $position = array_search($old, array_keys(self::corrections()), true);
+            if (!in_array($position, array(2, 4), true)) continue;
+            $candidate = self::guarded_paragraph_replacement($updated, $old, $replacement);
+            if ($candidate === null) continue;
+            $updated = $candidate;
             ++$changes;
         }
         if ($changes === 0) return $content;

@@ -40,6 +40,33 @@ foreach($pairs as $before=>$after) {
 }
 check(strpos($result,$href)!==false,'affiliate href byte-preserved');
 check($render::render($result)===$result,'idempotent double filter');
+
+$keys=array_keys($pairs);
+$values=array_values($pairs);
+// Both failing public variants: styling can split an exact old phrase into
+// multiple DOM text nodes; HTML entities can break an exact UTF-8 replacement.
+$formatted3=str_replace('lepší aktuální nabídku',
+    '<strong>lepší aktuální nabídku</strong>', $keys[2]);
+$formatted5=str_replace('Chyť a pusť tu má rozumnou aktuální nabídku',
+    'Chyť a pusť tu má <em>rozumnou aktuální nabídku</em>', $keys[4]);
+$fixture='<p class="intro">'.$formatted3.'</p>'
+    .'<p>'.str_replace('za displej.', 'za&nbsp;displej.', $formatted5).'</p>'
+    .'<p>'.$href.'</p><p>Other content held unchanged.</p>';
+check(strlen($fixture)>300,'formatted fixture long enough');
+$fixed=$render::render($fixture);
+check(substr_count($fixed, $values[2])===1,'formatted claim 3 corrected');
+check(substr_count($fixed, $values[4])===1,'formatted claim 5 corrected');
+check(strpos($fixed,$href)!==false,'formatted fixture affiliate unchanged');
+check(strpos($fixed,'Other content held unchanged.')!==false,'other paragraph untouched');
+check($render::render($fixed)===$fixed,'formatted page idempotent');
+$hostile='<p>'.$formatted3.' <a href="https://outside.example/">external</a></p>'
+    .'<p>'.$formatted5.' <a href="https://outside.example/">external</a></p>';
+check($render::render($hostile)===$hostile,
+    'protected paragraphs with editor-supplied links fail closed');
+$duplicate='<p>'.$formatted3.'</p><p>'.$formatted3.'</p>';
+check($render::render($duplicate)===$duplicate,
+    'two matching formatted paragraphs are ambiguous and untouched');
+
 $other=$source;
 $GLOBALS['ctx']['id']=118456;
 check($render::render($other)===$other,'wrong ID untouched');
