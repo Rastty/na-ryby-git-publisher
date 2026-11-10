@@ -18,7 +18,7 @@ content=section+trailer+'<p>'+('obsah článku '*100)+'</p>'
 page={"id":118553,"slug":"jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce",
  "type":"post","status":"publish","link":m["PAGE"],
  "modified_gmt":"2026-11-04T11:27:17","content":{"rendered":content}}
-html='<html> '+m["PAGE"]+' '+('test site '*7000)+'</html>'
+html='<html> '+m["PAGE"]+' '+content+('test site '*7000)+'</html>'
 assert m["evaluate"](page,html,False)["status"]=="PUBLIC_PREFLIGHT_VERIFIED"
 result=section+paragraph+trailer+'<p>'+('obsah článku '*100)+'</p>'
 # Render-only main-loop filter does not mutate the REST API representation.
