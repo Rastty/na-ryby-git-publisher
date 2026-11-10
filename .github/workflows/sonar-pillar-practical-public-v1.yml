@@ -58,9 +58,25 @@ jobs:
           PY
           php tests/probe-sonar-pillar-actual-render-v1.php nry-pillar-live-body-ephemeral.html
           rm -f nry-pillar-live-body-ephemeral.html
-      - name: Confirm current public original before corrected release (no click)
+      - name: Check live sonar baseline without misclassifying unrelated publisher changes
         if: github.event_name == 'pull_request'
-        run: python3 scripts/verify-sonar-pillar-practical-public-v1.py --preflight
+        run: |
+          set -euo pipefail
+          # A real change to sonar code, verifier or tests must retain the
+          # strict before-release gate. A different feature merely updating
+          # the shared publisher loader verifies the already-live sonar route.
+          base_sha="${{ github.event.pull_request.base.sha }}"
+          git -c protocol.version=2 fetch --depth=1 origin "$base_sha"
+          if git diff --quiet "$base_sha" HEAD -- \
+              sonar-pillar-practical-handoff-118553-v1.php \
+              tests/test-sonar-pillar-practical-handoff-118553-v1.php \
+              tests/probe-sonar-pillar-actual-render-v1.php \
+              scripts/verify-sonar-pillar-practical-public-v1.py \
+              tests/test-sonar-pillar-practical-public-v1.py; then
+            python3 scripts/verify-sonar-pillar-practical-public-v1.py --verify
+          else
+            python3 scripts/verify-sonar-pillar-practical-public-v1.py --preflight
+          fi
   production:
     needs: contract
     if: >-
