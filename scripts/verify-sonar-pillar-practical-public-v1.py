@@ -43,7 +43,7 @@ def assert_original_section(content):
     next_fragment = content[end+len("</section>"):end+len("</section>")+2000]
     import re
     has_heading = bool(re.search(
-        r"<h2\\b[^>]*>\\s*Jak vybrat echolot pro rybaření:", next_fragment,
+        r"<h2\b[^>]*>\s*Jak vybrat echolot pro rybaření:", next_fragment,
         re.IGNORECASE))
     first_h2 = next_fragment.find("<h2")
     raw_title_pos = next_fragment.find("Jak vybrat echolot pro rybaření:")
