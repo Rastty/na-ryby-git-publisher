@@ -59,6 +59,22 @@ check(substr_count($fixed, $values[4])===1,'formatted claim 5 corrected');
 check(strpos($fixed,$href)!==false,'formatted fixture affiliate unchanged');
 check(strpos($fixed,'Other content held unchanged.')!==false,'other paragraph untouched');
 check($render::render($fixed)===$fixed,'formatted page idempotent');
+
+$formattedFaq=str_replace('aktuálně dohledatelných nabídkách',
+    '<strong>aktuálně</strong> dohledatelných nabídkách', $keys[8]);
+$faqFixture='<p class="buyer-faq">'.$formattedFaq.'</p>'
+    .'<p>'.$href.'</p><p>Unchanged editorial context.</p>';
+check(strlen($faqFixture)>300,'FAQ fixture long enough');
+$faqResult=$render::render($faqFixture);
+check(substr_count($faqResult,$values[8])===1,'formatted FAQ claim 9 corrected');
+check(strpos($faqResult,$href)!==false,'FAQ fixture merchant link intact');
+check(strpos($faqResult,'Unchanged editorial context.')!==false,'FAQ surroundings unchanged');
+check($render::render($faqResult)===$faqResult,'FAQ correction idempotent');
+$faqEdited='<p>'.$formattedFaq.' <a href="https://na-ryby.eu/some-guide/">Editor reference</a></p>';
+check($render::render($faqEdited)===$faqEdited,'FAQ inline editor link protected');
+$faqDuplicate='<p>'.$formattedFaq.'</p><p>'.$formattedFaq.'</p>';
+check($render::render($faqDuplicate)===$faqDuplicate,'duplicate FAQ paragraph blocked');
+
 $hostile='<p>'.$formatted3.' <a href="https://outside.example/">external</a></p>'
     .'<p>'.$formatted5.' <a href="https://outside.example/">external</a></p>';
 check($render::render($hostile)===$hostile,

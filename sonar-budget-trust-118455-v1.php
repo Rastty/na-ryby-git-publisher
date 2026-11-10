@@ -130,10 +130,10 @@ final class NRY_Sonar_Budget_Trust_118455_V1 {
                 ++$changes;
                 continue;
             }
-            // Only the two demonstrated non-matching paragraphs (#3 and #5)
+            // Only the reviewed formatted paragraphs (#3, #5 and FAQ #9)
             // are eligible for the safe whole-paragraph fallback.
             $position = array_search($old, array_keys(self::corrections()), true);
-            if (!in_array($position, array(2, 4), true)) continue;
+            if (!in_array($position, array(2, 4, 8), true)) continue;
             $candidate = self::guarded_paragraph_replacement($updated, $old, $replacement);
             if ($candidate === null) continue;
             $updated = $candidate;
