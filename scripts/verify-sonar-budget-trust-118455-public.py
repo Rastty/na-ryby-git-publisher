@@ -5,6 +5,7 @@ No WordPress writes, merchant requests, user events, external links or identifie
 Only after guarded deploy; a green commit is not public proof.
 """
 from html.parser import HTMLParser
+import json
 from urllib.request import Request, urlopen
 
 URL = ("https://na-ryby.eu/"
@@ -49,6 +50,7 @@ class Document(HTMLParser):
         self.parts = []
         self.visible_parts = []
         self.script_parts = []
+        self.script_records = []
         self.hidden_parts = []
         self.script_depth = 0
         self.hidden_depth = 0
@@ -60,6 +62,10 @@ class Document(HTMLParser):
                 self.canonicals.append(data.get("href"))
         if tag == "script":
             self.script_depth += 1
+            data = dict(attrs)
+            self.script_records.append({"type": data.get("type") or "",
+                                        "class": data.get("class") or "",
+                                        "body": ""})
         elif tag in ("style", "template", "noscript"):
             self.hidden_depth += 1
 
@@ -73,6 +79,8 @@ class Document(HTMLParser):
         self.parts.append(text)
         if self.script_depth:
             self.script_parts.append(text)
+            if self.script_records:
+                self.script_records[-1]["body"] += text
         elif self.hidden_depth:
             self.hidden_parts.append(text)
         else:
@@ -103,6 +111,31 @@ def verify(html):
         "case9_total_match_count": text.count(old_faq_claim),
     }
     print({"case9_origin_diagnostic": context}, flush=True)
+    # Schema/type-only probe; no inline JSON contents, hrefs or body logs.
+    script_locations = []
+    for record in doc.script_records:
+        if old_faq_claim not in record["body"]:
+            continue
+        graph_types = []
+        try:
+            tree = json.loads(record["body"])
+            nodes = tree.get("@graph", []) if isinstance(tree, dict) else []
+            if isinstance(nodes, list):
+                graph_types = sorted({
+                    str(node.get("@type", ""))[:50]
+                    for node in nodes
+                    if isinstance(node, dict) and old_faq_claim in
+                       json.dumps(node, ensure_ascii=False)
+                })[:8]
+        except (ValueError, TypeError):
+            pass
+        script_locations.append({
+            "type": str(record["type"])[:50],
+            "class": str(record["class"])[:50],
+            "contains_valid_json": bool(graph_types),
+            "matching_graph_types": graph_types
+        })
+    print({"case9_script_type_diagnostic": script_locations[:3]}, flush=True)
 
     print({"expected_correction_indices": expected_present,
            "old_claim_indices": old_claims_present,
