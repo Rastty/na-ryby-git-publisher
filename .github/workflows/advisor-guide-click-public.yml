@@ -9,6 +9,11 @@ on:
       - 'scripts/verify-advisor-guide-click-public.py'
       - 'scripts/verify-advisor-feeder-browser.py'
       - '.github/workflows/advisor-guide-click-public.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/verify-advisor-feeder-browser.py'
+      - '.github/workflows/advisor-guide-click-public.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]
@@ -17,7 +22,7 @@ permissions:
 jobs:
   verify-guide-handoff:
     if: >-
-      github.event_name == 'pull_request' ||
+      github.event_name == 'pull_request' || github.event_name == 'push' ||
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.event == 'push' &&
        github.event.workflow_run.conclusion == 'success')
@@ -39,15 +44,16 @@ jobs:
           python3 -m py_compile scripts/verify-advisor-feeder-browser.py
           python3 scripts/verify-advisor-feeder-browser.py --selftest
       - name: Independent real public JS and page readback, no synthetic events
-        if: github.event_name == 'workflow_run'
+        if: github.event_name == 'workflow_run' || github.event_name == 'push'
         run: python3 scripts/verify-advisor-guide-click-public.py
 
   live-feeder-browser:
     needs: verify-guide-handoff
     if: >-
-      github.event_name == 'workflow_run' &&
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_run' &&
       github.event.workflow_run.event == 'push' &&
-      github.event.workflow_run.conclusion == 'success'
+      github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-24.04
     timeout-minutes: 7
     steps:
