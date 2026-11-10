@@ -65,6 +65,18 @@ def evaluate(payload, html, expect_new):
         "PUBLIC_POST_CONTENT_UNAVAILABLE")
     assert_original_section(content)
     assert len(html) > 40000 and PAGE in html, "PUBLIC_PAGE_UNAVAILABLE"
+    if expect_new:
+        print(json.dumps({
+            "diagnostic": "BOUND_SOURCE_MARKER_COUNTS_ONLY",
+            "rest_source_marker_count": content.count(SOURCE_MARKER),
+            "html_source_marker_count": html.count(SOURCE_MARKER),
+            "html_owned_handoff_marker_count": html.count(NEW_MARKER),
+            "html_practical_destination_count": html.count(PRACTICAL),
+            "html_source_heading_count": html.count(PILLAR_HEADING),
+            "rest_owned_handoff_marker_count": content.count(NEW_MARKER),
+            "html_bytes": len(html.encode("utf8")),
+            "wordpressWrites": 0, "merchantRequests": 0
+        }, sort_keys=True), flush=True)
     page_position = assert_original_section(html)
     # The code's main-loop guard is intentionally FALSE inside the REST API.
     # REST is immutable source/identity evidence, not the buyer-facing output.
