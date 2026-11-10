@@ -21,6 +21,9 @@ PAGE = SITE + "/" + SLUG + "/"
 REST = (SITE + "/wp-json/wp/v2/posts?slug=" + quote(SLUG) +
         "&_fields=id,slug,content,yoast_head_json")
 OLD = "hlavní doporučení stavím jen na aktuálně dohledatelných nabídkách"
+OLD_TAIL = ("V tomto článku ale hlavní doporučení stavím jen na aktuálně "
+            "dohledatelných nabídkách z OKfish a Chyť a pusť.")
+OLD_FULL = ("Ano jako obecně známý referenční model ano. " + OLD_TAIL)
 SAFE = "Garmin Striker Vivid může být jednou z možností"
 ALLOWED_PATHS = frozenset({
     "@graph", "@context", "@type", "mainEntity", "acceptedAnswer", "text",
@@ -120,6 +123,8 @@ def script_findings(markup):
                                          "Article", "BlogPosting", "WebPage") else "OTHER_OR_NONE",
             "top_level_graph": isinstance(tree, dict) and isinstance(
                 tree.get("@graph"), list),
+            "old_tail_exact_in_script": OLD_TAIL in record["body"],
+            "old_full_exact_in_script": OLD_FULL in record["body"],
             "matching_json_paths": paths,
             "matching_schema_types": types,
         })
