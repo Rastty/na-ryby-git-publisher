@@ -72,7 +72,23 @@ def main():
             feeder = inspect_links(panel)
             cards = panel.locator(".nry-offer, .nry-offer__cta").count()
             page.locator(selector).select_option("kapr")
+            change_state = page.evaluate("""() => {
+                const panel = document.querySelector('.nry-setup [data-nry-results]');
+                const form = document.querySelector('.nry-setup form');
+                return {
+                  style_is_carp: form?.elements?.style?.value === 'kapr',
+                  panel_hidden_property: panel?.hidden === true,
+                  panel_hidden_attribute: panel?.hasAttribute('hidden') === true,
+                  panel_link_count: panel?.querySelectorAll('a[href]').length ?? -1
+                };
+            }""")
             stale_hidden = panel.is_hidden() or panel.get_attribute("hidden") is not None
+            print(json.dumps({
+                "phase":"form_change_diagnostics",
+                "feeder_routes_match_before_change": [a.get("href") for a in feeder] == [FEEDER, GENERAL],
+                **change_state,
+                "playwright_is_hidden": panel.is_hidden(),
+            }, sort_keys=True))
             page.locator(submit).first.click(timeout=12000)
             assert panel.is_visible(), "CARP_RESULT_NOT_VISIBLE"
             carp = inspect_links(panel)
