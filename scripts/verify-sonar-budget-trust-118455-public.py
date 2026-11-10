@@ -25,7 +25,7 @@ REQUIRED = (
     "Příklad sestavy s mapováním",
     "Lowrance Hook Reveal 5 je starší příklad sestavy s mapováním",
     "Příklad jednoduchého základu",
-    "Větší displej může zlepšit čitelnost. Zvažte však i sondu",
+    "Zvažte však i sondu, celkovou cenu, montáž a napájení.",
     "Jeden univerzálně nejlepší model bez ověření aktuálních sestav",
 )
 # Earlier source-bound editorial cleanup already made case five safe on live
