@@ -9,11 +9,21 @@ html = ('<html><head><link rel="canonical" href="' + m["URL"] +
         '"></head><body>' + m["MARKER"] +
         '<main>' + '<p>'.join(m["REQUIRED"]) + '</main></body></html>')
 assert m["verify"](html)["status"] == "PUBLIC_VERIFIED"
+assert m["verify"](html)["already_safe_cases"] == 0
+alternative = html.replace(m["REQUIRED"][4], m["SAFE_EXISTING_CASE_5"])
+assert m["verify"](alternative)["status"] == "PUBLIC_VERIFIED"
+assert m["verify"](alternative)["already_safe_cases"] == 1
+# A stale best-offer claim is never an acceptable alternative.
+stale5 = html.replace(m["REQUIRED"][4],
+    "Chyť a pusť tu má rozumnou aktuální nabídku včetně baterie a nabíječky.")
+
 for name, changed in [
     ("missing_marker", html.replace(m["MARKER"], "")),
     ("wrong_canonical", html.replace(m["URL"], "https://na-ryby.eu/other/")),
     ("old_prompt", html.replace("</main>", "Zadání sice zmiňuje</main>")),
-    ("missing_correction", html.replace(m["REQUIRED"][2], "MISSING"))
+    ("missing_correction", html.replace(m["REQUIRED"][2], "MISSING")),
+    ("stale_offer_case5", stale5),
+    ("missing_both_safe_variants_case5", html.replace(m["REQUIRED"][4], "UNKNOWN"))
 ]:
     try:
         m["verify"](changed)
