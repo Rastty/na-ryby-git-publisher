@@ -106,8 +106,14 @@ final class NRY_Sonar_Practical_Owner_49275_V1 {
         if (preg_match_all($heading,$html,$headings,PREG_OFFSET_CAPTURE) !== 1) return $html;
         $originalLinks=self::links($html);
         if ($originalLinks === null) return $html;
+        // Never edit text inside an existing link, even if an editor later
+        // wraps one of these sentences in a commercial anchor.
+        if (preg_match_all('~<a\b[^>]*>.*?</a>~isu', $html, $anchors) === false) return $html;
         $updated=$html;
         foreach (self::corrections() as $pair) {
+            foreach ($anchors[0] as $anchor) {
+                if (strpos($anchor,$pair[0]) !== false) return $html;
+            }
             if (substr_count($updated,$pair[0]) !== 1
                 || strpos($updated,$pair[1]) !== false) return $html;
             $updated=str_replace($pair[0],$pair[1],$updated);
