@@ -91,11 +91,11 @@ jobs:
           else
             python3 scripts/verify-sonar-pillar-practical-public-v1.py --preflight
           fi
-      - name: Verify previously deployed merchant correction and exact remaining orphan
+      - name: Verify already deployed merchant-neutral and stray-markup cleanups
         if: github.event_name == 'pull_request'
         run: |
           python3 scripts/verify-sonar-pillar-merchant-neutral-118553-public.py --verify
-          python3 scripts/verify-sonar-pillar-stray-markup-118553-public.py --preflight
+          python3 scripts/verify-sonar-pillar-stray-markup-118553-public.py --verify
   production:
     needs: contract
     if: >-

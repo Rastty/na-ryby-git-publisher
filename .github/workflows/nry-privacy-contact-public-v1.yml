@@ -1,0 +1,55 @@
+name: Na-Ryby public privacy contact consistency exact proof
+on:
+  pull_request:
+    paths:
+      - 'nry-privacy-contact-cleanup-v1.php'
+      - 'tests/test-privacy-contact-cleanup-v1.php'
+      - 'scripts/verify-privacy-contact-public-v1.py'
+      - '.github/workflows/nry-privacy-contact-public-v1.yml'
+      - 'na-ryby-git-publisher.php'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Strict verifier syntax and PHP if present
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/verify-privacy-contact-public-v1.py
+          if test -f nry-privacy-contact-cleanup-v1.php; then
+            php -l nry-privacy-contact-cleanup-v1.php
+            php tests/test-privacy-contact-cleanup-v1.php
+          fi
+  public-preflight:
+    needs: offline
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Anonymous strict public REST and HTML source preflight
+        run: python3 scripts/verify-privacy-contact-public-v1.py --preflight
+  public-post-deploy:
+    needs: offline
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Verify exactly one live rendered copy correction without merchant requests
+        run: python3 scripts/verify-privacy-contact-public-v1.py --verify
