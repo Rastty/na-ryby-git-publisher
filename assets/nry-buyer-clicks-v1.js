@@ -14,6 +14,7 @@
     '/pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu/':'pipaky_advanced',
     '/pipaky-na-ryby-s-priposlechem-ucinna-pomucka-pro-kazdeho-rybare/':'pipaky_receiver',
     '/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/':'echolot_budget',
+    '/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/':'sonar_pillar',
     '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/':'sonar_boat',
     '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/':'sonar_historic',
     '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/':'sonar_practical'
@@ -37,6 +38,19 @@
     try { url = new URL(link.href, location.href); }
     catch { return; }
     if (url.protocol !== 'https:' || url.username || url.password || url.port) return;
+    // Measure a genuinely chosen first-party guide path, not a sale.
+    // Two scoped sonar routes share one established, consent-gated event name.
+    if (page === 'sonar_pillar' &&
+        url.origin === 'https://na-ryby.eu' &&
+        url.pathname === '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/' &&
+        !url.search && !url.hash) {
+      try {
+        window.gtag('event','nry_buyer_guide_click',{
+          buyer_page:page,guide_type:'sonar_practical',transport_type:'beacon'
+        });
+      } catch { /* Never interfere with navigation or consent. */ }
+      return;
+    }
     // Genuine first-party buyer-guide navigation, not an affiliate conversion.
     if (page === 'sonar_practical' &&
         url.origin === 'https://na-ryby.eu' &&
@@ -62,8 +76,8 @@
       // Current sonar budget guide contains genuine Dognet destinations.
       // Classify the outbound action, NOT a purchase or merchant conversion.
       kind = 'dognet_outbound';
-    } else if (page === 'echolot_budget' && url.pathname.length > 1 &&
-               url.hostname === 'www.chytapust.cz') {
+    } else if ((page === 'echolot_budget' || page === 'sonar_pillar') &&
+               url.pathname.length > 1 && url.hostname === 'www.chytapust.cz') {
       // Direct merchant links do not prove an affiliate attribution.
       kind = 'merchant_outbound';
     }

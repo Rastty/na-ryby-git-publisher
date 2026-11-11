@@ -63,6 +63,7 @@ const additional=[
  ['/pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu/','pipaky_advanced'],
  ['/pipaky-na-ryby-s-priposlechem-ucinna-pomucka-pro-kazdeho-rybare/','pipaky_receiver'],
  ['/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/','echolot_budget'],
+ ['/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/','sonar_pillar'],
  ['/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/','sonar_boat'],
  ['/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/','sonar_historic'],
  ['/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/','sonar_practical']
@@ -145,9 +146,49 @@ assert.equal(noGtag.calls.length,0,'no consent bypass');
 const notSource=browser({page:'/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/'});
 notSource.click('https://na-ryby.eu'+boatGuide);
 assert.equal(notSource.calls.length,0,'only practical source page');
+
+const pillar=browser({page:'/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/'});
+pillar.click('https://www.chytapust.cz/Echoloty/?utm_source=na-ryby');
+assert.equal(pillar.calls.length,1);
+assert.equal(pillar.calls[0][1],'nry_buyer_offer_click');
+assert.equal(pillar.calls[0][2].buyer_page,'sonar_pillar');
+assert.equal(pillar.calls[0][2].buyer_cta_type,'merchant_outbound');
+pillar.click('https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/');
+assert.equal(pillar.calls.length,2);
+assert.equal(pillar.calls[1][1],'nry_buyer_guide_click');
+assert.equal(pillar.calls[1][2].guide_type,'sonar_practical');
+for (const c of pillar.calls) {
+  assert.deepEqual(Object.keys(c[2]).sort(),
+    (c[1]==='nry_buyer_offer_click'
+      ? ['buyer_page','buyer_cta_type','transport_type']
+      : ['buyer_page','guide_type','transport_type']).sort());
+  assert.ok(!JSON.stringify(c).includes('chytapust.cz'));
+  assert.ok(!JSON.stringify(c).includes('/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/'));
+}
+for (const href of [
+  'http://www.chytapust.cz/Echoloty/',
+  'https://other.example/Echoloty/',
+  'https://chytapust.cz/Echoloty/',
+  'https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/?tag=1',
+  'https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/#tracking',
+  'https://evil.na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/'
+]) pillar.click(href);
+pillar.click('https://www.chytapust.cz/Echoloty/',{trusted:false});
+pillar.click('https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/',{trusted:false});
+assert.equal(pillar.calls.length,2,'never emit untrusted, unscoped or disguised links');
+const pillarNoConsent=browser({page:'/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/',gtagEnabled:false});
+pillarNoConsent.click('https://www.chytapust.cz/Echoloty/');
+pillarNoConsent.click('https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/');
+assert.equal(pillarNoConsent.calls.length,0,'never bypass existing gtag consent');
+const budgetNoPillarGuide=browser({
+  page:'/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/'
+});
+budgetNoPillarGuide.click('https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/');
+assert.equal(budgetNoPillarGuide.calls.length,0,'pillar guide handoff not generalized to budget');
+
 const c=browser({gtagEnabled:false});c.click('https://na-ryby.eu/signalizatory');assert.equal(c.calls.length,0);
 const d=browser({page:'/some-article/'});assert.equal(d.callbacks.length,0);
 const e=browser({host:'https://other.example'});assert.equal(e.callbacks.length,0);
 const advisor=browser({page:'/poradce-vybavy/'});
 assert.equal(advisor.callbacks.length,0,'advisor has separate measurement, no double count');
-console.log('PASS: sonar real merchant handoffs, practical guide, eight buyer routes, genuine consent-gated clicks only');
+console.log('PASS: main sonar-pillar qualified handoffs, other buyer routes and consent-gated clicks only');

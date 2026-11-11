@@ -1,7 +1,7 @@
 <?php
 /**
  * Na-Ryby Buyer Offer Click Measurement V1 (consent-aware).
- * Eight buyer guides and one exact practical sonar post. Advisor is separately
+ * Nine buyer guides and one exact practical sonar post. Advisor is separately
  * WordPress page with its own funnel events; do not instrument it again here.
  * No new tracking cookies, visitor IDs,
  * redirects, affiliate click probes, private content or WordPress mutations.
@@ -16,6 +16,7 @@ function nry_buyer_click_approved_scope($post_id, $public_path) {
         36702 => '/pipaky-na-ryby-pro-profesionaly-prehled-nejlepsich-znacek-a-modelu/',
         46573 => '/pipaky-na-ryby-s-priposlechem-ucinna-pomucka-pro-kazdeho-rybare/',
         118455 => '/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/',
+        118553 => '/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/',
         60637 => '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/',
         36518 => '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/',
         49275 => '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/'
@@ -42,7 +43,7 @@ function nry_buyer_click_enqueue() {
         'nry-buyer-offer-click-v1',
         plugins_url('assets/nry-buyer-clicks-v1.js', __FILE__),
         array(),
-        '1.2.0',
+        '1.3.0',
         true
     );
 }
