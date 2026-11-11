@@ -73,7 +73,7 @@ def preflight_source(item):
     post_id=item.get('id')
     modified=item.get('modified_gmt')
     rendered=(item.get('content') or {}).get('rendered','')
-    if type(post_id) is not int or post_id<1 or not isinstance(modified,str) or not re.fullmatch(r'20\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d',modified):
+    if type(post_id) is not int or post_id<1 or not isinstance(modified,str) or not re.fullmatch(r'20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}',modified):
         raise AssertionError('WP_REST_ID_OR_DATE_MISSING')
     # The REST-rendered source does not include front-end-only the_content
     # filters, so it can check the same baseline on preflight only.
