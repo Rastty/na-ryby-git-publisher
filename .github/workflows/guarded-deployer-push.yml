@@ -36,7 +36,10 @@ on:
       - 'na-ryby-git-publisher.php'
       - 'home-trust-cleanup-118641-v1.php'
       - 'home-advisor-entry-118641-v1.php'
+      - 'nry-privacy-contact-cleanup-v1.php'
       - 'tests/test-home-advisor-entry-118641-v1.php'
+      - 'tests/test-privacy-contact-cleanup-v1.php'
+      - 'scripts/verify-privacy-contact-public-v1.py'
       - 'scripts/verify-home-advisor-entry-public.py'
       - 'tests/test-home-advisor-entry-public.py'
       - 'carp-pillar-source-proof-118541-v1.php'
@@ -126,6 +129,7 @@ on:
       - 'na-ryby-git-publisher.php'
       - 'home-trust-cleanup-118641-v1.php'
       - 'home-advisor-entry-118641-v1.php'
+      - 'nry-privacy-contact-cleanup-v1.php'
       - 'carp-pillar-source-proof-118541-v1.php'
       - 'carp-pillar-trust-cleanup-118541-v1.php'
       - 'carp-pillar-choice-before-shop-118541-v1.php'
@@ -217,6 +221,9 @@ jobs:
           php tests/test-home-trust-cleanup-118641.php
           php -l home-advisor-entry-118641-v1.php
           php tests/test-home-advisor-entry-118641-v1.php
+          php -l nry-privacy-contact-cleanup-v1.php
+          php tests/test-privacy-contact-cleanup-v1.php
+          python3 -m py_compile scripts/verify-privacy-contact-public-v1.py
           python3 -m py_compile scripts/verify-home-advisor-entry-public.py
           python3 tests/test-home-advisor-entry-public.py
           php -l na-ryby-git-publisher.php
