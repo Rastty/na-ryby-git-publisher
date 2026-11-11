@@ -51,7 +51,7 @@ def check_html(html, after):
             raise AssertionError('BODY_CONTACT_NOT_REPLACED')
     else:
         if html.count(MARKER)!=0 or html.count(OLD_CONTACT)!=2 or html.count(DRAFT)!=1:
-            raise AssertionError('PRE_RELEASE_BASELINE_DRIFT')
+            raise AssertionError('PRE_RELEASE_BASELINE_DRIFT counts='+str((html.count(MARKER),html.count(OLD_CONTACT),html.count(DRAFT))))
     return 'PUBLIC_VERIFIED' if after else 'PUBLIC_PREFLIGHT_VERIFIED'
 
 def get(url, limit=950000):
