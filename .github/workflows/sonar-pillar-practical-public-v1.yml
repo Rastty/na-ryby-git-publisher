@@ -4,6 +4,9 @@ on:
     paths:
       - 'sonar-pillar-practical-handoff-118553-v1.php'
       - 'sonar-pillar-merchant-neutral-118553-v1.php'
+      - 'sonar-pillar-stray-markup-118553-v1.php'
+      - 'tests/test-sonar-pillar-stray-markup-118553-v1.php'
+      - 'scripts/verify-sonar-pillar-stray-markup-118553-public.py'
       - 'tests/test-sonar-pillar-merchant-neutral-118553-v1.php'
       - 'scripts/verify-sonar-pillar-merchant-neutral-118553-public.py'
       - 'tests/test-sonar-pillar-merchant-neutral-public.py'
@@ -35,6 +38,9 @@ jobs:
           php tests/test-sonar-pillar-practical-handoff-118553-v1.php
           php -l sonar-pillar-merchant-neutral-118553-v1.php
           php tests/test-sonar-pillar-merchant-neutral-118553-v1.php
+          php -l sonar-pillar-stray-markup-118553-v1.php
+          php tests/test-sonar-pillar-stray-markup-118553-v1.php
+          python3 -m py_compile scripts/verify-sonar-pillar-stray-markup-118553-public.py
           python3 -m py_compile scripts/verify-sonar-pillar-merchant-neutral-118553-public.py
           python3 tests/test-sonar-pillar-merchant-neutral-public.py
           python3 -m py_compile scripts/verify-sonar-pillar-practical-public-v1.py
@@ -85,9 +91,11 @@ jobs:
           else
             python3 scripts/verify-sonar-pillar-practical-public-v1.py --preflight
           fi
-      - name: Confirm unverified merchant claim is still publicly visible before review
+      - name: Verify previously deployed merchant correction and exact remaining orphan
         if: github.event_name == 'pull_request'
-        run: python3 scripts/verify-sonar-pillar-merchant-neutral-118553-public.py --preflight
+        run: |
+          python3 scripts/verify-sonar-pillar-merchant-neutral-118553-public.py --verify
+          python3 scripts/verify-sonar-pillar-stray-markup-118553-public.py --preflight
   production:
     needs: contract
     if: >-
@@ -103,3 +111,4 @@ jobs:
         run: |
           python3 scripts/verify-sonar-pillar-practical-public-v1.py --verify
           python3 scripts/verify-sonar-pillar-merchant-neutral-118553-public.py --verify
+          python3 scripts/verify-sonar-pillar-stray-markup-118553-public.py --verify
