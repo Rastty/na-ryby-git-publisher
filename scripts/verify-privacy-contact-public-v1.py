@@ -34,6 +34,27 @@ class Links(HTMLParser):
         if 'canonical' in (d.get('rel') or '').split():
             self.canonicals.append(d.get('href'))
 
+class Visible(HTMLParser):
+    """Visible text only; JSON-LD, JS and inactive template copies are not UI."""
+    def __init__(self):
+        super().__init__()
+        self.skip=0
+        self.parts=[]
+    def handle_starttag(self,tag,attrs):
+        if tag in ('script','style','noscript','template'):
+            self.skip+=1
+    def handle_endtag(self,tag):
+        if tag in ('script','style','noscript','template'):
+            self.skip=max(0,self.skip-1)
+    def handle_data(self,data):
+        if not self.skip:
+            self.parts.append(data)
+
+def visible_text(html):
+    parser=Visible()
+    parser.feed(html)
+    return ' '.join(parser.parts)
+
 def check_html(html, after):
     if not isinstance(html,str) or len(html)<5000 or len(html)>950000:
         raise AssertionError('HTML_UNVERIFIABLE')
@@ -41,17 +62,18 @@ def check_html(html, after):
     c.feed(html)
     if c.canonicals!=[PAGE]:
         raise AssertionError('CANONICAL_DRIFT')
-    if html.count(SOURCE_HEADING)<1 or html.count(RIGHTS_HEADING)<1:
+    visible=visible_text(html)
+    if visible.count(SOURCE_HEADING)<1 or visible.count(RIGHTS_HEADING)<1:
         raise AssertionError('POLICY_HEADINGS_MISSING')
     if after:
-        if html.count(MARKER)!=1 or OLD_CONTACT in html or DRAFT in html:
+        if html.count(MARKER)!=1 or OLD_CONTACT in visible or DRAFT in visible:
             raise AssertionError('PUBLIC_CORRECTION_NOT_VISIBLE')
         # Both body contacts plus the already existing site footer.
-        if html.count(PUBLIC_CONTACT)<3:
+        if visible.count(PUBLIC_CONTACT)<3:
             raise AssertionError('BODY_CONTACT_NOT_REPLACED')
     else:
-        if html.count(MARKER)!=0 or html.count(OLD_CONTACT)!=2 or html.count(DRAFT)!=1:
-            raise AssertionError('PRE_RELEASE_BASELINE_DRIFT counts='+str((html.count(MARKER),html.count(OLD_CONTACT),html.count(DRAFT))))
+        if html.count(MARKER)!=0 or visible.count(OLD_CONTACT)!=2 or visible.count(DRAFT)!=1:
+            raise AssertionError('PRE_RELEASE_BASELINE_DRIFT counts='+str((html.count(MARKER),visible.count(OLD_CONTACT),visible.count(DRAFT))))
     return 'PUBLIC_VERIFIED' if after else 'PUBLIC_PREFLIGHT_VERIFIED'
 
 def get(url, limit=950000):
