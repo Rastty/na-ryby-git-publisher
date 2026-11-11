@@ -18,8 +18,10 @@ from readonly_urlopen_retry import guarded_urlopen
 
 ORIGIN = "https://na-ryby.eu"
 PAGE = "/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/"
+PILLAR = "/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/"
+PRACTICAL = "/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/"
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
-VERSION = "ver=1.2.0"
+VERSION = "ver=1.3.0"
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -28,6 +30,7 @@ class Page(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.tags = []
         self.canonicals = []
+        self.practical_links = 0
         self.dognet_links = 0
         self.merchant_links = 0
         self.merchant_bare_links = 0
@@ -53,6 +56,8 @@ class Page(HTMLParser):
             if not isinstance(url, str):
                 return
             parsed = urlsplit(url)
+            if url == ORIGIN + PRACTICAL:
+                self.practical_links += 1
             if parsed.scheme != "https" or parsed.username or parsed.password or parsed.port:
                 return
             if parsed.hostname == "go.dognet.com" and (
@@ -112,8 +117,31 @@ def verify(html: bytes, installed_js: bytes, reviewed_js: bytes):
             "paidCommissionsProven": False}
 
 
+def verify_pillar(html: bytes, installed_js: bytes, reviewed_js: bytes,
+                  after: bool):
+    """One source-verified pillar: visitor merchant and existing practical route."""
+    page = Page()
+    page.feed(html.decode("utf-8", "replace"))
+    assert page.canonicals == [ORIGIN + PILLAR], "PILLAR_CANONICAL_DRIFT"
+    assert page.practical_links >= 1, "PILLAR_PRACTICAL_GUIDE_MISSING"
+    assert page.merchant_links >= 1, "PILLAR_MERCHANT_CTA_MISSING"
+    if after:
+        assert page.tags == [VERSION], "PILLAR_BUYER_JS_NOT_ENQUEUED_ONCE"
+        assert hashlib.sha256(installed_js).digest() == hashlib.sha256(
+            reviewed_js).digest(), "PILLAR_REVIEWED_JS_BYTE_DRIFT"
+    else:
+        assert page.tags == [], "PILLAR_ALREADY_INSTRUMENTED_OR_BASELINE_DRIFT"
+    return {"status": "PUBLIC_PILLAR_MEASUREMENT_VERIFIED" if after
+            else "PUBLIC_PILLAR_PREFLIGHT_VERIFIED",
+            "buyer_page": "sonar_pillar", "existing_merchant_cta_count": page.merchant_links,
+            "existing_practical_handoff_count": page.practical_links,
+            "installed_js_byte_identical": after,
+            "wordPressWrites": 0, "merchantRequests": 0, "syntheticClicks": 0,
+            "ga4DeliveryProven": False, "paidCommissionsProven": False}
+
+
 def get(url: str, max_bytes: int):
-    if not (url == ORIGIN + PAGE or url == ORIGIN + ASSET + "?" + VERSION):
+    if not (url == ORIGIN + PAGE or url == ORIGIN + PILLAR or url == ORIGIN + ASSET + "?" + VERSION):
         raise ValueError("READONLY_FIXED_URL_REQUIRED")
     req = Request(url, headers={"User-Agent": "NaRyby-SonarOutboundPublicReadback/1.0",
                                 "Cache-Control": "no-cache,no-store"})
@@ -127,8 +155,17 @@ def get(url: str, max_bytes: int):
 
 
 if __name__ == "__main__":
-    print(json.dumps(verify(
-        get(ORIGIN + PAGE, 1800000),
-        get(ORIGIN + ASSET + "?" + VERSION, 40000),
-        (ROOT / "assets/nry-buyer-clicks-v1.js").read_bytes()
-    ), ensure_ascii=False))
+    mode = sys.argv[1] if len(sys.argv)>1 else "--verify"
+    assert mode in ("--verify", "--preflight")
+    if mode == "--preflight":
+        result = verify_pillar(get(ORIGIN + PILLAR, 1800000), b"", b"", False)
+        print(json.dumps(result, ensure_ascii=False))
+    else:
+        installed = get(ORIGIN + ASSET + "?" + VERSION, 40000)
+        reviewed = (ROOT / "assets/nry-buyer-clicks-v1.js").read_bytes()
+        print(json.dumps(verify(
+            get(ORIGIN + PAGE, 1800000), installed, reviewed
+        ), ensure_ascii=False))
+        print(json.dumps(verify_pillar(
+            get(ORIGIN + PILLAR, 1800000), installed, reviewed, True
+        ), ensure_ascii=False))

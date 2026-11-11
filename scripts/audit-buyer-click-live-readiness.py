@@ -17,6 +17,7 @@ SITE = "https://na-ryby.eu"
 PAGES = {
     "pipaky_guide": "/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/",
     "alarm_guide": "/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/",
+    "sonar_pillar": "/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/",
     "unscoped_control": "/nejlepsi-rybarske-hlasice-a-signalizatory/",
 }
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
@@ -42,7 +43,7 @@ class Scripts(HTMLParser):
         if parts.path != ASSET or parts.fragment:
             return
         # Strict cache-busting query only; not merchant parameters or trackers.
-        if parts.query not in ("", "ver=1.0.0"):
+        if parts.query not in ("", "ver=1.3.0"):
             return
         self.matches.append(src)
 
@@ -92,7 +93,7 @@ def audit(fetch=checked_fetch):
         # The bundled asset may be served from WordPress; only a fixed local
         # same-origin path is requested, never a captured arbitrary src URL.
         try:
-            live = fetch(SITE + ASSET + "?ver=1.0.0", 20000)
+            live = fetch(SITE + ASSET + "?ver=1.3.0", 20000)
         except Exception as exc:
             safe_reason = str(exc) if str(exc) in (
                 "EXACT_PUBLIC_READBACK_UNVERIFIABLE",
