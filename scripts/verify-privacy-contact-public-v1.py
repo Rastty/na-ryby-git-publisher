@@ -95,11 +95,13 @@ def preflight_source(item):
     post_id=item.get('id')
     modified=item.get('modified_gmt')
     rendered=(item.get('content') or {}).get('rendered','')
-    if type(post_id) is not int or post_id<1 or not isinstance(modified,str) or not re.fullmatch(r'20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}',modified):
+    if type(post_id) is not int or post_id!=115409 or not isinstance(modified,str) or not re.fullmatch(r'20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}',modified):
         raise AssertionError('WP_REST_ID_OR_DATE_MISSING')
     # The REST-rendered source does not include front-end-only the_content
     # filters, so it can check the same baseline on preflight only.
-    if (not isinstance(rendered,str) or rendered.count(OLD_CONTACT)!=2
+    if modified!='2026-02-16T07:29:16':
+        raise AssertionError('WP_REST_SOURCE_MODIFIED_DRIFT')
+    if (not isinstance(rendered,str) or rendered.count(OLD_CONTACT)!=4
             or rendered.count(DRAFT)!=1):
         raise AssertionError('WP_REST_SOURCE_NOT_STABLE id='+str(post_id)+' modified='+str(modified)+' counts='+str((rendered.count(OLD_CONTACT) if isinstance(rendered,str) else -1,rendered.count(DRAFT) if isinstance(rendered,str) else -1)))
     return post_id,modified
