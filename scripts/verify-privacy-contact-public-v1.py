@@ -101,7 +101,7 @@ def preflight_source(item):
     # filters, so it can check the same baseline on preflight only.
     if (not isinstance(rendered,str) or rendered.count(OLD_CONTACT)!=2
             or rendered.count(DRAFT)!=1):
-        raise AssertionError('WP_REST_SOURCE_NOT_STABLE')
+        raise AssertionError('WP_REST_SOURCE_NOT_STABLE id='+str(post_id)+' modified='+str(modified)+' counts='+str((rendered.count(OLD_CONTACT) if isinstance(rendered,str) else -1,rendered.count(DRAFT) if isinstance(rendered,str) else -1)))
     return post_id,modified
 
 def main():
