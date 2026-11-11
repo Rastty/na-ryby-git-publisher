@@ -51,7 +51,10 @@ on:
       - 'reel-dashboard-nextsteps-v1.php'
       - 'sonar-pillar-practical-handoff-118553-v1.php'
       - 'sonar-pillar-merchant-neutral-118553-v1.php'
+      - 'sonar-pillar-stray-markup-118553-v1.php'
       - 'tests/test-sonar-pillar-merchant-neutral-118553-v1.php'
+      - 'tests/test-sonar-pillar-stray-markup-118553-v1.php'
+      - 'scripts/verify-sonar-pillar-stray-markup-118553-public.py'
       - 'scripts/verify-sonar-pillar-merchant-neutral-118553-public.py'
       - 'tests/test-sonar-pillar-merchant-neutral-public.py'
       - 'tests/test-sonar-pillar-practical-handoff-118553-v1.php'
@@ -131,6 +134,7 @@ on:
       - 'reel-dashboard-nextsteps-v1.php'
       - 'sonar-pillar-practical-handoff-118553-v1.php'
       - 'sonar-pillar-merchant-neutral-118553-v1.php'
+      - 'sonar-pillar-stray-markup-118553-v1.php'
       - 'sonar-budget-trust-118455-v1.php'
       - 'sonar-budget-owner-first-118455-v1.php'
       - 'assets/nry-reel-handoff-v1.js'
@@ -184,6 +188,9 @@ jobs:
           php tests/test-sonar-pillar-practical-handoff-118553-v1.php
           php -l sonar-pillar-merchant-neutral-118553-v1.php
           php tests/test-sonar-pillar-merchant-neutral-118553-v1.php
+          php -l sonar-pillar-stray-markup-118553-v1.php
+          php tests/test-sonar-pillar-stray-markup-118553-v1.php
+          python3 -m py_compile scripts/verify-sonar-pillar-stray-markup-118553-public.py
           python3 -m py_compile scripts/verify-sonar-pillar-merchant-neutral-118553-public.py
           python3 tests/test-sonar-pillar-merchant-neutral-public.py
           python3 -m py_compile scripts/verify-sonar-pillar-practical-public-v1.py
