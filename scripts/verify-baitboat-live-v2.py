@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import re
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -10,7 +11,8 @@ from urllib.error import URLError, HTTPError
 
 URL="https://na-ryby.eu/jak-vybrat-zavazeci-lodku/"
 ASSETS={"v1":Path("assets/baitboat-picker-v1.html"),
-        "v2":Path("assets/baitboat-picker-v2.html")}
+        "v2":Path("assets/baitboat-picker-v2.html"),
+        "v3":Path("assets/baitboat-picker-v3.html")}
 HEADER="X-NRY-Baitboat-Asset-SHA256"
 
 class PageLinks(HTMLParser):
@@ -30,7 +32,7 @@ class PageLinks(HTMLParser):
 
 def main():
     ap=argparse.ArgumentParser()
-    ap.add_argument("--expect",choices=["either","v1","v2"],default="either")
+    ap.add_argument("--expect",choices=["either","v1","v2","v3"],default="either")
     args=ap.parse_args()
     payload={}
     for version,file in ASSETS.items():
@@ -73,8 +75,13 @@ def main():
     for url,rel in links.merchant_links:
         if "nofollow" not in rel.split() or "sponsored" not in rel.split():
             raise SystemExit("PUBLIC_READBACK_BLOCKED: rel not explicit")
-    if version=="v2" and not {"has-adapter","result-breakdown","result-availability","result-addon-links"}.issubset(links.ids):
+    if version in ("v2","v3") and not {"has-adapter","result-breakdown","result-availability","result-addon-links"}.issubset(links.ids):
         raise SystemExit("PUBLIC_READBACK_BLOCKED: V2 kit controls missing")
+    if version=="v3":
+        if html.count('class="merchant-photo"')!=6 or "https://i00.eu/img/202/1024x1024/" not in html:
+            raise SystemExit("PUBLIC_READBACK_BLOCKED: missing or unverified photo markup")
+        if len(set(re.findall(r'https://i00\.eu/img/202/1024x1024/[^" ]+',html)))<6:
+            raise SystemExit("PUBLIC_READBACK_BLOCKED: six unique photo URLs missing")
     print(json.dumps({"status":"PUBLIC_VERIFIED_EXACT_ASSET",
       "observed_version":version,"wanted_version":args.expect,"http":200,
       "asset_sha256":actual,"product_destinations":len(distinct),
