@@ -1,0 +1,66 @@
+// Source/selector/security regression for V3. No browser network, WP, merchant click or analytics.
+const fs=require("fs"),assert=require("assert"),vm=require("vm"),path=require("path");
+const root=path.resolve(__dirname,"..");
+const html=fs.readFileSync(path.join(root,"assets/baitboat-picker-v3.html"),"utf8");
+const release=fs.readFileSync(path.join(root,"baitboat-release-v3.php"),"utf8");
+const prov=JSON.parse(fs.readFileSync(path.join(root,"assets/baitboat-photo-provenance-v1.json"),"utf8"));
+const loader=fs.readFileSync(path.join(root,"na-ryby-git-publisher.php"),"utf8");
+assert(html.includes('data-nry-baitboat-rc="v3"'));
+assert(html.includes('href="https://na-ryby.eu/jak-vybrat-zavazeci-lodku/"'));
+assert(html.includes("<title>Jak vybrat zavážecí loďku | 5 otázek, 6 modelů</title>"));
+assert(!html.includes("Externí nabídka – stav skladu ověřte u prodejce"));
+assert(!html.includes("Google Ads pro tento obchod"));
+assert((html.match(/class="merchant-photo"/g)||[]).length===6);
+assert.equal(prov.products.length,6);
+assert.equal(prov.usageRights,"PENDING_EXPLICIT_PUBLISHER_AUTHORIZATION_FROM_CJ_FEED_OR_MERCHANT");
+for(const item of prov.products){
+ assert(html.includes(item.imageUrl),item.id+" image must match merchant source");
+ assert(/^https:\/\/i00\.eu\/img\/202\/1024x1024\/[a-z0-9]+\/\d+\.jpg$/.test(item.imageUrl));
+ assert(html.includes(item.merchantProductUrl));
+}
+assert(html.includes("Kdo za výběrem stojí"));
+assert(!/recenze našich zákazníků|osobně otestovali|vlastní test šestice/.test(html));
+assert.equal((html.match(/<script\b/g)||[]).length,1);
+assert.equal((html.match(/<\/script>/g)||[]).length,1);
+assert(loader.includes("require_once __DIR__ . '/baitboat-release-v3.php'"));
+assert(release.includes("'NRY_Baitboat_Release_V3', 'serve'), -2"));
+assert(release.includes("nry_baitboat_v3_media_rights_confirmed"));
+assert(release.includes("blocked_media_rights_not_confirmed"));
+assert(release.includes("!empty($approved['image_rights_confirmed'])"));
+assert(release.includes("img-src data: https://i00.eu; connect-src"));
+assert(release.includes("hash_equals("));
+const p=html.match(/<script type="module">([\s\S]*?)<\/script>/);
+assert(p,"selector script");
+const values={budget:"",range:"",sonar:"",gps:"",load:""};
+const nodes=new Map();
+for(const [id,value] of Object.entries(values))nodes.set(id,{value,callbacks:[],addEventListener(_,cb){this.callbacks.push(cb)}});
+nodes.set("has-adapter",{checked:false,callbacks:[],addEventListener(_,cb){this.callbacks.push(cb)}});
+for(const id of ["result-name","result-description","result-why","result-caveat","result-price","result-link","result-breakdown","result-availability","result-addon-links","result-image"]){
+ nodes.set(id,{textContent:"",href:"",hidden:id==="result-image",children:[],events:[],attrs:{},replaceChildren(){this.children=[]},append(child){this.children.push(child)},addEventListener(_,cb){this.events.push(cb)},removeAttribute(k){this.attrs[k]=undefined;if(k==="href")this.href="";if(k==="src")this.src=""}});
+}
+const document={getElementById(id){assert(nodes.has(id),id);return nodes.get(id)},createElement(tag){assert(["span","a"].includes(tag));return {textContent:"",href:"",target:"",rel:""}},querySelectorAll(){return []}};
+const ctx=vm.createContext({document,Intl,Number,String,Object,Array});
+vm.runInContext(p[1],ctx);
+const name=()=>nodes.get("result-name").textContent;
+const getPrice=()=>nodes.get("result-price").textContent.replace(/\u00a0|\u202f/g," ");
+const set=(v,adapter=false)=>{for(const [k,value] of Object.entries(v))nodes.get(k).value=String(value);nodes.get("has-adapter").checked=adapter;nodes.get("budget").callbacks[0]();return name()};
+assert.equal(name(),"Odpovězte na pět otázek");
+assert.equal(nodes.get("result-link").hidden,true,"no preselected merchant");
+assert.equal(nodes.get("result-image").hidden,true,"no preselected brand image");
+assert.equal(set({budget:25000,range:150,sonar:"yes",gps:"yes"}),"Odpovězte na pět otázek","must answer all five");
+assert.equal(set({load:1}),"Deeper SPARK");
+assert(getPrice().includes("23 259"),"full 150 m kit with adapter");
+assert.equal(nodes.get("result-image").src,prov.products.find(x=>x.id==="spark").imageUrl);
+assert.equal(nodes.get("result-link").hidden,false);
+assert.equal(set({range:250}),"Boatman Vulcan Mini PRO");
+assert.equal(nodes.get("result-image").src,prov.products.find(x=>x.id==="mini").imageUrl);
+assert.equal(set({budget:10000,range:150,sonar:"no",gps:"no",load:1}),"Boatman Actor Basic");
+assert.equal(nodes.get("result-image").src,prov.products.find(x=>x.id==="basic").imageUrl);
+assert.equal(set({budget:10000,range:500,sonar:"yes",gps:"yes"}),"V této ceně nemáme poctivou shodu");
+assert.equal(nodes.get("result-image").hidden,true);
+assert.equal(set({budget:35000,range:500,sonar:"yes",gps:"yes",load:2.5}),"Boatman Vulcan PRO");
+const spark=vm.runInContext('priceFor(products.find(p=>p.id==="spark"),250,false)',ctx);
+assert.equal(spark.total,26249);
+assert.equal(set({budget:25000,range:150,sonar:"yes",gps:"yes",load:1},true),"Deeper SPARK");
+assert(getPrice().includes("22 490"));
+console.log("PASS: neutral start, 6 exact merchant photos, source/rights gate, buyer flows and kit math");
