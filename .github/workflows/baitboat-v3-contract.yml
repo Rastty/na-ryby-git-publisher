@@ -8,6 +8,7 @@ on:
       - 'tests/test-baitboat-landing-v3.cjs'
       - 'tests/test-baitboat-mobile-v3.mjs'
       - 'na-ryby-git-publisher.php'
+      - 'scripts/verify-baitboat-photo-head-v1.py'
       - '.github/workflows/baitboat-v3-contract.yml'
   workflow_dispatch:
 permissions:
@@ -24,6 +25,7 @@ jobs:
       - run: php -l baitboat-release-v3.php && php -l na-ryby-git-publisher.php
       - run: node tests/test-baitboat-landing-v3.cjs
       - run: python3 -m py_compile scripts/verify-baitboat-live-v2.py
+      - run: python3 scripts/verify-baitboat-photo-head-v1.py
   mobile:
     runs-on: ubuntu-24.04
     needs: offline
