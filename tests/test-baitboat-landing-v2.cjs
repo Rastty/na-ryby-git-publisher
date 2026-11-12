@@ -9,7 +9,7 @@ assert(html.includes('href="https://na-ryby.eu/jak-vybrat-zavazeci-lodku/"'));
 assert(html.includes("id=\"result-breakdown\""));
 assert(html.includes("id=\"has-adapter\""));
 assert(!html.includes("Google Ads pro tento obchod"));
-assert(!/\\bfetch\s*\\(|XMLHttpRequest|sendBeacon\s*\\(/.test(html));
+assert(!html.includes("XMLHttpRequest")&&!html.includes("sendBeacon(")&&!html.includes("fetch("));
 assert.equal((html.match(/<script\b/g)||[]).length,1);
 assert.equal((html.match(/<\/script>/g)||[]).length,1);
 assert(loader.includes("require_once __DIR__ . '/baitboat-release-v1.php'"));
