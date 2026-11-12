@@ -48,7 +48,8 @@ check(strpos($fixed,$c::MARKER)>strpos($fixed,$intro)
  'entry after intro and before first h2');
 check($c::render($fixed)===$fixed,'idempotence');
 check($c::transform($fixed)===$fixed,'idempotent direct transform');
-$modelDrift=str_replace('Deeper QUEST','Deeper unknown',$source);\ncheck($c::transform($modelDrift)===$modelDrift,'product source drift fails closed');
+$modelDrift=str_replace('Deeper QUEST','Deeper unknown',$source);
+check($c::transform($modelDrift)===$modelDrift,'product source drift fails closed');
 $edited=str_replace('Kdy zavážecí loďka dává opravdu smysl','Editor changed heading',$source);
 check($c::transform($edited)===$edited,'heading drift fails closed');
 $already=str_replace($oldInternal,'<a href="'.$c::PICKER_URL.'">Already linked</a>',$source);
