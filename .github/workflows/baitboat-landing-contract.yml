@@ -1,0 +1,24 @@
+name: Baitboat landing contract
+on:
+  pull_request:
+    paths:
+      - 'assets/baitboat-picker-v1.html'
+      - 'baitboat-release-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-baitboat-landing.cjs'
+      - '.github/workflows/baitboat-landing-contract.yml'
+  workflow_dispatch:
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Lint PHP route
+        run: php -l baitboat-release-v1.php
+      - name: Lint plugin bootstrap
+        run: php -l na-ryby-git-publisher.php
+      - name: Exercise visitor selection contracts
+        run: node tests/test-baitboat-landing.cjs
