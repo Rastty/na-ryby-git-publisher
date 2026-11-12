@@ -16,6 +16,7 @@ require_once __DIR__ . '/sonar-practical-owner-guide-49275-v1.php';
 require_once __DIR__ . '/checklist-release-v1.php';
 require_once __DIR__ . '/baitboat-release-v1.php';
 require_once __DIR__ . '/baitboat-release-v2.php';
+require_once __DIR__ . '/baitboat-choice-entry-61257-v1.php';
 require_once __DIR__ . '/guarded-auto-publisher.php';
 require_once __DIR__ . '/advisor-existing-page-release-v1.php';
 require_once __DIR__ . '/buyer-click-telemetry-v1.php';
