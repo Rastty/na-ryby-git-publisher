@@ -14,7 +14,7 @@ on:
       expected_version:
         description: Exact version expected publicly after admin Apply
         type: choice
-        options: [either, v1, v2]
+        options: [either, v1, v2, v3]
         default: either
 permissions:
   contents: read
