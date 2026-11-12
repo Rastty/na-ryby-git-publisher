@@ -37,7 +37,7 @@ const document={
 const ctx=vm.createContext({document,Intl,Number,String,Object,Array});
 vm.runInContext(code,ctx);
 const name=()=>nodes.get("result-name").textContent;
-const price=()=>nodes.get("result-price").textContent;
+const price=()=>nodes.get("result-price").textContent.split(String.fromCharCode(160)).join(" ").split(String.fromCharCode(8239)).join(" ");
 const set=(values={},hasAdapter=null)=>{
  for(const [k,v] of Object.entries(values))nodes.get(k).value=String(v);
  if(hasAdapter!==null)nodes.get("has-adapter").checked=hasAdapter;
