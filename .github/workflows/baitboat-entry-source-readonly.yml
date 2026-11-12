@@ -1,0 +1,18 @@
+name: Na-Ryby Baitboat Source Readonly Discovery
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit-baitboat-entry-source.py'
+      - '.github/workflows/baitboat-entry-source-readonly.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-public-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Fetch current existing buyer article safely (GET-only)
+        run: python3 scripts/audit-baitboat-entry-source.py
