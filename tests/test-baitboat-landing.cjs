@@ -17,7 +17,7 @@ assert(php.includes("approved_pending_public_readback")&&php.includes("get_page_
 assert(php.includes("X-NRY-Baitboat-Asset-SHA256"));
 const links=[...html.matchAll(/href="(https:\/\/www\.chytapust\.cz\/[^"]+)"/g)].map(m=>m[1]);
 assert(links.length>=10,"Merchant links missing");
-assert(new Set(links).size>=5,"Expected five real product destinations");
+assert(new Set(links).size>=6,"Expected six real product destinations");
 for(const link of links){assert(!/[\s<>]/.test(link)); assert(!link.includes("utm_source=chatgpt"));}
 const sc=html.match(/<script type="module">([\s\S]*?)<\/script>/);
 assert(sc,"Missing inline selector script");
@@ -30,9 +30,10 @@ vm.runInNewContext(sc[1],{document,Intl,Number,String,Object,Array});
 const set=(values)=>{for(const [k,v] of Object.entries(values))nodes.get(k).value=String(v);nodes.get("budget").handlers[0]();return nodes.get("result-name").textContent;};
 assert.equal(nodes.get("result-name").textContent,"Deeper SPARK","default should be Spark");
 assert.equal(set({budget:10000,sonar:"no",gps:"no",load:1,range:150}),"Boatman Actor Basic");
+assert.equal(set({budget:20000,sonar:"no",gps:"yes",load:2.5,range:500}),"Boatman Vulcan GPS");
 assert.equal(set({budget:10000,sonar:"yes",gps:"yes"}),"V této ceně nemáme poctivou shodu");
 assert.equal(set({budget:25000,sonar:"yes",gps:"yes",load:2,range:500}),"Boatman Vulcan Mini PRO");
 assert.equal(set({budget:20000,sonar:"yes",gps:"yes",load:1,range:500}),"V této ceně nemáme poctivou shodu");
 assert.equal(set({budget:35000,sonar:"yes",gps:"yes",load:2.5,range:500}),"Boatman Vulcan PRO");
 assert.equal(set({budget:25000,sonar:"yes",gps:"yes",load:1,range:250}),"Boatman Vulcan Mini PRO");
-console.log("PASS: guarded route, links, markup, seven selection scenarios");
+console.log("PASS: guarded route, links, markup, eight selection scenarios");
