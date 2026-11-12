@@ -1,0 +1,31 @@
+name: Na-Ryby Baitboat V2 Exact Public Readback
+on:
+  pull_request:
+    paths:
+      - 'scripts/verify-baitboat-live-v2.py'
+      - '.github/workflows/baitboat-v2-public-readback.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/verify-baitboat-live-v2.py'
+      - '.github/workflows/baitboat-v2-public-readback.yml'
+  workflow_dispatch:
+    inputs:
+      expected_version:
+        description: Exact version expected publicly after admin Apply
+        type: choice
+        options: [either, v1, v2]
+        default: either
+permissions:
+  contents: read
+jobs:
+  public-get-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Exact anonymous HTTP body, SHA, canonical and product link readback
+        env:
+          EXPECTED: ${{ inputs.expected_version || 'either' }}
+        run: python3 scripts/verify-baitboat-live-v2.py --expect "$EXPECTED"
