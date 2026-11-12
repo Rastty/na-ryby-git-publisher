@@ -13,7 +13,7 @@ permissions:
   contents: read
 jobs:
   offline:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with: {persist-credentials: false}
@@ -23,7 +23,7 @@ jobs:
       - run: node tests/test-baitboat-landing-v2.cjs
   mobile:
     needs: offline
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
