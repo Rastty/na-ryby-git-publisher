@@ -1,0 +1,47 @@
+name: Na-Ryby Baitboat Buyer Entry 61257
+on:
+  pull_request:
+    paths:
+      - 'baitboat-choice-entry-61257-v1.php'
+      - 'tests/test-baitboat-choice-entry-61257-v1.php'
+      - 'scripts/verify-baitboat-entry-61257-public-v1.py'
+      - '.github/workflows/baitboat-choice-entry-61257-v1.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - run: php -l baitboat-choice-entry-61257-v1.php
+      - run: php tests/test-baitboat-choice-entry-61257-v1.php
+      - run: python3 -m py_compile scripts/verify-baitboat-entry-61257-public-v1.py
+  public-preflight:
+    if: github.event_name == 'pull_request'
+    needs: offline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - run: python3 scripts/verify-baitboat-entry-61257-public-v1.py --preflight
+  public-post-deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - run: python3 scripts/verify-baitboat-entry-61257-public-v1.py --verify
