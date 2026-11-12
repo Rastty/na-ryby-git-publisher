@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "source": "public merchant page Product structured data, not a licensed affiliate feed",
+  "capturedAtUtc": "2026-11-12",
+  "usageRights": "PENDING_EXPLICIT_PUBLISHER_AUTHORIZATION_FROM_CJ_FEED_OR_MERCHANT",
+  "imageFilesDownloaded": false,
+  "automaticLivePublishing": false,
+  "adminRightsAttestationRequired": true,
+  "products": [
+    {
+      "id": "basic",
+      "title": "Boatman Actor Basic",
+      "assetId": "637780",
+      "imageUrl": "https://i00.eu/img/202/1024x1024/9j6dyj01/637780.jpg",
+      "merchantProductUrl": "https://www.chytapust.cz/Zavazeci-lodky-2165/Boatman-Zavazeci-lodicka-Actor-Basic-s-vyklopnikem-10Ah-baterie-cerna",
+      "imageHost": "i00.eu",
+      "attribution": "Chyť a pusť / výrobce; proof of reuse rights not obtained"
+    },
+    {
+      "id": "spark",
+      "title": "Deeper SPARK",
+      "assetId": "639928",
+      "imageUrl": "https://i00.eu/img/202/1024x1024/arh7aiiw/639928.jpg",
+      "merchantProductUrl": "https://www.chytapust.cz/Zavazeci-lodky-2165/Deeper-Zavazeci-lod-SPARK",
+      "imageHost": "i00.eu",
+      "attribution": "Chyť a pusť / výrobce; proof of reuse rights not obtained"
+    },
+    {
+      "id": "vulgps",
+      "title": "Boatman Vulcan GPS",
+      "assetId": "646747",
+      "imageUrl": "https://i00.eu/img/202/1024x1024/2phklz83/646747.jpg",
+      "merchantProductUrl": "https://www.chytapust.cz/Zavazeci-lodky-2165/Boatman-Zavazeci-lodicka-Vulcan-GPS-Cerny",
+      "imageHost": "i00.eu",
+      "attribution": "Chyť a pusť / výrobce; proof of reuse rights not obtained"
+    },
+    {
+      "id": "actorpro",
+      "title": "Boatman Actor PRO",
+      "assetId": "637795",
+      "imageUrl": "https://i00.eu/img/202/1024x1024/7rc4f6wa/637795.jpg",
+      "merchantProductUrl": "https://www.chytapust.cz/Zavazeci-lodky-2165/Boatman-Zavazeci-lodicka-Actor-PRO-s-GPS-Echolotem-10Ah-baterie-Carbon",
+      "imageHost": "i00.eu",
+      "attribution": "Chyť a pusť / výrobce; proof of reuse rights not obtained"
+    },
+    {
+      "id": "mini",
+      "title": "Boatman Vulcan Mini PRO",
+      "assetId": "659456",
+      "imageUrl": "https://i00.eu/img/202/1024x1024/1xwpk6hx/659456.jpg",
+      "merchantProductUrl": "https://www.chytapust.cz/Zavazeci-lodky-2165/Boatman-Zavazeci-lodicka-Vulcan-Mini-PRO-s-GPS-a-Echolot-Cerna",
+      "imageHost": "i00.eu",
+      "attribution": "Chyť a pusť / výrobce; proof of reuse rights not obtained"
+    },
+    {
+      "id": "vulcan",
+      "title": "Boatman Vulcan PRO",
+      "assetId": "637982",
+      "imageUrl": "https://i00.eu/img/202/1024x1024/b6eqwz7l/637982.jpg",
+      "merchantProductUrl": "https://www.chytapust.cz/Zavazeci-lodky-2165/Boatman-Zavazeci-lodicka-Vulcan-Pro-s-GPS-a-Echolotem-Cerna",
+      "imageHost": "i00.eu",
+      "attribution": "Chyť a pusť / výrobce; proof of reuse rights not obtained"
+    }
+  ]
+}
