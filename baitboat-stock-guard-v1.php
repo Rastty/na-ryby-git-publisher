@@ -23,22 +23,19 @@ final class NRY_Baitboat_Stock_Guard_V1 {
             'data-nry-baitboat-rc="v4-cj"' => 'data-nry-baitboat-rc="v5-stock-guard"',
             '];' . "\n" . 'const productPhotos=' => '];' . "\n" .
                 '// Supplier detail checked 2026-11-13: no sale or temporarily unavailable.' . "\n" .
-                'const unavailableProducts=new Set(["vulcan"]);' . "\n" . 'const productPhotos=',
+                'const unavailableProducts=new Set(["vulgps","mini","vulcan"]);' . "\n" . 'const productPhotos=',
             'const candidates=products.filter(p=>' => 'const candidates=products.filter(p=>!unavailableProducts.has(p.id)&&',
             'const fits=products.filter(p=>p.max>=range' => 'const fits=products.filter(p=>!unavailableProducts.has(p.id)&&p.max>=range',
-            ' if(!fits.length){' => ' const unavailableMatch=products.filter(p=>p.max>=range&&p.load>=load&&(!needSonar||p.sonar)&&(!needGps||p.gps)).map(p=>priceFor(p,range,hasAdapter)).some(o=>o.total<=budget&&unavailableProducts.has(o.p.id));' . "\n" . ' if(!fits.length){',
+            ' if(!fits.length){' => ' const unavailableMatch=products.filter(p=>p.max>=range&&p.load>=load&&(!needSonar||p.sonar)&&(!needGps||p.gps)).map(p=>priceFor(p,range,hasAdapter)).find(o=>o.total<=budget&&unavailableProducts.has(o.p.id));' . "\n" . ' if(!fits.length){',
             '  nodes.name.textContent="V této ceně nemáme poctivou shodu";' =>
                 '  nodes.name.textContent=unavailableMatch?"Vhodná loďka je u prodejce nedostupná":"V této ceně nemáme poctivou shodu";',
             '  nodes.desc.textContent="Zadaný rozpočet nestačí na sestavu s požadovaným dosahem, GPS, sonarem a kapacitou. Upravte některý parametr; nechceme doporučit produkt, který zadání nesplňuje.";' =>
-                '  nodes.desc.textContent=unavailableMatch?"Parametrům by vyhovoval Boatman Vulcan PRO, ale při posledním ověření nebyl u prodejce dostupný. Zkuste snížit požadovanou kapacitu nebo prohlédnout další modely.":"Zadaný rozpočet nestačí na sestavu s požadovaným dosahem, GPS, sonarem a kapacitou. Upravte některý parametr; nechceme doporučit produkt, který zadání nesplňuje.";',
-            '? "Předběžně "+candidates+" z 6 modelů"' => '? "Předběžně "+candidates+" z 5 dostupnostně nevyloučených modelů"',
+                '  nodes.desc.textContent=unavailableMatch?"Parametrům by vyhovoval model "+unavailableMatch.p.name+", ale při posledním ověření nebyl u prodejce dostupný. Zkuste upravit požadavky nebo prohlédnout další modely.":"Zadaný rozpočet nestačí na sestavu s požadovaným dosahem, GPS, sonarem a kapacitou. Upravte některý parametr; nechceme doporučit produkt, který zadání nesplňuje.";',
+            '? "Předběžně "+candidates+" z 6 modelů"' => '? "Předběžně "+candidates+" ze 3 dostupnostně nevyloučených modelů"',
             'nodes.name.textContent=p.name;nodes.desc.textContent=p.desc;' =>
                 'nodes.name.textContent="Parametricky vhodné: "+p.name;nodes.desc.textContent=p.desc;',
             'nodes.availability.textContent=p.id==="vulcan"?"V produktovém detailu se objevuje dostupnost u dodavatele; před objednávkou ji ověřte.":"Není zapojen živý skladový feed; dostupnost ověřte u prodejce.";' =>
                 'nodes.availability.textContent="Skladová dostupnost není ověřena živým feedem. Před objednávkou ji zkontrolujte u prodejce; tato shoda zaručuje pouze parametry.";',
-            '<h3>Boatman Vulcan PRO</h3>' => '<h3>Boatman Vulcan PRO</h3><span class="pill honest">U prodejce nedostupné při kontrole 13. 11. 2026</span>',
-            '<a href="' . NRY_Baitboat_Affiliate_Release_V1::cj_link('https://www.chytapust.cz/Zavazeci-lodky-2165/Boatman-Zavazeci-lodicka-Vulcan-Pro-s-GPS-a-Echolotem-Cerna') . '" rel="nofollow sponsored noopener" target="_blank">Vulcan PRO ↗</a>' =>
-                '<a href="' . NRY_Baitboat_Affiliate_Release_V1::cj_link('https://www.chytapust.cz/Zavazeci-lodky-2165/', true) . '" rel="nofollow sponsored noopener" target="_blank">Vulcan PRO – hledat alternativu ↗</a>',
             'ceny a sklad jsou orientační, aktuální stav se zobrazí v e-shopu.' =>
                 'ceny jsou orientační; zboží bez ověřené skladové dostupnosti nepovažujte za potvrzeně dostupné. Aktuální stav ověřte u prodejce.',
         );
@@ -46,18 +43,44 @@ final class NRY_Baitboat_Stock_Guard_V1 {
             $html = self::replace_once($html, $old, $new);
             if ($html === false) { return false; }
         }
-        $vulcan = NRY_Baitboat_Affiliate_Release_V1::cj_link('https://www.chytapust.cz/Zavazeci-lodky-2165/Boatman-Zavazeci-lodicka-Vulcan-Pro-s-GPS-a-Echolotem-Cerna');
         $category = NRY_Baitboat_Affiliate_Release_V1::cj_link('https://www.chytapust.cz/Zavazeci-lodky-2165/', true);
-        // Matrix is already replaced above. Remaining V4 matches are the card
-        // purchase link and the JS data link; neither may point to dead stock.
-        if (substr_count($html, $vulcan . '"') !== 2) { return false; }
-        $html = str_replace($vulcan . '"', $category . '"', $html);
+        $unavailable = array(
+            array('name'=>'Boatman Vulcan GPS', 'label'=>'Vulcan GPS',
+                'url'=>'https://www.chytapust.cz/Zavazeci-lodky-2165/Boatman-Zavazeci-lodicka-Vulcan-GPS-Cerny'),
+            array('name'=>'Boatman Vulcan Mini PRO', 'label'=>'Vulcan Mini PRO',
+                'url'=>'https://www.chytapust.cz/Zavazeci-lodky-2165/Boatman-Zavazeci-lodicka-Vulcan-Mini-PRO-s-GPS-a-Echolot-Cerna'),
+            array('name'=>'Boatman Vulcan PRO', 'label'=>'Vulcan PRO',
+                'url'=>'https://www.chytapust.cz/Zavazeci-lodky-2165/Boatman-Zavazeci-lodicka-Vulcan-Pro-s-GPS-a-Echolotem-Cerna'),
+        );
+        foreach ($unavailable as $item) {
+            $html = self::replace_once($html, '<h3>'.$item['name'].'</h3>',
+                '<h3>'.$item['name'].'</h3><span class="pill honest">U prodejce nedostupné při kontrole 13. 11. 2026</span>');
+            if ($html === false) { return false; }
+            $dead = NRY_Baitboat_Affiliate_Release_V1::cj_link($item['url']);
+            $html = self::replace_once($html,
+                '<a href="'.$dead.'" rel="nofollow sponsored noopener" target="_blank">'.$item['label'].' ↗</a>',
+                '<a href="'.$category.'" rel="nofollow sponsored noopener" target="_blank">'.$item['label'].' – hledat alternativu ↗</a>');
+            if ($html === false || substr_count($html, $dead . '"') !== 2) { return false; }
+            // Remaining links are the product card and the (now blocked) JS entry.
+            $html = str_replace($dead . '"', $category . '"', $html);
+            if (strpos($html, $dead) !== false) { return false; }
+        }
         if (substr_count($html, 'Zobrazit nabídku u Chyť a pusť ↗') !== 8) { return false; }
         $html = str_replace('Zobrazit nabídku u Chyť a pusť ↗', 'Ověřit dostupnost u Chyť a pusť ↗', $html);
+        foreach ($unavailable as $item) {
+            $start = strpos($html, '<h3>'.$item['name'].'</h3>');
+            $end = $start !== false ? strpos($html, '</article>', $start) : false;
+            if ($end === false) { return false; }
+            $length = $end + strlen('</article>') - $start;
+            $card = substr($html, $start, $length);
+            if (substr_count($card, 'Ověřit dostupnost u Chyť a pusť ↗') !== 1) { return false; }
+            $card = str_replace('Ověřit dostupnost u Chyť a pusť ↗', 'Hledat dostupnou alternativu ↗', $card);
+            $html = substr_replace($html, $card, $start, $length);
+        }
         $html = self::replace_once($html,
             '<h2 id="modely-title">Šest loďek pro šest různých potřeb</h2>',
-            '<h2 id="modely-title">Srovnání šesti loděk: jedna byla při kontrole nedostupná</h2>');
-        if ($html === false || strpos($html, $vulcan) !== false) { return false; }
+            '<h2 id="modely-title">Srovnání šesti loděk: tři byly při kontrole nedostupné</h2>');
+        if ($html === false) { return false; }
         return $html;
     }
 
@@ -86,7 +109,7 @@ final class NRY_Baitboat_Stock_Guard_V1 {
         $s = self::inspection();
         $receipt = get_option(self::RECEIPT, array());
         echo '<div class="wrap"><h1>Na-Ryby — kontrola dostupnosti zavážecích loděk</h1>';
-        echo '<p>V5 vylučuje prokazatelně nedostupný Boatman Vulcan PRO z doporučování a nákupních tlačítek, '
+        echo '<p>V5 vylučuje tři nedostupné modely Boatman Vulcan GPS, Vulcan Mini PRO a Vulcan PRO z doporučování a nákupních tlačítek, '
             . 'u ostatních modelů rozlišuje vhodnost parametrů od neověřeného stavu skladu. '
             . 'Nejde o živý skladový feed. Zachovává již schválené CJ odkazy a V3/V4 bez změny. '
             . 'Rollback vrátí V4.</p>';
