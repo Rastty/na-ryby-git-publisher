@@ -32,7 +32,9 @@ check(strpos($source,'data-nry-baitboat-rc="v3"')!==false, 'V3 remains unmodifie
 check(strlen($render)>strlen($source), 'all affiliate wrappers present');
 foreach(NRY_Baitboat_Affiliate_Release_V1::selector_targets() as $merchant => $count){
     $tracked=NRY_Baitboat_Affiliate_Release_V1::cj_link($merchant,true);
-    check($tracked!==false && substr_count($render,$tracked)===$count, 'all links wrapped exactly: '.$merchant);
+    // The category tracking URL is a prefix of six product tracking URLs;
+    // count only a complete URL terminated by the original HTML/JS quote.
+    check($tracked!==false && substr_count($render,$tracked.'"')===$count, 'all links wrapped exactly: '.$merchant);
     check(substr_count($render,$merchant)===0, 'no naked merchant link: '.$merchant);
     $parsed=parse_url($tracked);
     check(($parsed['host']??'')==='www.anrdoezrs.net' && ($parsed['path']??'')==='/click-8287231-15734253', 'own CJ identity');
