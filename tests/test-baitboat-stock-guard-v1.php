@@ -28,14 +28,23 @@ check($state['ready']&&!$state['approved']&&!$state['conflict'],'owner must opt 
 $v5=NRY_Baitboat_Stock_Guard_V1::selector_html($v4);
 check(is_string($v5)&&hash('sha256',$v5)===$state['sha256'],'V5 exact hash');
 check(strpos($v5,'data-nry-baitboat-rc="v5-stock-guard"')!==false,'V5 release marker');
-check(strpos($v5,'unavailableProducts=new Set(["vulcan"])')!==false,'known unavailable model excluded');
+check(strpos($v5,'unavailableProducts=new Set(["vulgps","mini","vulcan"])')!==false,'all three known unavailable models excluded');
 check(strpos($v5,'products.filter(p=>!unavailableProducts.has(p.id)&&')!==false,'filters exclude unavailable');
-check(strpos($v5,'Boatman Vulcan PRO</h3><span class="pill honest">U prodejce nedostupné při kontrole')!==false,'unavailable label');
+foreach (array('Boatman Vulcan GPS','Boatman Vulcan Mini PRO','Boatman Vulcan PRO') as $name) {
+    check(strpos($v5,$name.'</h3><span class="pill honest">U prodejce nedostupné při kontrole')!==false,'unavailable label '.$name);
+}
 check(strpos($v5,'Zobrazit nabídku u Chyť a pusť ↗')===false,'no unverified buying assertion');
 check(strpos($v5,'Ověřit dostupnost u Chyť a pusť ↗')!==false,'availability first CTA');
+check(substr_count($v5,'Hledat dostupnou alternativu ↗')===3,'dead product cards show alternatives instead of product CTA');
 check(strpos($v5,'click-8287231-15734253')!==false,'own-property affiliate retained');
-$vulcan=NRY_Baitboat_Affiliate_Release_V1::cj_link('https://www.chytapust.cz/Zavazeci-lodky-2165/Boatman-Zavazeci-lodicka-Vulcan-Pro-s-GPS-a-Echolotem-Cerna');
-check(strpos($v5,$vulcan)===false,'no outbound link to out-of-stock exact product');
+foreach (array(
+  'Boatman-Zavazeci-lodicka-Vulcan-GPS-Cerny',
+  'Boatman-Zavazeci-lodicka-Vulcan-Mini-PRO-s-GPS-a-Echolot-Cerna',
+  'Boatman-Zavazeci-lodicka-Vulcan-Pro-s-GPS-a-Echolotem-Cerna'
+) as $slug) {
+  $dead=NRY_Baitboat_Affiliate_Release_V1::cj_link('https://www.chytapust.cz/Zavazeci-lodky-2165/'.$slug);
+  check(strpos($v5,$dead)===false,'no outbound link to out-of-stock exact product '.$slug);
+}
 check(NRY_Baitboat_Stock_Guard_V1::selector_html(str_replace('data-nry-baitboat-rc="v4-cj"','unreviewed',$v4))===false,'source drift fails closed');
 check(strpos($v4,'data-nry-baitboat-rc="v4-cj"')!==false,'V4 stays intact');
 $GLOBALS['nry_options'][NRY_Baitboat_Stock_Guard_V1::APPROVAL]=array('sha256'=>$state['sha256'],'source_sha'=>$v3);
