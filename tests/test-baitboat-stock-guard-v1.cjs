@@ -18,10 +18,13 @@ const set=(data)=>{for(const [id,value] of Object.entries(data))elements.get(id)
 assert.equal(set({budget:35000,range:500,sonar:'yes',gps:'yes',load:2.5}),'Vhodná loďka je u prodejce nedostupná','do not recommend out-of-stock Vulcan PRO');
 assert.match(elements.get('result-description').textContent,/Vulcan PRO.*nebyl u prodejce dostupný/,'explain availability rather than misleading budget');
 assert(!elements.get('result-link').href.includes('Vulcan-Pro'),'no dead-product CTA');
-assert.equal(set({load:2}),'Parametricky vhodné: Boatman Vulcan Mini PRO','best remaining technical fit');
+assert.equal(set({load:2}),'Vhodná loďka je u prodejce nedostupná','exclude Vulcan Mini PRO too');
+assert.match(elements.get('result-description').textContent,/Vulcan Mini PRO.*nebyl u prodejce dostupný/);
+assert.equal(set({load:1.5}),'Parametricky vhodné: Boatman Actor PRO GPS + echolot','best remaining technical fit');
 assert.match(elements.get('result-availability').textContent,/Skladová dostupnost není ověřena/);
 assert.match(elements.get('result-link').textContent,/Ověřit dostupnost/);
 assert.match(elements.get('result-link').href,/click-8287231-15734253/);
 assert.match(set({budget:25000,range:150,sonar:'yes',gps:'yes',load:1}),/Parametricky vhodné:/);
+assert.equal(set({budget:20000,range:500,sonar:'no',gps:'yes',load:2}),'Vhodná loďka je u prodejce nedostupná','exclude Vulcan GPS');
 assert.equal(elements.get('result-link').hidden,false);
 console.log('PASS: out-of-stock model cannot win ranking; other models are technical-only and CJ-tracked');
