@@ -17,7 +17,8 @@
     '/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/':'sonar_pillar',
     '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/':'sonar_boat',
     '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/':'sonar_historic',
-    '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/':'sonar_practical'
+    '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/':'sonar_practical',
+    '/zavazeci-lodky-pro-rybare/':'baitboat_guide'
   });
   if (location.origin !== 'https://na-ryby.eu' ||
       !Object.prototype.hasOwnProperty.call(allowedPages, location.pathname)) return;
@@ -38,6 +39,21 @@
     try { url = new URL(link.href, location.href); }
     catch { return; }
     if (url.protocol !== 'https:' || url.username || url.password || url.port) return;
+    // Count only the existing, source-pinned buyer callout, not every link
+    // to the picker; the approved picker itself is never instrumented.
+    if (page === 'baitboat_guide' &&
+        url.origin === 'https://na-ryby.eu' &&
+        url.pathname === '/jak-vybrat-zavazeci-lodku/' &&
+        !url.search && !url.hash &&
+        typeof link.closest === 'function' &&
+        link.closest('aside[data-nry-baitboat-choice-link="v1"]')) {
+      try {
+        window.gtag('event','nry_buyer_guide_click',{
+          buyer_page:page,guide_type:'baitboat_picker',transport_type:'beacon'
+        });
+      } catch { /* Preserve navigation; do not alter consent. */ }
+      return;
+    }
     // Measure a genuinely chosen first-party guide path, not a sale.
     // Two scoped sonar routes share one established, consent-gated event name.
     if (page === 'sonar_pillar' &&

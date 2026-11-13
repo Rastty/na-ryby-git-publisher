@@ -1,0 +1,31 @@
+name: Na-Ryby Baitboat Source-Pinned CTA Click
+on:
+  pull_request:
+    paths:
+      - 'buyer-click-telemetry-v1.php'
+      - 'assets/nry-buyer-clicks-v1.js'
+      - 'tests/test-buyer-click-telemetry-v1.php'
+      - 'tests/test-buyer-click-telemetry-v1.mjs'
+      - 'scripts/audit-buyer-click-live-readiness.py'
+      - 'tests/test-buyer-click-live-readiness.py'
+      - '.github/workflows/baitboat-entry-click-61257-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: PHP source and scoped allowlist
+        run: |
+          php -l buyer-click-telemetry-v1.php
+          php tests/test-buyer-click-telemetry-v1.php
+      - name: Real-click-only JavaScript controls
+        run: node tests/test-buyer-click-telemetry-v1.mjs
+      - name: Read-only readiness audit controls
+        run: |
+          python3 -m py_compile scripts/audit-buyer-click-live-readiness.py
+          python3 tests/test-buyer-click-live-readiness.py
