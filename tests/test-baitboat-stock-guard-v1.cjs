@@ -15,7 +15,8 @@ const document={getElementById(id){assert(elements.has(id),id);return elements.g
 const ctx=vm.createContext({document,Intl,Number,String,Object,Array});
 vm.runInContext(js,ctx);
 const set=(data)=>{for(const [id,value] of Object.entries(data))elements.get(id).value=String(value);elements.get('budget').callbacks[0]();return elements.get('result-name').textContent};
-assert.equal(set({budget:35000,range:500,sonar:'yes',gps:'yes',load:2.5}),'V této ceně nemáme poctivou shodu','do not recommend out-of-stock Vulcan PRO');
+assert.equal(set({budget:35000,range:500,sonar:'yes',gps:'yes',load:2.5}),'Vhodná loďka je u prodejce nedostupná','do not recommend out-of-stock Vulcan PRO');
+assert.match(elements.get('result-description').textContent,/Vulcan PRO.*nebyl u prodejce dostupný/,'explain availability rather than misleading budget');
 assert(!elements.get('result-link').href.includes('Vulcan-Pro'),'no dead-product CTA');
 assert.equal(set({load:2}),'Parametricky vhodné: Boatman Vulcan Mini PRO','best remaining technical fit');
 assert.match(elements.get('result-availability').textContent,/Skladová dostupnost není ověřena/);
