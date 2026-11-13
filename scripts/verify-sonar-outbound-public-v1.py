@@ -21,7 +21,10 @@ PAGE = "/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/"
 PILLAR = "/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/"
 PRACTICAL = "/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/"
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
-VERSION = "ver=1.3.0"
+VERSION = "ver=1.4.0"
+# This exact prior version was already deployed before this PR. Preflight
+# must confirm that state, not assume the older buyer script was absent.
+BASELINE_VERSION = "ver=1.3.0"
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -130,7 +133,8 @@ def verify_pillar(html: bytes, installed_js: bytes, reviewed_js: bytes,
         assert hashlib.sha256(installed_js).digest() == hashlib.sha256(
             reviewed_js).digest(), "PILLAR_REVIEWED_JS_BYTE_DRIFT"
     else:
-        assert page.tags == [], "PILLAR_ALREADY_INSTRUMENTED_OR_BASELINE_DRIFT"
+        assert page.tags == [BASELINE_VERSION], (
+            "PILLAR_DEPLOYED_BASELINE_VERSION_DRIFT")
     return {"status": "PUBLIC_PILLAR_MEASUREMENT_VERIFIED" if after
             else "PUBLIC_PILLAR_PREFLIGHT_VERIFIED",
             "buyer_page": "sonar_pillar", "existing_merchant_cta_count": page.merchant_links,

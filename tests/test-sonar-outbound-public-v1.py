@@ -59,9 +59,10 @@ should_block("untrusted redirect",
 pillar_canonical='<link rel="canonical" href="'+m["ORIGIN"]+m["PILLAR"]+'">'
 pillar_merchant='<a href="https://www.chytapust.cz/Echoloty/?utm_source=site">Merchant</a>'
 pillar_practical='<a href="'+m["ORIGIN"]+m["PRACTICAL"]+'">Guide</a>'
-pillar_old=('<html><head>'+pillar_canonical+'</head><body>'+
+baseline_tag='<script src="'+m["ORIGIN"]+m["ASSET"]+'?'+m["BASELINE_VERSION"]+'"></script>'
+pillar_old=('<html><head>'+pillar_canonical+baseline_tag+'</head><body>'+
             pillar_merchant+pillar_practical+'</body></html>').encode()
-pillar_new=pillar_old.replace(b'</head>',tag.encode()+b'</head>')
+pillar_new=pillar_old.replace(baseline_tag.encode(),tag.encode())
 assert m["verify_pillar"](pillar_old,b"",b"",False)["status"]=="PUBLIC_PILLAR_PREFLIGHT_VERIFIED"
 assert m["verify_pillar"](pillar_new,script,script,True)["status"]=="PUBLIC_PILLAR_MEASUREMENT_VERIFIED"
 def pillar_block(name,body= pillar_new,asset=script,after=True):
@@ -75,6 +76,7 @@ pillar_block("stale installed script",asset=b"not reviewed")
 pillar_block("duplicate script",pillar_new.replace(tag.encode(), tag.encode()*2))
 pillar_block("not-yet-published must not be certified",pillar_old,after=True)
 pillar_block("already-published baseline",pillar_new,after=False)
+pillar_block("missing deployed baseline",pillar_old.replace(baseline_tag.encode(),b""),after=False)
 
 assert m["get"].__name__ == "get"
 print("PASS sonar public readback offline: exact browser JS, version, page, 2 CTA types, fail-closed")
