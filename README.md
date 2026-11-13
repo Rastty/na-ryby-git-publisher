@@ -1,5 +1,30 @@
 # Na-Ryby Git Publisher
 
+## CJ affiliate routing pilot — 13 November 2026
+
+Module `baitboat-affiliate-release-v1.php` implements an **opt-in, reversible**
+Chyť a pusť affiliate layer for the verified Na-ryby.eu CJ property 8287231
+and approved creative 15734253. Its supported selectors are the existing
+V3 boat picker (six exact products, two exact accessories, one category) and
+canonical direct HTTPS product links to `www.chytapust.cz` in rendered WordPress
+article/page content. Other merchants, preexisting tracked URLs and WordPress
+stored post contents remain untouched. Uncertain product URLs (query strings,
+fragments, alternate hostnames, extra path segments) fail closed. Converted
+article links receive `rel=sponsored nofollow noopener noreferrer` and a
+visible affiliate notice. No false claims of tracked sales are made.
+
+Git deployment alone does **not** enable routing. The previous approved V3
+remains intact, byte-for-byte. An administrator checks Tools → Na-Ryby CJ
+Affiliate (`/wp-admin/tools.php?page=nry-cj-affiliate-release`) and clicks
+**Apply CJ affiliate routing** after reviewing the exact transformed asset
+SHA. Approval is bound to the current verified V3 asset hash; any source or
+transformation drift stops the layer. **Rollback CJ affiliate routing** restores
+the existing V3 and original article merchant links without database rewrites.
+After Apply, independently confirm the public `data-nry-baitboat-rc="v4-cj"`,
+`X-NRY-Baitboat-Affiliate-SHA256` and 21 tracked link occurrences, plus one
+published article containing a direct eligible merchant product link. This
+is link-routing readiness, **not** evidence of approved/paid CJ commissions.
+
 Source: curated release from the private Prometheus growth repository.
 This public repository contains only PHP plugin code and a bounded editorial manifest.
 No WordPress passwords, API tokens, publisher IDs, affiliate credentials or private project files.
