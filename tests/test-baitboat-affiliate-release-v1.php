@@ -56,5 +56,7 @@ check(NRY_Baitboat_Affiliate_Release_V1::inspection()['conflict']===true, 'chang
 unset($GLOBALS['nry_options'][NRY_Baitboat_Affiliate_Release_V1::APPROVAL]);
 check(NRY_Baitboat_Affiliate_Release_V1::inspection()['approved']===false, 'reversible gate immediately disables');
 check(in_array(array('template_redirect',array('NRY_Baitboat_Affiliate_Release_V1','serve'),-3),$GLOBALS['nry_hooks'],true), 'V4 takes priority before untouched V3');
-check(in_array(array('the_content',array('NRY_Baitboat_Affiliate_Release_V1','article_content'),99),$GLOBALS['nry_hooks'],true), 'sitewide article layer registered but not live before approval');
+check(in_array(array('init',array('NRY_Baitboat_Affiliate_Release_V1','register_content_filter'),10),$GLOBALS['nry_hooks'],true), 'defer article filter until WP init');
+NRY_Baitboat_Affiliate_Release_V1::register_content_filter();
+check(in_array(array('the_content',array('NRY_Baitboat_Affiliate_Release_V1','article_content'),99),$GLOBALS['nry_hooks'],true), 'sitewide article filter registered on init');
 echo "PASS: 21 source occurrences -> 21 own-property CJ links, approval/rollback, no direct merchant leakage\n";
