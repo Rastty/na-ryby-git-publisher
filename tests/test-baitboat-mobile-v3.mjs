@@ -14,9 +14,11 @@ try {
    await page.goto(source,{waitUntil:"load"});
    assert.match(await page.title(),/Jak vybrat zavážecí loďku/);
    assert.equal((await page.locator(".merchant-photo").count()),6);
-   assert.equal(await page.locator("#result-name").textContent(),"Odpovězte na pět otázek");
+   assert.equal(await page.locator("#result-name").textContent(),"Začněte rozpočtem");
    assert.equal(await page.locator("#result-link").isVisible(),false);
    await page.locator("#budget").selectOption("25000");
+   assert.match(await page.locator("#result-name").textContent(),/Předběžně/);
+   assert.equal(await page.locator("#result-link").isVisible(),false);
    await page.locator("#range").selectOption("150");
    await page.locator("#sonar").selectOption("yes");
    await page.locator("#gps").selectOption("yes");
