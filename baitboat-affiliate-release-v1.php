@@ -193,9 +193,14 @@ final class NRY_Baitboat_Affiliate_Release_V1 {
         }
         return $out;
     }
+
+    /** Register only after WordPress initialization; never touch CLI mocks. */
+    public static function register_content_filter() {
+        add_filter('the_content', array(__CLASS__, 'article_content'), 99);
+    }
 }
 add_action('admin_menu', array('NRY_Baitboat_Affiliate_Release_V1', 'admin_menu'));
 add_action('admin_post_nry_cj_affiliate_apply', array('NRY_Baitboat_Affiliate_Release_V1', 'apply'));
 add_action('admin_post_nry_cj_affiliate_disable', array('NRY_Baitboat_Affiliate_Release_V1', 'disable'));
 add_action('template_redirect', array('NRY_Baitboat_Affiliate_Release_V1', 'serve'), -3);
-add_filter('the_content', array('NRY_Baitboat_Affiliate_Release_V1', 'article_content'), 99);
+add_action('init', array('NRY_Baitboat_Affiliate_Release_V1', 'register_content_filter'));
