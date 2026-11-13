@@ -116,6 +116,7 @@ on:
       - 'baitboat-release-v1.php'
       - 'baitboat-release-v2.php'
       - 'baitboat-release-v3.php'
+      - 'baitboat-affiliate-release-v1.php'
       - 'baitboat-choice-entry-61257-v1.php'
       - 'assets/**'
       - 'tests/test-deployer-trigger-parity.py'
@@ -155,6 +156,7 @@ on:
       - 'baitboat-release-v1.php'
       - 'baitboat-release-v2.php'
       - 'baitboat-release-v3.php'
+      - 'baitboat-affiliate-release-v1.php'
       - 'baitboat-choice-entry-61257-v1.php'
       - 'assets/**'
       - 'seo-pipaky-beginner-35755-v1.php'
@@ -278,6 +280,8 @@ jobs:
           php tests/test-pipaky-36702-five-price-fix-v8.php
           php tests/test-pipaky-advanced-description-36702-v1.php
           php -l checklist-release-v1.php
+          php -l baitboat-affiliate-release-v1.php
+          php tests/test-baitboat-affiliate-release-v1.php
           php tests/guarded-auto-publisher-contract.php
           php tests/test-v5-native-release.php
           php tests/test-v6-chair-native-release.php
