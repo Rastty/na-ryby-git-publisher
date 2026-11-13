@@ -26,6 +26,11 @@ final class NRY_Baitboat_Stock_Guard_V1 {
                 'const unavailableProducts=new Set(["vulcan"]);' . "\n" . 'const productPhotos=',
             'const candidates=products.filter(p=>' => 'const candidates=products.filter(p=>!unavailableProducts.has(p.id)&&',
             'const fits=products.filter(p=>p.max>=range' => 'const fits=products.filter(p=>!unavailableProducts.has(p.id)&&p.max>=range',
+            ' if(!fits.length){' => ' const unavailableMatch=products.filter(p=>p.max>=range&&p.load>=load&&(!needSonar||p.sonar)&&(!needGps||p.gps)).map(p=>priceFor(p,range,hasAdapter)).some(o=>o.total<=budget&&unavailableProducts.has(o.p.id));' . "\n" . ' if(!fits.length){',
+            '  nodes.name.textContent="V této ceně nemáme poctivou shodu";' =>
+                '  nodes.name.textContent=unavailableMatch?"Vhodná loďka je u prodejce nedostupná":"V této ceně nemáme poctivou shodu";',
+            '  nodes.desc.textContent="Zadaný rozpočet nestačí na sestavu s požadovaným dosahem, GPS, sonarem a kapacitou. Upravte některý parametr; nechceme doporučit produkt, který zadání nesplňuje.";' =>
+                '  nodes.desc.textContent=unavailableMatch?"Parametrům by vyhovoval Boatman Vulcan PRO, ale při posledním ověření nebyl u prodejce dostupný. Zkuste snížit požadovanou kapacitu nebo prohlédnout další modely.":"Zadaný rozpočet nestačí na sestavu s požadovaným dosahem, GPS, sonarem a kapacitou. Upravte některý parametr; nechceme doporučit produkt, který zadání nesplňuje.";',
             '? "Předběžně "+candidates+" z 6 modelů"' => '? "Předběžně "+candidates+" z 5 dostupnostně nevyloučených modelů"',
             'nodes.name.textContent=p.name;nodes.desc.textContent=p.desc;' =>
                 'nodes.name.textContent="Parametricky vhodné: "+p.name;nodes.desc.textContent=p.desc;',
