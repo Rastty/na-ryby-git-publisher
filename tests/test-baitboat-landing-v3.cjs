@@ -19,6 +19,11 @@ for(const item of prov.products){
  assert(html.includes(item.merchantProductUrl));
 }
 assert(html.includes("Kdo za výběrem stojí"));
+assert(html.includes("Petr Gálik"));
+assert(html.includes('href="mailto:na.ryby.eu@gmail.com"'));
+assert(!html.includes("Více o redakci a kontakty"));
+assert(!html.includes("bez ověřeného affiliate trackingu"));
+assert(!html.includes("bez potvrzeného provizního měření"));
 assert(!/recenze našich zákazníků|osobně otestovali|vlastní test šestice/.test(html));
 assert.equal((html.match(/<script\b/g)||[]).length,1);
 assert.equal((html.match(/<\/script>/g)||[]).length,1);
@@ -44,10 +49,17 @@ vm.runInContext(p[1],ctx);
 const name=()=>nodes.get("result-name").textContent;
 const getPrice=()=>nodes.get("result-price").textContent.replace(/\u00a0|\u202f/g," ");
 const set=(v,adapter=false)=>{for(const [k,value] of Object.entries(v))nodes.get(k).value=String(value);nodes.get("has-adapter").checked=adapter;nodes.get("budget").callbacks[0]();return name()};
-assert.equal(name(),"Odpovězte na pět otázek");
+assert.equal(name(),"Začněte rozpočtem");
 assert.equal(nodes.get("result-link").hidden,true,"no preselected merchant");
 assert.equal(nodes.get("result-image").hidden,true,"no preselected brand image");
-assert.equal(set({budget:25000,range:150,sonar:"yes",gps:"yes"}),"Odpovězte na pět otázek","must answer all five");
+assert.equal(set({budget:25000,range:150,sonar:"yes",gps:"yes"}),"Předběžně 3 z 6 modelů","partial filters must narrow without final recommendation");
+assert.match(nodes.get("result-description").textContent,/Vyplněno 4 z 5/);
+assert.equal(nodes.get("result-link").hidden,true,"no purchase CTA before five answers");
+assert.equal(nodes.get("result-image").hidden,true,"no branded photo before five answers");
+assert.equal(nodes.get("result-price").textContent,"Zatím bez finálního doporučení");
+assert.equal(set({budget:10000,range:500,sonar:"yes",gps:"yes"}),"Předběžně 0 z 6 modelů","zero matches give actionable guidance");
+assert.match(nodes.get("result-caveat").textContent,/nevyhovuje žádný/);
+assert.equal(set({budget:25000,range:150,sonar:"yes",gps:"yes"}),"Předběžně 3 z 6 modelů");
 assert.equal(set({load:1}),"Deeper SPARK");
 assert(getPrice().includes("23 259"),"full 150 m kit with adapter");
 assert.equal(nodes.get("result-image").src,prov.products.find(x=>x.id==="spark").imageUrl);
@@ -63,4 +75,4 @@ const spark=vm.runInContext('priceFor(products.find(p=>p.id==="spark"),250,false
 assert.equal(spark.total,26249);
 assert.equal(set({budget:25000,range:150,sonar:"yes",gps:"yes",load:1},true),"Deeper SPARK");
 assert(getPrice().includes("22 490"));
-console.log("PASS: neutral start, 6 exact merchant photos, source/rights gate, buyer flows and kit math");
+console.log("PASS: progressive buyer filters, editorial copy, rights gate, buyer flows and kit math");
