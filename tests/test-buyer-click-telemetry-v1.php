@@ -38,7 +38,8 @@ $more=array(
   118553 => '/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/',
   60637 => '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/',
   36518 => '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/',
-  49275 => '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/'
+  49275 => '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/',
+  61257 => '/zavazeci-lodky-pro-rybare/'
 );
 foreach($more as $id=>$route) {
   $GLOBALS['queue']=array();
@@ -48,7 +49,7 @@ foreach($more as $id=>$route) {
   must(count($GLOBALS['queue'])===1,'exact released buyer must have script');
   must(nry_buyer_click_approved_scope($id,$route),'whitelisted ID/path binding');
   must($GLOBALS['queue'][0]['handle']==='nry-buyer-offer-click-v1','same local JS');
-  must($GLOBALS['queue'][0]['version']==='1.3.0','new script version');
+  must($GLOBALS['queue'][0]['version']==='1.4.0','new script version');
 }
 $GLOBALS['queue']=array();
 $GLOBALS['id']=119865;
@@ -70,4 +71,4 @@ nry_buyer_click_enqueue();
 must(count($GLOBALS['queue'])===0,'nonpost context blocked');
 must(nry_buyer_click_approved_scope(42401,'/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne/'),'exact approved canonical');
 must(!nry_buyer_click_approved_scope(42401,'/signalizatory/'),'no arbitrary target');
-echo "PASS: exact nine buyer guides + practical sonar, no advisor duplication or new tracker\n";
+echo "PASS: exact buyer guides and baitboat handoff, no advisor duplication or new tracker\n";

@@ -24,8 +24,9 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
     window:{...(gtagEnabled?{gtag:(...a)=>calls.push(a)}:{})}
   };
   vm.runInNewContext(script,context,{timeout:1500});
-  const click=(href,{trusted=true}={})=>{
-    const link={href};
+  const click=(href,{trusted=true,sourcePinnedBaitboatCallout=false}={})=>{
+    const link={href,closest:selector=>
+      selector==='aside[data-nry-baitboat-choice-link="v1"]' && sourcePinnedBaitboatCallout ? {} : null};
     const element={closest:selector=>selector==='a[href]'?link:null};
     for(const cb of callbacks)cb({isTrusted:trusted,target:element});
   };
@@ -186,9 +187,43 @@ const budgetNoPillarGuide=browser({
 budgetNoPillarGuide.click('https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/');
 assert.equal(budgetNoPillarGuide.calls.length,0,'pillar guide handoff not generalized to budget');
 
+// Existing source-pinned baitboat CTA: only genuine, callout-originating
+// navigations count. Never use merchant conversions as a proxy.
+const baitboat=browser({page:'/zavazeci-lodky-pro-rybare/'});
+const picker='https://na-ryby.eu/jak-vybrat-zavazeci-lodku/';
+assert.equal(baitboat.callbacks.length,1);
+baitboat.click(picker,{sourcePinnedBaitboatCallout:true});
+assert.equal(baitboat.calls.length,1);
+assert.equal(baitboat.calls[0][0],'event');
+assert.equal(baitboat.calls[0][1],'nry_buyer_guide_click');
+assert.deepEqual(Object.keys(baitboat.calls[0][2]).sort(),
+  ['buyer_page','guide_type','transport_type'].sort());
+assert.equal(baitboat.calls[0][2].buyer_page,'baitboat_guide');
+assert.equal(baitboat.calls[0][2].guide_type,'baitboat_picker');
+assert.equal(baitboat.calls[0][2].transport_type,'beacon');
+assert.ok(!JSON.stringify(baitboat.calls).includes('/jak-vybrat-zavazeci-lodku/'));
+for(const href of [
+ picker+'?utm_source=test',picker+'#results',
+ 'http://na-ryby.eu/jak-vybrat-zavazeci-lodku/',
+ 'https://evil.na-ryby.eu/jak-vybrat-zavazeci-lodku/',
+ 'https://other.example/jak-vybrat-zavazeci-lodku/',
+ 'https://na-ryby.eu/jak-vybrat-zavazeci-lodku-extra/'
+]) baitboat.click(href,{sourcePinnedBaitboatCallout:true});
+baitboat.click(picker); // Not from the exact source-verified callout.
+baitboat.click(picker,{trusted:false,sourcePinnedBaitboatCallout:true});
+assert.equal(baitboat.calls.length,1,'reject untrusted, unrelated, altered, and unpinned clicks');
+const baitboatNoGtag=browser({page:'/zavazeci-lodky-pro-rybare/',gtagEnabled:false});
+baitboatNoGtag.click(picker,{sourcePinnedBaitboatCallout:true});
+assert.equal(baitboatNoGtag.calls.length,0,'never bypass existing consent');
+const pickerPage=browser({page:'/jak-vybrat-zavazeci-lodku/'});
+assert.equal(pickerPage.callbacks.length,0,'standalone V2 selector never instrumented or modified');
+const wrongSource=browser({page:'/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/'});
+wrongSource.click(picker,{sourcePinnedBaitboatCallout:true});
+assert.equal(wrongSource.calls.length,0,'only exact source article measures picker CTA');
+
 const c=browser({gtagEnabled:false});c.click('https://na-ryby.eu/signalizatory');assert.equal(c.calls.length,0);
 const d=browser({page:'/some-article/'});assert.equal(d.callbacks.length,0);
 const e=browser({host:'https://other.example'});assert.equal(e.callbacks.length,0);
 const advisor=browser({page:'/poradce-vybavy/'});
 assert.equal(advisor.callbacks.length,0,'advisor has separate measurement, no double count');
-console.log('PASS: main sonar-pillar qualified handoffs, other buyer routes and consent-gated clicks only');
+console.log('PASS: baitboat source-pinned CTA, sonar handoffs and consent-gated clicks only');
