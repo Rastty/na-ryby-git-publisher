@@ -119,7 +119,7 @@ final class NRY_Sonar_Budget_Scenario_Jumps_118455_V1 {
         foreach ($edits as $edit) {
             $updated=substr_replace($updated,$edit[2],$edit[0],$edit[1]);
         }
-        $aside=$asides[0][0];
+        $aside=$asides[0][0][0];
         $at=strpos($updated,$aside);
         if ($at===false || substr_count($updated,$aside)!==1 || $at>12000)
             return $html;
