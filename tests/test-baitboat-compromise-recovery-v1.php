@@ -1,6 +1,7 @@
 <?php
 /** V6 compromise recovery PHP contract; never connects to production. */
 define('ABSPATH', __DIR__);
+define('OBJECT', 'OBJECT');
 $GLOBALS['nry_hooks'] = array(); $GLOBALS['nry_options'] = array();
 function add_action($name,$handler,$priority=10) {$GLOBALS['nry_hooks'][]=array($name,$handler,$priority);}
 function get_option($name,$default=false) {return $GLOBALS['nry_options'][$name] ?? $default;}

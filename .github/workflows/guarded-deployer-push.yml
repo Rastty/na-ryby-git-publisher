@@ -118,6 +118,7 @@ on:
       - 'baitboat-release-v3.php'
       - 'baitboat-affiliate-release-v1.php'
       - 'baitboat-stock-guard-v1.php'
+      - 'baitboat-compromise-recovery-v1.php'
       - 'tests/test-baitboat-stock-guard-v1.php'
       - 'tests/test-baitboat-stock-guard-v1.cjs'
       - 'baitboat-choice-entry-61257-v1.php'
@@ -161,6 +162,7 @@ on:
       - 'baitboat-release-v3.php'
       - 'baitboat-affiliate-release-v1.php'
       - 'baitboat-stock-guard-v1.php'
+      - 'baitboat-compromise-recovery-v1.php'
       - 'baitboat-choice-entry-61257-v1.php'
       - 'assets/**'
       - 'seo-pipaky-beginner-35755-v1.php'
@@ -289,6 +291,9 @@ jobs:
           php -l baitboat-stock-guard-v1.php
           php tests/test-baitboat-stock-guard-v1.php
           node tests/test-baitboat-stock-guard-v1.cjs
+          php -l baitboat-compromise-recovery-v1.php
+          php tests/test-baitboat-compromise-recovery-v1.php
+          node tests/test-baitboat-compromise-recovery-v1.cjs
           php tests/guarded-auto-publisher-contract.php
           php tests/test-v5-native-release.php
           php tests/test-v6-chair-native-release.php
