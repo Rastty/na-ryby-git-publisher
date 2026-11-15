@@ -126,7 +126,9 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except (ValueError, OSError, RuntimeError, AssertionError) as exc:
+    except Exception as exc:
+        # Includes Playwright/browser-launch failures, which otherwise emit an
+        # unstructured traceback and obscure the fail-closed readback state.
         print(json.dumps({'state': 'LIVE_V5_VISITOR_JOURNEY_UNVERIFIED',
                           'reason': str(exc), 'merchant_requests_completed': 0,
                           'synthetic_affiliate_clicks': 0, 'wordpress_writes': 0},
