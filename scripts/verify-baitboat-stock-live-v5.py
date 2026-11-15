@@ -8,6 +8,7 @@ import hashlib
 import json
 import re
 import sys
+from datetime import date
 from html.parser import HTMLParser
 from urllib.parse import parse_qs, urlsplit
 from urllib.request import Request, urlopen
@@ -23,6 +24,9 @@ EXCLUDED_SLUGS = (
     'Boatman-Zavazeci-lodicka-Vulcan-Mini-PRO-s-GPS-a-Echolot-Cerna',
     'Boatman-Zavazeci-lodicka-Vulcan-Pro-s-GPS-a-Echolotem-Cerna',
 )
+STOCK_SNAPSHOT_DATE = date(2026, 11, 13)
+MAX_STOCK_SNAPSHOT_AGE_DAYS = 7
+STOCK_SNAPSHOT_DISCLOSURE = 'U prodejce nedostupné při kontrole 13. 11. 2026'
 
 
 class Anchors(HTMLParser):
@@ -42,7 +46,7 @@ class Anchors(HTMLParser):
             self.ids.add(attrs['id'])
 
 
-def verify(body, headers, status=200, actual_url=URL):
+def verify(body, headers, status=200, actual_url=URL, today=None):
     """Return a structured proof; raise ValueError with an actionable reason."""
     def require(condition, why):
         if not condition:
@@ -78,6 +82,11 @@ def verify(body, headers, status=200, actual_url=URL):
             'UNVERIFIED_AVAILABILITY_DISCLOSURE_MISSING')
     require(html.count('Hledat dostupnou alternativu ↗') == 3,
             'THREE_UNAVAILABLE_CARD_CTA_REPLACEMENTS_MISSING')
+    require(html.count(STOCK_SNAPSHOT_DISCLOSURE) == 3,
+            'DATED_STOCK_SNAPSHOT_DISCLOSURE_MISSING')
+    age_days = ((today or date.today()) - STOCK_SNAPSHOT_DATE).days
+    require(0 <= age_days <= MAX_STOCK_SNAPSHOT_AGE_DAYS,
+            'STOCK_SNAPSHOT_TOO_OLD_RECHECK_MERCHANT_AND_REVIEW_EXCLUSIONS')
 
     cj = []
     for href, rel in links.hrefs:
@@ -110,6 +119,10 @@ def verify(body, headers, status=200, actual_url=URL):
         'sha256': digest,
         'tracked_external_anchors': len(cj),
         'excluded_known_unavailable_models': 3,
+        'stock_snapshot_checked_on': STOCK_SNAPSHOT_DATE.isoformat(),
+        'stock_snapshot_age_days': age_days,
+        'stock_snapshot_max_age_days': MAX_STOCK_SNAPSHOT_AGE_DAYS,
+        'stock_snapshot_freshness': 'RECHECK_SOON' if age_days >= 4 else 'WITHIN_RECHECK_WINDOW',
         'merchant_http_requests': 0,
         'wordpress_writes': 0,
         'live_inventory_feed': 'NOT_CONNECTED',

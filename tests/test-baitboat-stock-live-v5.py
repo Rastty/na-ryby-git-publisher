@@ -3,6 +3,7 @@
 import hashlib
 import importlib.util
 import unittest
+from datetime import date
 from pathlib import Path
 
 script = Path(__file__).resolve().parents[1] / 'scripts/verify-baitboat-stock-live-v5.py'
@@ -31,6 +32,7 @@ def fixture(version='v5-stock-guard'):
             + ('lowerCapacityAlternatives=products.filter(p=>!unavailableProducts.has(p.id);'
                'change.addEventListener("click",()=>{fields.load.value=' if v6 else '')
             + 'Hledat dostupnou alternativu ↗' * 3
+            + module.STOCK_SNAPSHOT_DISCLOSURE * 3
             + '<a href="https://na-ryby.eu/">Domů</a>' + links + '</body></html>')
     body = html.encode()
     headers = {'content-type': 'text/html; charset=UTF-8', 'cache-control': 'no-store',
@@ -41,15 +43,34 @@ def fixture(version='v5-stock-guard'):
 class LiveV5Tests(unittest.TestCase):
     def test_good_public_body(self):
         body, headers = fixture()
-        evidence = module.verify(body, headers)
+        evidence = module.verify(body, headers, today=date(2026, 11, 15))
         self.assertEqual(evidence['excluded_known_unavailable_models'], 3)
         self.assertEqual(evidence['tracked_external_anchors'], 12)
+        self.assertEqual(evidence['stock_snapshot_age_days'], 2)
 
     def test_v6_approved_body(self):
         body, headers = fixture('v6-compromise-recovery')
-        evidence = module.verify(body, headers)
+        evidence = module.verify(body, headers, today=date(2026, 11, 15))
         self.assertEqual(evidence['observed_version'], 'v6-compromise-recovery')
         self.assertEqual(evidence['excluded_known_unavailable_models'], 3)
+
+    def test_stock_exclusions_expire_after_seven_days(self):
+        body, headers = fixture()
+        with self.assertRaisesRegex(ValueError, 'STOCK_SNAPSHOT_TOO_OLD'):
+            module.verify(body, headers, today=date(2026, 11, 21))
+
+    def test_stock_exclusions_warn_before_expiration(self):
+        body, headers = fixture('v6-compromise-recovery')
+        evidence = module.verify(body, headers, today=date(2026, 11, 18))
+        self.assertEqual(evidence['stock_snapshot_freshness'], 'RECHECK_SOON')
+
+    def test_dated_stock_disclosure_is_required(self):
+        body, _ = fixture()
+        body = body.replace(module.STOCK_SNAPSHOT_DISCLOSURE.encode(), b'')
+        headers = {'content-type': 'text/html', 'cache-control': 'no-store',
+                   module.HEADER.lower(): hashlib.sha256(body).hexdigest()}
+        with self.assertRaisesRegex(ValueError, 'DATED_STOCK_SNAPSHOT_DISCLOSURE_MISSING'):
+            module.verify(body, headers, today=date(2026, 11, 15))
 
     def test_v6_without_consent_action_fails(self):
         body, _ = fixture('v6-compromise-recovery')
