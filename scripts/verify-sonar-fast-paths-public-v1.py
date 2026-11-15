@@ -6,6 +6,8 @@ Never follows an affiliate link, sends a click event, or writes to WordPress.
 import json
 import re
 import sys
+from concurrent.futures import ThreadPoolExecutor
+from html.parser import HTMLParser
 from pathlib import Path
 from urllib.request import Request
 
@@ -23,6 +25,29 @@ CHOICES = (
     SITE + "/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/",
     SITE + "/poradce-vybavy/",
 )
+
+
+class CanonicalLinks(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.urls = []
+
+    def handle_starttag(self, tag, attrs):
+        values = dict(attrs)
+        if tag == "link" and "canonical" in (values.get("rel") or "").split():
+            self.urls.append(values.get("href"))
+
+
+def verify_destination(url):
+    # Four exact same-origin guides only. Do not follow merchant or affiliate
+    # links and never generate a click/analytics event.
+    assert url in CHOICES, "UNAPPROVED_DESTINATION"
+    html = get(url, 850000)
+    assert len(html) > 10000 and "<html" in html.lower(), "DESTINATION_EMPTY_OR_SOFT_404"
+    parser = CanonicalLinks()
+    parser.feed(html)
+    assert parser.urls == [url], "DESTINATION_CANONICAL_OR_REDIRECT_DRIFT"
+    return True
 
 
 def evaluate(post, html, expect_live):
@@ -62,13 +87,14 @@ def evaluate(post, html, expect_live):
 
 
 def get(url, limit):
-    assert url in (PAGE, REST), "ONLY_EXACT_FIRST_PARTY_GETS"
+    assert url in (PAGE, REST, *CHOICES), "ONLY_EXACT_FIRST_PARTY_GETS"
     req = Request(url, method="GET", headers={
         "User-Agent": "NaRyby-SonarFastPathsPublicProof/1.0",
         "Cache-Control": "no-cache, no-store",
         "Accept": "application/json" if url == REST else "text/html"})
     with guarded_urlopen(req, timeout=25) as resp:
         assert resp.status == 200, "NON_200"
+        assert resp.geturl() == url, "REDIRECT_OR_DESTINATION_DRIFT"
         data = resp.read(limit + 1)
     assert len(data) <= limit, "RESPONSE_TOO_LARGE"
     return data.decode("utf8", "replace")
@@ -79,7 +105,11 @@ def main():
     assert mode in ("--preflight", "--verify")
     post = json.loads(get(REST, 420000))
     html = get(PAGE, 900000)
-    print(json.dumps(evaluate(post, html, mode == "--verify"), ensure_ascii=False))
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        verified = list(pool.map(verify_destination, CHOICES))
+    assert len(verified) == len(CHOICES) and all(verified), "DESTINATION_PROOF_INCOMPLETE"
+    print(json.dumps({**evaluate(post, html, mode == "--verify"),
+                      "liveDestinationCanonicalCount": len(verified)}, ensure_ascii=False))
 
 
 if __name__ == "__main__":
