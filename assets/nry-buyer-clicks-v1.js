@@ -18,7 +18,8 @@
     '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/':'sonar_boat',
     '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/':'sonar_historic',
     '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/':'sonar_practical',
-    '/zavazeci-lodky-pro-rybare/':'baitboat_guide'
+    '/zavazeci-lodky-pro-rybare/':'baitboat_guide',
+    '/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/':'carp_pillar'
   });
   if (location.origin !== 'https://na-ryby.eu' ||
       !Object.prototype.hasOwnProperty.call(allowedPages, location.pathname)) return;
@@ -102,7 +103,8 @@
       // Current sonar budget guide contains genuine Dognet destinations.
       // Classify the outbound action, NOT a purchase or merchant conversion.
       kind = 'dognet_outbound';
-    } else if ((page === 'echolot_budget' || page === 'sonar_pillar') &&
+    } else if ((page === 'echolot_budget' || page === 'sonar_pillar' ||
+                page === 'carp_pillar') &&
                url.pathname.length > 1 && url.hostname === 'www.chytapust.cz') {
       // Direct merchant links do not prove an affiliate attribution.
       kind = 'merchant_outbound';

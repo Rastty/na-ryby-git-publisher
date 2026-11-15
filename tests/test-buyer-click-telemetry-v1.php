@@ -39,7 +39,8 @@ $more=array(
   60637 => '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/',
   36518 => '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/',
   49275 => '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/',
-  61257 => '/zavazeci-lodky-pro-rybare/'
+  61257 => '/zavazeci-lodky-pro-rybare/',
+  118541 => '/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/'
 );
 foreach($more as $id=>$route) {
   $GLOBALS['queue']=array();
@@ -49,7 +50,7 @@ foreach($more as $id=>$route) {
   must(count($GLOBALS['queue'])===1,'exact released buyer must have script');
   must(nry_buyer_click_approved_scope($id,$route),'whitelisted ID/path binding');
   must($GLOBALS['queue'][0]['handle']==='nry-buyer-offer-click-v1','same local JS');
-  must($GLOBALS['queue'][0]['version']==='1.5.0','new script version');
+  must($GLOBALS['queue'][0]['version']==='1.6.0','new script version');
 }
 $GLOBALS['queue']=array();
 $GLOBALS['id']=119865;

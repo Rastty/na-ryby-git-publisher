@@ -21,7 +21,7 @@ PAGE = "/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/"
 PILLAR = "/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/"
 PRACTICAL = "/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/"
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
-VERSION = "ver=1.5.0"
+VERSION = "ver=1.6.0"
 # The active browser handoff was updated by sonar fast paths PR #200. This
 # checker-only correction must use the already-deployed version as baseline.
 BASELINE_VERSION = "ver=1.5.0"
