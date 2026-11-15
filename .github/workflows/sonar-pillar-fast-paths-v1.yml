@@ -36,9 +36,9 @@ jobs:
           php tests/test-buyer-click-telemetry-v1.php
           node tests/test-buyer-click-telemetry-v1.mjs
           python3 -m py_compile scripts/verify-sonar-fast-paths-public-v1.py
-      - name: Verify existing source and no premature publication in PR
+      - name: Confirm deployed four buyer routes remain live before review
         if: github.event_name == 'pull_request'
-        run: python3 scripts/verify-sonar-fast-paths-public-v1.py --preflight
+        run: python3 scripts/verify-sonar-fast-paths-public-v1.py --verify
       - name: Independently verify four real public quick paths after deploy
         if: github.event_name != 'pull_request'
         run: python3 scripts/verify-sonar-fast-paths-public-v1.py --verify
