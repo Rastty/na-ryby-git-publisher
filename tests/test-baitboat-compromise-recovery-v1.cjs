@@ -1,0 +1,37 @@
+const assert=require('assert'),vm=require('vm'),{execFileSync}=require('child_process'),path=require('path');
+const html=execFileSync('php',[path.join(__dirname,'test-baitboat-compromise-recovery-v1.php'),'--render'],{encoding:'utf8'});
+const js=html.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1];
+assert(js,'exact release JS');
+const fields={budget:'',range:'',sonar:'',gps:'',load:''};
+const nodes=new Map();
+for(const [name,value] of Object.entries(fields)) nodes.set(name,{value,callbacks:[],addEventListener(_,fn){this.callbacks.push(fn)}});
+nodes.set('has-adapter',{checked:false,callbacks:[],addEventListener(_,fn){this.callbacks.push(fn)}});
+for(const name of ['result-name','result-description','result-why','result-caveat','result-price','result-link','result-breakdown','result-availability','result-addon-links','result-image']) {
+  nodes.set(name,{textContent:'',href:'',hidden:true,children:[],replaceChildren(){this.children=[]},append(el){this.children.push(el)},addEventListener(){},removeAttribute(k){if(k==='href')this.href='';if(k==='src')this.src=''}});
+}
+const document={getElementById(id){assert(nodes.has(id),id);return nodes.get(id)},createElement(name){return {name,textContent:'',callbacks:{},addEventListener(event,fn){this.callbacks[event]=fn}}},querySelectorAll(){return []}};
+vm.runInNewContext(js,{document,Intl,Number,String,Object,Array});
+const set=(changes)=>{for(const [key,value] of Object.entries(changes))nodes.get(key).value=String(value);nodes.get('budget').callbacks[0]();return nodes.get('result-name').textContent;};
+const compromise=()=>nodes.get('result-addon-links').children.find(c=>c.name==='button');
+assert.equal(set({budget:35000,range:500,sonar:'yes',gps:'yes',load:2.5}),'Vhodná loďka je u prodejce nedostupná');
+assert.match(nodes.get('result-description').textContent,/Pokud vám stačí kapacita 1,5 kg.*Actor PRO/);
+assert.match(compromise().textContent,/Přepočítat s kapacitou 1,5 kg/);
+assert(!nodes.get('result-link').href.includes('Vulcan-Pro'));
+compromise().callbacks.click();
+assert.equal(nodes.get('load').value,'1.5','opt-in changed only capacity');
+assert.equal(nodes.get('budget').value,'35000');
+assert.equal(nodes.get('range').value,'500');
+assert.equal(nodes.get('sonar').value,'yes');
+assert.equal(nodes.get('gps').value,'yes');
+assert.match(nodes.get('result-name').textContent,/Parametricky vhodné: Boatman Actor PRO/);
+assert.match(nodes.get('result-link').href,/click-8287231-15734253/);
+assert.match(nodes.get('result-link').href,/Actor-PRO/);
+assert.equal(compromise(),undefined,'compromise button cleared after opt-in');
+assert.equal(set({load:2}),'Vhodná loďka je u prodejce nedostupná');
+assert(compromise(),'2kg mini fallback to 1.5kg');
+assert.equal(set({budget:20000,range:500,sonar:'no',gps:'yes',load:2}),'Vhodná loďka je u prodejce nedostupná');
+assert.equal(compromise(),undefined,'no misleading fallback outside budget');
+assert(!nodes.get('result-link').href.includes('Vulcan-GPS'));
+assert.match(set({budget:10000,range:150,sonar:'no',gps:'no',load:1}),/Actor Basic/);
+assert.equal(compromise(),undefined,'no compromise when model fits');
+console.log('PASS: opt-in lower-capacity alternative retains constraints, ignores unavailable product and never forces affiliate click');

@@ -1,0 +1,38 @@
+name: Na-Ryby Baitboat V6 Compromise Contract
+on:
+  pull_request:
+    paths:
+      - 'baitboat-compromise-recovery-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-baitboat-compromise-recovery-v1.*'
+      - '.github/workflows/baitboat-v6-compromise-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'baitboat-compromise-recovery-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-baitboat-compromise-recovery-v1.*'
+      - '.github/workflows/baitboat-v6-compromise-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  php-and-browser-logic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: PHP syntax
+        run: |
+          php -l na-ryby-git-publisher.php
+          php -l baitboat-compromise-recovery-v1.php
+          php -l tests/test-baitboat-compromise-recovery-v1.php
+      - name: Existing V5 remains unchanged
+        run: |
+          php tests/test-baitboat-stock-guard-v1.php
+          node tests/test-baitboat-stock-guard-v1.cjs
+      - name: V6 source and explicit compromise behavior
+        run: |
+          php tests/test-baitboat-compromise-recovery-v1.php
+          node tests/test-baitboat-compromise-recovery-v1.cjs

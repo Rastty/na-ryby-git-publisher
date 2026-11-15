@@ -1,5 +1,27 @@
 # Na-Ryby Git Publisher
 
+## V6 baitboat — one-click, explicitly accepted capacity compromise (candidate)
+
+`baitboat-compromise-recovery-v1.php` is an independently gated addition to
+the **already public V5**, not a rewrite of its source, affiliate links, or
+dated stock exclusions. When an unavailable 2/2.5 kg model is the sole match,
+and a non-excluded model satisfies the same range, GPS, sonar, and budget at
+lower capacity, the visitor sees the precise tradeoff and a button to
+recalculate. Nothing silently downgrades the requirements. The product link
+appears only after the visitor chooses that new capacity. If the remaining
+conditions cannot be met, the existing neutral category fallback remains.
+
+Release: install the reviewed plugin through the existing Git deployment path;
+then a WordPress administrator with `manage_options` must explicitly approve
+the exact candidate SHA at `Tools → Na-Ryby kompromisy`
+(`/wp-admin/tools.php?page=nry-baitboat-compromise`). GitHub merge, deploy,
+and CI **are not publication**. Independent public verification must find
+`data-nry-baitboat-rc="v6-compromise-recovery"`,
+`X-NRY-Baitboat-Compromise-SHA256`, both the 2/2.5 kg opt-in flows and the
+unchanged CJ property. Rollback disables V6 and restores V5 immediately.
+This does not verify live stock, GA4 conversions, or CJ commissions.
+
+
 ## CJ affiliate routing pilot — 13 November 2026
 
 Module `baitboat-affiliate-release-v1.php` implements an **opt-in, reversible**
