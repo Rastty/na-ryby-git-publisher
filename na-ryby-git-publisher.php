@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Na-Ryby.eu – Git Publisher
  * Description: Apply guarded Git-managed content manifests from wp-admin without WPVibe or outbound WordPress REST writes.
- * Version: 0.16.7
+ * Version: 0.16.6
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
@@ -19,7 +19,6 @@ require_once __DIR__ . '/baitboat-release-v2.php';
 require_once __DIR__ . '/baitboat-release-v3.php';
 require_once __DIR__ . '/baitboat-affiliate-release-v1.php';
 require_once __DIR__ . '/baitboat-stock-guard-v1.php';
-require_once __DIR__ . '/baitboat-compromise-recovery-v1.php';
 require_once __DIR__ . '/baitboat-choice-entry-61257-v1.php';
 require_once __DIR__ . '/guarded-auto-publisher.php';
 require_once __DIR__ . '/advisor-existing-page-release-v1.php';
@@ -37,6 +36,7 @@ require_once __DIR__ . '/reel-dashboard-nextsteps-v1.php';
 require_once __DIR__ . '/sonar-budget-trust-118455-v1.php';
 require_once __DIR__ . '/sonar-budget-owner-first-118455-v1.php';
 require_once __DIR__ . '/sonar-pillar-practical-handoff-118553-v1.php';
+require_once __DIR__ . '/sonar-pillar-fast-paths-118553-v1.php';
 require_once __DIR__ . '/sonar-pillar-merchant-neutral-118553-v1.php';
 require_once __DIR__ . '/sonar-pillar-stray-markup-118553-v1.php';
 

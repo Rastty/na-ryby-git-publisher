@@ -1,0 +1,44 @@
+name: Na-Ryby Sonar Pillar Four Buyer Paths Public Proof
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'sonar-pillar-fast-paths-118553-v1.php'
+      - 'tests/test-sonar-pillar-fast-paths-118553-v1.php'
+      - 'buyer-click-telemetry-v1.php'
+      - 'assets/nry-buyer-clicks-v1.js'
+      - 'tests/test-buyer-click-telemetry-v1.php'
+      - 'tests/test-buyer-click-telemetry-v1.mjs'
+      - 'scripts/verify-sonar-fast-paths-public-v1.py'
+      - '.github/workflows/sonar-pillar-fast-paths-v1.yml'
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Run scoped WordPress render and consent-respecting GA4 contracts
+        run: |
+          set -euo pipefail
+          php -l sonar-pillar-fast-paths-118553-v1.php
+          php tests/test-sonar-pillar-fast-paths-118553-v1.php
+          php tests/test-buyer-click-telemetry-v1.php
+          node tests/test-buyer-click-telemetry-v1.mjs
+          python3 -m py_compile scripts/verify-sonar-fast-paths-public-v1.py
+      - name: Verify existing source and no premature publication in PR
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-sonar-fast-paths-public-v1.py --preflight
+      - name: Independently verify four real public quick paths after deploy
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/verify-sonar-fast-paths-public-v1.py --verify
