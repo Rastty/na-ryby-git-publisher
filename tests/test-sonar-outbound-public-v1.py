@@ -54,26 +54,27 @@ should_block("untrusted click-out merchant",
 should_block("untrusted redirect",
     source.replace(dognet.encode(), b'<a href="http://go.dognet.com/offer">HTTP</a>'))
 
-# The prior intervention is now live at 1.5.0; preflight must prove that
-# currently installed version, and readback must also prove exact JS bytes.
+# The prior intervention is live at 1.5.0. Preflight must prove the
+# installed old asset; new after-deploy readback must prove 1.6.0 bytes.
 pillar_canonical='<link rel="canonical" href="'+m["ORIGIN"]+m["PILLAR"]+'">'
 pillar_merchant='<a href="https://www.chytapust.cz/Echoloty/?utm_source=site">Merchant</a>'
 pillar_practical='<a href="'+m["ORIGIN"]+m["PRACTICAL"]+'">Guide</a>'
 baseline_tag='<script src="'+m["ORIGIN"]+m["ASSET"]+'?'+m["BASELINE_VERSION"]+'"></script>'
 pillar_current=('<html><head>'+pillar_canonical+baseline_tag+'</head><body>'+
             pillar_merchant+pillar_practical+'</body></html>').encode()
-pillar_old=pillar_current.replace(m["VERSION"].encode(),b"ver=1.4.0")
+pillar_next=pillar_current.replace(m["BASELINE_VERSION"].encode(),m["VERSION"].encode())
+pillar_old=pillar_current.replace(m["BASELINE_VERSION"].encode(),b"ver=1.4.0")
 assert m["verify_pillar"](pillar_current,b"",b"",False)["status"]=="PUBLIC_PILLAR_PREFLIGHT_VERIFIED"
-assert m["verify_pillar"](pillar_current,script,script,True)["status"]=="PUBLIC_PILLAR_MEASUREMENT_VERIFIED"
-def pillar_block(name,body=pillar_current,asset=script,after=True):
+assert m["verify_pillar"](pillar_next,script,script,True)["status"]=="PUBLIC_PILLAR_MEASUREMENT_VERIFIED"
+def pillar_block(name,body=pillar_next,asset=script,after=True):
  try:m["verify_pillar"](body,asset,script,after)
  except AssertionError:return
  raise AssertionError(name+" must fail closed")
-pillar_block("missing practical",pillar_current.replace(pillar_practical.encode(),b""))
-pillar_block("missing merchant",pillar_current.replace(pillar_merchant.encode(),b""))
-pillar_block("wrong canonical",pillar_current.replace(pillar_canonical.encode(),b""))
+pillar_block("missing practical",pillar_next.replace(pillar_practical.encode(),b""))
+pillar_block("missing merchant",pillar_next.replace(pillar_merchant.encode(),b""))
+pillar_block("wrong canonical",pillar_next.replace(pillar_canonical.encode(),b""))
 pillar_block("stale installed script",asset=b"not reviewed")
-pillar_block("duplicate script",pillar_current.replace(tag.encode(), tag.encode()*2))
+pillar_block("duplicate script",pillar_next.replace(tag.encode(), tag.encode()*2))
 pillar_block("stale prior version cannot be certified",pillar_old,after=True)
 pillar_block("stale version cannot pass current preflight",pillar_old,after=False)
 pillar_block("missing deployed baseline",pillar_current.replace(baseline_tag.encode(),b""),after=False)

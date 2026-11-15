@@ -67,7 +67,8 @@ const additional=[
  ['/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/','sonar_pillar'],
  ['/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/','sonar_boat'],
  ['/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/','sonar_historic'],
- ['/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/','sonar_practical']
+ ['/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/','sonar_practical'],
+ ['/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/','carp_pillar']
 ];
 for(const [page,role] of additional){
  const client=browser({page});
@@ -124,6 +125,31 @@ for(const page of ['/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-
   control.click('https://www.chytapust.cz/echolot/');
   assert.equal(control.calls.length,0,'only source-bound budget article classified');
 }
+// Existing carp pillar has a direct Chyť a pusť category CTA. Measure the
+// outbound handoff, not affiliate entitlement or a credited commission.
+const carp=browser({page:'/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/'});
+carp.click('https://www.chytapust.cz/kaprove-pruty/?campaign=NOT_FOR_ANALYTICS');
+assert.equal(carp.calls.length,1);
+assert.equal(carp.calls[0][1],'nry_buyer_offer_click');
+assert.equal(carp.calls[0][2].buyer_page,'carp_pillar');
+assert.equal(carp.calls[0][2].buyer_cta_type,'merchant_outbound');
+assert.deepEqual(Object.keys(carp.calls[0][2]).sort(),
+  ['buyer_page','buyer_cta_type','transport_type'].sort());
+assert.ok(!JSON.stringify(carp.calls).includes('NOT_FOR_ANALYTICS'));
+for(const href of [
+  'http://www.chytapust.cz/kaprove-pruty/',
+  'https://www.chytapust.cz/',
+  'https://www.chytapust.cz.evil.example/kaprove-pruty/',
+  'https://chytapust.cz/kaprove-pruty/'
+]) carp.click(href);
+carp.click('https://www.chytapust.cz/kaprove-pruty/',{trusted:false});
+assert.equal(carp.calls.length,1,'reject foreign, insecure, bare or automated carp shop clicks');
+const carpNoGtag=browser({
+  page:'/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/',
+  gtagEnabled:false
+});
+carpNoGtag.click('https://www.chytapust.cz/kaprove-pruty/');
+assert.equal(carpNoGtag.calls.length,0,'never override site consent');
 
 const boatGuide='/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/';
 const practical=browser({page:'/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/'});

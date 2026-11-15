@@ -7,6 +7,12 @@ on:
       - 'tests/test-carp-pillar-choice-before-shop-118541-v1.php'
       - 'scripts/verify-carp-pillar-choice-118541-public.py'
       - 'tests/test-carp-pillar-choice-public.py'
+      - 'buyer-click-telemetry-v1.php'
+      - 'assets/nry-buyer-clicks-v1.js'
+      - 'tests/test-buyer-click-telemetry-v1.php'
+      - 'tests/test-buyer-click-telemetry-v1.mjs'
+      - 'scripts/verify-carp-buyer-click-public-v1.py'
+      - 'tests/test-carp-buyer-click-public-v1.py'
       - '.github/workflows/carp-pillar-choice-public.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
@@ -28,6 +34,13 @@ jobs:
           php tests/test-carp-pillar-choice-before-shop-118541-v1.php
           python3 -m py_compile scripts/verify-carp-pillar-choice-118541-public.py
           python3 tests/test-carp-pillar-choice-public.py
+          php tests/test-buyer-click-telemetry-v1.php
+          node tests/test-buyer-click-telemetry-v1.mjs
+          python3 -m py_compile scripts/verify-carp-buyer-click-public-v1.py
+          python3 tests/test-carp-buyer-click-public-v1.py
+      - name: Check original carp CTA and approved script state (GET only)
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-carp-buyer-click-public-v1.py --preflight
   public:
     needs: contract
     if: >-
@@ -39,3 +52,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Exact independent public HTTP GET proof (no merchant calls)
         run: python3 scripts/verify-carp-pillar-choice-118541-public.py
+      - name: Exact live carp buyer JS and existing CTA proof (GET only)
+        run: python3 scripts/verify-carp-buyer-click-public-v1.py --verify

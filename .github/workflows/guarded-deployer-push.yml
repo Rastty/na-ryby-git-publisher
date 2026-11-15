@@ -47,6 +47,8 @@ on:
       - 'carp-pillar-choice-before-shop-118541-v1.php'
       - 'tests/test-carp-pillar-choice-before-shop-118541-v1.php'
       - 'scripts/verify-carp-pillar-choice-118541-public.py'
+      - 'scripts/verify-carp-buyer-click-public-v1.py'
+      - 'tests/test-carp-buyer-click-public-v1.py'
       - 'tests/test-carp-pillar-choice-public.py'
       - '.github/workflows/carp-pillar-choice-public.yml'
       - 'receiver-buyer-guide-release-46573-v1.php'
@@ -106,6 +108,7 @@ on:
       - 'tests/test-pipaky-36702-five-price-fix-v8.php'
       - 'tests/test-pipaky-advanced-description-36702-v1.php'
       - 'buyer-click-telemetry-v1.php'
+      - 'assets/nry-buyer-clicks-v1.js'
       - 'advisor-guide-click-telemetry-v1.php'
       - 'assets/nry-advisor-guide-click-v1.js'
       - 'tests/test-advisor-guide-click-v1.php'
@@ -205,6 +208,8 @@ jobs:
           php tests/test-carp-pillar-choice-before-shop-118541-v1.php
           python3 -m py_compile scripts/verify-carp-pillar-choice-118541-public.py
           python3 tests/test-carp-pillar-choice-public.py
+          python3 -m py_compile scripts/verify-carp-buyer-click-public-v1.py
+          python3 tests/test-carp-buyer-click-public-v1.py
           php -l receiver-buyer-guide-release-46573-v1.php
           php tests/test-receiver-buyer-release-46573.php
           php -l winter-ice-safety-45070-v1.php
