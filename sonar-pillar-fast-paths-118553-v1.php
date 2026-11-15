@@ -60,10 +60,11 @@ final class NRY_Sonar_Pillar_Fast_Paths_118553_V1 {
             || strpos($section, 'další nákup není nutný') === false
             || strpos($section, 'aktuální konečnou cenu kompletu') === false) return $html;
         // Insert after the introductory answer, before the four technical bullets.
-        $needle = '</p><ul>';
-        $position = strpos($section, $needle);
-        if ($position === false || substr_count($section, $needle) !== 1) return $html;
-        $at = $start + $position + strlen('</p>');
+        // WordPress may preserve a newline (or other whitespace) between the
+        // answer paragraph and its list; require exactly one adjacent pair.
+        $pairs = array();
+        if (preg_match_all('~</p>\s*<ul>~', $section, $pairs, PREG_OFFSET_CAPTURE) !== 1) return $html;
+        $at = $start + $pairs[0][0][1] + strlen('</p>');
         $panel = "\n".'<nav '.self::MARKER.' aria-label="Rychlá cesta k výběru echolotu" '
             .'style="background:#f2f8f7;border:1px solid #cee4df;border-radius:12px;padding:16px;margin:18px 0">'
             .'<p style="margin:0 0 10px"><strong>Vyberte si cestu podle toho, jak chytáte.</strong> '

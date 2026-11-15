@@ -46,6 +46,11 @@ check(strpos($result,'https://www.chytapust.cz/category?opaque_id=secret')!==fal
 check($cls::render($result)===$result,'idempotent after publication');
 check($cls::transform($result)===$result,'pure transform idempotent');
 check($cls::transform(array())===array(),'wrong input type safe');
+$linebreakSource = str_replace('</p><ul>','</p>' . "\n" . '<ul>', $original);
+$linebreakResult = $cls::render($linebreakSource);
+check($linebreakResult !== $linebreakSource, 'wordpress newline between answer and list supported');
+check(substr_count($linebreakResult, $cls::MARKER) === 1, 'whitespace path emits exactly one panel');
+check($cls::render($linebreakResult) === $linebreakResult, 'whitespace path remains idempotent');
 foreach(array('id','main','loop','admin','preview','status','slug','modified') as $key){
     $old=$GLOBALS['ctx'][$key];
     if($key==='id')$GLOBALS['ctx'][$key]=118455;
