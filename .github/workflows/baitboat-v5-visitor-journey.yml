@@ -1,0 +1,35 @@
+name: Na-Ryby Baitboat V5 Real Browser Journey
+on:
+  pull_request:
+    paths:
+      - 'scripts/verify-baitboat-visitor-journey-v1.py'
+      - 'tests/test-baitboat-visitor-journey-v1.py'
+      - '.github/workflows/baitboat-v5-visitor-journey.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/verify-baitboat-visitor-journey-v1.py'
+      - 'tests/test-baitboat-visitor-journey-v1.py'
+      - '.github/workflows/baitboat-v5-visitor-journey.yml'
+  schedule:
+    - cron: '49 5 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Offline network and CJ-contract checks
+        run: python3 tests/test-baitboat-visitor-journey-v1.py -v
+      - name: Install isolated headless browser
+        if: github.event_name != 'pull_request'
+        run: |
+          python3 -m pip install playwright==1.56.0
+          python3 -m playwright install --with-deps chromium
+      - name: Six real buyer scenarios (no merchant requests)
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/verify-baitboat-visitor-journey-v1.py
