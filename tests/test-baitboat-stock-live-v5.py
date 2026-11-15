@@ -19,6 +19,7 @@ def fixture(version='v5-stock-guard'):
         ' rel="nofollow sponsored noopener">Ověřit dostupnost</a>'
         for _ in range(12)
     )
+    v6 = version == 'v6-compromise-recovery'
     html = (f'<html data-nry-baitboat-rc="{version}"><head>'
             '<link rel="canonical" href="https://na-ryby.eu/jak-vybrat-zavazeci-lodku/">'
             '</head><body>'
@@ -27,11 +28,13 @@ def fixture(version='v5-stock-guard'):
             + '<script>unavailableProducts=new Set(["vulgps","mini","vulcan"]);'
             'products.filter(p=>!unavailableProducts.has(p.id)&&);'
             'Skladová dostupnost není ověřena živým feedem.</script>'
+            + ('lowerCapacityAlternatives=products.filter(p=>!unavailableProducts.has(p.id);'
+               'change.addEventListener("click",()=>{fields.load.value=' if v6 else '')
             + 'Hledat dostupnou alternativu ↗' * 3
             + '<a href="https://na-ryby.eu/">Domů</a>' + links + '</body></html>')
     body = html.encode()
     headers = {'content-type': 'text/html; charset=UTF-8', 'cache-control': 'no-store',
-               module.HEADER.lower(): hashlib.sha256(body).hexdigest()}
+               (module.V6_HEADER if v6 else module.HEADER).lower(): hashlib.sha256(body).hexdigest()}
     return body, headers
 
 
@@ -42,9 +45,23 @@ class LiveV5Tests(unittest.TestCase):
         self.assertEqual(evidence['excluded_known_unavailable_models'], 3)
         self.assertEqual(evidence['tracked_external_anchors'], 12)
 
+    def test_v6_approved_body(self):
+        body, headers = fixture('v6-compromise-recovery')
+        evidence = module.verify(body, headers)
+        self.assertEqual(evidence['observed_version'], 'v6-compromise-recovery')
+        self.assertEqual(evidence['excluded_known_unavailable_models'], 3)
+
+    def test_v6_without_consent_action_fails(self):
+        body, _ = fixture('v6-compromise-recovery')
+        body = body.replace(b'change.addEventListener("click"', b'change.addEventListener("change"')
+        headers = {'content-type': 'text/html', 'cache-control': 'no-store',
+                   module.V6_HEADER.lower(): hashlib.sha256(body).hexdigest()}
+        with self.assertRaisesRegex(ValueError, 'V6_EXPLICIT_VISITOR_CHOICE_MISSING'):
+            module.verify(body, headers)
+
     def test_v4_only_cannot_pass(self):
         body, headers = fixture('v4-cj')
-        with self.assertRaisesRegex(ValueError, 'V5_NOT_LIVE'):
+        with self.assertRaisesRegex(ValueError, 'V5_OR_V6_NOT_LIVE'):
             module.verify(body, headers)
 
     def test_sha_must_match_public_body(self):
