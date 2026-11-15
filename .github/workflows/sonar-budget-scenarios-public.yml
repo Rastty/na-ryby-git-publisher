@@ -5,6 +5,7 @@ on:
       - 'sonar-budget-scenario-jumps-118455-v1.php'
       - 'na-ryby-git-publisher.php'
       - 'tests/test-sonar-budget-scenario-jumps-118455-v1.php'
+      - 'tests/probe-sonar-budget-scenarios-public-candidate.php'
       - 'scripts/verify-sonar-budget-scenario-jumps-public.py'
       - '.github/workflows/sonar-budget-scenarios-public.yml'
   workflow_dispatch:
@@ -25,6 +26,26 @@ jobs:
           php -l sonar-budget-scenario-jumps-118455-v1.php
           php tests/test-sonar-budget-scenario-jumps-118455-v1.php
           python3 -m py_compile scripts/verify-sonar-budget-scenario-jumps-public.py
+      - name: Preflight transform against actual anonymous live HTML (no writes)
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          umask 077
+          trap 'rm -f nry-budget-scenarios-ephemeral.html' EXIT
+          python3 - <<'PY'
+          from urllib.request import Request, urlopen
+          from pathlib import Path
+          url=('https://na-ryby.eu/'
+               'nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/')
+          request=Request(url,headers={'User-Agent':'NRY-BudgetScenario-PRPreflight/1.0',
+                                       'Cache-Control':'no-cache, no-store'})
+          with urlopen(request,timeout=25) as response:
+              assert response.status==200 and response.geturl()==url
+              html=response.read(1200000).decode('utf-8','replace')
+          assert html.count('<!-- nry-sonar-budget-trust-118455-v1 -->')==1
+          Path('nry-budget-scenarios-ephemeral.html').write_text(html,encoding='utf-8')
+          PY
+          php tests/probe-sonar-budget-scenarios-public-candidate.php nry-budget-scenarios-ephemeral.html
   public:
     needs: contract
     if: >-
