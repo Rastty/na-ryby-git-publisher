@@ -158,6 +158,19 @@ pillar.click('https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-n
 assert.equal(pillar.calls.length,2);
 assert.equal(pillar.calls[1][1],'nry_buyer_guide_click');
 assert.equal(pillar.calls[1][2].guide_type,'sonar_practical');
+const sonarChoices=[
+  ['/deeper-pro-vs-pro-2-vs-chirp-2-ktery-se-vyplati/','sonar_bank'],
+  ['/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/','sonar_boat'],
+  ['/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/','sonar_budget'],
+  ['/poradce-vybavy/','equipment_advisor']
+];
+for (const [path,role] of sonarChoices) {
+  pillar.click('https://na-ryby.eu'+path);
+  assert.equal(pillar.calls.at(-1)[1],'nry_buyer_guide_click');
+  assert.equal(pillar.calls.at(-1)[2].guide_type,role);
+  assert.equal(pillar.calls.at(-1)[2].buyer_page,'sonar_pillar');
+  assert.ok(!JSON.stringify(pillar.calls.at(-1)).includes(path),'never send URL');
+}
 for (const c of pillar.calls) {
   assert.deepEqual(Object.keys(c[2]).sort(),
     (c[1]==='nry_buyer_offer_click'
@@ -174,12 +187,19 @@ for (const href of [
   'https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/#tracking',
   'https://evil.na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/'
 ]) pillar.click(href);
+for (const [path] of sonarChoices) {
+  pillar.click('https://na-ryby.eu'+path+'?test=1');
+  pillar.click('https://na-ryby.eu'+path+'#test');
+  pillar.click('https://not-na-ryby.eu'+path);
+  pillar.click('https://na-ryby.eu'+path,{trusted:false});
+}
 pillar.click('https://www.chytapust.cz/Echoloty/',{trusted:false});
 pillar.click('https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/',{trusted:false});
-assert.equal(pillar.calls.length,2,'never emit untrusted, unscoped or disguised links');
+assert.equal(pillar.calls.length,6,'never emit untrusted, unscoped or disguised links');
 const pillarNoConsent=browser({page:'/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/',gtagEnabled:false});
 pillarNoConsent.click('https://www.chytapust.cz/Echoloty/');
 pillarNoConsent.click('https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/');
+for (const [path] of sonarChoices) pillarNoConsent.click('https://na-ryby.eu'+path);
 assert.equal(pillarNoConsent.calls.length,0,'never bypass existing gtag consent');
 const budgetNoPillarGuide=browser({
   page:'/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/'

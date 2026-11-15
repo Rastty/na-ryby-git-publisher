@@ -54,18 +54,28 @@
       } catch { /* Preserve navigation; do not alter consent. */ }
       return;
     }
-    // Measure a genuinely chosen first-party guide path, not a sale.
-    // Two scoped sonar routes share one established, consent-gated event name.
+    // Measure a genuinely chosen first-party guide, not a sale. Four quick
+    // paths are source-pinned to the sonar pillar; the already-established
+    // practical handoff continues to be counted as before.
     if (page === 'sonar_pillar' &&
-        url.origin === 'https://na-ryby.eu' &&
-        url.pathname === '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/' &&
-        !url.search && !url.hash) {
-      try {
-        window.gtag('event','nry_buyer_guide_click',{
-          buyer_page:page,guide_type:'sonar_practical',transport_type:'beacon'
-        });
-      } catch { /* Never interfere with navigation or consent. */ }
-      return;
+        url.origin === 'https://na-ryby.eu' && !url.search && !url.hash) {
+      const routes = {
+        '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/':'sonar_practical',
+        '/deeper-pro-vs-pro-2-vs-chirp-2-ktery-se-vyplati/':'sonar_bank',
+        '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/':'sonar_boat',
+        '/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/':'sonar_budget',
+        '/poradce-vybavy/':'equipment_advisor'
+      };
+      const guideType = Object.prototype.hasOwnProperty.call(routes,url.pathname)
+        ? routes[url.pathname] : null;
+      if (guideType) {
+        try {
+          window.gtag('event','nry_buyer_guide_click',{
+            buyer_page:page,guide_type:guideType,transport_type:'beacon'
+          });
+        } catch { /* Never interfere with navigation or consent. */ }
+        return;
+      }
     }
     // Genuine first-party buyer-guide navigation, not an affiliate conversion.
     if (page === 'sonar_practical' &&

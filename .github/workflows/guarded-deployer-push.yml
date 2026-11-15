@@ -53,6 +53,10 @@ on:
       - 'winter-ice-safety-45070-v1.php'
       - 'reel-dashboard-nextsteps-v1.php'
       - 'sonar-pillar-practical-handoff-118553-v1.php'
+      - 'sonar-pillar-fast-paths-118553-v1.php'
+      - 'tests/test-sonar-pillar-fast-paths-118553-v1.php'
+      - 'scripts/verify-sonar-fast-paths-public-v1.py'
+      - '.github/workflows/sonar-pillar-fast-paths-v1.yml'
       - 'sonar-pillar-merchant-neutral-118553-v1.php'
       - 'sonar-pillar-stray-markup-118553-v1.php'
       - 'tests/test-sonar-pillar-merchant-neutral-118553-v1.php'
@@ -118,7 +122,6 @@ on:
       - 'baitboat-release-v3.php'
       - 'baitboat-affiliate-release-v1.php'
       - 'baitboat-stock-guard-v1.php'
-      - 'baitboat-compromise-recovery-v1.php'
       - 'tests/test-baitboat-stock-guard-v1.php'
       - 'tests/test-baitboat-stock-guard-v1.cjs'
       - 'baitboat-choice-entry-61257-v1.php'
@@ -162,7 +165,6 @@ on:
       - 'baitboat-release-v3.php'
       - 'baitboat-affiliate-release-v1.php'
       - 'baitboat-stock-guard-v1.php'
-      - 'baitboat-compromise-recovery-v1.php'
       - 'baitboat-choice-entry-61257-v1.php'
       - 'assets/**'
       - 'seo-pipaky-beginner-35755-v1.php'
@@ -206,6 +208,8 @@ jobs:
           php -l reel-dashboard-nextsteps-v1.php
           php -l sonar-pillar-practical-handoff-118553-v1.php
           php tests/test-sonar-pillar-practical-handoff-118553-v1.php
+          php -l sonar-pillar-fast-paths-118553-v1.php
+          php tests/test-sonar-pillar-fast-paths-118553-v1.php
           php -l sonar-pillar-merchant-neutral-118553-v1.php
           php tests/test-sonar-pillar-merchant-neutral-118553-v1.php
           php -l sonar-pillar-stray-markup-118553-v1.php
@@ -291,9 +295,6 @@ jobs:
           php -l baitboat-stock-guard-v1.php
           php tests/test-baitboat-stock-guard-v1.php
           node tests/test-baitboat-stock-guard-v1.cjs
-          php -l baitboat-compromise-recovery-v1.php
-          php tests/test-baitboat-compromise-recovery-v1.php
-          node tests/test-baitboat-compromise-recovery-v1.cjs
           php tests/guarded-auto-publisher-contract.php
           php tests/test-v5-native-release.php
           php tests/test-v6-chair-native-release.php
