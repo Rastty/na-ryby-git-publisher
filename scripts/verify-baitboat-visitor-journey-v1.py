@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only real-browser proof of the live V5 baitboat buyer journey.
+"""Read-only real-browser proof of the live V5/V6 baitboat buyer journey.
 
 Changes only local <select> state. It NEVER opens a CJ redirect, merchant URL,
 analytics endpoint or WordPress admin endpoint. All off-site requests are blocked.
@@ -84,8 +84,10 @@ def main():
         response = page.goto(PAGE, wait_until='domcontentloaded', timeout=30000)
         if response is None or response.status != 200 or page.url != PAGE:
             raise ValueError('PUBLIC_200_CANONICAL_PAGE_REQUIRED')
-        if page.locator('[data-nry-baitboat-rc="v5-stock-guard"]').count() != 1:
-            raise ValueError('LIVE_V5_REQUIRED')
+        is_v5 = page.locator('[data-nry-baitboat-rc="v5-stock-guard"]').count() == 1
+        is_v6 = page.locator('[data-nry-baitboat-rc="v6-compromise-recovery"]').count() == 1
+        if is_v5 == is_v6:
+            raise ValueError('LIVE_EXACT_V5_OR_V6_REQUIRED')
         page.wait_for_function('document.getElementById("result-link").hidden === true',
                                timeout=8000)
         page.locator('#budget').select_option('35000')
@@ -109,10 +111,27 @@ def main():
                     page.locator('#result-description').inner_text():
                 raise ValueError(name + ':AVAILABILITY_EXPLANATION_MISSING')
             results.append({'case': name, 'result': 'PASS', 'merchant_target_path': merchant_path})
+        if is_v6:
+            # Real selection only; no merchant click or synthetic conversion.
+            for field, value in {'budget': '35000', 'range': '500', 'sonar': 'yes',
+                                 'gps': 'yes', 'load': '2.5'}.items():
+                page.locator('#' + field).select_option(value)
+            alternative = page.locator('#result-addon-links button')
+            if alternative.count() != 1 or '1,5 kg' not in alternative.inner_text():
+                raise ValueError('V6_OPT_IN_ALTERNATIVE_MISSING')
+            if 'Vulcan-Pro' in (page.locator('#result-link').get_attribute('href') or ''):
+                raise ValueError('V6_UNAVAILABLE_MODEL_CTA_PRESENT')
+            alternative.click()
+            if page.locator('#load').input_value() != '1.5' or \
+                    'Boatman Actor PRO' not in page.locator('#result-name').inner_text():
+                raise ValueError('V6_OPT_IN_ALTERNATIVE_NOT_APPLIED')
+            check_cj(page.locator('#result-link').get_attribute('href') or '',
+                     'Boatman-Zavazeci-lodicka-Actor-PRO')
+            results.append({'case': 'opt_in_lower_capacity', 'result': 'PASS'})
         context.close()
         browser.close()
 
-    print(json.dumps({'state': 'LIVE_V5_REAL_BROWSER_BUYER_PATH_VERIFIED',
+    print(json.dumps({'state': 'LIVE_' + ('V6' if is_v6 else 'V5') + '_REAL_BROWSER_BUYER_PATH_VERIFIED',
                       'page': PAGE, 'scenarios_passed': len(results),
                       'cases': [case['case'] for case in results],
                       'external_requests_blocked': blocked[0],
@@ -129,7 +148,7 @@ if __name__ == '__main__':
     except Exception as exc:
         # Includes Playwright/browser-launch failures, which otherwise emit an
         # unstructured traceback and obscure the fail-closed readback state.
-        print(json.dumps({'state': 'LIVE_V5_VISITOR_JOURNEY_UNVERIFIED',
+        print(json.dumps({'state': 'LIVE_V5_OR_V6_VISITOR_JOURNEY_UNVERIFIED',
                           'reason': str(exc), 'merchant_requests_completed': 0,
                           'synthetic_affiliate_clicks': 0, 'wordpress_writes': 0},
                          ensure_ascii=False, sort_keys=True))

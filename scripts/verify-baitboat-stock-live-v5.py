@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Anonymous read-only V5 stock/affiliate release proof. Never visits merchants.
+"""Anonymous read-only V5/V6 stock/affiliate release proof. Never visits merchants.
 
 Validates the PUBLIC HTML, not GitHub code or a WordPress admin receipt. A pass
 means the dated 2026-11-13 exclusions are active; it is NOT a live stock check.
@@ -15,6 +15,7 @@ from urllib.request import Request, urlopen
 
 URL = 'https://na-ryby.eu/jak-vybrat-zavazeci-lodku/'
 HEADER = 'X-NRY-Baitboat-Stock-Guard-SHA256'
+V6_HEADER = 'X-NRY-Baitboat-Compromise-SHA256'
 CJ_HOST = 'www.anrdoezrs.net'
 CJ_PATH = '/click-8287231-15734253'
 EXCLUDED_SLUGS = (
@@ -51,10 +52,18 @@ def verify(body, headers, status=200, actual_url=URL):
     require('text/html' in headers.get('content-type', '').lower(), 'HTML_MIME_MISSING')
     require('no-store' in headers.get('cache-control', '').lower(), 'NO_STORE_MISSING')
     html = body.decode('utf-8')
-    require(html.count('data-nry-baitboat-rc="v5-stock-guard"') == 1,
-            'V5_NOT_LIVE_ADMIN_APPLY_REQUIRED')
+    v5 = html.count('data-nry-baitboat-rc="v5-stock-guard"')
+    v6 = html.count('data-nry-baitboat-rc="v6-compromise-recovery"')
+    require(v5 + v6 == 1, 'V5_OR_V6_NOT_LIVE_ADMIN_APPLY_REQUIRED')
+    version = 'v6-compromise-recovery' if v6 else 'v5-stock-guard'
     digest = hashlib.sha256(body).hexdigest()
-    require(headers.get(HEADER.lower(), '') == digest, 'V5_SHA256_RESPONSE_MISMATCH')
+    header = V6_HEADER if v6 else HEADER
+    require(headers.get(header.lower(), '') == digest, 'V5_V6_SHA256_RESPONSE_MISMATCH')
+    if v6:
+        require('lowerCapacityAlternatives=products.filter(p=>!unavailableProducts.has(p.id)' in html,
+                'V6_EXCLUSION_AWARE_COMPROMISE_MISSING')
+        require('change.addEventListener("click",()=>{fields.load.value=' in html,
+                'V6_EXPLICIT_VISITOR_CHOICE_MISSING')
 
     links = Anchors()
     links.feed(html)
@@ -95,9 +104,9 @@ def verify(body, headers, status=200, actual_url=URL):
     for slug in EXCLUDED_SLUGS:
         require(slug not in html, 'UNAVAILABLE_PRODUCT_DESTINATION_STILL_PRESENT:' + slug)
     return {
-        'state': 'PUBLIC_V5_STOCK_GUARD_AND_AFFILIATE_VERIFIED',
+        'state': 'PUBLIC_' + ('V6_COMPROMISE' if v6 else 'V5_STOCK_GUARD') + '_AND_AFFILIATE_VERIFIED',
         'url': URL,
-        'observed_version': 'v5-stock-guard',
+        'observed_version': version,
         'sha256': digest,
         'tracked_external_anchors': len(cj),
         'excluded_known_unavailable_models': 3,
@@ -125,7 +134,7 @@ def main():
         print(json.dumps(verify(body, headers, status, actual_url), ensure_ascii=False,
                          sort_keys=True))
     except (OSError, ValueError, UnicodeError) as error:
-        print(json.dumps({'state': 'PUBLIC_V5_UNVERIFIED', 'reason': str(error),
+        print(json.dumps({'state': 'PUBLIC_V5_OR_V6_UNVERIFIED', 'reason': str(error),
                           'url': URL, 'wordpress_writes': 0, 'merchant_http_requests': 0},
                          ensure_ascii=False, sort_keys=True))
         sys.exit(1)
