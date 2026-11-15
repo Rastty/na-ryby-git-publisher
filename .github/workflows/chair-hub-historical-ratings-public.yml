@@ -1,0 +1,46 @@
+name: Na-Ryby Chair Buyer Hub Historical Ratings Cleanup
+on:
+  pull_request:
+    paths:
+      - 'chair-hub-historical-ratings-60341-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-chair-hub-historical-ratings-60341-v1.php'
+      - 'tests/probe-chair-hub-historical-ratings-60341.php'
+      - 'scripts/verify-chair-hub-historical-ratings-60341-public.py'
+      - 'tests/test-chair-hub-historical-ratings-public.py'
+      - '.github/workflows/chair-hub-historical-ratings-public.yml'
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Offline source and original-merchant-link contract
+        run: |
+          php -l chair-hub-historical-ratings-60341-v1.php
+          php tests/test-chair-hub-historical-ratings-60341-v1.php
+          python3 tests/test-chair-hub-historical-ratings-public.py -v
+          python3 -m py_compile scripts/verify-chair-hub-historical-ratings-60341-public.py
+      - name: Live anonymous public REST and original WordPress source hash preflight
+        if: github.event_name == 'pull_request'
+        run: php tests/probe-chair-hub-historical-ratings-60341.php
+  public:
+    needs: contract
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Independent buyer hub readback with zero merchant calls
+        run: python3 scripts/verify-chair-hub-historical-ratings-60341-public.py
