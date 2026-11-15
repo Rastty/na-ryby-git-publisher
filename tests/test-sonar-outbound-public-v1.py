@@ -54,8 +54,8 @@ should_block("untrusted click-out merchant",
 should_block("untrusted redirect",
     source.replace(dognet.encode(), b'<a href="http://go.dognet.com/offer">HTTP</a>'))
 
-# The prior intervention is live at 1.5.0. Preflight must prove the
-# installed old asset; new after-deploy readback must prove 1.6.0 bytes.
+# The prior intervention is live at 1.6.0. Preflight must prove the
+# installed old asset; new after-deploy readback must prove 1.7.0 bytes.
 pillar_canonical='<link rel="canonical" href="'+m["ORIGIN"]+m["PILLAR"]+'">'
 pillar_merchant='<a href="https://www.chytapust.cz/Echoloty/?utm_source=site">Merchant</a>'
 pillar_practical='<a href="'+m["ORIGIN"]+m["PRACTICAL"]+'">Guide</a>'
@@ -78,6 +78,37 @@ pillar_block("duplicate script",pillar_next.replace(tag.encode(), tag.encode()*2
 pillar_block("stale prior version cannot be certified",pillar_old,after=True)
 pillar_block("stale version cannot pass current preflight",pillar_old,after=False)
 pillar_block("missing deployed baseline",pillar_current.replace(baseline_tag.encode(),b""),after=False)
+
+# No merchant requests are needed to prove the three other existing sonar
+# buyer-guide handoffs. Each page must serve the exact reviewed shared JS.
+for role, path, expected in (
+    ('echolot_budget', m['PAGE'], (m['PILLAR'],m['BOAT'],m['ADVISOR'])),
+    ('sonar_boat', m['BOAT'], (m['PILLAR'],m['PAGE'],m['ADVISOR'])),
+    ('sonar_historic', m['HISTORIC'], (m['PILLAR'],m['BOAT'],m['PAGE'],m['ADVISOR']))
+):
+    canonical_tag='<link rel="canonical" href="'+m['ORIGIN']+path+'">'
+    links=''.join('<a href="'+m['ORIGIN']+target+'">Guide</a>' for target in expected)
+    fixture=('<html><head>'+canonical_tag+tag+'</head><body>'+links+'</body></html>').encode()
+    verified=m['verify_guide_paths'](role,fixture,script,script)
+    assert verified['required_internal_routes_observed']==len(expected)
+    assert verified['ga4DeliveryProven'] is False
+    for damaged in (
+        fixture.replace(canonical_tag.encode(),b''),
+        fixture.replace(tag.encode(),b''),
+        fixture.replace(m['ORIGIN'].encode(),b'https://other.example',1),
+    ):
+        try:m['verify_guide_paths'](role,damaged,script,script)
+        except AssertionError:pass
+        else:raise AssertionError('UNSAFE_CROSS_GUIDE_PUBLIC_PROOF_ACCEPTED')
+    for destination in expected:
+        poisoned=fixture.replace((m['ORIGIN']+destination).encode(),
+                                  (m['ORIGIN']+destination+'?unknown=1').encode(),1)
+        try:m['verify_guide_paths'](role,poisoned,script,script)
+        except AssertionError:pass
+        else:raise AssertionError('UNREVIEWED_LINK_VARIANT_ACCEPTED')
+    try:m['verify_guide_paths'](role,fixture,b'old script',script)
+    except AssertionError:pass
+    else:raise AssertionError('ASSET_DRIFT_ACCEPTED')
 
 assert m["get"].__name__ == "get"
 print("PASS sonar public readback offline: exact browser JS, version, page, 2 CTA types, fail-closed")

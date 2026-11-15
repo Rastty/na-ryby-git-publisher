@@ -20,11 +20,13 @@ ORIGIN = "https://na-ryby.eu"
 PAGE = "/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/"
 PILLAR = "/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/"
 PRACTICAL = "/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/"
+BOAT = "/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/"
+HISTORIC = "/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/"
+ADVISOR = "/poradce-vybavy/"
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
-VERSION = "ver=1.6.0"
-# The active browser handoff was updated by sonar fast paths PR #200. This
-# checker-only correction must use the already-deployed version as baseline.
-BASELINE_VERSION = "ver=1.5.0"
+VERSION = "ver=1.7.0"
+# Preflight checks the last independently verified public JS release #204.
+BASELINE_VERSION = "ver=1.6.0"
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -41,6 +43,7 @@ class Page(HTMLParser):
         self.merchant_campaign_only_links = 0
         self.merchant_unclassified_query_links = 0
         self._merchant_distinct_targets = set()
+        self.internal_guide_paths = []
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -61,6 +64,9 @@ class Page(HTMLParser):
             parsed = urlsplit(url)
             if url == ORIGIN + PRACTICAL:
                 self.practical_links += 1
+            if (parsed.scheme == "https" and parsed.netloc == "na-ryby.eu"
+                    and not parsed.query and not parsed.fragment):
+                self.internal_guide_paths.append(parsed.path)
             if parsed.scheme != "https" or parsed.username or parsed.password or parsed.port:
                 return
             if parsed.hostname == "go.dognet.com" and (
@@ -144,8 +150,33 @@ def verify_pillar(html: bytes, installed_js: bytes, reviewed_js: bytes,
             "ga4DeliveryProven": False, "paidCommissionsProven": False}
 
 
+def verify_guide_paths(role: str, html: bytes, installed_js: bytes, reviewed_js: bytes):
+    """Public source evidence for pre-existing guide handoffs; no merchant GET."""
+    expected = {
+        'echolot_budget': (PAGE, (PILLAR, BOAT, ADVISOR)),
+        'sonar_boat': (BOAT, (PILLAR, PAGE, ADVISOR)),
+        'sonar_historic': (HISTORIC, (PILLAR, BOAT, PAGE, ADVISOR)),
+    }
+    if role not in expected:
+        raise AssertionError('GUIDE_ROLE_OUTSIDE_REVIEWED_SCOPE')
+    canonical_path, required = expected[role]
+    page = Page()
+    page.feed(html.decode('utf-8', 'replace'))
+    assert page.canonicals == [ORIGIN + canonical_path], 'GUIDE_CANONICAL_DRIFT'
+    assert page.tags == [VERSION], 'GUIDE_JS_VERSION_DRIFT'
+    assert all(path in page.internal_guide_paths for path in required), (
+        'REVIEWED_BUYER_HANDOFF_NOT_PUBLIC')
+    assert hashlib.sha256(installed_js).digest() == hashlib.sha256(reviewed_js).digest(), (
+        'GUIDE_JS_NOT_EXACT_REVIEWED_BYTES')
+    return {'state':'PUBLIC_SONAR_GUIDE_JOURNEYS_VERIFIED',
+            'buyer_page':role,'required_internal_routes_observed':len(required),
+            'merchantRequests':0,'wordpressWrites':0,'syntheticClicks':0,
+            'ga4DeliveryProven':False,'commissionAttributionProven':False}
+
+
 def get(url: str, max_bytes: int):
-    if not (url == ORIGIN + PAGE or url == ORIGIN + PILLAR or url == ORIGIN + ASSET + "?" + VERSION):
+    if url not in (ORIGIN + PAGE, ORIGIN + PILLAR, ORIGIN + BOAT,
+                   ORIGIN + HISTORIC, ORIGIN + ASSET + "?" + VERSION):
         raise ValueError("READONLY_FIXED_URL_REQUIRED")
     req = Request(url, headers={"User-Agent": "NaRyby-SonarOutboundPublicReadback/1.0",
                                 "Cache-Control": "no-cache,no-store"})
@@ -173,3 +204,7 @@ if __name__ == "__main__":
         print(json.dumps(verify_pillar(
             get(ORIGIN + PILLAR, 1800000), installed, reviewed, True
         ), ensure_ascii=False))
+        for role, path in (('echolot_budget', PAGE),('sonar_boat', BOAT),
+                           ('sonar_historic', HISTORIC)):
+            print(json.dumps(verify_guide_paths(role, get(ORIGIN + path, 1800000),
+                                                installed, reviewed), ensure_ascii=False))
