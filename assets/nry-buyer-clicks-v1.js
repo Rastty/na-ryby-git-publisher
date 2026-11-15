@@ -19,7 +19,9 @@
     '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/':'sonar_historic',
     '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/':'sonar_practical',
     '/zavazeci-lodky-pro-rybare/':'baitboat_guide',
-    '/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/':'carp_pillar'
+    '/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/':'carp_pillar',
+    '/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/':'chair_hub',
+    '/jak-vybrat-rybarske-kreslo/':'chair_evergreen'
   });
   if (location.origin !== 'https://na-ryby.eu' ||
       !Object.prototype.hasOwnProperty.call(allowedPages, location.pathname)) return;
@@ -97,13 +99,38 @@
       } catch { /* Keep navigation intact; never override consent. */ }
       return;
     }
+    // Source-verified chair buyer journey: track only exact canonical guide
+    // handoffs. No destination URL, product, visitor or query data is sent.
+    if (url.origin === 'https://na-ryby.eu' && !url.search && !url.hash) {
+      const chairGuideType = page === 'chair_hub' &&
+        url.pathname === '/jak-vybrat-rybarske-kreslo/' ? 'chair_evergreen'
+        : page === 'chair_evergreen' &&
+          url.pathname === '/poradce-vybavy/' ? 'equipment_advisor' : null;
+      if (chairGuideType) {
+        try {
+          window.gtag('event','nry_buyer_guide_click',{
+            buyer_page:page,guide_type:chairGuideType,transport_type:'beacon'
+          });
+        } catch { /* Keep navigation and consent as configured. */ }
+        return;
+      }
+    }
     let kind = null;
     if (url.origin === 'https://na-ryby.eu' &&
-        (url.pathname === '/signalizatory' || url.pathname === '/signalizatory/')) {
+        ((url.pathname === '/signalizatory' || url.pathname === '/signalizatory/') ||
+         (page === 'chair_hub' &&
+          (url.pathname === '/kresla' || url.pathname === '/kresla/') &&
+          !url.search && !url.hash))) {
       kind = 'internal_affiliate_redirect';
     } else if (networkHosts.has(url.hostname) &&
                /^\/click-8287231-[0-9]{6,16}$/.test(url.pathname)) {
       kind = 'cj_product_link';
+    } else if (page === 'chair_evergreen' && networkHosts.has(url.hostname) &&
+               /^\/click-[0-9]{6,12}-[0-9]{6,16}-[0-9]{9,18}$/.test(url.pathname) &&
+               !url.pathname.startsWith('/click-8287231-')) {
+      // Six existing older CJ links have a different publisher identity.
+      // Count the visitor handoff, never claim commission ownership.
+      kind = 'cj_legacy_unverified';
     } else if (page === 'echolot_budget' &&
                url.hostname === 'go.dognet.com' &&
                (url.pathname.length > 1 || url.search.length > 1)) {
