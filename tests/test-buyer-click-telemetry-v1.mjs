@@ -172,7 +172,9 @@ noGtag.click('https://na-ryby.eu'+boatGuide);
 assert.equal(noGtag.calls.length,0,'no consent bypass');
 const notSource=browser({page:'/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/'});
 notSource.click('https://na-ryby.eu'+boatGuide);
-assert.equal(notSource.calls.length,0,'only practical source page');
+assert.equal(notSource.calls.length,1,'existing budget-to-boat guide counted');
+assert.equal(notSource.calls[0][1],'nry_buyer_guide_click');
+assert.equal(notSource.calls[0][2].guide_type,'sonar_boat');
 
 const pillar=browser({page:'/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/'});
 pillar.click('https://www.chytapust.cz/Echoloty/?utm_source=na-ryby');
@@ -227,11 +229,53 @@ pillarNoConsent.click('https://www.chytapust.cz/Echoloty/');
 pillarNoConsent.click('https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/');
 for (const [path] of sonarChoices) pillarNoConsent.click('https://na-ryby.eu'+path);
 assert.equal(pillarNoConsent.calls.length,0,'never bypass existing gtag consent');
-const budgetNoPillarGuide=browser({
-  page:'/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/'
-});
-budgetNoPillarGuide.click('https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/');
-assert.equal(budgetNoPillarGuide.calls.length,0,'pillar guide handoff not generalized to budget');
+// Existing cross-guide journeys were independently observed on the five
+// public sonar articles. Count internal buyer decisions, not conversions.
+const sonarRoutes=[
+  ['/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/',[
+    ['/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/','sonar_pillar'],
+    ['/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/','sonar_practical'],
+    ['/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/','sonar_boat'],
+    ['/poradce-vybavy/','equipment_advisor']]],
+  ['/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/',[
+    ['/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/','sonar_pillar'],
+    ['/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/','sonar_budget'],
+    ['/poradce-vybavy/','equipment_advisor']]],
+  ['/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/',[
+    ['/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/','sonar_pillar'],
+    ['/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/','sonar_boat'],
+    ['/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/','sonar_budget'],
+    ['/poradce-vybavy/','equipment_advisor']]]
+];
+const sonarPageRoles={
+  '/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/':'echolot_budget',
+  '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/':'sonar_boat',
+  '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/':'sonar_historic'
+};
+for (const [source,links] of sonarRoutes) {
+  const viewer=browser({page:source});
+  for (const [href,role] of links) {
+    viewer.click('https://na-ryby.eu'+href);
+    const last=viewer.calls.at(-1);
+    assert.equal(last[1],'nry_buyer_guide_click');
+    assert.equal(last[2].buyer_page,sonarPageRoles[source]);
+    assert.equal(last[2].guide_type,role);
+    assert.equal(last[2].transport_type,'beacon');
+    assert.deepEqual(Object.keys(last[2]).sort(),['buyer_page','guide_type','transport_type'].sort());
+    assert.ok(!JSON.stringify(last).includes(href),'no destination URL in GA4 payload');
+  }
+  const before=viewer.calls.length;
+  for (const [href] of links) {
+    viewer.click('https://na-ryby.eu'+href+'?ref=not-allowed');
+    viewer.click('https://na-ryby.eu'+href+'#ref');
+    viewer.click('https://bad.na-ryby.eu'+href);
+    viewer.click('https://na-ryby.eu'+href,{trusted:false});
+  }
+  assert.equal(viewer.calls.length,before,'only trusted canonical internal decisions');
+  const consent=browser({page:source,gtagEnabled:false});
+  for (const [href] of links) consent.click('https://na-ryby.eu'+href);
+  assert.equal(consent.calls.length,0,'no consent bypass for sonar routes');
+}
 
 // Existing source-pinned baitboat CTA: only genuine, callout-originating
 // navigations count. Never use merchant conversions as a proxy.

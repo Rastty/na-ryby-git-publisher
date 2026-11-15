@@ -55,21 +55,28 @@
       } catch { /* Preserve navigation; do not alter consent. */ }
       return;
     }
-    // Measure a genuinely chosen first-party guide, not a sale. Four quick
-    // paths are source-pinned to the sonar pillar; the already-established
-    // practical handoff continues to be counted as before.
-    if (page === 'sonar_pillar' &&
+    // Read-only navigation measurement across the five existing sonar guides.
+    // The routes below are observed live internal guide links, never new
+    // products, merchants, stock claims or affiliate destinations.
+    if (['sonar_pillar','echolot_budget','sonar_boat','sonar_historic'].includes(page) &&
         url.origin === 'https://na-ryby.eu' && !url.search && !url.hash) {
-      const routes = {
+      const pathRole = {
+        '/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/':'sonar_pillar',
         '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/':'sonar_practical',
         '/deeper-pro-vs-pro-2-vs-chirp-2-ktery-se-vyplati/':'sonar_bank',
         '/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/':'sonar_boat',
         '/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/':'sonar_budget',
         '/poradce-vybavy/':'equipment_advisor'
       };
-      const guideType = Object.prototype.hasOwnProperty.call(routes,url.pathname)
-        ? routes[url.pathname] : null;
-      if (guideType) {
+      const supported = {
+        sonar_pillar: ['sonar_practical','sonar_bank','sonar_boat','sonar_budget','equipment_advisor'],
+        echolot_budget: ['sonar_pillar','sonar_practical','sonar_boat','equipment_advisor'],
+        sonar_boat: ['sonar_pillar','sonar_budget','equipment_advisor'],
+        sonar_historic: ['sonar_pillar','sonar_boat','sonar_budget','equipment_advisor']
+      };
+      const guideType = Object.prototype.hasOwnProperty.call(pathRole,url.pathname)
+        ? pathRole[url.pathname] : null;
+      if (guideType && supported[page].includes(guideType)) {
         try {
           window.gtag('event','nry_buyer_guide_click',{
             buyer_page:page,guide_type:guideType,transport_type:'beacon'

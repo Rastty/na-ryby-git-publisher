@@ -19,7 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = 'https://na-ryby.eu'
 PAGE = '/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/'
 ASSET = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js'
-VERSION = 'ver=1.6.0'
+VERSION = 'ver=1.7.0'
+BASELINE_VERSION = 'ver=1.6.0'
 MARKER = 'data-nry-carp-choice-before-shop="v1"'
 
 
@@ -63,7 +64,8 @@ def verify(html, *, after, public_js=b'', reviewed_js=b''):
     else:
         # The first PR has no script; later PRs must continue to pass once
         # this exact reviewed version is live. PR preflight is not byte proof.
-        assert page.asset_versions in ([], [VERSION]), 'CARP_UNREVIEWED_SCRIPT_VERSION'
+        assert page.asset_versions in ([], [BASELINE_VERSION], [VERSION]), (
+            'CARP_UNREVIEWED_SCRIPT_VERSION')
     return {
         'state': 'PUBLIC_CARP_BUYER_CLICK_ASSET_VERIFIED' if after
                  else 'PUBLIC_CARP_BUYER_CLICK_PREFLIGHT',
