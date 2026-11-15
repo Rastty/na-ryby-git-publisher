@@ -42,8 +42,12 @@ jobs:
           with urlopen(request,timeout=25) as response:
               assert response.status==200 and response.geturl()==url
               html=response.read(1200000).decode('utf-8','replace')
-          assert html.count('<!-- nry-sonar-budget-trust-118455-v1 -->')==1
-          Path('nry-budget-scenarios-ephemeral.html').write_text(html,encoding='utf-8')
+          trust='<!-- nry-sonar-budget-trust-118455-v1 -->'
+          assert html.count(trust)==1
+          # The WordPress filter sees the_content, not site header/nav HTML.
+          # Anchor the anonymous probe at the exact first content marker.
+          Path('nry-budget-scenarios-ephemeral.html').write_text(
+              html[html.index(trust):],encoding='utf-8')
           PY
           php tests/probe-sonar-budget-scenarios-public-candidate.php nry-budget-scenarios-ephemeral.html
   public:
