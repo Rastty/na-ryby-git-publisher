@@ -17,8 +17,8 @@ def page(path, anchors, version=None):
 
 hub_links = [origin + '/kresla', origin + m['EVERGREEN']]
 evergreen_links = [
-    'https://www.dpbolvw.net/click-8287231-12347575?url=redacted',
-    'https://www.dpbolvw.net/click-7777777-12347575-1234567890123?url=redacted',
+    'http://www.dpbolvw.net/click-8287231-12347575?url=redacted',
+    'http://www.dpbolvw.net/click-7777777-12347575-1234567890123?url=redacted',
     origin + m['ADVISOR']]
 hub = page(m['HUB'], hub_links)
 evergreen = page(m['EVERGREEN'], evergreen_links)
@@ -31,6 +31,7 @@ assert result['state'] == 'PUBLIC_CHAIR_BUYER_CLICK_ASSET_VERIFIED'
 assert result['chair_hub_first_party_affiliate_ctas'] == 1
 assert result['chair_evergreen_existing_cj_ctas'] == 1
 assert result['chair_evergreen_unverified_legacy_cj_ctas'] == 1
+assert result['chair_evergreen_insecure_http_cj_ctas'] == 2
 assert not result['commissionAttributionProven']
 assert not result['ga4DeliveryProven']
 assert result['merchantRequests'] == 0

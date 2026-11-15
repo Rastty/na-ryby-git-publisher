@@ -348,13 +348,13 @@ for(const call of chairHub.calls){
   assert.ok(!JSON.stringify(call).includes('/kresla'));
 }
 const chairEvergreen=browser({page:'/jak-vybrat-rybarske-kreslo/'});
-chairEvergreen.click('https://www.dpbolvw.net/click-8287231-12347575?url=https%3A%2F%2Fwww.chytapust.cz%2FSedacky');
+chairEvergreen.click('http://www.dpbolvw.net/click-8287231-12347575?url=https%3A%2F%2Fwww.chytapust.cz%2FSedacky');
 assert.equal(chairEvergreen.calls.length,1);
 assert.equal(chairEvergreen.calls[0][2].buyer_page,'chair_evergreen');
-assert.equal(chairEvergreen.calls[0][2].buyer_cta_type,'cj_product_link');
-chairEvergreen.click('https://www.dpbolvw.net/click-7777777-12347575-1234567890123?url=https%3A%2F%2Fwww.chytapust.cz%2FSedacky');
+assert.equal(chairEvergreen.calls[0][2].buyer_cta_type,'cj_http_existing');
+chairEvergreen.click('http://www.dpbolvw.net/click-7777777-12347575-1234567890123?url=https%3A%2F%2Fwww.chytapust.cz%2FSedacky');
 assert.equal(chairEvergreen.calls.length,2);
-assert.equal(chairEvergreen.calls[1][2].buyer_cta_type,'cj_legacy_unverified');
+assert.equal(chairEvergreen.calls[1][2].buyer_cta_type,'cj_legacy_http_unverified');
 chairEvergreen.click('https://na-ryby.eu/poradce-vybavy/');
 assert.equal(chairEvergreen.calls.length,3);
 assert.equal(chairEvergreen.calls[2][1],'nry_buyer_guide_click');
@@ -366,10 +366,10 @@ for(const href of [
  'https://na-ryby.eu/poradce-vybavy/?src=secret',
  'https://na-ryby.eu/poradce-vybavy/#secret'
 ]) chairEvergreen.click(href);
-chairEvergreen.click('https://www.dpbolvw.net/click-8287231-12347575',{trusted:false});
+chairEvergreen.click('http://www.dpbolvw.net/click-8287231-12347575',{trusted:false});
 assert.equal(chairEvergreen.calls.length,3,'chair evergreen rejects unapproved links');
 const chairNoConsent=browser({page:'/jak-vybrat-rybarske-kreslo/',gtagEnabled:false});
-chairNoConsent.click('https://www.dpbolvw.net/click-8287231-12347575');
+chairNoConsent.click('http://www.dpbolvw.net/click-8287231-12347575');
 chairNoConsent.click('https://na-ryby.eu/poradce-vybavy/');
 assert.equal(chairNoConsent.calls.length,0,'no chair consent bypass');
 const hubNoConsent=browser({page:'/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/',gtagEnabled:false});

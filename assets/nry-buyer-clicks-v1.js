@@ -41,7 +41,15 @@
     let url;
     try { url = new URL(link.href, location.href); }
     catch { return; }
-    if (url.protocol !== 'https:' || url.username || url.password || url.port) return;
+    // Existing chair guide #11901 contains legacy HTTP CJ anchors. Do not
+    // follow or rewrite them here; observe only verified-shape real user clicks.
+    // Other pages and non-CJ insecure URLs remain blocked.
+    const chairHttpCJ = page === 'chair_evergreen' &&
+      url.protocol === 'http:' && networkHosts.has(url.hostname) &&
+      (/^\/click-8287231-[0-9]{6,16}$/.test(url.pathname) ||
+       /^\/click-[0-9]{6,12}-[0-9]{6,16}-[0-9]{9,18}$/.test(url.pathname));
+    if ((url.protocol !== 'https:' && !chairHttpCJ) ||
+        url.username || url.password || url.port) return;
     // Count only the existing, source-pinned buyer callout, not every link
     // to the picker; the approved picker itself is never instrumented.
     if (page === 'baitboat_guide' &&
@@ -124,13 +132,14 @@
       kind = 'internal_affiliate_redirect';
     } else if (networkHosts.has(url.hostname) &&
                /^\/click-8287231-[0-9]{6,16}$/.test(url.pathname)) {
-      kind = 'cj_product_link';
+      kind = url.protocol === 'http:' ? 'cj_http_existing' : 'cj_product_link';
     } else if (page === 'chair_evergreen' && networkHosts.has(url.hostname) &&
                /^\/click-[0-9]{6,12}-[0-9]{6,16}-[0-9]{9,18}$/.test(url.pathname) &&
                !url.pathname.startsWith('/click-8287231-')) {
       // Six existing older CJ links have a different publisher identity.
       // Count the visitor handoff, never claim commission ownership.
-      kind = 'cj_legacy_unverified';
+      kind = url.protocol === 'http:' ? 'cj_legacy_http_unverified'
+        : 'cj_legacy_unverified';
     } else if (page === 'echolot_budget' &&
                url.hostname === 'go.dognet.com' &&
                (url.pathname.length > 1 || url.search.length > 1)) {

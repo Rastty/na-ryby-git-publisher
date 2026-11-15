@@ -40,6 +40,7 @@ class PublicPage(HTMLParser):
         self.advisor_handoffs = 0
         self.existing_cj_links = 0
         self.legacy_cj_links = 0
+        self.insecure_cj_links = 0
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -56,7 +57,7 @@ class PublicPage(HTMLParser):
             return
         href = attrs.get('href') or ''
         parsed = urlsplit(href)
-        if parsed.scheme != 'https' or parsed.username or parsed.password or parsed.port:
+        if parsed.scheme not in ('https', 'http') or parsed.username or parsed.password or parsed.port:
             return
         if parsed.netloc == 'na-ryby.eu':
             if not parsed.query and not parsed.fragment:
@@ -69,11 +70,15 @@ class PublicPage(HTMLParser):
         elif (parsed.hostname in CJ_HOSTS and
               re.fullmatch(r'/click-8287231-[0-9]{6,16}', parsed.path or '')):
             self.existing_cj_links += 1
+            if parsed.scheme == 'http':
+                self.insecure_cj_links += 1
         elif (parsed.hostname in CJ_HOSTS and
               re.fullmatch(r'/click-[0-9]{6,12}-[0-9]{6,16}-[0-9]{9,18}',
                            parsed.path or '') and
               not parsed.path.startswith('/click-8287231-')):
             self.legacy_cj_links += 1
+            if parsed.scheme == 'http':
+                self.insecure_cj_links += 1
 
 
 def inspect(hub_html, evergreen_html, *, after, installed_js=b'', reviewed_js=b''):
@@ -87,6 +92,7 @@ def inspect(hub_html, evergreen_html, *, after, installed_js=b'', reviewed_js=b'
     assert hub.evergreen_handoffs >= 1, 'HUB_EVERGREEN_GUIDE_HANDOFF_MISSING'
     assert evergreen.existing_cj_links >= 1, 'EVERGREEN_EXISTING_CJ_LINK_MISSING'
     assert evergreen.legacy_cj_links >= 1, 'EVERGREEN_LEGACY_CJ_LINK_MISSING'
+    assert evergreen.insecure_cj_links >= 1, 'EVERGREEN_INSECURE_LEGACY_URLS_NOT_OBSERVED'
     assert evergreen.advisor_handoffs >= 1, 'EVERGREEN_ADVISOR_HANDOFF_MISSING'
     if after:
         assert hub.bundle_versions == [VERSION], 'HUB_SCRIPT_NOT_INSTALLED_ONCE'
@@ -104,6 +110,7 @@ def inspect(hub_html, evergreen_html, *, after, installed_js=b'', reviewed_js=b'
         'chair_hub_evergreen_guide_handoffs': hub.evergreen_handoffs,
         'chair_evergreen_existing_cj_ctas': evergreen.existing_cj_links,
         'chair_evergreen_unverified_legacy_cj_ctas': evergreen.legacy_cj_links,
+        'chair_evergreen_insecure_http_cj_ctas': evergreen.insecure_cj_links,
         'chair_evergreen_advisor_handoffs': evergreen.advisor_handoffs,
         'asset_byte_identical': after, 'merchantRequests': 0,
         'syntheticClicks': 0, 'wordpressWrites': 0,
