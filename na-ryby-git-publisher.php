@@ -35,6 +35,7 @@ require_once __DIR__ . '/winter-ice-safety-45070-v1.php';
 require_once __DIR__ . '/reel-dashboard-nextsteps-v1.php';
 require_once __DIR__ . '/sonar-budget-trust-118455-v1.php';
 require_once __DIR__ . '/sonar-budget-owner-first-118455-v1.php';
+require_once __DIR__ . '/sonar-budget-scenario-jumps-118455-v1.php';
 require_once __DIR__ . '/sonar-pillar-practical-handoff-118553-v1.php';
 require_once __DIR__ . '/sonar-pillar-fast-paths-118553-v1.php';
 require_once __DIR__ . '/sonar-pillar-merchant-neutral-118553-v1.php';
