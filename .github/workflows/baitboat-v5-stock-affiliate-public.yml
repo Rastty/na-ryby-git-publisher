@@ -1,0 +1,30 @@
+name: Na-Ryby Boat Picker V5 Stock and CJ Public Proof
+on:
+  pull_request:
+    paths:
+      - 'scripts/verify-baitboat-stock-live-v5.py'
+      - 'tests/test-baitboat-stock-live-v5.py'
+      - '.github/workflows/baitboat-v5-stock-affiliate-public.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/verify-baitboat-stock-live-v5.py'
+      - 'tests/test-baitboat-stock-live-v5.py'
+      - '.github/workflows/baitboat-v5-stock-affiliate-public.yml'
+  schedule:
+    - cron: '17 */4 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-v5:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Offline contract tests
+        run: python3 tests/test-baitboat-stock-live-v5.py -v
+      - name: Independent public V5 and CJ proof (GET to own site only)
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/verify-baitboat-stock-live-v5.py
