@@ -1,0 +1,63 @@
+name: Na-Ryby Budget Sonar Buyer Scenario Shortcuts
+on:
+  pull_request:
+    paths:
+      - 'sonar-budget-scenario-jumps-118455-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-sonar-budget-scenario-jumps-118455-v1.php'
+      - 'tests/probe-sonar-budget-scenarios-public-candidate.php'
+      - 'scripts/verify-sonar-budget-scenario-jumps-public.py'
+      - '.github/workflows/sonar-budget-scenarios-public.yml'
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Strict render-only source and merchant route contract
+        run: |
+          php -l sonar-budget-scenario-jumps-118455-v1.php
+          php tests/test-sonar-budget-scenario-jumps-118455-v1.php
+          python3 -m py_compile scripts/verify-sonar-budget-scenario-jumps-public.py
+      - name: Preflight transform against actual anonymous live HTML (no writes)
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          umask 077
+          trap 'rm -f nry-budget-scenarios-ephemeral.html' EXIT
+          python3 - <<'PY'
+          from urllib.request import Request, urlopen
+          from pathlib import Path
+          url=('https://na-ryby.eu/'
+               'nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/')
+          request=Request(url,headers={'User-Agent':'NRY-BudgetScenario-PRPreflight/1.0',
+                                       'Cache-Control':'no-cache, no-store'})
+          with urlopen(request,timeout=25) as response:
+              assert response.status==200 and response.geturl()==url
+              html=response.read(1200000).decode('utf-8','replace')
+          trust='<!-- nry-sonar-budget-trust-118455-v1 -->'
+          assert html.count(trust)==1
+          # The WordPress filter sees the_content, not site header/nav HTML.
+          # Anchor the anonymous probe at the exact first content marker.
+          Path('nry-budget-scenarios-ephemeral.html').write_text(
+              html[html.index(trust):],encoding='utf-8')
+          PY
+          php tests/probe-sonar-budget-scenarios-public-candidate.php nry-budget-scenarios-ephemeral.html
+  public:
+    needs: contract
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Independently verify all three links and targets on live buyer page
+        run: python3 scripts/verify-sonar-budget-scenario-jumps-public.py
