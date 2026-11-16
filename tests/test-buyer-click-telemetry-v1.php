@@ -40,7 +40,9 @@ $more=array(
   36518 => '/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/',
   49275 => '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/',
   61257 => '/zavazeci-lodky-pro-rybare/',
-  118541 => '/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/'
+  118541 => '/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/',
+  60341 => '/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/',
+  11901 => '/jak-vybrat-rybarske-kreslo/'
 );
 foreach($more as $id=>$route) {
   $GLOBALS['queue']=array();
@@ -50,8 +52,10 @@ foreach($more as $id=>$route) {
   must(count($GLOBALS['queue'])===1,'exact released buyer must have script');
   must(nry_buyer_click_approved_scope($id,$route),'whitelisted ID/path binding');
   must($GLOBALS['queue'][0]['handle']==='nry-buyer-offer-click-v1','same local JS');
-  must($GLOBALS['queue'][0]['version']==='1.7.0','new script version');
+  must($GLOBALS['queue'][0]['version']==='1.8.0','new script version');
 }
+must(!nry_buyer_click_approved_scope(60341,'/jak-vybrat-rybarske-kreslo/'),'never bind hub id to evergreen');
+must(!nry_buyer_click_approved_scope(11901,'/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/'),'never bind evergreen id to hub');
 $GLOBALS['queue']=array();
 $GLOBALS['id']=119865;
 $GLOBALS['path']='https://na-ryby.eu/poradce-vybavy/';

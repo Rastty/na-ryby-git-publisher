@@ -316,4 +316,63 @@ const d=browser({page:'/some-article/'});assert.equal(d.callbacks.length,0);
 const e=browser({host:'https://other.example'});assert.equal(e.callbacks.length,0);
 const advisor=browser({page:'/poradce-vybavy/'});
 assert.equal(advisor.callbacks.length,0,'advisor has separate measurement, no double count');
-console.log('PASS: baitboat source-pinned CTA, sonar handoffs and consent-gated clicks only');
+// Independently observed chair surfaces: the hub links to /kresla and to
+// the evergreen guide; the evergreen page has approved-shape CJ links.
+const chairHub=browser({page:'/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/'});
+chairHub.click('https://na-ryby.eu/kresla');
+assert.equal(chairHub.calls.length,1);
+assert.equal(chairHub.calls[0][1],'nry_buyer_offer_click');
+assert.equal(chairHub.calls[0][2].buyer_page,'chair_hub');
+assert.equal(chairHub.calls[0][2].buyer_cta_type,'internal_affiliate_redirect');
+chairHub.click('https://na-ryby.eu/jak-vybrat-rybarske-kreslo/');
+assert.equal(chairHub.calls.length,2);
+assert.equal(chairHub.calls[1][1],'nry_buyer_guide_click');
+assert.equal(chairHub.calls[1][2].guide_type,'chair_evergreen');
+const hubCount=chairHub.calls.length;
+for(const href of [
+  'https://na-ryby.eu/kresla?ref=secret',
+  'https://na-ryby.eu/kresla#secret',
+  'http://na-ryby.eu/kresla',
+  'https://evil.na-ryby.eu/kresla',
+  'https://na-ryby.eu/jak-vybrat-rybarske-kreslo/?ref=secret',
+  'https://na-ryby.eu/jak-vybrat-rybarske-kreslo/#secret',
+  'https://na-ryby.eu/poradce-vybavy/'
+]) chairHub.click(href);
+chairHub.click('https://na-ryby.eu/kresla',{trusted:false});
+assert.equal(chairHub.calls.length,hubCount,'chair hub cannot count altered or synthetic clicks');
+for(const call of chairHub.calls){
+  const keys=call[1]==='nry_buyer_offer_click'
+    ? ['buyer_cta_type','buyer_page','transport_type']
+    : ['buyer_page','guide_type','transport_type'];
+  assert.deepEqual(Object.keys(call[2]).sort(),keys.sort());
+  assert.ok(!JSON.stringify(call).includes('/kresla'));
+}
+const chairEvergreen=browser({page:'/jak-vybrat-rybarske-kreslo/'});
+chairEvergreen.click('http://www.dpbolvw.net/click-8287231-12347575?url=https%3A%2F%2Fwww.chytapust.cz%2FSedacky');
+assert.equal(chairEvergreen.calls.length,1);
+assert.equal(chairEvergreen.calls[0][2].buyer_page,'chair_evergreen');
+assert.equal(chairEvergreen.calls[0][2].buyer_cta_type,'cj_http_existing');
+chairEvergreen.click('http://www.dpbolvw.net/click-7777777-12347575-1234567890123?url=https%3A%2F%2Fwww.chytapust.cz%2FSedacky');
+assert.equal(chairEvergreen.calls.length,2);
+assert.equal(chairEvergreen.calls[1][2].buyer_cta_type,'cj_legacy_http_unverified');
+chairEvergreen.click('https://na-ryby.eu/poradce-vybavy/');
+assert.equal(chairEvergreen.calls.length,3);
+assert.equal(chairEvergreen.calls[2][1],'nry_buyer_guide_click');
+assert.equal(chairEvergreen.calls[2][2].guide_type,'equipment_advisor');
+for(const href of [
+ 'https://na-ryby.eu/kresla', // belongs only to the hub
+ 'https://www.dpbolvw.net/click-12345-12347575',
+ 'https://www.dpbolvw.net/click-8287231-12347575-extra',
+ 'https://na-ryby.eu/poradce-vybavy/?src=secret',
+ 'https://na-ryby.eu/poradce-vybavy/#secret'
+]) chairEvergreen.click(href);
+chairEvergreen.click('http://www.dpbolvw.net/click-8287231-12347575',{trusted:false});
+assert.equal(chairEvergreen.calls.length,3,'chair evergreen rejects unapproved links');
+const chairNoConsent=browser({page:'/jak-vybrat-rybarske-kreslo/',gtagEnabled:false});
+chairNoConsent.click('http://www.dpbolvw.net/click-8287231-12347575');
+chairNoConsent.click('https://na-ryby.eu/poradce-vybavy/');
+assert.equal(chairNoConsent.calls.length,0,'no chair consent bypass');
+const hubNoConsent=browser({page:'/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/',gtagEnabled:false});
+hubNoConsent.click('https://na-ryby.eu/kresla');
+assert.equal(hubNoConsent.calls.length,0,'no chair redirect consent bypass');
+console.log('PASS: chair hub + evergreen buyer telemetry, sonar/carp, consent-gated clicks only');

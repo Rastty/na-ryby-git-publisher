@@ -24,9 +24,9 @@ BOAT = "/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/"
 HISTORIC = "/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/"
 ADVISOR = "/poradce-vybavy/"
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
-VERSION = "ver=1.7.0"
+VERSION = "ver=1.8.0"
 # Preflight checks the last independently verified public JS release #204.
-BASELINE_VERSION = "ver=1.6.0"
+BASELINE_VERSION = "ver=1.7.0"
 ROOT = Path(__file__).resolve().parents[1]
 
 
