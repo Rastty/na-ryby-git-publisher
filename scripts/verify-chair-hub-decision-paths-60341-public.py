@@ -86,11 +86,13 @@ def verify_destination(html, url):
 
 def main():
     try:
-        count = verify_hub(fetch(HUB))
+        targets_only = '--targets-only' in sys.argv
+        count = 0 if targets_only else verify_hub(fetch(HUB))
         for target in TARGETS:
             verify_destination(fetch(target), target)
         print(json.dumps({
-            "state": "PUBLIC_CHAIR_HUB_THREE_DECISION_PATHS_VERIFIED",
+            "state": ("CHAIR_DECISION_TARGETS_PREFLIGHT_VERIFIED" if targets_only
+                      else "PUBLIC_CHAIR_HUB_THREE_DECISION_PATHS_VERIFIED"),
             "hub": HUB, "internal_routes": count,
             "targets_http_200_canonical": len(TARGETS),
             "merchantRequests": 0, "wordpressWrites": 0,
