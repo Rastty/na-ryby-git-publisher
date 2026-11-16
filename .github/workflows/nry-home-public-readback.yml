@@ -28,6 +28,9 @@ jobs:
           python3 -m py_compile scripts/verify-home-118641-public.py
           python3 -m py_compile scripts/verify-home-advisor-entry-public.py
           python3 tests/test-home-advisor-entry-public.py
+      - name: Verify all four destination URLs before merge (GET only)
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-home-advisor-entry-public.py --targets-only
       - name: Public HTTP GET-only verification
         if: github.event_name != 'pull_request'
         run: python3 scripts/verify-home-118641-public.py

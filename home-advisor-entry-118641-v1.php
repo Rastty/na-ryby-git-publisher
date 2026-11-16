@@ -10,18 +10,22 @@ final class NRY_Home_Advisor_Entry_118641_V1 {
     const MARKER = 'data-nry-home-advisor-entry="v1"';
     const HERO = 'Průvodci výběrem vybavení, praktické rady, testy, srovnání i inspirace k vodě. Přehledně, vizuálně a bez zbytečného chaosu pro začátečníky i zkušené rybáře.';
     const ADVISOR = 'https://na-ryby.eu/poradce-vybavy/';
-    const PROBLEMS_MARKER = 'data-nry-home-problem-shortcuts="v1"';
+    const PROBLEMS_MARKER = 'data-nry-home-problem-shortcuts="v2"';
+    const PREVIOUS_PROBLEMS_MARKER = 'data-nry-home-problem-shortcuts="v1"';
     const CARP_GUIDE = 'https://na-ryby.eu/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/';
     const SONAR_BUDGET = 'https://na-ryby.eu/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/';
     const SONAR_OWNER = 'https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/';
-    const PROBLEM_SHORTCUTS = '<nav data-nry-home-problem-shortcuts="v1" aria-label="Rychlé cesty podle rybářského problému">'
+    const CHAIR_HUB = 'https://na-ryby.eu/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/';
+    const PROBLEM_SHORTCUTS = '<nav data-nry-home-problem-shortcuts="v2" aria-label="Rychlé cesty podle rybářského problému">'
         .'<p><strong>Co právě potřebujete vyřešit?</strong> Vyberte nejkratší cestu k praktickému návodu:</p>'
         .'<ul><li><a href="https://na-ryby.eu/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/">'
         .'Vybírám kaprový prut podle vody a stylu lovu</a></li>'
         .'<li><a href="https://na-ryby.eu/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/">'
         .'Hledám echolot do 15 000 Kč</a></li>'
         .'<li><a href="https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/">'
-        .'Echolot už mám: jak ho správně nastavit</a></li></ul></nav>';
+        .'Echolot už mám: jak ho správně nastavit</a></li>'
+        .'<li><a href="https://na-ryby.eu/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/">'
+        .'Vybírám rybářské křeslo podle pohodlí a nosnosti</a></li></ul></nav>';
     const INSERT = '<p data-nry-home-advisor-entry="v1"><strong>Nevíte, čím začít?</strong> '
         .'Získejte orientační doporučení prutu a navijáku podle stylu rybaření, '
         .'typu vody a rozpočtu. <a href="https://na-ryby.eu/poradce-vybavy/">'
@@ -60,6 +64,7 @@ final class NRY_Home_Advisor_Entry_118641_V1 {
             || substr_count($html, self::SOURCE_MARKER) !== 1
             || substr_count($html, self::MARKER) !== 0
             || substr_count($html, self::PROBLEMS_MARKER) !== 0
+            || substr_count($html, self::PREVIOUS_PROBLEMS_MARKER) !== 0
             || substr_count($html, self::HERO) !== 1) return $html;
         $markerPos = strpos($html, self::SOURCE_MARKER);
         $at = strpos($html, self::HERO);
