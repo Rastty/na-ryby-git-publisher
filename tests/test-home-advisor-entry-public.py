@@ -13,6 +13,18 @@ html=('<html><head><link rel="canonical" href="'+x["HOME"]+
       for url,copy in zip(x["ROUTES"].values(),x["ROUTE_COPY"]))+
     '</ul></nav><h2>'+x["CATEGORY"]+'</h2></body></html>')
 assert x["verify"](html)["state"]=="PUBLIC_VERIFIED"
+assert x["verify"](html)["problem_shortcuts_count"]==4
+def target_fixture(url):
+    return (200,url,'<html><head><link rel="canonical" href="'+url+'"></head></html>')
+assert x["verify_targets"](target_fixture)==4
+for faulty in [
+    lambda url:(404,url,'<html></html>'),
+    lambda url:(200,url+'?redirected=1','<html></html>'),
+    lambda url:(200,url,'<html><head><link rel="canonical" href="https://na-ryby.eu/other/"></head></html>'),
+]:
+    try: x["verify_targets"](faulty)
+    except AssertionError: pass
+    else: raise AssertionError("TARGETS_MUST_FAIL_CLOSED")
 for broken in [
  html.replace(x["MARKER"],""),
  html.replace(x["MARKER"],x["MARKER"]*2),

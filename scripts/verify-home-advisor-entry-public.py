@@ -4,8 +4,8 @@
 No WordPress writes, visits to merchant URLs or browser analytics events.
 """
 from html.parser import HTMLParser
-from urllib.request import Request,urlopen
-from pathlib import Path
+from urllib.request import Request, HTTPRedirectHandler, build_opener
+from urllib.parse import urlsplit
 import sys
 
 HOME="https://na-ryby.eu/"
@@ -16,16 +16,18 @@ COPY="Spustit průvodce výběrem výbavy"
 CAUTION="Konkrétní produktové nabídky zobrazujeme jen po ověření jejich aktuálnosti."
 HERO="Průvodci výběrem vybavení"
 CATEGORY="Vybavení podle hlavních kategorií"
-ROUTES_MARKER='data-nry-home-problem-shortcuts="v1"'
+ROUTES_MARKER='data-nry-home-problem-shortcuts="v2"'
 ROUTES={
     "carp":"https://na-ryby.eu/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/",
     "sonar_budget":"https://na-ryby.eu/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/",
     "sonar_owner":"https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/",
+    "chair_buyer":"https://na-ryby.eu/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/",
 }
 ROUTE_COPY=(
     "Vybírám kaprový prut podle vody a stylu lovu",
     "Hledám echolot do 15 000 Kč",
     "Echolot už mám: jak ho správně nastavit",
+    "Vybírám rybářské křeslo podle pohodlí a nosnosti",
 )
 
 class Tags(HTMLParser):
@@ -36,6 +38,12 @@ class Tags(HTMLParser):
         a=dict(attrs)
         if tag=='link' and 'canonical' in (a.get('rel') or ''):
             self.canonicals.append(a.get('href'))
+
+class NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self,request,fp,code,msg,headers,newurl):
+        return None
+
+opener=build_opener(NoRedirect)
 
 def verify(html):
     assert html.count(OLD_MARKER)==1, "SOURCE_TRUST_MISSING_OR_DUPLICATE"
@@ -59,19 +67,39 @@ def verify(html):
     assert hrefs==list(ROUTES.values()), "PROBLEM_SHORTCUT_DESTINATIONS_DRIFT"
     assert all(copy in block for copy in ROUTE_COPY), "PROBLEM_SHORTCUT_COPY_DRIFT"
     return {"state":"PUBLIC_VERIFIED","homepage_entry_count":1,
-            "problem_shortcuts_count":3,
+            "problem_shortcuts_count":4,
             "merchant_requests":0,"wordpress_writes":0,"analytics_events":0}
+
+def verify_targets(fetch):
+    """Only the four exact internal routes; no merchant or tracking clicks."""
+    for target in ROUTES.values():
+        status,final_url,body=fetch(target)
+        assert status==200 and final_url==target, "TARGET_NOT_200_CANONICAL_URL: "+target
+        h=Tags();h.feed(body)
+        assert h.canonicals==[target], "TARGET_CANONICAL_DRIFT: "+target
+    return len(ROUTES)
+
+def fetch_public(url):
+    parts=urlsplit(url)
+    assert parts.scheme=='https' and parts.netloc=='na-ryby.eu' and not parts.query and not parts.fragment, "FIRST_PARTY_URL_ONLY"
+    req=Request(url,headers={"User-Agent":"NaRybyHomeAdvisorEntryReadOnly/1.1",
+                             "Cache-Control":"no-cache, no-store"})
+    with opener.open(req,timeout=24) as response:
+        assert response.status==200 and response.geturl()==url, "WRONG_LIVE_URL"
+        return response.status,response.geturl(),response.read(1300000).decode('utf-8','replace')
 
 if __name__=="__main__":
     import time
     for attempt in range(3):
         try:
-            req=Request(HOME,headers={"User-Agent":"NaRybyHomeAdvisorEntryReadOnly/1.0",
-                                      "Cache-Control":"no-cache, no-store"})
-            with urlopen(req,timeout=24) as response:
-                assert response.status==200 and response.geturl()==HOME, "WRONG_LIVE_URL"
-                html=response.read(1300000).decode('utf-8','replace')
-            print(verify(html))
+            if '--targets-only' in sys.argv:
+                print({"state":"TARGETS_PREFLIGHT_VERIFIED","routes":verify_targets(fetch_public),
+                       "merchant_requests":0,"wordpress_writes":0})
+            else:
+                status,final,html=fetch_public(HOME)
+                receipt=verify(html)
+                receipt["target_http_200_canonical"]=verify_targets(fetch_public)
+                print(receipt)
             break
         except Exception as error:
             print("PUBLIC_RETRY",attempt+1,type(error).__name__,flush=True)
