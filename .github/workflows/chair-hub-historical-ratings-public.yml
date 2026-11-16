@@ -38,6 +38,9 @@ jobs:
       - name: Live anonymous public REST and original WordPress source hash preflight
         if: github.event_name == 'pull_request'
         run: php tests/probe-chair-hub-historical-ratings-60341.php
+      - name: Public GET-only preflight of all 3 internal decision destinations
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-chair-hub-decision-paths-60341-public.py --targets-only
   public:
     needs: contract
     if: >-
