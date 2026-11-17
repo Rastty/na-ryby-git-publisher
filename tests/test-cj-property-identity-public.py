@@ -40,11 +40,16 @@ class TestCJPropertyIdentityAudit(unittest.TestCase):
     def test_unrecognized_and_extended_ids_are_not_approved(self):
         links = ('<a href="https://www.tkqlhce.com/click-9999999-12347575?url=private">U</a>' +
                  '<a href="http://www.dpbolvw.net/click-7777777-12347575-1234567890123">Legacy</a>' +
+                 '<a href="https://www.dpbolvw.net/click-8287231-12347575-1234567890123">Own extended</a>' +
+                 '<a href="https://www.dpbolvw.net/click-100927011-12347575-1234567890123">Other extended</a>' +
                  '<a href="https://www.tkqlhce.com/click-8287231-NOTANID">Bad</a>')
         parser = audit.LinkInventory()
         parser.feed(links)
         self.assertEqual(parser.counts["cj_unknown_property"], 1)
-        self.assertEqual(parser.counts["cj_extended_legacy_shape"], 1)
+        self.assertEqual(parser.counts["cj_extended_legacy_shape"], 3)
+        self.assertEqual(parser.counts["cj_extended_legacy_unknown_property"], 1)
+        self.assertEqual(parser.counts["cj_extended_legacy_own_property"], 1)
+        self.assertEqual(parser.counts["cj_extended_legacy_other_known_site"], 1)
         self.assertEqual(parser.counts["cj_invalid_shape"], 1)
         self.assertEqual(parser.counts["cj_own_property"], 0)
 
