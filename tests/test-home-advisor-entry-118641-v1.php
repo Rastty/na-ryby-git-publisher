@@ -35,7 +35,7 @@ chk($fixed!==$source,'added buyer guidance');
 chk(substr_count($fixed,$c::MARKER)===1,'one unique marker');
 chk(substr_count($fixed,$c::ADVISOR)===1,'one internal advisor route');
 chk(substr_count($fixed,$c::PROBLEMS_MARKER)===1,'one problem navigation');
-foreach(array($c::CARP_GUIDE,$c::SONAR_BUDGET,$c::SONAR_OWNER,$c::CHAIR_HUB) as $link){
+foreach(array($c::CARP_GUIDE,$c::SONAR_BUDGET,$c::SONAR_OWNER,$c::BAITBOAT_BUYER,$c::CHAIR_HUB) as $link){
  chk(substr_count($fixed,'href="'.$link.'"')===substr_count($source,'href="'.$link.'"')+1,
   'exactly one additional problem route without altering pre-existing links: '.$link);
 }
@@ -45,8 +45,8 @@ chk($navStart!==false&&$navEnd!==false&&$navEnd>$navStart,
  'bounded navigation');
 $nav=substr($fixed,$navStart,$navEnd-$navStart);
 preg_match_all('~href="([^"]+)"~',$nav,$h);
-chk($h[1]===array($c::CARP_GUIDE,$c::SONAR_BUDGET,$c::SONAR_OWNER,$c::CHAIR_HUB),
- 'exactly four first-party known safe guides, no merchant links');
+chk($h[1]===array($c::CARP_GUIDE,$c::SONAR_BUDGET,$c::SONAR_OWNER,$c::BAITBOAT_BUYER,$c::CHAIR_HUB),
+ 'exactly five first-party known safe guides, no merchant links');
 chk(strpos($fixed,$c::MARKER)<$navStart
  && $navEnd<strpos($fixed,'Vybavení podle hlavních kategorií'),
  'problem routes between original advisor and category cards');
@@ -61,6 +61,10 @@ $legacySource=str_replace('</section>',
  '<nav '.$c::PREVIOUS_PROBLEMS_MARKER.'>Previously rendered navigation</nav></section>',$source);
 chk($c::render($legacySource)===$legacySource,
  'never append new routes to an existing older navigation');
+$olderSource=str_replace('</section>',
+ '<nav '.$c::LEGACY_PROBLEMS_MARKER.'>Old navigation</nav></section>',$source);
+chk($c::render($olderSource)===$olderSource,
+ 'never append new routes to a v1 navigation');
 chk(strpos($fixed,$c::MARKER)>strpos($fixed,$c::HERO)
  && strpos($fixed,$c::MARKER)<strpos($fixed,'Vybavení podle hlavních kategorií'),
  'decision entry after hero introduction and before categories');
@@ -79,4 +83,4 @@ foreach(array('id'=>118642,'front'=>false,'page'=>false,'main'=>false,
  chk($c::render($source)===$source,'other context: '.$key);
  $GLOBALS['ctx'][$key]=$prev;
 }
-echo "PASS homepage advisor plus four problem-first routes; unchanged prior merchant links; no writes\n";
+echo "PASS homepage advisor plus five problem-first routes; unchanged prior merchant links; no writes\n";
