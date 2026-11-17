@@ -53,7 +53,9 @@ COHORT = (
 )
 METRIC_KEYS = (
     "cj_own_property", "cj_other_known_site_property", "cj_unknown_property",
-    "cj_extended_legacy_shape", "cj_invalid_shape", "first_party_cj_path",
+    "cj_extended_legacy_shape", "cj_extended_legacy_own_property",
+    "cj_extended_legacy_other_known_site", "cj_extended_legacy_unknown_property",
+    "cj_invalid_shape", "first_party_cj_path",
     "dognet_outbound", "direct_chytapust_outbound",
 )
 
@@ -83,6 +85,12 @@ class LinkInventory(HTMLParser):
                 self.counts["cj_invalid_shape"] += 1
             elif match.group(3):
                 self.counts["cj_extended_legacy_shape"] += 1
+                if match.group(1) == SITE_PROPERTY:
+                    self.counts["cj_extended_legacy_own_property"] += 1
+                elif match.group(1) == OTHER_SITE_PROPERTY:
+                    self.counts["cj_extended_legacy_other_known_site"] += 1
+                else:
+                    self.counts["cj_extended_legacy_unknown_property"] += 1
             elif match.group(1) == SITE_PROPERTY:
                 self.counts["cj_own_property"] += 1
             elif match.group(1) == OTHER_SITE_PROPERTY:
