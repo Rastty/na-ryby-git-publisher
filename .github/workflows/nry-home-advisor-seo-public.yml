@@ -1,0 +1,37 @@
+name: Na-Ryby Home and Advisor Two-Page SEO
+on:
+  pull_request:
+    paths:
+      - 'home-advisor-seo-snippets-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-home-advisor-seo-snippets-v1.php'
+      - 'tests/test-home-advisor-seo-public.py'
+      - 'scripts/verify-home-advisor-seo-public.py'
+      - '.github/workflows/nry-home-advisor-seo-public.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  seo-two-pages:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP scope and no-write tests
+        run: |
+          php -l home-advisor-seo-snippets-v1.php
+          php tests/test-home-advisor-seo-snippets-v1.php
+      - name: Independent parser regression
+        run: |
+          python3 -m py_compile scripts/verify-home-advisor-seo-public.py
+          python3 tests/test-home-advisor-seo-public.py
+      - name: Existing page identity and canonical preflight
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-home-advisor-seo-public.py --preflight
+      - name: Independent public SEO readback
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/verify-home-advisor-seo-public.py
