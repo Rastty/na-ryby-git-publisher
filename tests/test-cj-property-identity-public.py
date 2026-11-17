@@ -25,6 +25,17 @@ class TestCJPropertyIdentityAudit(unittest.TestCase):
             self.assertIn(f"{post_id} => '/{slug}/'", runtime)
         self.assertEqual(len(set(audit.COHORT)), len(audit.COHORT))
 
+    def test_new_buyer_cohort_does_not_change_click_telemetry_scope(self):
+        self.assertEqual(audit.DISCOVERED_COHORT, (
+            (119598, "nejlepsi-nafukovaci-cluny-pro-rybare"),
+            (119594, "nejlepsi-lodni-elektromotory-pro-rybare"),
+            (119743, "nejlepsi-privlacove-pruty-do-3-000-kc"),
+            (119714, "nejlepsi-feederove-pruty-do-2-000-kc-pro-zacatecnika"),
+        ))
+        self.assertEqual(len(audit.AUDIT_COHORT), 20)
+        self.assertEqual(len({p for p, _ in audit.AUDIT_COHORT}), 20)
+        self.assertEqual(audit.AUDIT_COHORT[:16], audit.COHORT)
+
     def test_known_cross_site_property_is_distinct_from_own(self):
         post_id, slug = audit.COHORT[-1]
         markup = ('<p>Useful buyer explanation with genuine context.</p>' * 8 +
@@ -77,10 +88,11 @@ class TestCJPropertyIdentityAudit(unittest.TestCase):
         row = audit.summarize(post_id, slug, self.payload(post_id, slug, "tiny"))
         self.assertEqual(row["state"], "PUBLIC_REST_RENDERED_HTML_MISSING")
 
-    def test_frontend_scope_is_only_two_known_risk_pages(self):
-        self.assertEqual(audit.FRONTEND_IDS, {61257, 119575})
+    def test_frontend_scope_is_only_six_known_risk_pages(self):
+        self.assertEqual(audit.FRONTEND_IDS,
+                         {61257, 119575, 119598, 119594, 119743, 119714})
         self.assertTrue(audit.FRONTEND_IDS.issubset(
-            {post_id for post_id, _ in audit.COHORT}))
+            {post_id for post_id, _ in audit.AUDIT_COHORT}))
 
 
 if __name__ == "__main__":
