@@ -1,0 +1,30 @@
+name: Na-Ryby bivak budget buyer trust contract
+on:
+  pull_request:
+    paths:
+      - 'bivak-budget-buyer-trust-119575-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-bivak-budget-buyer-trust-119575-v1.php'
+      - 'scripts/verify-bivak-budget-buyer-trust-public.py'
+      - '.github/workflows/bivak-budget-buyer-trust-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  bounded-source-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: PHP lint and offline identity/affiliate contract
+        run: |
+          php -l bivak-budget-buyer-trust-119575-v1.php
+          php -l tests/test-bivak-budget-buyer-trust-119575-v1.php
+          php -l na-ryby-git-publisher.php
+          php tests/test-bivak-budget-buyer-trust-119575-v1.php
+      - name: Read-only current public WordPress source preflight
+        run: |
+          python3 -m py_compile scripts/verify-bivak-budget-buyer-trust-public.py
+          python3 scripts/verify-bivak-budget-buyer-trust-public.py

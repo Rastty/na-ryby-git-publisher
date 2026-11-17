@@ -78,6 +78,10 @@ on:
       - 'assets/nry-barrow-buyer-v1.css'
       - 'tests/test-barrow-buyer-trust-v1.php'
       - 'scripts/verify-barrow-buyer-public.py'
+      - 'bivak-budget-buyer-trust-119575-v1.php'
+      - 'tests/test-bivak-budget-buyer-trust-119575-v1.php'
+      - 'scripts/verify-bivak-budget-buyer-trust-public.py'
+      - '.github/workflows/bivak-budget-buyer-trust-v1.yml'
       - 'line-bible-fast-choice-115678-v1.php'
       - 'tests/test-line-bible-fast-choice-115678-v1.php'
       - 'scripts/verify-line-bible-fast-choice-public.py'
@@ -215,6 +219,7 @@ on:
       - 'legacy-net-buyer-guides-v1.php'
       - 'carp-mat-buyer-trust-v1.php'
       - 'barrow-buyer-trust-v1.php'
+      - 'bivak-budget-buyer-trust-119575-v1.php'
       - 'line-bible-fast-choice-115678-v1.php'
       - 'sonar-pillar-practical-handoff-118553-v1.php'
       - 'sonar-pillar-merchant-neutral-118553-v1.php'
@@ -295,6 +300,9 @@ jobs:
           php -l barrow-buyer-trust-v1.php
           php tests/test-barrow-buyer-trust-v1.php
           python3 -m py_compile scripts/verify-barrow-buyer-public.py
+          php -l bivak-budget-buyer-trust-119575-v1.php
+          php tests/test-bivak-budget-buyer-trust-119575-v1.php
+          python3 -m py_compile scripts/verify-bivak-budget-buyer-trust-public.py
           php -l line-bible-fast-choice-115678-v1.php
           php tests/test-line-bible-fast-choice-115678-v1.php
           python3 -m py_compile scripts/verify-line-bible-fast-choice-public.py
