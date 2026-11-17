@@ -79,6 +79,14 @@ foreach ($cohorts as $id=>$set) {
             'unsupported seller list replaced '.$id);
     }
     check($class::render($fixed)===$fixed,'idempotent '.$id);
+    if ($id===36611) {
+        $short=str_replace(str_repeat('<p>Starší obsah k vybavení a manipulaci s rybou.</p>',150),'',$src);
+        while (strlen($short)<4400) $short.='<p>Historický obsah o kaprových podložkách.</p>';
+        check(strlen($short)>=3500 && strlen($short)<6000,
+            'realistic short historical source is below generic 6000-byte threshold');
+        check($class::render($short)!==$short,
+            'short exact-source shop guide still receives buyer corrections');
+    }
     $GLOBALS['mode']['main']=false; $GLOBALS['mode']['loop']=false;
     $class::enqueue();
     check(($GLOBALS['style']['version']??null)==='1.0.0','CSS loaded before loop '.$id);
