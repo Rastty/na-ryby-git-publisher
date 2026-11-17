@@ -1,5 +1,27 @@
 # Na-Ryby Git Publisher
 
+## 17 November 2026 — homepage → buyer-guide entry measurement
+
+`home-buyer-entry-measurement-v1.php` enqueues one passive, consent-aware
+`assets/nry-home-buyer-entry-v1.js` on the exact published homepage only.
+It counts genuine clicks from the existing five problem-first shortcuts and
+the existing advisor callout using the established `nry_buyer_guide_click`
+event with `buyer_page=homepage` and one of six fixed `guide_type` labels.
+No copy, outbound destinations, affiliate URLs, site consent, cookies, visitor
+IDs or stored WordPress content are altered. An unavailable `gtag` means zero
+events, not evidence of zero traffic. Automated tests never emit GA4 events.
+
+Release: merge and update the existing WordPress plugin through the authorized
+Deployer Git path. `python3 scripts/verify-home-buyer-entry-public-v1.py`
+independently verifies all six current first-party routes, the exact script
+identity and publicly served JavaScript bytes after deployment. `--preflight`
+checks only the routes before merging. Passing readback verifies installation,
+**not** GA4 ingestion or affiliate conversions. After consenting live sessions
+arrive, compare `nry_buyer_guide_click` by `buyer_page` and `guide_type` with
+the separately observed guide outbound events; counts are not session-level
+attribution. Register the two event parameters as GA4 custom dimensions if
+they are not already registered; do not claim that registration is complete.
+
 ## 17 November 2026 — homepage baitboat buyer route
 
 The existing source-bound, render-only homepage problem navigation now includes

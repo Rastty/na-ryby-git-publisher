@@ -1,0 +1,41 @@
+name: Na-Ryby Homepage Buyer Entries
+on:
+  pull_request:
+    paths:
+      - 'home-buyer-entry-measurement-v1.php'
+      - 'assets/nry-home-buyer-entry-v1.js'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-home-buyer-entry-v1.php'
+      - 'tests/test-home-buyer-entry-v1.mjs'
+      - 'tests/test-home-buyer-entry-public-v1.py'
+      - 'scripts/verify-home-buyer-entry-public-v1.py'
+      - '.github/workflows/home-buyer-entry-public-v1.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  home-buyer-entry:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exact homepage PHP enqueue gate
+        run: |
+          php -l home-buyer-entry-measurement-v1.php
+          php tests/test-home-buyer-entry-v1.php
+      - name: Real click-only JavaScript regression
+        run: node tests/test-home-buyer-entry-v1.mjs
+      - name: Offline and public proof parser
+        run: |
+          python3 -m py_compile scripts/verify-home-buyer-entry-public-v1.py
+          python3 tests/test-home-buyer-entry-public-v1.py
+      - name: Existing five buyer routes preflight (PR only)
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-home-buyer-entry-public-v1.py --preflight
+      - name: Independent post-deploy byte readback
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/verify-home-buyer-entry-public-v1.py
