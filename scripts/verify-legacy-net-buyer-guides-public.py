@@ -64,7 +64,7 @@ def verify(slug,source):
         raise RuntimeError('NOT_DEPLOYED: PRACTICAL_BUYER_PATH_MISSING '+slug)
     if not any('nry-legacy-net-buyer-v1.css' in s for s in p.styles):
         raise RuntimeError('NOT_DEPLOYED: STYLING_MISSING '+slug)
-    if p.affiliate_links!=2:
+    if p.affiliate_links!=3:
         raise RuntimeError('BLOCKED: ORIGINAL_AFFILIATE_LINKS_DRIFT '+slug)
     for token in expected['old']:
         if token in source:

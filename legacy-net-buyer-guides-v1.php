@@ -108,7 +108,7 @@ final class NRY_Legacy_Net_Buyer_Guides_V1 {
         if (!is_string($html) || strlen($html) < 6000 || !is_array($set)
             || strpos($html, self::MARKER) !== false
             || strpos($html, self::GUIDE) !== false
-            || substr_count($html, 'href="https://na-ryby.eu/podberaky"') !== 2
+            || substr_count($html, 'href="https://na-ryby.eu/podberaky"') !== 3
             || substr_count($html, $set['intro']) < 1) return $html;
         $first = strpos($html, $set['intro']);
         if ($first === false || $first > 1500) return $html;
