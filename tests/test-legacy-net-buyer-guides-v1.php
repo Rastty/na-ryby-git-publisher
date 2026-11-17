@@ -37,6 +37,7 @@ foreach ($cohorts as $id=>$set) {
         $src.='<p>'.(strpos($old,'Délka</b>')===0 ? '<b>' : '').$old.'</p>';
     }
     $src.='<p><a href="https://na-ryby.eu/podberaky">Affiliate B</a></p>';
+    $src.='<p><a href="https://na-ryby.eu/podberaky"><img src="/historic-banner.jpg" alt="" /></a></p>';
     $src.='<p><a href="https://na-ryby.eu/unrelated/">Unrelated link</a></p>';
     $src.=str_repeat('<p>Praktická část původního starého rybářského textu.</p>',140);
     $fixed=$class::render($src);
@@ -49,8 +50,8 @@ foreach ($cohorts as $id=>$set) {
         check(strpos($fixed,$old)===false && substr_count($fixed,$new)===1,
             'corrected anchor '.$id.' '.substr(md5($old),0,7));
     }
-    check(substr_count($fixed,'href="https://na-ryby.eu/podberaky"')===2,
-        'both affiliate targets preserved '.$id);
+    check(substr_count($fixed,'href="https://na-ryby.eu/podberaky"')===3,
+        'all three affiliate targets preserved, including image '.$id);
     check(strpos($fixed,'href="https://na-ryby.eu/unrelated/"')!==false,
         'unrelated editorial target preserved '.$id);
     check($class::render($fixed)===$fixed,'idempotent '.$id);
