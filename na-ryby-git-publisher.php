@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Na-Ryby.eu – Git Publisher
  * Description: Apply guarded Git-managed content manifests from wp-admin without WPVibe or outbound WordPress REST writes.
- * Version: 0.16.12
+ * Version: 0.16.13
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
@@ -27,6 +27,7 @@ require_once __DIR__ . '/barrow-buyer-trust-v1.php';
 require_once __DIR__ . '/bivak-budget-buyer-trust-119575-v1.php';
 require_once __DIR__ . '/motor-battery-capacity-119594-v1.php';
 require_once __DIR__ . '/boat-load-check-119598-v1.php';
+require_once __DIR__ . '/boat-motor-click-observation-v1.php';
 require_once __DIR__ . '/line-bible-fast-choice-115678-v1.php';
 require_once __DIR__ . '/guarded-auto-publisher.php';
 require_once __DIR__ . '/advisor-existing-page-release-v1.php';

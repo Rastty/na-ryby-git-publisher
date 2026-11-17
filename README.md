@@ -1,5 +1,37 @@
 # Na-Ryby Git Publisher
 
+## 17 November 2026 — boat and electric-motor outbound click cohort (candidate)
+
+Two source-pinned buyer guides (`119594`, `119598`) get a separate, passive,
+privacy-bounded click observer for their **existing** historical CJ links.
+The reviewer verified 13 links on each public post: all use the old CJ property
+`100927011`, `www.tkqlhce.com/click-100927011-12347575`, and one of three
+exact `www.chytapust.cz` *category* paths (boats, electric motors, batteries).
+The existing Na-Ryby property is `8287231`, so events explicitly report
+`cj_other_identity_unverified`: a genuine click **does not** prove a credited
+purchase or publisher entitlement. No affiliate hrefs, tracking IDs,
+destinations, text, CSS or WordPress post content are changed.
+
+`boat-motor-click-observation-v1.php` attaches only to these exact two
+published posts, matching title context/modified GMT/source link count and
+permalink. The site-local `assets/nry-boat-motor-click-v1.js` observes only
+trusted browser clicks with a strict HTTPS CJ+decoded destination allowlist;
+it delegates GA4 emission to the already available `gtag`, respecting the
+site's consent. GA4 event `nry_buyer_offer_click` carries only `buyer_page`
+(`motor_electric` or `boat_inflatable`), `buyer_cta_type` (the unverified
+legacy CJ identity) and `transport_type=beacon`. No URL, query, product,
+calculator answer, visitor identifier, cookies, storage, new tracker or
+network request is sent by this module.
+
+Pre-deploy: `python3 scripts/verify-boat-motor-click-public-v1.py` (two live
+source verifications, 13 historical exact hrefs per page). After the guarded
+Git Deployer succeeds, `--public` additionally verifies one installed script
+on both guides and byte-identical served first-party JS. Both are distinct
+from evidence of an actual GA4 event, clicks in a time interval or paid
+commissions. Rollback removes one `require_once` and redeploys. Never test
+real production clicks synthetically, and do not overwrite the old CJ IDs
+without separately verified merchant/site authorization.
+
 ## 17 November 2026 — inflatable-boat payload self-check (candidate)
 
 Buyer guide `119598` gains a small, render-only load calculator immediately

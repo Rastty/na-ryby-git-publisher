@@ -1,0 +1,41 @@
+name: Na-Ryby Boat Motor Buyer Click Observation
+on:
+  pull_request:
+    paths:
+      - 'boat-motor-click-observation-v1.php'
+      - 'assets/nry-boat-motor-click-v1.js'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-boat-motor-click-observation-v1.php'
+      - 'tests/test-boat-motor-click-observation-v1.mjs'
+      - 'scripts/verify-boat-motor-click-public-v1.py'
+      - '.github/workflows/boat-motor-click-observation-v1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'boat-motor-click-observation-v1.php'
+      - 'assets/nry-boat-motor-click-v1.js'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-boat-motor-click-observation-v1.php'
+      - 'tests/test-boat-motor-click-observation-v1.mjs'
+      - 'scripts/verify-boat-motor-click-public-v1.py'
+      - '.github/workflows/boat-motor-click-observation-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-click-cohort:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate consent-scoped PHP and synthetic click tests
+        run: |
+          php -l boat-motor-click-observation-v1.php
+          php tests/test-boat-motor-click-observation-v1.php
+          php -l na-ryby-git-publisher.php
+          node --check assets/nry-boat-motor-click-v1.js
+          node tests/test-boat-motor-click-observation-v1.mjs
+      - name: GET-only current public source check
+        run: python3 scripts/verify-boat-motor-click-public-v1.py
