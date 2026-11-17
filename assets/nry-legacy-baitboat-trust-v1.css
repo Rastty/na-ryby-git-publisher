@@ -1,0 +1,63 @@
+/* Scoped to source-guarded old baitboat article 61251. No global UI changes. */
+.nry-legacy-baitboat-trust {
+  margin: 1.4rem 0 2rem;
+  padding: clamp(1.1rem, 2.7vw, 1.55rem);
+  border: 1px solid #bcd7c6;
+  border-left: 5px solid #26734d;
+  border-radius: 12px;
+  background: #f2f8f3;
+  color: #193a2a;
+  box-shadow: 0 8px 24px rgba(15, 60, 37, .06);
+}
+.nry-legacy-baitboat-trust .nry-legacy-baitboat-trust__eyebrow {
+  margin: 0 0 .5rem;
+  font-size: .8rem;
+  font-weight: 750;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #216844;
+}
+.nry-legacy-baitboat-trust h3 {
+  margin: 0 0 .65rem;
+  font-size: clamp(1.17rem, 2vw, 1.45rem);
+  line-height: 1.25;
+  color: #193a2a;
+}
+.nry-legacy-baitboat-trust p { margin: 0 0 .85rem; line-height: 1.55; }
+.nry-legacy-baitboat-trust__choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .7rem;
+  margin-top: .9rem;
+}
+.nry-legacy-baitboat-trust__choices a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 48px;
+  padding: .75rem .85rem;
+  border-radius: 9px;
+  background: #236b48;
+  color: #fff !important;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  text-decoration: none !important;
+}
+.nry-legacy-baitboat-trust__choices a:nth-child(2) {
+  background: #fff;
+  border: 1px solid #8bbda0;
+  color: #195a39 !important;
+}
+.nry-legacy-baitboat-trust__choices a:hover,
+.nry-legacy-baitboat-trust__choices a:focus-visible {
+  background: #17472f;
+  color: #fff !important;
+}
+.nry-legacy-baitboat-trust__choices a:focus-visible {
+  outline: 3px solid #daac40;
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .nry-legacy-baitboat-trust__choices { grid-template-columns: minmax(0, 1fr); }
+}

@@ -20,6 +20,7 @@ require_once __DIR__ . '/baitboat-release-v3.php';
 require_once __DIR__ . '/baitboat-affiliate-release-v1.php';
 require_once __DIR__ . '/baitboat-stock-guard-v1.php';
 require_once __DIR__ . '/baitboat-choice-entry-61257-v1.php';
+require_once __DIR__ . '/legacy-baitboat-trust-61251-v1.php';
 require_once __DIR__ . '/guarded-auto-publisher.php';
 require_once __DIR__ . '/advisor-existing-page-release-v1.php';
 require_once __DIR__ . '/buyer-click-telemetry-v1.php';
