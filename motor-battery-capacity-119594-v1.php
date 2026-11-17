@@ -83,8 +83,14 @@ final class NRY_Motor_Battery_Capacity_119594_V1 {
     }
 
     public static function boot() {
-        if (function_exists('add_filter')) add_filter('the_content', array(__CLASS__, 'render'), 78);
-        if (function_exists('add_action')) add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue'));
+        // WP query APIs must exist; offline publisher/KSES test stubs may
+        // implement add_filter but cannot register array callbacks safely.
+        if (function_exists('add_filter') && function_exists('is_singular')) {
+            add_filter('the_content', array(__CLASS__, 'render'), 78);
+        }
+        if (function_exists('add_action') && function_exists('is_singular')) {
+            add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue'));
+        }
     }
 }
 NRY_Motor_Battery_Capacity_119594_V1::boot();
