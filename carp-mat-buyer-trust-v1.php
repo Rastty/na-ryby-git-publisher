@@ -97,9 +97,11 @@ final class NRY_Carp_Mat_Buyer_Trust_V1 {
                     'Rybářské potřeby Na Rybníčku, Rybářské potřeby Profi Rybář a mnoho dalších.'
                         => 'specializované e-shopy a kamenné prodejny s rybářským vybavením.',
                     'S dobrým vybavením se Vám bude lovit'
-                        => 'S vhodnou podložkou lze na břehu šetrněji manipulovat s uloveným',
-                    '>kapr</a> lépe a úspěšněji.'
-                        => '>kaprem</a> bez kontaktu s tvrdým podkladem.',
+                        => 'Podložka nemá vliv na záběr. S rybou, jako je',
+                    // An internal-link plugin inserts the <a> around kapr
+                    // later in the_content; this phrase works either way.
+                    'lépe a úspěšněji.'
+                        => ', zacházejte na navlhčené podložce co nejšetrněji.',
                     '<p><b>Keywords:</b> rybářské podložky, kapr, Česká republika, rybářské obchody, kvalita materiálu, velikost, neopren, PVC, lovit kapr, vybavení, úspěšný lov.</p>'
                         => '<p>Před objednáním porovnejte vnitřní rozměr, výšku bočnic, tloušťku polstrování, možnost čištění a složené rozměry.</p>',
                     'Tyto podložky zrychlují proces hojení ran na křupavé kůži kapra a chrání ji před poškozením.'
@@ -242,32 +244,7 @@ final class NRY_Carp_Mat_Buyer_Trust_V1 {
             && (int)get_queried_object_id()===36611) {
             $set=self::selected(false);
         }
-        $out=$set ? self::transform($html,$set) : $html;
-        // TEMPORARY GET-only HTML-comment diagnostic on the exact legacy post.
-        // No stored content changes or public diagnostics on ordinary requests.
-        if (isset($_GET['nry_mat_debug']) && $_GET['nry_mat_debug']==='once20261117'
-            && function_exists('get_queried_object_id')
-            && (int)get_queried_object_id()===36611 && is_string($html)
-            && strlen($html)>250) {
-            $checks=array('selected'=>($set?1:0),'len'=>strlen($html),
-                'affiliate'=>substr_count($html,'href="'.self::AFFILIATE.'"'),
-                'intro'=>substr_count($html,'<h2>Kde nakupovat rybářské podložky pod kapra v České republice</h2>'),
-                'faq'=>substr_count($html,"<ul>\n<li>Rybářské potřeby Max, s.r.o.</li>"),
-                'main'=>substr_count($html,self::MAIN),
-                'fishcare'=>substr_count($html,self::FISH_CARE),
-                'changed'=>($out!==$html?1:0));
-            if ($set) {
-                $bad=array();
-                foreach ($set['replacements'] as $old=>$new) {
-                    if (substr_count($html,$old)!==1) $bad[]=substr(md5($old),0,8);
-                }
-                $checks['bad_anchors']=count($bad) ? implode(',',$bad) : 'none';
-            }
-            $items=array();
-            foreach ($checks as $key=>$value) $items[]=$key.'='.preg_replace('/[^a-zA-Z0-9,_-]/','',(string)$value);
-            $out.='<!-- nry-mat-probe '.implode(' ',$items).' -->';
-        }
-        return $out;
+        return $set ? self::transform($html,$set) : $html;
     }
 }
 NRY_Carp_Mat_Buyer_Trust_V1::boot();
