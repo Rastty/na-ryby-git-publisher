@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only CJ property-identity inventory across 16 known buyer guides.
+"""Read-only CJ property-identity inventory across 20 buyer guides.
 
 Public WordPress REST *rendered* markup is the evidence; it cannot establish
 affiliate entitlement, paid commissions or the WordPress private source hash.
@@ -32,7 +32,8 @@ PUBLIC_FIELDS = "id,slug,status,link,content,modified_gmt"
 MAX_BYTES = 850_000
 MAX_FRONTEND_BYTES = 2_000_000
 TRACKED = re.compile(r"^/click-(\d{6,12})-(\d{6,16})(?:-(\d{9,18}))?$")
-FRONTEND_IDS = frozenset((61257, 119575))
+FRONTEND_IDS = frozenset((61257, 119575, 119598, 119594, 119743, 119714))
+# These 16 posts are tied to the runtime buyer-click telemetry scope.
 COHORT = (
     (42401, "jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-ucinne"),
     (118218, "nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu"),
@@ -51,6 +52,15 @@ COHORT = (
     (118388, "jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti"),
     (119575, "nejlepsi-rybarske-bivaky-do-10-000-kc"),
 )
+# Separate four buyer-intent pages discovered by public REST on 2026-11-17.
+# They are read-only inventory targets, NOT new telemetry or release targets.
+DISCOVERED_COHORT = (
+    (119598, "nejlepsi-nafukovaci-cluny-pro-rybare"),
+    (119594, "nejlepsi-lodni-elektromotory-pro-rybare"),
+    (119743, "nejlepsi-privlacove-pruty-do-3-000-kc"),
+    (119714, "nejlepsi-feederove-pruty-do-2-000-kc-pro-zacatecnika"),
+)
+AUDIT_COHORT = COHORT + DISCOVERED_COHORT
 METRIC_KEYS = (
     "cj_own_property", "cj_other_known_site_property", "cj_unknown_property",
     "cj_extended_legacy_shape", "cj_extended_legacy_own_property",
@@ -188,16 +198,21 @@ def frontend_readback(post_id, slug, rest_row):
 
 def collect():
     with ThreadPoolExecutor(max_workers=5) as pool:
-        rows = list(pool.map(lambda args: fetch_one(*args), COHORT))
+        rows = list(pool.map(lambda args: fetch_one(*args), AUDIT_COHORT))
     valid = [r for r in rows if r["state"] == "PUBLIC_REST_RENDERED_VERIFIED"]
     totals = {key: sum(r["counts"][key] for r in valid) for key in METRIC_KEYS}
-    readback = [frontend_readback(post_id, slug, rows[n])
-                for n, (post_id, slug) in enumerate(COHORT)
-                if post_id in FRONTEND_IDS]
+    frontend_targets = [(post_id, slug, rows[n])
+                        for n, (post_id, slug) in enumerate(AUDIT_COHORT)
+                        if post_id in FRONTEND_IDS]
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        readback = list(pool.map(lambda args: frontend_readback(*args),
+                                 frontend_targets))
     return {
         "site": SITE,
         "checked_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "cohort_count": len(COHORT), "verified_count": len(valid),
+        "cohort_count": len(AUDIT_COHORT), "verified_count": len(valid),
+        "original_telemetry_cohort_count": len(COHORT),
+        "new_buyer_discovery_count": len(DISCOVERED_COHORT),
         "known_other_site_property_pages": sum(
             r["counts"]["cj_other_known_site_property"] > 0 for r in valid),
         "counts": totals, "rows": rows, "frontend_readback": readback,
