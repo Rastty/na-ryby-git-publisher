@@ -21,7 +21,9 @@
     '/zavazeci-lodky-pro-rybare/':'baitboat_guide',
     '/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/':'carp_pillar',
     '/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/':'chair_hub',
-    '/jak-vybrat-rybarske-kreslo/':'chair_evergreen'
+    '/jak-vybrat-rybarske-kreslo/':'chair_evergreen',
+    '/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/':'bivak_pillar',
+    '/nejlepsi-rybarske-bivaky-do-10-000-kc/':'bivak_budget'
   });
   if (location.origin !== 'https://na-ryby.eu' ||
       !Object.prototype.hasOwnProperty.call(allowedPages, location.pathname)) return;
@@ -122,6 +124,19 @@
         } catch { /* Keep navigation and consent as configured. */ }
         return;
       }
+      // The two source-observed bivak guides already link to the evergreen
+      // bivak hub. This counts a navigation, not a product or a sale.
+      const bivakGuideType = ['bivak_pillar','bivak_budget'].includes(page) &&
+        url.pathname === '/nejlepsi-rybarske-bivaky-jak-vybrat-ten-nejlepsi/'
+        ? 'bivak_hub' : null;
+      if (bivakGuideType) {
+        try {
+          window.gtag('event','nry_buyer_guide_click',{
+            buyer_page:page,guide_type:bivakGuideType,transport_type:'beacon'
+          });
+        } catch { /* Keep navigation intact; consent remains site-controlled. */ }
+        return;
+      }
     }
     let kind = null;
     if (url.origin === 'https://na-ryby.eu' &&
@@ -140,12 +155,38 @@
       // Count the visitor handoff, never claim commission ownership.
       kind = url.protocol === 'http:' ? 'cj_legacy_http_unverified'
         : 'cj_legacy_unverified';
+    } else if (page === 'bivak_budget' && networkHosts.has(url.hostname) &&
+               url.pathname === '/click-100927011-12347575' &&
+               [...url.searchParams.keys()].length === 1 &&
+               url.searchParams.getAll('url').length === 1 &&
+               (() => {
+                 try {
+                   const target = new URL(url.searchParams.get('url'));
+                   return target.origin === 'https://www.chytapust.cz' &&
+                     !target.username && !target.password && !target.port &&
+                     !target.search && !target.hash &&
+                     (/^\/Bivaky\/[A-Za-z0-9-]+$/.test(target.pathname) ||
+                      target.pathname === '/Bivaky-pristresky/');
+                 } catch { return false; }
+               })()) {
+      // Public post #119575 contains this other CJ identity. Its ownership
+      // is NOT proven. Measure only the outbound action; preserve the href.
+      kind = 'cj_other_identity_unverified';
     } else if (page === 'echolot_budget' &&
                url.hostname === 'go.dognet.com' &&
                (url.pathname.length > 1 || url.search.length > 1)) {
       // Current sonar budget guide contains genuine Dognet destinations.
       // Classify the outbound action, NOT a purchase or merchant conversion.
       kind = 'dognet_outbound';
+    } else if (page === 'bivak_pillar' && url.hostname === 'go.dognet.com' &&
+               url.pathname === '/' && [...url.searchParams.keys()].length === 2 &&
+               url.searchParams.getAll('chid').length === 1 &&
+               url.searchParams.get('chid') === '5QoXiSqx' &&
+               url.searchParams.getAll('url').length === 1 &&
+               url.searchParams.get('url') ===
+                 'https://www.okfish.cz/bivaky-l8/kempingovy-program') {
+      // One exact existing legacy CTA, not an endorsement of OKfish.
+      kind = 'dognet_legacy_outbound';
     } else if ((page === 'echolot_budget' || page === 'sonar_pillar' ||
                 page === 'carp_pillar') &&
                url.pathname.length > 1 && url.hostname === 'www.chytapust.cz') {

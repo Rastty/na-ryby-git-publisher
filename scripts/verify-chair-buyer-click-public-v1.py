@@ -23,7 +23,8 @@ HUB = '/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/'
 EVERGREEN = '/jak-vybrat-rybarske-kreslo/'
 ADVISOR = '/poradce-vybavy/'
 ASSET = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js'
-VERSION = 'ver=1.8.0'
+VERSION = 'ver=1.9.0'
+BASELINE_VERSION = 'ver=1.8.0'
 CJ_HOSTS = frozenset({
     'www.kqzyfj.com', 'www.tkqlhce.com', 'www.jdoqocy.com',
     'www.dpbolvw.net', 'www.anrdoezrs.net'
@@ -101,8 +102,8 @@ def inspect(hub_html, evergreen_html, *, after, installed_js=b'', reviewed_js=b'
         assert hashlib.sha256(installed_js).digest() == hashlib.sha256(
             reviewed_js).digest(), 'BUNDLE_BYTES_DIFFER_FROM_REVIEWED_SOURCE'
     else:
-        assert hub.bundle_versions in ([], [VERSION]), 'HUB_UNREVIEWED_PREVIOUS_BUNDLE'
-        assert evergreen.bundle_versions in ([], [VERSION]), 'EVERGREEN_UNREVIEWED_PREVIOUS_BUNDLE'
+        assert hub.bundle_versions in ([], [BASELINE_VERSION], [VERSION]), 'HUB_UNREVIEWED_PREVIOUS_BUNDLE'
+        assert evergreen.bundle_versions in ([], [BASELINE_VERSION], [VERSION]), 'EVERGREEN_UNREVIEWED_PREVIOUS_BUNDLE'
     return {
         'state': ('PUBLIC_CHAIR_BUYER_CLICK_ASSET_VERIFIED' if after
                   else 'PUBLIC_CHAIR_BUYER_CLICK_PREFLIGHT'),

@@ -1,5 +1,14 @@
 # Na-Ryby Git Publisher
 
+## 17 November 2026 — bivak buyer-click cohort (read-only)
+
+The existing passive, consent-aware buyer-click instrument also covers two
+public bivak guides, posts `118388` and `119575`. It separates an existing
+legacy Dognet/OKfish click from an alternate **unverified-for-this-site** CJ
+identity and a normal internal bivak-hub handoff. No merchant hrefs or stored
+WordPress content are changed. Release and evidence boundaries are documented
+in [`docs/BIVAK-BUYER-CLICK-READINESS-20261117.md`](docs/BIVAK-BUYER-CLICK-READINESS-20261117.md).
+
 ## V6 baitboat — one-click, explicitly accepted capacity compromise (candidate)
 
 `baitboat-compromise-recovery-v1.php` is an independently gated addition to

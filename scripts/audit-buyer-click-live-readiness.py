@@ -19,9 +19,12 @@ PAGES = {
     "alarm_guide": "/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/",
     "sonar_pillar": "/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/",
     "baitboat_guide": "/zavazeci-lodky-pro-rybare/",
+    "bivak_pillar": "/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/",
+    "bivak_budget": "/nejlepsi-rybarske-bivaky-do-10-000-kc/",
     "unscoped_control": "/nejlepsi-rybarske-hlasice-a-signalizatory/",
 }
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
+VERSION = "1.9.0"
 OUTPUT = "buyer-click-live-readonly.json"
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -44,7 +47,7 @@ class Scripts(HTMLParser):
         if parts.path != ASSET or parts.fragment:
             return
         # Strict cache-busting query only; not merchant parameters or trackers.
-        if parts.query not in ("", "ver=1.4.0"):
+        if parts.query not in ("", "ver=" + VERSION):
             return
         self.matches.append(src)
 
@@ -94,7 +97,7 @@ def audit(fetch=checked_fetch):
         # The bundled asset may be served from WordPress; only a fixed local
         # same-origin path is requested, never a captured arbitrary src URL.
         try:
-            live = fetch(SITE + ASSET + "?ver=1.4.0", 20000)
+            live = fetch(SITE + ASSET + "?ver=" + VERSION, 20000)
         except Exception as exc:
             safe_reason = str(exc) if str(exc) in (
                 "EXACT_PUBLIC_READBACK_UNVERIFIABLE",
