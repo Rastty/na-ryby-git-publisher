@@ -127,6 +127,11 @@ on:
       - 'assets/nry-advisor-guide-click-v1.js'
       - 'tests/test-advisor-guide-click-v1.php'
       - 'tests/test-advisor-guide-click-v1.mjs'
+      - 'advisor-scenario-shortcuts-v1.php'
+      - 'assets/nry-advisor-scenarios-v1.js'
+      - 'assets/nry-advisor-scenarios-v1.css'
+      - 'tests/test-advisor-scenarios-v1.php'
+      - 'tests/test-advisor-scenarios-v1.mjs'
       - 'scripts/verify-advisor-guide-click-public.py'
       - '.github/workflows/advisor-guide-click-public.yml'
       - 'tests/test-buyer-click-telemetry-v1.php'
@@ -185,6 +190,9 @@ on:
       - 'buyer-click-telemetry-v1.php'
       - 'advisor-guide-click-telemetry-v1.php'
       - 'assets/nry-advisor-guide-click-v1.js'
+      - 'advisor-scenario-shortcuts-v1.php'
+      - 'assets/nry-advisor-scenarios-v1.js'
+      - 'assets/nry-advisor-scenarios-v1.css'
       - 'seo-snippet-pilot.php'
       - 'checklist-release-v1.php'
       - 'baitboat-release-v1.php'
@@ -310,6 +318,10 @@ jobs:
           php tests/test-advisor-guide-click-v1.php
           node --check assets/nry-advisor-guide-click-v1.js
           node tests/test-advisor-guide-click-v1.mjs
+          php -l advisor-scenario-shortcuts-v1.php
+          php tests/test-advisor-scenarios-v1.php
+          node --check assets/nry-advisor-scenarios-v1.js
+          node tests/test-advisor-scenarios-v1.mjs
           node --check assets/nry-buyer-clicks-v1.js
           node tests/test-buyer-click-telemetry-v1.mjs
           php tests/test-three-chair-guides-v8.php
