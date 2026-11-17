@@ -16,10 +16,12 @@ final class NRY_Signal_Dashboard_Paths_118209_V1 {
     const THREE = 'https://na-ryby.eu/kompletni-sada-31-s-priposlechem-do-3-000-kc-co-opravdu-koupit/';
 
     public static function boot() {
-        if (function_exists('add_filter')) {
+        // Legacy isolated publisher tests expose add_filter but not WordPress
+        // query functions; never register an array callback in those stubs.
+        if (function_exists('is_page') && function_exists('add_filter')) {
             add_filter('the_content', array(__CLASS__, 'render'), 36);
         }
-        if (function_exists('add_action')) {
+        if (function_exists('is_page') && function_exists('add_action')) {
             add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue'), 27);
         }
     }
