@@ -50,7 +50,8 @@ check(substr_count($fixed,'href="#nry-line-materials"')===1
 check(strpos($fixed,'class="nry-line-fast-choice"')<strpos($fixed,'id="nry-line-materials"'),
     'chooser placed before technical material comparison');
 foreach ($class::replacements() as $original=>$changed) {
-    check(strpos($fixed,$original)===false && substr_count($fixed,$changed)===1,
+    $expected=array_count_values(array_values($class::replacements()))[$changed];
+    check(strpos($fixed,$original)===false && substr_count($fixed,$changed)===$expected,
         'exact source correction '.substr(md5($original),0,8));
 }
 check($class::render($fixed)===$fixed,'idempotent render');
