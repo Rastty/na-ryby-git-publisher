@@ -47,6 +47,7 @@ foreach ($cohorts as $id=>$set) {
         .'<p><a href="https://na-ryby.eu/podlozky"><img src="/historic-banner.jpg" alt="" /></a></p>'
         .'<p><a href="https://www.usgs.gov/source">Historic source</a></p>'
         .str_repeat('<p>Starší obsah k vybavení a manipulaci s rybou.</p>',150);
+    if ($id===43541 || $id===42643) $src.=$set['intro']; // Historical repeated H2.
     $fixed=$class::render($src);
     check($fixed!==$src,'source-pinned correction active '.$id);
     check(substr_count($fixed,$class::MARKER)===1,'one useful buyer comparison '.$id);
@@ -55,6 +56,10 @@ foreach ($cohorts as $id=>$set) {
         'central buyer guide paths '.$id);
     check(strpos($fixed,'Lehká skládací')!==false && strpos($fixed,'Kolébka s bočnicemi')!==false,
         'three concrete selection scenarios '.$id);
+    if ($id===43541 || $id===42643) {
+        check(substr_count($fixed,$set['intro'])===2,
+            'repeated original headings remain readable '.$id);
+    }
     foreach ($set['replacements'] as $old=>$new) {
         check(strpos($fixed,$old)===false && substr_count($fixed,$new)===1,
             'correction '.substr(md5($old),0,7).' '.$id);

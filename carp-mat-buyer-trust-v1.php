@@ -183,7 +183,10 @@ final class NRY_Carp_Mat_Buyer_Trust_V1 {
         if (!is_string($html) || strlen($html)<6000 || !is_array($set)
             || strpos($html,self::MARKER)!==false
             || substr_count($html,'href="'.self::AFFILIATE.'"')!==4
-            || substr_count($html,$set['intro'])!==1
+            // Some 2023 articles repeat their exact H2 later in the body.
+            // Inject after the FIRST occurrence only, without making all
+            // corrections disappear when an old heading was duplicated.
+            || substr_count($html,$set['intro'])<1
             || strpos($html,$set['intro'])>1500
             || strpos($html,self::FISH_CARE)!==false
             || strpos($html,self::MAIN)!==false) return $html;
