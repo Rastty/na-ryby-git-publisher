@@ -67,6 +67,9 @@ on:
       - 'reel-dashboard-nextsteps-v1.php'
       - 'signal-dashboard-paths-118209-v1.php'
       - 'legacy-baitboat-trust-61251-v1.php'
+      - 'legacy-net-buyer-guides-v1.php'
+      - 'tests/test-legacy-net-buyer-guides-v1.php'
+      - 'scripts/verify-legacy-net-buyer-guides-public.py'
       - 'tests/test-legacy-baitboat-trust-61251-v1.php'
       - 'scripts/verify-legacy-baitboat-trust-61251-public.py'
       - 'tests/test-signal-dashboard-paths-118209-v1.php'
@@ -198,6 +201,7 @@ on:
       - 'reel-dashboard-nextsteps-v1.php'
       - 'signal-dashboard-paths-118209-v1.php'
       - 'legacy-baitboat-trust-61251-v1.php'
+      - 'legacy-net-buyer-guides-v1.php'
       - 'sonar-pillar-practical-handoff-118553-v1.php'
       - 'sonar-pillar-merchant-neutral-118553-v1.php'
       - 'sonar-pillar-stray-markup-118553-v1.php'
@@ -268,6 +272,9 @@ jobs:
           php -l reel-dashboard-nextsteps-v1.php
           php -l signal-dashboard-paths-118209-v1.php
           php -l legacy-baitboat-trust-61251-v1.php
+          php -l legacy-net-buyer-guides-v1.php
+          php tests/test-legacy-net-buyer-guides-v1.php
+          python3 -m py_compile scripts/verify-legacy-net-buyer-guides-public.py
           php tests/test-legacy-baitboat-trust-61251-v1.php
           python3 -m py_compile scripts/verify-legacy-baitboat-trust-61251-public.py
           php tests/test-signal-dashboard-paths-118209-v1.php
