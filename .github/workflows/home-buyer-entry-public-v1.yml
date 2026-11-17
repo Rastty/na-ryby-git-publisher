@@ -4,6 +4,7 @@ on:
     paths:
       - 'home-buyer-entry-measurement-v1.php'
       - 'assets/nry-home-buyer-entry-v1.js'
+      - 'assets/nry-home-buyer-entry-v1.css'
       - 'na-ryby-git-publisher.php'
       - 'tests/test-home-buyer-entry-v1.php'
       - 'tests/test-home-buyer-entry-v1.mjs'
@@ -23,7 +24,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Exact homepage PHP enqueue gate
+      - name: Exact homepage PHP script and CSS enqueue gate
         run: |
           php -l home-buyer-entry-measurement-v1.php
           php tests/test-home-buyer-entry-v1.php

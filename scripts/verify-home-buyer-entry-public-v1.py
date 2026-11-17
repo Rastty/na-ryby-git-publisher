@@ -3,8 +3,8 @@
 
 --preflight confirms the existing five-route public baseline or the six-route
 candidate, plus the advisor callout.
-Normal mode additionally requires a single exact versioned plugin script and
-byte identity with the reviewed local JS. Neither mode emits analytics events.
+Normal mode additionally requires exact versioned plugin JS + CSS tags and
+byte identity with both reviewed local assets. No analytics events are emitted.
 """
 import hashlib
 import json
@@ -17,6 +17,8 @@ from urllib.request import Request, urlopen
 HOME = 'https://na-ryby.eu/'
 SCRIPT_PATH = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-home-buyer-entry-v1.js'
 ASSET = Path(__file__).resolve().parents[1] / 'assets/nry-home-buyer-entry-v1.js'
+STYLE_PATH = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-home-buyer-entry-v1.css'
+STYLE_ASSET = Path(__file__).resolve().parents[1] / 'assets/nry-home-buyer-entry-v1.css'
 BUYER_PATHS = (
     '/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/',
     '/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/',
@@ -36,6 +38,7 @@ class Homepage(HTMLParser):
         self.nav_versions = []
         self.advisor = []
         self.scripts = []
+        self.styles = []
         self.canonicals = []
 
     def handle_starttag(self, tag, attrs):
@@ -47,6 +50,11 @@ class Homepage(HTMLParser):
             self.in_advisor += 1
         elif tag == 'script' and a.get('id') == 'nry-home-buyer-entry-v1-js':
             self.scripts.append(a.get('src', ''))
+        elif tag == 'link' and a.get('id') == 'nry-home-buyer-entry-style-v1-css':
+            if 'stylesheet' not in a.get('rel', '').lower().split():
+                self.styles.append('INVALID_STYLESHEET_REL')
+            else:
+                self.styles.append(a.get('href', ''))
         elif tag == 'link' and 'canonical' in a.get('rel', '').lower().split():
             self.canonicals.append(a.get('href', ''))
         if tag == 'a' and self.in_nav:
@@ -82,12 +90,19 @@ def verify_home(html, preflight=False):
     if (src.scheme != 'https' or src.netloc != 'na-ryby.eu' or src.path != SCRIPT_PATH
             or parse_qs(src.query) != {'ver': ['1.1.0']} or src.fragment):
         raise ValueError('HOMEPAGE_SCRIPT_IDENTITY_MISMATCH')
-    return {'state': 'HOMEPAGE_MEASUREMENT_SCRIPT_DECLARED', 'script_url': doc.scripts[0]}
+    if len(doc.styles) != 1:
+        raise ValueError('ONE_HOMEPAGE_BUYER_STYLESHEET_REQUIRED')
+    css = urlsplit(doc.styles[0])
+    if (css.scheme != 'https' or css.netloc != 'na-ryby.eu' or css.path != STYLE_PATH
+            or parse_qs(css.query) != {'ver': ['1.0.0']} or css.fragment):
+        raise ValueError('HOMEPAGE_STYLE_IDENTITY_MISMATCH')
+    return {'state': 'HOMEPAGE_BUYER_ASSETS_DECLARED', 'script_url': doc.scripts[0],
+            'style_url': doc.styles[0]}
 
 
 def fetch(url, max_bytes=350000):
     req = Request(url, headers={'User-Agent': 'NaRyby-Home-Buyer-Readback/1.0',
-                                'Accept': 'text/html,application/javascript,*/*',
+                                'Accept': 'text/html,text/css,application/javascript,*/*',
                                 'Cache-Control': 'no-cache'})
     with urlopen(req, timeout=25) as r:
         if r.status != 200 or r.geturl() != url:
@@ -112,8 +127,15 @@ def main():
             approved = ASSET.read_bytes()
             if len(approved) < 1000 or js != approved:
                 raise ValueError('PUBLIC_SCRIPT_DIFFERS_FROM_REVIEWED_BYTES')
+            css, mime = fetch(proof['style_url'], 50000)
+            if 'text/css' not in mime.lower():
+                raise ValueError('STYLE_MIME_REQUIRED')
+            reviewed_css = STYLE_ASSET.read_bytes()
+            if len(reviewed_css) < 1000 or css != reviewed_css:
+                raise ValueError('PUBLIC_STYLE_DIFFERS_FROM_REVIEWED_BYTES')
             proof['state'] = 'HOMEPAGE_BUYER_ENTRY_PUBLIC_BYTES_VERIFIED'
             proof['script_sha256'] = hashlib.sha256(js).hexdigest()
+            proof['style_sha256'] = hashlib.sha256(css).hexdigest()
         proof.update(home=HOME, wordpress_writes=0, synthetic_clicks=0,
                      ga4_event_delivery='NOT_PROVEN', affiliate_sales='NOT_PROVEN')
         print(json.dumps(proof, ensure_ascii=False, sort_keys=True))
