@@ -1,5 +1,32 @@
 # Na-Ryby Git Publisher
 
+## 17 November 2026 — calculator for motor-battery sizing (candidate)
+
+The existing high-intent electric-trolling-motor article `119594` gains a
+render-only, private-by-design Ah estimator next to its existing battery
+capacity discussion. The visitor supplies the **actual operating current in
+amperes**, planned hours, manufacturer-appropriate usable capacity percentage,
+and an explicit reserve. The result is rounded **up** to 5 Ah. No trolling-motor
+thrust in lb is falsely converted into a power or current rating. The 70% usable
+fraction and 30% reserve defaults are **illustrative**, not manufacturer data;
+the output emphasizes chemistry, discharge limits, voltage match, cable/fuse
+and BMS checks. The output cannot predict runtime in wind, cold, high draw or
+aging and does not recommend a specific product, price or stock status.
+
+Plugin files: `motor-battery-capacity-119594-v1.php` and
+`assets/nry-motor-battery-v1.js`. Exact live post identity/modified date,
+content anchor and the **13 historical CJ hrefs** are all source guards.
+Those hrefs stay byte-for-byte untouched; no analytics events, cookies,
+outbound requests or database writes are introduced.
+
+Preflight: `python3 scripts/verify-motor-battery-capacity-public.py`; after
+authorized plugin deployment, run the same command with `--public` to verify
+the independent frontend marker, exact versioned JavaScript and affiliate
+link preservation. Green GitHub CI / PR merge is **not** a public deployment.
+Rollback removes the single `require_once` line and redeploys the plugin.
+Measurement: functionality and useability are verified immediately; incremental
+qualified buyer clicks and economic effects remain unmeasured, not presumed.
+
 ## 17 November 2026 — six problem-first homepage routes + buyer-guide click measurement
 
 Homepage buyer shortcuts are now six responsive, keyboard-accessible CTA cards
