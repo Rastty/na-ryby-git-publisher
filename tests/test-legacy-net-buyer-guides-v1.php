@@ -32,7 +32,10 @@ foreach ($cohorts as $id=>$set) {
     $GLOBALS['mode']['permalink']='https://na-ryby.eu/'.$set['slug'].'/';
     $src='<p><a href="https://na-ryby.eu/podberaky">Affiliate A</a></p>'
         .$set['intro'];
-    foreach ($set['replacements'] as $old=>$new) { $src.='<p>'.$old.'</p>'; }
+    foreach ($set['replacements'] as $old=>$new) {
+        // Public 42642 wraps the word Délka in <b> before the sentence.
+        $src.='<p>'.(strpos($old,'Délka</b>')===0 ? '<b>' : '').$old.'</p>';
+    }
     $src.='<p><a href="https://na-ryby.eu/podberaky">Affiliate B</a></p>';
     $src.='<p><a href="https://na-ryby.eu/unrelated/">Unrelated link</a></p>';
     $src.=str_repeat('<p>Praktická část původního starého rybářského textu.</p>',140);

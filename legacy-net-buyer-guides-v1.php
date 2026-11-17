@@ -32,8 +32,8 @@ final class NRY_Legacy_Net_Buyer_Guides_V1 {
                         => 'Zvolte rozměry podle velikosti ryb a hloubky sítě; jedna minimální velikost není správná pro všechny situace.',
                     'Nejčastěji se používá materiál sítě ze skelných vláken.'
                         => 'Pro kapry sledujte hlavně jemnost a šetrnost síťoviny; materiál a pevnost ramen ověřte zvlášť.',
-                    'Délka rukojeti podběráku by měla být vhodná pro velikost vaší ruky, aby jste s ním mohli pohodlně manipulovat. Zároveň by měla být dostatečně dlouhá, abyste mohli dosáhnout ke každému místu rybníka.'
-                        => 'Délku násady vybírejte podle výšky břehu, překážek a dosahu při podebírání. Úchop má být jistý i s mokrou rukou; rukojeť samozřejmě nedosáhne na libovolné místo rybníka.',
+                    'Délka</b> rukojeti podběráku by měla být vhodná pro velikost vaší ruky, aby jste s ním mohli pohodlně manipulovat. Zároveň by měla být dostatečně dlouhá, abyste mohli dosáhnout ke každému místu rybníka.'
+                        => 'Délka</b> násady se vybírá podle výšky břehu, překážek a dosahu při podebírání. Úchop má být jistý i s mokrou rukou; násada samozřejmě nedosáhne na libovolné místo rybníka.',
                     'Měla by být dostatečně velká, aby se vám do ní vešla velká kapří ryba, ale zároveň dostatečně malá, aby se ryba nemohla z ní vyklouznout.'
                         => 'Sledujte rozměr a hloubku celé sítě, jemnost ok a riziko zachycení ploutví či háčku, nikoli pouze velikost jednoho oka.',
                     'Existují dva typy podběráků &#8211; plavoucí a potápivé. Potápivé podběráky jsou určené pro hlubší vody. Pokud se chystáte lovit spíše v mělkých vodách, volte plavoucí podběrák.'
