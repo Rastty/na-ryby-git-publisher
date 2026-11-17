@@ -1,5 +1,31 @@
 # Na-Ryby Git Publisher
 
+## 17 November 2026 — inflatable-boat payload self-check (candidate)
+
+Buyer guide `119598` gains a small, render-only load calculator immediately
+under its existing payload heading. The visitor enters the manufacturer's
+**maximum recommended combined payload** (not the boat's own weight or a
+passenger-only number), total weight of passengers, motor/mount, battery,
+fishing gear, and other cargo. The browser computes simple payload and remaining
+kilograms; if it exceeds the manufacturer figure, it explicitly warns against
+departing with that load. No guessed brand/model capacities, sales claims,
+live prices, product matching or hidden click tracking. Passing the numeric
+test **does not certify the boat safe**: maximum passenger count, approved
+motor, weather, distribution, life jackets and water rules are independent
+requirements (see U.S. Coast Guard *Boater's Guide*, Safe Loading section,
+for general safety principles; local rules and the actual manufacturer prevail).
+
+Files: `boat-load-check-119598-v1.php` and `assets/nry-boat-load-v1.js`.
+The release is pinned to the current published post identity, modified GMT,
+exact article heading and existing **13** legacy CJ links. No merchant hrefs
+or `post_content` are rewritten. The site-local JS uses no cookies, analytics,
+requests or visitor storage. Preflight: `python3
+scripts/verify-boat-load-check-public.py`; after authorized Deployer push:
+`python3 scripts/verify-boat-load-check-public.py --public` must verify the
+frontend marker, exact served JS bytes, source identity and preserved CJ hrefs.
+Git merge/CI ≠ verified deployment. Rollback removes the one `require_once`
+line and redeploys. SEO, visitor engagement and earnings impact are **unknown**.
+
 ## 17 November 2026 — calculator for motor-battery sizing (candidate)
 
 The existing high-intent electric-trolling-motor article `119594` gains a
