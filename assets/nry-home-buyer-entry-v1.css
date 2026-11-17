@@ -1,0 +1,93 @@
+/* Exact homepage buyer entrances: legible over the existing dark hero.
+ * No theme-global selectors, JavaScript, external fonts or third-party assets.
+ */
+p[data-nry-home-advisor-entry="v1"] {
+  color: #f6fffd !important;
+  background: rgba(8, 29, 44, .78);
+  border-left: 4px solid #88e8c3;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin: 20px 0 22px !important;
+  line-height: 1.65;
+}
+p[data-nry-home-advisor-entry="v1"] strong {
+  color: #fff !important;
+}
+p[data-nry-home-advisor-entry="v1"] a {
+  color: #bdf5df !important;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+nav[data-nry-home-problem-shortcuts="v4"] {
+  color: #fff;
+  margin: 22px 0 28px;
+}
+nav[data-nry-home-problem-shortcuts="v4"] > p {
+  color: #fff !important;
+  font-size: 18px;
+  line-height: 1.5;
+  margin: 0 0 15px !important;
+}
+nav[data-nry-home-problem-shortcuts="v4"] > p strong {
+  color: #fff !important;
+}
+nav[data-nry-home-problem-shortcuts="v4"] ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+nav[data-nry-home-problem-shortcuts="v4"] li {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+nav[data-nry-home-problem-shortcuts="v4"] a {
+  display: flex;
+  align-items: center;
+  min-height: 68px;
+  padding: 14px 18px;
+  border: 1px solid rgba(231, 255, 249, .55);
+  border-radius: 12px;
+  background: rgba(8, 29, 44, .76);
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.45;
+  text-decoration: none !important;
+  transition: background-color .16s ease, border-color .16s ease;
+}
+nav[data-nry-home-problem-shortcuts="v4"] a::before {
+  content: "›";
+  display: inline-block;
+  flex: 0 0 18px;
+  margin-right: 8px;
+  color: #bdf5df;
+  font-size: 28px;
+  line-height: 1;
+}
+nav[data-nry-home-problem-shortcuts="v4"] a:hover {
+  background: rgba(24, 75, 73, .95);
+  border-color: #bdf5df;
+}
+nav[data-nry-home-problem-shortcuts="v4"] a:focus-visible,
+p[data-nry-home-advisor-entry="v1"] a:focus-visible {
+  outline: 3px solid #bdf5df;
+  outline-offset: 3px;
+}
+@media (max-width: 720px) {
+  nav[data-nry-home-problem-shortcuts="v4"] ul {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  nav[data-nry-home-problem-shortcuts="v4"] a {
+    min-height: 56px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  nav[data-nry-home-problem-shortcuts="v4"] a {
+    transition: none;
+  }
+}

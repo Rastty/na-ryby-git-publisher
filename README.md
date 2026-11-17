@@ -2,6 +2,13 @@
 
 ## 17 November 2026 — six problem-first homepage routes + buyer-guide click measurement
 
+Homepage buyer shortcuts are now six responsive, keyboard-accessible CTA cards
+instead of a low-contrast bullet list over the dark hero. The exact-homepage
+enqueue adds one local, versioned stylesheet (`assets/nry-home-buyer-entry-v1.css`)
+and fixes the advisor paragraph text contrast without affecting the editorial
+content, page layout outside this section, existing destinations or click
+events. Automated readback requires both exact JS and CSS bytes after deploy.
+
 `home-buyer-entry-measurement-v1.php` enqueues one passive, consent-aware
 `assets/nry-home-buyer-entry-v1.js` on the exact published homepage only.
 It counts genuine clicks from the existing six problem-first shortcuts and
