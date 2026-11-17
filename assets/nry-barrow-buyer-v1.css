@@ -1,0 +1,9 @@
+.nry-barrow-buyer{margin:1.5rem 0;padding:1.25rem;border:1px solid #b8d8ca;border-radius:12px;background:#f2f9f5;color:#193d2c}
+.nry-barrow-buyer__label{margin:0 0 .4rem;color:#2d7252;font-size:.85rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+.nry-barrow-buyer h3{margin:.2rem 0 .8rem;line-height:1.25;font-size:1.3rem;color:#193d2c}
+.nry-barrow-buyer p{margin:.65rem 0}
+.nry-barrow-buyer__checks,.nry-barrow-buyer__links{margin:.5rem 0 0;padding-left:1.3rem}
+.nry-barrow-buyer li{margin:.35rem 0}
+.nry-barrow-buyer a{color:#135f43;text-decoration:underline;text-underline-offset:2px}
+.nry-barrow-buyer a:focus-visible{outline:3px solid #146c46;outline-offset:3px}
+@media(max-width:600px){.nry-barrow-buyer{padding:1rem;margin:1rem 0}.nry-barrow-buyer h3{font-size:1.15rem}}
