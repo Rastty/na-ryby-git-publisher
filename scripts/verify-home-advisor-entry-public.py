@@ -16,13 +16,14 @@ COPY="Spustit průvodce výběrem výbavy"
 CAUTION="Konkrétní produktové nabídky zobrazujeme jen po ověření jejich aktuálnosti."
 HERO="Průvodci výběrem vybavení"
 CATEGORY="Vybavení podle hlavních kategorií"
-ROUTES_MARKER='data-nry-home-problem-shortcuts="v3"'
+ROUTES_MARKER='data-nry-home-problem-shortcuts="v4"'
 ROUTES={
     "carp":"https://na-ryby.eu/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/",
     "sonar_budget":"https://na-ryby.eu/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/",
     "sonar_owner":"https://na-ryby.eu/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/",
     "baitboat_buyer":"https://na-ryby.eu/jak-vybrat-zavazeci-lodku/",
     "chair_buyer":"https://na-ryby.eu/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/",
+    "bivak_buyer":"https://na-ryby.eu/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/",
 }
 ROUTE_COPY=(
     "Vybírám kaprový prut podle vody a stylu lovu",
@@ -30,6 +31,7 @@ ROUTE_COPY=(
     "Echolot už mám: jak ho správně nastavit",
     "Zavážecí loďka: vybírám podle dosahu, GPS a sonaru",
     "Vybírám rybářské křeslo podle pohodlí a nosnosti",
+    "Vybírám bivak podle délky výpravy a prostoru",
 )
 
 class Tags(HTMLParser):
@@ -69,11 +71,11 @@ def verify(html):
     assert hrefs==list(ROUTES.values()), "PROBLEM_SHORTCUT_DESTINATIONS_DRIFT"
     assert all(copy in block for copy in ROUTE_COPY), "PROBLEM_SHORTCUT_COPY_DRIFT"
     return {"state":"PUBLIC_VERIFIED","homepage_entry_count":1,
-            "problem_shortcuts_count":5,
+            "problem_shortcuts_count":6,
             "merchant_requests":0,"wordpress_writes":0,"analytics_events":0}
 
 def verify_targets(fetch):
-    """Only the five exact internal routes; no merchant or tracking clicks."""
+    """Only the six exact internal routes; no merchant or tracking clicks."""
     for target in ROUTES.values():
         status,final_url,body=fetch(target)
         assert status==200 and final_url==target, "TARGET_NOT_200_CANONICAL_URL: "+target

@@ -27,7 +27,7 @@ function nry_home_buyer_entry_enqueue_v1() {
         'nry-home-buyer-entry-v1',
         plugins_url('assets/nry-home-buyer-entry-v1.js', __FILE__),
         array(),
-        '1.0.0',
+        '1.1.0',
         true
     );
 }

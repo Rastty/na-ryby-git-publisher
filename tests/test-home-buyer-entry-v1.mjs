@@ -9,6 +9,7 @@ const urls={
   sonar_practical:'/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/',
   baitboat_picker:'/jak-vybrat-zavazeci-lodku/',
   chair_hub:'/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/',
+  bivak_pillar:'/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/',
   equipment_advisor:'/poradce-vybavy/'
 };
 function load(origin='https://na-ryby.eu',pathname='/',search='') {
@@ -42,7 +43,7 @@ for (const [type,path] of Object.entries(urls)) {
   assert.equal(params.guide_type,type); assert.equal(params.transport_type,'beacon');
   assert.deepEqual(Object.keys(params).sort(),['buyer_page','guide_type','transport_type']);
 }
-assert.equal(ctx.events.length,6,'one event for each of six known entries');
+assert.equal(ctx.events.length,7,'one event for each of seven known entries');
 const count=ctx.events.length;
 click(ctx,urls.carp_pillar,{trusted:false});
 click(ctx,urls.carp_pillar,{kind:'advisor'});
@@ -59,4 +60,4 @@ for (const args of [
   ['https://other.example','/',''],['https://na-ryby.eu','/post/',''],
   ['https://na-ryby.eu','/','?preview=true']
 ]) assert.equal(load(...args).listener,undefined,'unexpected browser location');
-console.log('PASS six exact first-party homepage entries, authentic clicks only, no payload URLs or writes');
+console.log('PASS seven exact first-party homepage entries, authentic clicks only, no payload URLs or writes');

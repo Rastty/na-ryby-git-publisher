@@ -13,10 +13,10 @@ html=('<html><head><link rel="canonical" href="'+x["HOME"]+
       for url,copy in zip(x["ROUTES"].values(),x["ROUTE_COPY"]))+
     '</ul></nav><h2>'+x["CATEGORY"]+'</h2></body></html>')
 assert x["verify"](html)["state"]=="PUBLIC_VERIFIED"
-assert x["verify"](html)["problem_shortcuts_count"]==5
+assert x["verify"](html)["problem_shortcuts_count"]==6
 def target_fixture(url):
     return (200,url,'<html><head><link rel="canonical" href="'+url+'"></head></html>')
-assert x["verify_targets"](target_fixture)==5
+assert x["verify_targets"](target_fixture)==6
 for faulty in [
     lambda url:(404,url,'<html></html>'),
     lambda url:(200,url+'?redirected=1','<html></html>'),
@@ -32,6 +32,7 @@ for broken in [
  html.replace(x["ROUTES_MARKER"],x["ROUTES_MARKER"]*2),
  html.replace(x["ROUTES"]["sonar_owner"],"https://merchant.example.invalid/"),
  html.replace(x["ROUTES"]["baitboat_buyer"],"https://merchant.example.invalid/"),
+ html.replace(x["ROUTES"]["bivak_buyer"],"https://merchant.example.invalid/"),
  html.replace(x["ROUTE_COPY"][0],"An unreviewed navigation label"),
  html.replace(x["HOME"],"https://na-ryby.eu/missing/"),
  html.replace(x["ADVISOR"],"https://merchant.example.invalid/"),
