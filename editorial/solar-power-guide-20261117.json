@@ -1,0 +1,25 @@
+{
+  "status": "editorial_candidate_not_published",
+  "candidate_id": "solar-power-guide-20261117-v1",
+  "site": "https://na-ryby.eu",
+  "proposed_slug": "powerbanka-nebo-solarni-panel-na-ryby",
+  "h1": "Powerbanka nebo solární panel na ryby: kolik Wh potřebujete a co lze bezpečně připojit",
+  "seo_title": "Powerbanka nebo solární panel na ryby? Výběr podle Wh",
+  "seo_description": "Spočítejte energii na noc i víkend u vody. Kdy stačí powerbanka, kdy se vyplatí solár a co ověřit u Fox Halo Wireless 48K a 96K.",
+  "content_file": "editorial/solar-power-guide-20261117.html",
+  "content_sha256": "a7ffd5c14f977257d18c66296586223558b386206943bca2ad464c86ce0429f0",
+  "research_date": "2026-11-17",
+  "demand_evidence": "https://www.mrk.cz/diskuse.php?id=780171",
+  "manufacturer_sources": [
+    "https://www.foxint.com/home/product/fox-halo-48k-wireless-power-pack?c=power-packs",
+    "https://www.foxint.com/home/product/fox-halo-96k-wireless-power-pack?c=power-packs"
+  ],
+  "affiliate_placements": 0,
+  "publication_contract": "Requires separately reviewed WP editorial post creation through an authenticated owner-approved path; Git merge/deploy must not silently create or publish the post.",
+  "measurement_after_publication": [
+    "independent HTTP 200 and canonical readback",
+    "indexability and sitemap verification",
+    "GA4 landing source and organic query impressions when available",
+    "only verified outbound/affiliate events, never infer sales"
+  ]
+}
