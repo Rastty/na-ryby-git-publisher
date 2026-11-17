@@ -10,7 +10,8 @@
     '/nejlepsi-echoloty-do-15-000-kc-co-realne-uvidite-za-rozumny-peniz/': 'echolot_budget',
     '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/': 'sonar_practical',
     '/jak-vybrat-zavazeci-lodku/': 'baitboat_picker',
-    '/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/': 'chair_hub'
+    '/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/': 'chair_hub',
+    '/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/': 'bivak_pillar'
   });
   const advisorPath = '/poradce-vybavy/';
 
@@ -26,9 +27,9 @@
         || target.username || target.password || target.port) return;
 
     let type = null;
-    const nav = link.closest('nav[data-nry-home-problem-shortcuts="v3"]');
+    const nav = link.closest('nav[data-nry-home-problem-shortcuts="v4"]');
     if (nav && Object.prototype.hasOwnProperty.call(buyerRoutes, target.pathname)) {
-      // The existing nav has five exact, first-party problem paths. Ignore
+      // The current nav has six exact, first-party problem paths. Ignore
       // template links or unrelated content using an otherwise valid URL.
       type = buyerRoutes[target.pathname];
     } else if (target.pathname === advisorPath &&

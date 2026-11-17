@@ -1,21 +1,25 @@
 # Na-Ryby Git Publisher
 
-## 17 November 2026 — homepage → buyer-guide entry measurement
+## 17 November 2026 — six problem-first homepage routes + buyer-guide click measurement
 
 `home-buyer-entry-measurement-v1.php` enqueues one passive, consent-aware
 `assets/nry-home-buyer-entry-v1.js` on the exact published homepage only.
-It counts genuine clicks from the existing five problem-first shortcuts and
+It counts genuine clicks from the existing six problem-first shortcuts and
 the existing advisor callout using the established `nry_buyer_guide_click`
-event with `buyer_page=homepage` and one of six fixed `guide_type` labels.
+event with `buyer_page=homepage` and one of seven fixed `guide_type` labels.
+The sixth route takes bivak shoppers directly to the existing first-party
+buyer guide. The tracking script is versioned `1.1.0` for cache-safe delivery.
 No copy, outbound destinations, affiliate URLs, site consent, cookies, visitor
 IDs or stored WordPress content are altered. An unavailable `gtag` means zero
 events, not evidence of zero traffic. Automated tests never emit GA4 events.
 
 Release: merge and update the existing WordPress plugin through the authorized
 Deployer Git path. `python3 scripts/verify-home-buyer-entry-public-v1.py`
-independently verifies all six current first-party routes, the exact script
+independently verifies all six current first-party buyer routes, the advisor,
+the exact script
 identity and publicly served JavaScript bytes after deployment. `--preflight`
-checks only the routes before merging. Passing readback verifies installation,
+accepts the previously deployed five-route baseline and the new six-route
+candidate before merging. Passing readback verifies installation,
 **not** GA4 ingestion or affiliate conversions. After consenting live sessions
 arrive, compare `nry_buyer_guide_click` by `buyer_page` and `guide_type` with
 the separately observed guide outbound events; counts are not session-level
@@ -30,7 +34,7 @@ a fifth **first-party** route for baitboat range/GPS/sonar decisions:
 products, affiliate destinations, WordPress stored content, or stock claims.
 The old v1/v2 navigation markers are guarded against double injection.
 Deployment verification uses `scripts/verify-home-advisor-entry-public.py`
-and requires five exact HTTP-200/canonical internal destinations; a Git merge
+and requires six exact HTTP-200/canonical internal destinations; a Git merge
 alone is not proof that the live homepage updated.
 
 ## 17 November 2026 — exact homepage and advisor SEO snippets

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Public, read-only proof of homepage buyer-entry instrumentation.
 
---preflight confirms the five existing site paths and advisor callout.
+--preflight confirms the existing five-route public baseline or the six-route
+candidate, plus the advisor callout.
 Normal mode additionally requires a single exact versioned plugin script and
 byte identity with the reviewed local JS. Neither mode emits analytics events.
 """
@@ -22,6 +23,7 @@ BUYER_PATHS = (
     '/jak-efektivne-pouzivat-echolot-a-sonar-na-lod-nebo-clun/',
     '/jak-vybrat-zavazeci-lodku/',
     '/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/',
+    '/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/',
 )
 
 
@@ -31,14 +33,16 @@ class Homepage(HTMLParser):
         self.in_nav = 0
         self.in_advisor = 0
         self.routes = []
+        self.nav_versions = []
         self.advisor = []
         self.scripts = []
         self.canonicals = []
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
-        if tag == 'nav' and a.get('data-nry-home-problem-shortcuts') == 'v3':
+        if tag == 'nav' and a.get('data-nry-home-problem-shortcuts') in ('v3', 'v4'):
             self.in_nav += 1
+            self.nav_versions.append(a['data-nry-home-problem-shortcuts'])
         elif tag == 'p' and a.get('data-nry-home-advisor-entry') == 'v1':
             self.in_advisor += 1
         elif tag == 'script' and a.get('id') == 'nry-home-buyer-entry-v1-js':
@@ -62,17 +66,21 @@ def verify_home(html, preflight=False):
     doc.feed(html)
     if doc.canonicals != [HOME]:
         raise ValueError('HOMEPAGE_CANONICAL_MISMATCH')
-    if tuple(doc.routes) != tuple(HOME.rstrip('/') + x for x in BUYER_PATHS):
-        raise ValueError('FIVE_HOMEPAGE_BUYER_ROUTES_NOT_LIVE')
+    expected = tuple(HOME.rstrip('/') + x for x in BUYER_PATHS)
+    current = doc.nav_versions == ['v4'] and tuple(doc.routes) == expected
+    baseline = doc.nav_versions == ['v3'] and tuple(doc.routes) == expected[:-1]
+    if not current and not (preflight and baseline):
+        raise ValueError('SIX_HOMEPAGE_BUYER_ROUTES_NOT_LIVE')
     if doc.advisor != [HOME + 'poradce-vybavy/']:
         raise ValueError('EXACT_HOMEPAGE_ADVISOR_LINK_MISSING')
     if preflight:
-        return {'state': 'FIVE_BUYER_ROUTES_AND_ADVISOR_PUBLIC_PREFLIGHT', 'asset_verified': False}
+        return {'state': 'BUYER_ROUTES_AND_ADVISOR_PUBLIC_PREFLIGHT', 'asset_verified': False,
+                'routes_observed': len(doc.routes)}
     if len(doc.scripts) != 1:
         raise ValueError('ONE_HOMEPAGE_MEASUREMENT_SCRIPT_REQUIRED')
     src = urlsplit(doc.scripts[0])
     if (src.scheme != 'https' or src.netloc != 'na-ryby.eu' or src.path != SCRIPT_PATH
-            or parse_qs(src.query) != {'ver': ['1.0.0']} or src.fragment):
+            or parse_qs(src.query) != {'ver': ['1.1.0']} or src.fragment):
         raise ValueError('HOMEPAGE_SCRIPT_IDENTITY_MISMATCH')
     return {'state': 'HOMEPAGE_MEASUREMENT_SCRIPT_DECLARED', 'script_url': doc.scripts[0]}
 

@@ -29,7 +29,7 @@ nry_home_buyer_entry_enqueue_v1();
 check_home(count($GLOBALS['home_scripts'])===1,'exact one script');
 check_home($GLOBALS['home_scripts'][0][0]==='nry-home-buyer-entry-v1','script handle');
 check_home(strpos($GLOBALS['home_scripts'][0][1],'/assets/nry-home-buyer-entry-v1.js')!==false,'asset path');
-check_home($GLOBALS['home_scripts'][0][3]==='1.0.0' && $GLOBALS['home_scripts'][0][4]===true,'version and footer');
+check_home($GLOBALS['home_scripts'][0][3]==='1.1.0' && $GLOBALS['home_scripts'][0][4]===true,'version and footer');
 foreach (array('front'=>false,'page'=>false,'admin'=>true,'preview'=>true,'id'=>118642,
     'url'=>'https://na-ryby.eu/other/','site'=>'https://other.example/',
     'type'=>'post','status'=>'draft','slug'=>'different') as $key=>$value) {
