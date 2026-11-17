@@ -25,6 +25,11 @@ Unrelated paths, altered merchant redirects, extra query fields and synthetic cl
 
 After main branch deployment, run `python3 scripts/audit-buyer-click-live-readiness.py`. It fetches seven fixed public pages plus one same-origin JS asset if required. `BYTE_IDENTICAL_TO_REVIEWED_JS` and a single script tag on both new pages establish *installation/readback only*. They do **not** establish any click, GA4 ingestion, Google Search growth, sale, approved commission or payout.
 
+All existing carp, chair and sonar public-readback verifiers retain an exact
+baseline `ver=1.8.0` for PR preflight and exact `ver=1.9.0` + asset SHA equality
+for **post-deployment** proof. Updating the shared JS without these version
+pins would create a false public-verification failure.
+
 Once GA4 provides a valid observation window with consenting traffic, compare the `nry_buyer_offer_click` counts by `buyer_page` and `buyer_cta_type`, separately from `nry_buyer_guide_click`. Do not infer commercial conversion rates from click counts alone. Await the site's approved commission reporting for attributable earnings.
 
 ## Guardrails and next decision
