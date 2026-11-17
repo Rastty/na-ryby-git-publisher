@@ -375,4 +375,75 @@ assert.equal(chairNoConsent.calls.length,0,'no chair consent bypass');
 const hubNoConsent=browser({page:'/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/',gtagEnabled:false});
 hubNoConsent.click('https://na-ryby.eu/kresla');
 assert.equal(hubNoConsent.calls.length,0,'no chair redirect consent bypass');
-console.log('PASS: chair hub + evergreen buyer telemetry, sonar/carp, consent-gated clicks only');
+
+// Newly observed bivak buyer surfaces: neither redirect nor re-tag outgoing
+// anchors. The historical CJ identity on #119575 is deliberately UNKNOWN;
+// a click is not evidence of publisher entitlement or commission credit.
+const bivakPillar=browser({
+  page:'/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/'
+});
+const oldDognet='https://go.dognet.com/?chid=5QoXiSqx&url='+
+  encodeURIComponent('https://www.okfish.cz/bivaky-l8/kempingovy-program');
+const genuineCJ='https://www.tkqlhce.com/click-8287231-15734253?url='+
+  encodeURIComponent('https://www.chytapust.cz/Bivaky/Zfish-Bivak-Deluxe-King-Size-2-Man');
+const bivakHub='https://na-ryby.eu/nejlepsi-rybarske-bivaky-jak-vybrat-ten-nejlepsi/';
+bivakPillar.click(oldDognet);
+assert.equal(bivakPillar.calls.at(-1)[2].buyer_cta_type,'dognet_legacy_outbound');
+bivakPillar.click(genuineCJ);
+assert.equal(bivakPillar.calls.at(-1)[2].buyer_cta_type,'cj_product_link');
+bivakPillar.click(bivakHub);
+assert.equal(bivakPillar.calls.at(-1)[1],'nry_buyer_guide_click');
+assert.equal(bivakPillar.calls.at(-1)[2].guide_type,'bivak_hub');
+assert.equal(bivakPillar.calls.at(-1)[2].buyer_page,'bivak_pillar');
+for(const bad of [
+  oldDognet+'&another=secret', oldDognet.replace('5QoXiSqx','other'),
+  'https://go.dognet.com/?url=https%3A%2F%2Fwww.okfish.cz%2Fbivaky-l8%2Fkempingovy-program',
+  'https://go.dognet.com.evil.example/?chid=5QoXiSqx',
+  bivakHub+'?campaign=secret',
+  'http://www.tkqlhce.com/click-8287231-15734253'
+]) bivakPillar.click(bad);
+bivakPillar.click(oldDognet,{trusted:false});
+assert.equal(bivakPillar.calls.length,3,'only exact genuine bivak-pillar journeys');
+const bivakBudget=browser({page:'/nejlepsi-rybarske-bivaky-do-10-000-kc/'});
+const otherCJ='https://www.tkqlhce.com/click-100927011-12347575?url='+
+  encodeURIComponent('https://www.chytapust.cz/Bivaky/Mivardi-Bivak-Entrix-XL');
+bivakBudget.click(otherCJ);
+assert.equal(bivakBudget.calls.length,1);
+assert.equal(bivakBudget.calls[0][1],'nry_buyer_offer_click');
+assert.equal(bivakBudget.calls[0][2].buyer_page,'bivak_budget');
+assert.equal(bivakBudget.calls[0][2].buyer_cta_type,'cj_other_identity_unverified');
+bivakBudget.click(bivakHub);
+assert.equal(bivakBudget.calls.length,2);
+assert.equal(bivakBudget.calls[1][1],'nry_buyer_guide_click');
+assert.equal(bivakBudget.calls[1][2].guide_type,'bivak_hub');
+for(const bad of [
+  otherCJ+'&ref=secret',
+  otherCJ.replace('100927011','100927012'),
+  otherCJ.replace('12347575','12347576'),
+  otherCJ.replace('www.chytapust.cz','www.example.com'),
+  otherCJ.replace('Bivaky%2F','SomeOtherProducts%2F'),
+  'http://www.tkqlhce.com/click-100927011-12347575',
+  'https://www.tkqlhce.com/click-100927011-12347575?url='+
+    encodeURIComponent('https://www.chytapust.cz/Bivaky/Mivardi-Entrix-XL?ref=secret'),
+  bivakHub+'#secret'
+]) bivakBudget.click(bad);
+bivakBudget.click(otherCJ,{trusted:false});
+assert.equal(bivakBudget.calls.length,2,'no alternate identity or destination tracking');
+for(const client of [bivakPillar,bivakBudget])for(const call of client.calls){
+  assert.deepEqual(Object.keys(call[2]).sort(),
+    (call[1]==='nry_buyer_offer_click'
+      ? ['buyer_page','buyer_cta_type','transport_type']
+      : ['buyer_page','guide_type','transport_type']).sort());
+  assert.ok(!JSON.stringify(call).includes('okfish'));
+  assert.ok(!JSON.stringify(call).includes('chytapust'));
+  assert.ok(!JSON.stringify(call).includes('100927011'));
+  assert.ok(!JSON.stringify(call).includes('8287231'));
+}
+const bivakNoConsent=browser({page:'/nejlepsi-rybarske-bivaky-do-10-000-kc/',gtagEnabled:false});
+bivakNoConsent.click(otherCJ);
+bivakNoConsent.click(bivakHub);
+assert.equal(bivakNoConsent.calls.length,0,'no new consent mechanism');
+const genericPage=browser({page:'/jak-vybrat-rybarske-kreslo/'});
+genericPage.click(otherCJ);
+assert.equal(genericPage.calls.length,0,'historical bivak identity scoped to exactly one page');
+console.log('PASS: bivak historical CJ, Dognet and internal journeys are consent-gated, read-only');

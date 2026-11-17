@@ -2,6 +2,8 @@
 /**
  * Na-Ryby Buyer Offer Click Measurement V1 (consent-aware).
  * Exact buyer guides including one source-pinned baitboat entry handoff.
+ * Bivak guides are read-only observations: older CJ IDs and OKfish Dognet
+ * links are not treated as evidence of commission ownership.
  * Advisor is separately
  * WordPress page with its own funnel events; do not instrument it again here.
  * No new tracking cookies, visitor IDs,
@@ -24,7 +26,9 @@ function nry_buyer_click_approved_scope($post_id, $public_path) {
         61257 => '/zavazeci-lodky-pro-rybare/',
         118541 => '/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/',
         60341 => '/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/',
-        11901 => '/jak-vybrat-rybarske-kreslo/'
+        11901 => '/jak-vybrat-rybarske-kreslo/',
+        118388 => '/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/',
+        119575 => '/nejlepsi-rybarske-bivaky-do-10-000-kc/'
     );
     return is_int($post_id) && isset($allowed[$post_id])
         && is_string($public_path) && $public_path === $allowed[$post_id];
@@ -48,7 +52,7 @@ function nry_buyer_click_enqueue() {
         'nry-buyer-offer-click-v1',
         plugins_url('assets/nry-buyer-clicks-v1.js', __FILE__),
         array(),
-        '1.8.0',
+        '1.9.0',
         true
     );
 }
