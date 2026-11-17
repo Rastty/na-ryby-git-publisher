@@ -1,5 +1,16 @@
 # Na-Ryby Git Publisher
 
+## 17 November 2026 — homepage baitboat buyer route
+
+The existing source-bound, render-only homepage problem navigation now includes
+a fifth **first-party** route for baitboat range/GPS/sonar decisions:
+`/jak-vybrat-zavazeci-lodku/`. It does not change the picker, individual
+products, affiliate destinations, WordPress stored content, or stock claims.
+The old v1/v2 navigation markers are guarded against double injection.
+Deployment verification uses `scripts/verify-home-advisor-entry-public.py`
+and requires five exact HTTP-200/canonical internal destinations; a Git merge
+alone is not proof that the live homepage updated.
+
 ## 17 November 2026 — bivak buyer-click cohort (read-only)
 
 The existing passive, consent-aware buyer-click instrument also covers two
