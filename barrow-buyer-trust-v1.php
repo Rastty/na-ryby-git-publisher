@@ -171,8 +171,12 @@ final class NRY_Barrow_Buyer_Trust_V1 {
     }
 
     public static function boot() {
-        if (function_exists('add_filter')) add_filter('the_content',array(__CLASS__,'render'),79);
-        if (function_exists('add_action')) add_action('wp_enqueue_scripts',array(__CLASS__,'enqueue'),31);
+        if (function_exists('is_singular') && function_exists('add_filter')) {
+            add_filter('the_content',array(__CLASS__,'render'),79);
+        }
+        if (function_exists('is_singular') && function_exists('add_action')) {
+            add_action('wp_enqueue_scripts',array(__CLASS__,'enqueue'),31);
+        }
     }
 }
 NRY_Barrow_Buyer_Trust_V1::boot();
