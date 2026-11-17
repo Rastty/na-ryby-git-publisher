@@ -1,0 +1,21 @@
+.nry-carp-mat {
+  margin: 1.5rem 0 2rem;
+  padding: clamp(1.1rem, 3vw, 1.65rem);
+  border: 1px solid #a7c9bb;
+  border-radius: 15px;
+  background: #f1f8f3;
+  color: #15372d;
+  line-height: 1.6;
+}
+.nry-carp-mat h3 { margin: .15rem 0 .7rem; color: #123b30; font-size: clamp(1.2rem, 2.5vw, 1.5rem); }
+.nry-carp-mat p { margin: .5rem 0 1rem; }
+.nry-carp-mat__eyebrow { font-size: .82rem; font-weight: 750; letter-spacing: .055em; text-transform: uppercase; color: #28634a; }
+.nry-carp-mat__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; margin: 1.1rem 0; }
+.nry-carp-mat__grid div { padding: .85rem; background: #fff; border: 1px solid #d7e6dc; border-radius: 10px; }
+.nry-carp-mat__grid strong { display: block; font-weight: 750; margin-bottom: .3rem; }
+.nry-carp-mat__grid span { display: block; font-size: .94rem; }
+.nry-carp-mat a { color: #185d49; text-decoration: underline; text-underline-offset: .2em; font-weight: 700; }
+.nry-carp-mat a:focus-visible { outline: 3px solid #306f57; outline-offset: 3px; }
+.nry-carp-mat__guide { margin-bottom: .1rem !important; }
+.nry-carp-mat__faq { padding: 1rem 1.25rem; background: #f6faf8; border-left: 4px solid #427e61; }
+@media (max-width: 700px) { .nry-carp-mat__grid { grid-template-columns: 1fr; } }
