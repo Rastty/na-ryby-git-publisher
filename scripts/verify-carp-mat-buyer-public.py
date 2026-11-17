@@ -31,7 +31,7 @@ PAGES = {
                     'podložku, kterou kryjeme zem a na ni položíme montáž',
                     '<li>Rybářské potřeby Max, s.r.o.</li>'],
         'present': ['hojení ran nezrychluje',
-                    'S vhodnou podložkou lze na břehu',
+                    'Podložka nemá vliv na záběr',
                     'Ověřené podmínky vrácení'],
     },
 }

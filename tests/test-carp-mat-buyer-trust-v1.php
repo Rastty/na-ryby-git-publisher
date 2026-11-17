@@ -51,6 +51,7 @@ foreach ($cohorts as $id=>$set) {
     $fixed=$class::render($src);
     check($fixed!==$src,'source-pinned correction active '.$id);
     check(substr_count($fixed,$class::MARKER)===1,'one useful buyer comparison '.$id);
+    check(strpos($fixed,'nry-mat-probe')===false,'no diagnostic comments '.$id);
     check(substr_count($fixed,'href="'.$class::FISH_CARE.'"')===1,'primary fish care source '.$id);
     check(substr_count($fixed,'href="'.$class::MAIN.'"')===($id===43541?0:1),
         'central buyer guide paths '.$id);
@@ -86,6 +87,19 @@ foreach ($cohorts as $id=>$set) {
             'realistic short historical source is below generic 6000-byte threshold');
         check($class::render($short)!==$short,
             'short exact-source shop guide still receives buyer corrections');
+        $plain=str_replace('<p>S dobrým vybavením se Vám bude lovit</p>',
+            '<p>S dobrým vybavením se Vám bude lovit kapr lépe a úspěšněji.</p>',$src);
+        $plain=str_replace('<p>lépe a úspěšněji.</p>','',$plain);
+        $linked=str_replace('kapr lépe a úspěšněji.',
+            '<a href="https://www.usgs.gov/source">kapr</a> lépe a úspěšněji.',$plain);
+        foreach (array($plain,$linked) as $variant) {
+            $result=$class::render($variant);
+            check($result!==$variant && strpos($result,'Podložka nemá vliv na záběr.')!==false
+                && strpos($result,'kapr</a> lépe a úspěšněji.')===false,
+                'same correction works before and after auto-link insertion');
+            check(substr_count($result,'href="https://na-ryby.eu/podlozky"')===4,
+                'affiliate links safe across internal-link variations');
+        }
     }
     $GLOBALS['mode']['main']=false; $GLOBALS['mode']['loop']=false;
     $class::enqueue();
