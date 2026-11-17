@@ -87,6 +87,9 @@ final class NRY_Carp_Mat_Buyer_Trust_V1 {
             36611 => array(
                 'slug'=>'kde-nakupovat-rybarske-podlozky-pod-kapra-v-ceske-republice',
                 'modified'=>'2023-04-09 22:32:40',
+                // This older post has a much shorter unformatted source;
+                // all exact content and affiliate guards remain mandatory.
+                'minimum_html_bytes'=>3500,
                 'intro'=>'<h2>Kde nakupovat rybářské podložky pod kapra v České republice</h2>',
                 'replacements'=>array(
                     'Mezi nejznámější patří Rybářské potřeby'
@@ -180,7 +183,8 @@ final class NRY_Carp_Mat_Buyer_Trust_V1 {
     }
 
     public static function transform($html,$set) {
-        if (!is_string($html) || strlen($html)<6000 || !is_array($set)
+        if (!is_string($html) || !is_array($set)
+            || strlen($html)<($set['minimum_html_bytes']??6000)
             || strpos($html,self::MARKER)!==false
             || substr_count($html,'href="'.self::AFFILIATE.'"')!==4
             // Some 2023 articles repeat their exact H2 later in the body.
