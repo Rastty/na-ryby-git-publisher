@@ -15,10 +15,10 @@ final class NRY_Line_Bible_Fast_Choice_115678_V1 {
     const WINDING = 'https://na-ryby.eu/jak-spravne-podmotat-navijak-setrete-snuru-a-zvyste-dosah-nahozu/';
 
     public static function boot() {
-        if (function_exists('add_filter')) {
+        if (function_exists('add_filter') && function_exists('is_page')) {
             add_filter('the_content', array(__CLASS__, 'render'), 76);
         }
-        if (function_exists('add_action')) {
+        if (function_exists('add_action') && function_exists('is_page')) {
             add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue'), 29);
         }
     }
