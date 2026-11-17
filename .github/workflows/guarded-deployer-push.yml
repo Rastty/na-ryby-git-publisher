@@ -82,6 +82,11 @@ on:
       - 'tests/test-bivak-budget-buyer-trust-119575-v1.php'
       - 'scripts/verify-bivak-budget-buyer-trust-public.py'
       - '.github/workflows/bivak-budget-buyer-trust-v1.yml'
+      - 'motor-battery-capacity-119594-v1.php'
+      - 'tests/test-motor-battery-capacity-119594-v1.php'
+      - 'tests/test-motor-battery-capacity-v1.cjs'
+      - 'scripts/verify-motor-battery-capacity-public.py'
+      - '.github/workflows/motor-battery-capacity-v1.yml'
       - 'line-bible-fast-choice-115678-v1.php'
       - 'tests/test-line-bible-fast-choice-115678-v1.php'
       - 'scripts/verify-line-bible-fast-choice-public.py'
@@ -220,6 +225,7 @@ on:
       - 'carp-mat-buyer-trust-v1.php'
       - 'barrow-buyer-trust-v1.php'
       - 'bivak-budget-buyer-trust-119575-v1.php'
+      - 'motor-battery-capacity-119594-v1.php'
       - 'line-bible-fast-choice-115678-v1.php'
       - 'sonar-pillar-practical-handoff-118553-v1.php'
       - 'sonar-pillar-merchant-neutral-118553-v1.php'
@@ -303,6 +309,11 @@ jobs:
           php -l bivak-budget-buyer-trust-119575-v1.php
           php tests/test-bivak-budget-buyer-trust-119575-v1.php
           python3 -m py_compile scripts/verify-bivak-budget-buyer-trust-public.py
+          php -l motor-battery-capacity-119594-v1.php
+          php tests/test-motor-battery-capacity-119594-v1.php
+          node --check assets/nry-motor-battery-v1.js
+          node tests/test-motor-battery-capacity-v1.cjs
+          python3 -m py_compile scripts/verify-motor-battery-capacity-public.py
           php -l line-bible-fast-choice-115678-v1.php
           php tests/test-line-bible-fast-choice-115678-v1.php
           python3 -m py_compile scripts/verify-line-bible-fast-choice-public.py
