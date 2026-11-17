@@ -1,5 +1,33 @@
 # Na-Ryby Git Publisher
 
+## 17 November 2026 — archived gift guides: four problem-first paths (candidate)
+
+Two unmodified older WordPress posts (`46852`, `35630`) contain outdated gift
+examples and in some cases non-affiliate external product links. A strictly
+source-pinned, **render-only** preface gives visitors a practical decision by
+recipient's fishing style: an unknown setup/headlamp, spinning, feeder or an
+overnight bivak. Each route goes to an independently verified same-site buyer
+guide, not an unverified merchant, price or available product. Older article
+text and every historical href are byte-preserved in the rendered content;
+no owner content, SEO fields or affiliate IDs change in WordPress.
+
+The bounded CSS is mobile-first, with visible one-tap guide links. The local JS
+reuses existing consent-controlled `gtag` to emit **real user clicks only** as
+`nry_buyer_guide_click` with `buyer_page=gift_evergreen|gift_christmas` and
+`guide_type=gift_night|gift_spinning|gift_feeder|gift_camp`. No URL, price,
+recipient data or visitor ID is sent; no cookies/storage, merchant requests,
+synthetic production clicks or competing analytics initialization. This is an
+information-value test, **not evidence of actual gift purchases or commissions**.
+
+Source-identity and source-marker guards fail closed. For preflight run
+`python3 scripts/verify-gift-buyer-paths-public.py`, which checks both public
+article identities, original links and all four destination canonicals. After
+guarded main deploy, `--public` also verifies exactly one ordered navigation
+per post, the original archived links, early placement and byte-identical
+first-party JS/CSS. Rollback removes one plugin require and redeploys; no
+stored content migration is involved. Future economic validation requires
+genuine GA4 events followed by separately attributed approved/paid commissions.
+
 ## 17 November 2026 — boat and electric-motor outbound click cohort (candidate)
 
 Two source-pinned buyer guides (`119594`, `119598`) get a separate, passive,

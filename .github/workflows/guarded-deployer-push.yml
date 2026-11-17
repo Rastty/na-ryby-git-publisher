@@ -99,6 +99,13 @@ on:
       - 'tests/test-boat-motor-click-observation-v1.mjs'
       - 'scripts/verify-boat-motor-click-public-v1.py'
       - '.github/workflows/boat-motor-click-observation-v1.yml'
+      - 'gift-buyer-paths-v1.php'
+      - 'assets/nry-gift-buyer-v1.css'
+      - 'assets/nry-gift-buyer-v1.js'
+      - 'tests/test-gift-buyer-paths-v1.php'
+      - 'tests/test-gift-buyer-paths-v1.mjs'
+      - 'scripts/verify-gift-buyer-paths-public.py'
+      - '.github/workflows/gift-buyer-paths-v1.yml'
       - 'line-bible-fast-choice-115678-v1.php'
       - 'tests/test-line-bible-fast-choice-115678-v1.php'
       - 'scripts/verify-line-bible-fast-choice-public.py'
@@ -242,6 +249,9 @@ on:
       - 'assets/nry-boat-load-v1.js'
       - 'boat-motor-click-observation-v1.php'
       - 'assets/nry-boat-motor-click-v1.js'
+      - 'gift-buyer-paths-v1.php'
+      - 'assets/nry-gift-buyer-v1.css'
+      - 'assets/nry-gift-buyer-v1.js'
       - 'line-bible-fast-choice-115678-v1.php'
       - 'sonar-pillar-practical-handoff-118553-v1.php'
       - 'sonar-pillar-merchant-neutral-118553-v1.php'
@@ -340,6 +350,11 @@ jobs:
           node --check assets/nry-boat-motor-click-v1.js
           node tests/test-boat-motor-click-observation-v1.mjs
           python3 -m py_compile scripts/verify-boat-motor-click-public-v1.py
+          php -l gift-buyer-paths-v1.php
+          php tests/test-gift-buyer-paths-v1.php
+          node --check assets/nry-gift-buyer-v1.js
+          node tests/test-gift-buyer-paths-v1.mjs
+          python3 -m py_compile scripts/verify-gift-buyer-paths-public.py
           php -l line-bible-fast-choice-115678-v1.php
           php tests/test-line-bible-fast-choice-115678-v1.php
           python3 -m py_compile scripts/verify-line-bible-fast-choice-public.py
