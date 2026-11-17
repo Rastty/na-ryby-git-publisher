@@ -76,8 +76,13 @@ check($class::render($editor)===$editor,'editor change fails closed as one unit'
 $editor=str_replace('href="https://na-ryby.eu/zavazeci-lodky-parys"',
     'href="https://na-ryby.eu/editor/"',$src);
 check($class::render($editor)===$editor,'affiliate source drift fails closed');
+$GLOBALS['mode']['loop']=false;
+$GLOBALS['mode']['main']=false;
 $class::enqueue();
-check(($GLOBALS['style']['version']??null)==='1.0.0','scoped styling enqueued');
+check(($GLOBALS['style']['version']??null)==='1.0.0',
+    'scoped styling enqueued before the content loop');
+$GLOBALS['mode']['loop']=true;
+$GLOBALS['mode']['main']=true;
 $GLOBALS['mode']['id']=0;
 unset($GLOBALS['style']);
 $class::enqueue();

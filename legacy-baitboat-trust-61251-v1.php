@@ -26,13 +26,13 @@ final class NRY_Legacy_Baitboat_Trust_61251_V1 {
         }
     }
 
-    private static function eligible() {
+    private static function eligible($require_loop = true) {
         if (!function_exists('is_single') || !is_single(self::ID)
             || !function_exists('is_singular') || !is_singular('post')
             || !function_exists('get_queried_object_id')
             || (int)get_queried_object_id() !== self::ID
-            || !function_exists('is_main_query') || !is_main_query()
-            || !function_exists('in_the_loop') || !in_the_loop()
+            || ($require_loop && (!function_exists('is_main_query') || !is_main_query()
+                || !function_exists('in_the_loop') || !in_the_loop()))
             || !function_exists('is_admin') || is_admin()
             || !function_exists('is_preview') || is_preview()
             || !function_exists('home_url')
@@ -48,7 +48,8 @@ final class NRY_Legacy_Baitboat_Trust_61251_V1 {
     }
 
     public static function enqueue() {
-        if (!self::eligible() || !function_exists('wp_enqueue_style')
+        // wp_enqueue_scripts runs before the_content and outside the loop.
+        if (!self::eligible(false) || !function_exists('wp_enqueue_style')
             || !function_exists('plugins_url')) return;
         wp_enqueue_style('nry-legacy-baitboat-trust-61251-v1',
             plugins_url('assets/nry-legacy-baitboat-trust-v1.css', __FILE__),
