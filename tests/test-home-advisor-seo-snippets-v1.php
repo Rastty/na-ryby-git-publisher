@@ -55,9 +55,9 @@ foreach ($examples as $example) {
     seo_check(is_string($desc) && strlen($desc) > 100 && strlen($desc) < 180,
         'bounded description '.$id);
     seo_check($seo::og_description('') === $desc, 'social description blank fallback '.$id);
-    seo_check($seo::title('Editor's specific title') === "Editor's specific title",
+    seo_check($seo::title("Editor's specific title") === "Editor's specific title",
         'never override changed title '.$id);
-    seo_check($seo::description('Editor's specific description') === "Editor's specific description",
+    seo_check($seo::description("Editor's specific description") === "Editor's specific description",
         'never override existing description '.$id);
     $meta_keys = array(
         array('_yoast_wpseo_title', 'title', $old),
@@ -67,7 +67,7 @@ foreach ($examples as $example) {
     );
     foreach ($meta_keys as $case) {
         $GLOBALS['seo_ctx']['existing_meta'] = array($case[0]);
-        seo_check($seo::{$case[1]}($case[2]) === $case[2],
+        seo_check(call_user_func(array($seo, $case[1]), $case[2]) === $case[2],
             'editor Yoast metadata protected: '.$case[0]);
         $GLOBALS['seo_ctx']['existing_meta'] = array();
     }
