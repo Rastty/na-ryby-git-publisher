@@ -88,7 +88,14 @@ foreach ($cohorts as $id=>$set) {
         'status'=>'draft','type'=>'page','slug'=>'post-edited',
         'permalink'=>'https://na-ryby.eu/other/') as $key=>$bad) {
         $prev=$GLOBALS['mode'][$key]; $GLOBALS['mode'][$key]=$bad;
-        check($class::render($src)===$src,'rejects '.$key.' '.$id);
+        if ($id===36611 && ($key==='main' || $key==='loop')) {
+            check($class::render($src)===$fixed,
+                'full-source historical shop guide survives nonstandard loop '.$key);
+            check($class::render('<p>Sidebar excerpt</p>')==='<p>Sidebar excerpt</p>',
+                'short sidebar cannot be edited '.$key);
+        } else {
+            check($class::render($src)===$src,'rejects '.$key.' '.$id);
+        }
         $GLOBALS['mode'][$key]=$prev;
     }
     $drift=str_replace(array_keys($set['replacements'])[0],'editor changed this',$src);
