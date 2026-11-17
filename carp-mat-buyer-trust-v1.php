@@ -230,6 +230,14 @@ final class NRY_Carp_Mat_Buyer_Trust_V1 {
 
     public static function render($html) {
         $set=self::selected();
+        // The older shop-guide template can render its full post body outside
+        // the main-loop context. Its immutable post identity + four CTA hrefs
+        // + all exact content anchors still gate the mutation, so a sidebar,
+        // excerpt or newer editor revision cannot receive the replacement.
+        if (!$set && function_exists('get_queried_object_id')
+            && (int)get_queried_object_id()===36611) {
+            $set=self::selected(false);
+        }
         return $set ? self::transform($html,$set) : $html;
     }
 }
