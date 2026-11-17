@@ -11,6 +11,15 @@ Deployment verification uses `scripts/verify-home-advisor-entry-public.py`
 and requires five exact HTTP-200/canonical internal destinations; a Git merge
 alone is not proof that the live homepage updated.
 
+## 17 November 2026 — exact homepage and advisor SEO snippets
+
+Homepage and `/poradce-vybavy/` search snippets are guarded by
+`home-advisor-seo-snippets-v1.php` (render-only, no WordPress field writes).
+Exact post identity, URL, public baseline title, and absence of editor-owned
+Yoast meta fields are all required. The independent two-URL readback is
+`scripts/verify-home-advisor-seo-public.py`; `--preflight` checks live identity
+before deployment without assuming the new snippets are already public.
+
 ## 17 November 2026 — bivak buyer-click cohort (read-only)
 
 The existing passive, consent-aware buyer-click instrument also covers two
