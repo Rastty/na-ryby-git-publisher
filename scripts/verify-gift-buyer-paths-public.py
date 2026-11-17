@@ -5,7 +5,9 @@ No WordPress writes, merchant requests, synthetic clicks or GA4 events.
 """
 import argparse
 import hashlib
+import html
 import json
+import re
 from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
@@ -81,6 +83,20 @@ def canonical_asset(links,path):
         raise RuntimeError('WRONG_ASSET_VERSION_OR_DUPLICATED_'+path)
 
 
+def article_anchor_fragment(content, anchor):
+    """Find original article copy, not identical SEO title/meta or related cards.
+
+    WordPress repeats the article title in its <head>, header and breadcrumbs;
+    locating the bare phrase in the full HTML creates a false ordering failure.
+    The preserved source supplies an exact paragraph/heading to compare instead.
+    """
+    pattern = re.compile(r'<(?P<tag>p|h[2-6])\b[^>]*>[^<]{0,500}</(?P=tag)>', re.I)
+    for match in pattern.finditer(content):
+        if anchor in html.unescape(match.group(0)):
+            return match.group(0).encode('utf-8')
+    raise RuntimeError('SOURCE_ARTICLE_ANCHOR_ELEMENT_NOT_FOUND')
+
+
 def check(public):
     results={}
     for id,(slug,modified,anchor) in PAGES.items():
@@ -109,7 +125,7 @@ def check(public):
             canonical_asset(live.styles,ASSETS['css'][0])
             canonical_asset(live.scripts,ASSETS['js'][0])
             marker=live_bytes.find(b'data-nry-gift-buyer="v1"')
-            original=live_bytes.find(anchor.encode())
+            original=live_bytes.find(article_anchor_fragment(content,anchor))
             if marker<0 or original<0 or marker>original:
                 raise RuntimeError('GIFT_PANEL_NOT_BEFORE_ARCHIVED_TEXT_'+str(id))
         elif live.panel_count>1:
