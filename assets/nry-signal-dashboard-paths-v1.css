@@ -1,0 +1,48 @@
+/* Exact published signal dashboard only; no influence on other WordPress pages. */
+.page-id-118209 .nry-signal-decision-paths {
+  margin: 22px 0 26px;
+  padding: 18px;
+  border: 1px solid #cfe7d7;
+  border-radius: 16px;
+  background: #f3faf5;
+  color: #143d2c;
+}
+.page-id-118209 .nry-signal-decision-paths p { margin: 0 0 13px; }
+.page-id-118209 .nry-signal-decision-paths ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.page-id-118209 .nry-signal-decision-paths li { margin: 0; }
+.page-id-118209 .nry-signal-decision-paths a {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  height: 100%;
+  padding: 12px 15px;
+  border-radius: 10px;
+  color: #fff;
+  background: #14532d;
+  font-weight: 700;
+  text-decoration: none;
+  line-height: 1.35;
+}
+.page-id-118209 .nry-signal-decision-paths a:hover,
+.page-id-118209 .nry-signal-decision-paths a:focus-visible {
+  background: #0d3f22;
+  text-decoration: underline;
+}
+.page-id-118209 .nry-signal-decision-paths a:focus-visible {
+  outline: 3px solid #f4bd41;
+  outline-offset: 3px;
+}
+@media (max-width: 650px) {
+  .page-id-118209 .nry-signal-decision-paths ul { grid-template-columns: minmax(0, 1fr); }
+  .page-id-118209 .nry-signal-decision-paths { padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-id-118209 .nry-signal-decision-paths a { transition: none; }
+}
