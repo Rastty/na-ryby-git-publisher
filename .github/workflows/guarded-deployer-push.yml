@@ -93,6 +93,12 @@ on:
       - 'tests/test-boat-load-check-v1.cjs'
       - 'scripts/verify-boat-load-check-public.py'
       - '.github/workflows/boat-load-check-v1.yml'
+      - 'boat-motor-click-observation-v1.php'
+      - 'assets/nry-boat-motor-click-v1.js'
+      - 'tests/test-boat-motor-click-observation-v1.php'
+      - 'tests/test-boat-motor-click-observation-v1.mjs'
+      - 'scripts/verify-boat-motor-click-public-v1.py'
+      - '.github/workflows/boat-motor-click-observation-v1.yml'
       - 'line-bible-fast-choice-115678-v1.php'
       - 'tests/test-line-bible-fast-choice-115678-v1.php'
       - 'scripts/verify-line-bible-fast-choice-public.py'
@@ -234,6 +240,8 @@ on:
       - 'motor-battery-capacity-119594-v1.php'
       - 'boat-load-check-119598-v1.php'
       - 'assets/nry-boat-load-v1.js'
+      - 'boat-motor-click-observation-v1.php'
+      - 'assets/nry-boat-motor-click-v1.js'
       - 'line-bible-fast-choice-115678-v1.php'
       - 'sonar-pillar-practical-handoff-118553-v1.php'
       - 'sonar-pillar-merchant-neutral-118553-v1.php'
@@ -327,6 +335,11 @@ jobs:
           node --check assets/nry-boat-load-v1.js
           node tests/test-boat-load-check-v1.cjs
           python3 -m py_compile scripts/verify-boat-load-check-public.py
+          php -l boat-motor-click-observation-v1.php
+          php tests/test-boat-motor-click-observation-v1.php
+          node --check assets/nry-boat-motor-click-v1.js
+          node tests/test-boat-motor-click-observation-v1.mjs
+          python3 -m py_compile scripts/verify-boat-motor-click-public-v1.py
           php -l line-bible-fast-choice-115678-v1.php
           php tests/test-line-bible-fast-choice-115678-v1.php
           python3 -m py_compile scripts/verify-line-bible-fast-choice-public.py
