@@ -25,7 +25,8 @@
     '/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/':'bivak_pillar',
     '/nejlepsi-rybarske-bivaky-do-10-000-kc/':'bivak_budget',
     '/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/':'fishing_stays_59891',
-    '/vestonicka-nadrz-dyje-6-rybarina-jihomoravsky-kraj/':'dyje6_14517'
+    '/vestonicka-nadrz-dyje-6-rybarina-jihomoravsky-kraj/':'dyje6_14517',
+    '/rybarska-dovolena-jizni-morava/':'jizni_morava_12166'
   });
   if (location.origin !== 'https://na-ryby.eu' ||
       !Object.prototype.hasOwnProperty.call(allowedPages, location.pathname)) return;
@@ -47,6 +48,13 @@
   // PHP-generated CTA hrefs; do not generalize to arbitrary merchant links.
   const dyje6Stays = Object.freeze([
     {id:'2464086',partner:'slevomat_cz',href:'https://www.slevomat.cz/akce/2464086-dovolena-na-palave-polopenze-i-vstup-do-wellness?utm_source=affiliate&utm_medium=cpc&utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_narybyCZ&utm_content=dyje6_14517_termal_musov&utm_term=j3d7tsgc&a_box=j3d7tsgc'},
+    {id:'hportal-penzion-pasohlavky',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fpasohlavky%2Fpenzion-pasohlavky%2F'},
+    {id:'hauzi-chalupa-dolni-vestonice',partner:'hauzi_affiliateport_cz',href:'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchalupa-dolni-vestonice'}
+  ]);
+  // Distinct existing regional landing, owner-provided canonical Slevomat
+  // campaign domain and placement-specific utm_content. No merchant probe.
+  const jizniMoravaStays = Object.freeze([
+    {id:'2464086',partner:'slevomat_cz',href:'https://www.slevomat.cz/akce/2464086-dovolena-na-palave-polopenze-i-vstup-do-wellness?utm_source=affiliate&utm_medium=cpc&utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_na-ryby.eu&utm_content=stay_12166_termal_musov&utm_term=j3d7tsgc&a_box=j3d7tsgc'},
     {id:'hportal-penzion-pasohlavky',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fpasohlavky%2Fpenzion-pasohlavky%2F'},
     {id:'hauzi-chalupa-dolni-vestonice',partner:'hauzi_affiliateport_cz',href:'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchalupa-dolni-vestonice'}
   ]);
@@ -115,6 +123,29 @@
             transport_type:'beacon'
           });
         } catch { /* Never impede the affiliate navigation. */ }
+      }
+      return;
+    }
+    if (page === 'jizni_morava_12166') {
+      const section = link.closest('section[data-nry-jm-stays="v1"]');
+      const article = link.closest('article[data-nry-offer-id]');
+      const offerId = article && typeof article.getAttribute === 'function'
+        ? article.getAttribute('data-nry-offer-id') : null;
+      const stay = section && jizniMoravaStays.find(
+        row => row.id === offerId && Object.is(row.href, url.toString())
+      );
+      if (stay) {
+        try {
+          window.gtag('event','nry_buyer_offer_click',{
+            buyer_page:page,
+            buyer_cta_type:'fishing_stay_outbound',
+            source_post_id:'12166',
+            placement_id:'jizni-morava-stays-12166-v1',
+            stay_offer_id:stay.id,
+            stay_partner:stay.partner,
+            transport_type:'beacon'
+          });
+        } catch { /* Preserve the genuine affiliate navigation. */ }
       }
       return;
     }
