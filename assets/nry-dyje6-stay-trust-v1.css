@@ -1,0 +1,47 @@
+.nry-dyje6-facts, .nry-dyje6-offers {
+  margin: 26px 0;
+  padding: 22px 24px;
+  border-radius: 10px;
+  line-height: 1.55;
+}
+.nry-dyje6-facts {
+  background: #fff8e8;
+  border: 1px solid #edcd79;
+  border-left: 5px solid #be7d18;
+  color: #513d1a;
+}
+.nry-dyje6-offers {
+  background: #f0faf5;
+  border: 1px solid #b5ddca;
+  border-left: 5px solid #1f7854;
+  color: #173c2c;
+}
+.nry-dyje6-facts h3, .nry-dyje6-offers h2 { margin: 4px 0 12px; }
+.nry-dyje6-offers article {
+  background: #fff;
+  margin: 18px 0;
+  padding: 16px 18px;
+  border: 1px solid #d5e6dc;
+  border-radius: 7px;
+}
+.nry-dyje6-offers h3 { margin: 0 0 8px; }
+.nry-dyje6-offers__cta {
+  display: inline-block;
+  background: #116a4b;
+  color: #fff !important;
+  border-radius: 6px;
+  padding: 12px 18px;
+  font-weight: 700;
+  text-decoration: none !important;
+}
+.nry-dyje6-offers__cta--secondary { background: #205d81; }
+.nry-dyje6-offers__cta:hover, .nry-dyje6-offers__cta:focus-visible {
+  background: #104733;
+  color: #fff !important;
+}
+.nry-dyje6-facts small, .nry-dyje6-offers small { color: #545d56; }
+@media (max-width: 600px) {
+  .nry-dyje6-facts, .nry-dyje6-offers { padding: 16px; }
+  .nry-dyje6-offers article { padding: 14px; }
+  .nry-dyje6-offers__cta { display: block; text-align: center; }
+}

@@ -23,6 +23,7 @@ require_once __DIR__ . '/baitboat-choice-entry-61257-v1.php';
 require_once __DIR__ . '/legacy-baitboat-trust-61251-v1.php';
 require_once __DIR__ . '/hracholusky-stay-trust-17606-v1.php';
 require_once __DIR__ . '/tipy-stay-trust-57228-v1.php';
+require_once __DIR__ . '/dyje6-stay-trust-14517-v1.php';
 require_once __DIR__ . '/legacy-net-buyer-guides-v1.php';
 require_once __DIR__ . '/carp-mat-buyer-trust-v1.php';
 require_once __DIR__ . '/barrow-buyer-trust-v1.php';

@@ -25,12 +25,14 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
   };
   vm.runInNewContext(script,context,{timeout:1500});
   const click=(href,{trusted=true,sourcePinnedBaitboatCallout=false,
-    sourcePinnedStayBlock=false,stayOfferId=null}={})=>{
+    sourcePinnedStayBlock=false,sourcePinnedDyje6Block=false,stayOfferId=null}={})=>{
     const link={href,closest:selector=>{
       if(selector==='aside[data-nry-baitboat-choice-link="v1"]' &&
          sourcePinnedBaitboatCallout) return {};
       if(selector==='section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"]' &&
          sourcePinnedStayBlock) return {};
+      if(selector==='section[data-nry-dyje6-offers="v1"]' &&
+         sourcePinnedDyje6Block) return {};
       if(selector==='article[data-nry-offer-id]' && stayOfferId)
         return {getAttribute:name=>name==='data-nry-offer-id'?stayOfferId:null};
       return null;
@@ -510,3 +512,53 @@ unrelated.click(stayTargets[0].href,
   {sourcePinnedStayBlock:true,stayOfferId:stayTargets[0].id});
 assert.equal(unrelated.calls.length,0,'no broad merchant hostname tracking');
 console.log('PASS: five exact stay offers measured on trusted click only, no new tracker');
+
+// Separate approved Dyje 6 page: two source-reviewed regional lodging offers.
+// This is the SAME gtag event, consent gate and exact-CTA classifier.
+const dyje6Path='/vestonicka-nadrz-dyje-6-rybarina-jihomoravsky-kraj/';
+const dyje6Source=readFileSync('dyje6-stay-trust-14517-v1.php','utf8');
+assert.ok(dyje6Source.includes('const SOURCE_SHA256 ='));
+const dyje6Targets=[
+  {id:'2464086',partner:'slevomat_cz',href:'https://www.slevomat.cz/akce/2464086-dovolena-na-palave-polopenze-i-vstup-do-wellness?utm_source=affiliate&utm_medium=cpc&utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_narybyCZ&utm_content=dyje6_14517_termal_musov&utm_term=j3d7tsgc&a_box=j3d7tsgc'},
+  {id:'hportal-penzion-pasohlavky',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fpasohlavky%2Fpenzion-pasohlavky%2F'}
+];
+const dyje6=browser({page:dyje6Path});
+assert.equal(dyje6.callbacks.length,1);
+for(const target of dyje6Targets){
+  dyje6.click(target.href,{sourcePinnedDyje6Block:true,stayOfferId:target.id});
+  assert.equal(dyje6.calls.length,dyje6Targets.indexOf(target)+1);
+  const [kind,name,payload]=dyje6.calls.at(-1);
+  assert.equal(kind,'event');assert.equal(name,'nry_buyer_offer_click');
+  assert.equal(payload.buyer_page,'dyje6_14517');
+  assert.equal(payload.buyer_cta_type,'fishing_stay_outbound');
+  assert.equal(payload.source_post_id,'14517');
+  assert.equal(payload.placement_id,'dyje6-stays-14517-v1');
+  assert.equal(payload.stay_offer_id,target.id);
+  assert.equal(payload.stay_partner,target.partner);
+  assert.equal(payload.transport_type,'beacon');
+  assert.deepEqual(Object.keys(payload).sort(),[
+    'buyer_page','buyer_cta_type','source_post_id','placement_id',
+    'stay_offer_id','stay_partner','transport_type'
+  ].sort());
+  assert.ok(!JSON.stringify(payload).includes('https://'));
+  assert.ok(!JSON.stringify(payload).includes('5QoXiSqx'));
+}
+const dyje6RealClicks=dyje6.calls.length;
+for(const target of dyje6Targets){
+  dyje6.click(target.href,{stayOfferId:target.id});
+  dyje6.click(target.href,{sourcePinnedDyje6Block:true});
+  dyje6.click(target.href,{sourcePinnedDyje6Block:true,stayOfferId:'wrong'});
+  dyje6.click(target.href,{sourcePinnedDyje6Block:true,stayOfferId:target.id,trusted:false});
+  dyje6.click(target.href+'&extra=bad',{sourcePinnedDyje6Block:true,stayOfferId:target.id});
+  dyje6.click(target.href+'#changed',{sourcePinnedDyje6Block:true,stayOfferId:target.id});
+  dyje6.click(target.href.replace('https://','http://'),{sourcePinnedDyje6Block:true,stayOfferId:target.id});
+  dyje6.click(target.href.replace('https://','https://evil.'),{sourcePinnedDyje6Block:true,stayOfferId:target.id});
+}
+assert.equal(dyje6.calls.length,dyje6RealClicks,'no displaced, fake or manipulated CTA events');
+const dyje6NoGtag=browser({page:dyje6Path,gtagEnabled:false});
+dyje6NoGtag.click(dyje6Targets[0].href,{sourcePinnedDyje6Block:true,stayOfferId:'2464086'});
+assert.equal(dyje6NoGtag.calls.length,0,'respect existing consent; no new tracker');
+const unrelatedRevir=browser({page:'/soukromy-revir-sterkac-zajeci/'});
+unrelatedRevir.click(dyje6Targets[0].href,{sourcePinnedDyje6Block:true,stayOfferId:'2464086'});
+assert.equal(unrelatedRevir.callbacks.length,0,'unapproved revír never instrumented');
+console.log('PASS: two Dyje 6 region stays, source-scoped genuine user clicks only');
