@@ -1729,9 +1729,21 @@ final class NRY_Git_Publisher {
         $manifest = self::fishing_stays_manifest();
         $ready = !is_wp_error($manifest);
         $status = 'manifest_invalid';
+        $kses = array('available'=>function_exists('wp_kses_post'),
+            'source_preserved'=>null,'insert_preserved'=>null,
+            'candidate_preserved'=>null);
         if ($ready) {
             $rows = self::plan($manifest);
             $status = is_wp_error($rows) ? 'plan_error' : $rows[0]['status'];
+            if (!is_wp_error($rows) && $status === 'ready' && $kses['available']) {
+                // Bounded booleans only: never expose old/raw article HTML,
+                // merchant parameters, sanitized copies or private snapshots.
+                $kses['source_preserved'] = wp_kses_post($rows[0]['source']) === $rows[0]['source'];
+                $kses['insert_preserved'] = wp_kses_post($manifest['edits'][0]['insert_html'])
+                    === $manifest['edits'][0]['insert_html'];
+                $kses['candidate_preserved'] = wp_kses_post($rows[0]['candidate'])
+                    === $rows[0]['candidate'];
+            }
         }
         $post = get_post(59891);
         $markers = $post && is_string($post->post_content)
@@ -1744,6 +1756,7 @@ final class NRY_Git_Publisher {
             'data_class'=>'BOUNDED_STATUS_NO_POST_CONTENT',
             'candidate_loaded'=>$ready,'batch_id'=>$ready ? $manifest['batch_id'] : null,
             'post_id'=>59891,'preflight_status'=>$status,'marker_count'=>$markers,
+            'kses_diagnostic'=>$kses,
             'publication_triggered'=>false,'wordpress_writes'=>0));
         exit;
     }
