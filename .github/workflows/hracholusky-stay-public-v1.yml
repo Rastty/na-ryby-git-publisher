@@ -8,12 +8,10 @@ on:
       - 'tests/test-hracholusky-stay-trust-17606-v1.php'
       - 'tests/test_hracholusky_stay_public.py'
       - '.github/workflows/hracholusky-stay-public-v1.yml'
-  push:
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
     branches: [main]
-    paths:
-      - 'hracholusky-stay-trust-17606-v1.php'
-      - 'assets/nry-hracholusky-stay-trust-v1.css'
-      - 'na-ryby-git-publisher.php'
   schedule:
     - cron: '27 7 * * *'
   workflow_dispatch:
@@ -33,28 +31,16 @@ jobs:
           php tests/test-hracholusky-stay-trust-17606-v1.php
           python3 -m unittest discover -s tests -p test_hracholusky_stay_public.py -v
   public_readback:
-    if: github.event_name != 'pull_request'
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     needs: review
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Wait for guarded source deploy on a push
-        if: github.event_name == 'push'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          for attempt in $(seq 1 36); do
-            outcome=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${GITHUB_SHA}&per_page=40" \
-              --jq '[.workflow_runs[] | select(.name == "Na-Ryby Guarded Deployer Push-to-Deploy") | .conclusion] | first // "pending"')
-            if [ "$outcome" = success ]; then exit 0; fi
-            if [ "$outcome" = failure ] || [ "$outcome" = cancelled ]; then exit 1; fi
-            sleep 10
-          done
-          echo 'BLOCKED: guarded deploy did not finish'
-          exit 1
       - name: Verify public article and absence of obsolete affiliate
         run: |
           set -euo pipefail
