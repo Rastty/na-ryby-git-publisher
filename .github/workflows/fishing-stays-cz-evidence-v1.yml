@@ -1,0 +1,27 @@
+name: Na-Ryby Fishing Stays CZ Evidence Only
+on:
+  pull_request:
+    paths:
+      - 'editorial/fishing-stays-cz-20261118.json'
+      - 'scripts/verify-fishing-stays-cz-offline-v1.mjs'
+      - 'docs/FISHING-STAYS-CZ-20261118.md'
+      - '.github/workflows/fishing-stays-cz-evidence-v1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'editorial/fishing-stays-cz-20261118.json'
+      - 'scripts/verify-fishing-stays-cz-offline-v1.mjs'
+      - 'docs/FISHING-STAYS-CZ-20261118.md'
+      - '.github/workflows/fishing-stays-cz-evidence-v1.yml'
+permissions:
+  contents: read
+jobs:
+  offline-source-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Reject guessed affiliate links and fabricated GSC ranking
+        run: node scripts/verify-fishing-stays-cz-offline-v1.mjs

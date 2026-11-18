@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "market": "CZ",
+  "site": "https://na-ryby.eu",
+  "reviewed_on": "2026-11-18",
+  "status": "review_only_not_for_publication",
+  "core_contract_owner": "Rastty/prometheus-growth-os",
+  "search_console": {
+    "property": "https://na-ryby.eu/",
+    "state": "not_connected_in_available_windsor_searchconsole",
+    "page_query_metrics": null,
+    "economic_ranking": null
+  },
+  "affiliate": {
+    "slevomat_program": "owner_reports_approved",
+    "hauzi_program": "owner_reports_pending_affiliateport_approval",
+    "slevomat_affil_id": null,
+    "slevomat_deep_link_evidence": null,
+    "click_and_commission_join": "await_shared_prometheus_core_contract"
+  },
+  "target_pages": [
+    {
+      "post_id": 59891,
+      "url": "https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/",
+      "intent": "vyber_rybarskeho_pobytu",
+      "source_modified_gmt": "2026-04-14T14:33:18",
+      "editorial_state": "good_evergreen_content_missing_specific_bookable_offers",
+      "offer_ids_for_review": ["2462030", "2345808", "2450904"],
+      "gsc_priority": null
+    },
+    {
+      "post_id": 59271,
+      "url": "https://na-ryby.eu/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/",
+      "intent": "rodiny_s_detmi",
+      "source_modified_gmt": "2023-08-23T08:26:35",
+      "editorial_state": "generic_advice_without_verified_family_stay",
+      "offer_ids_for_review": [],
+      "gsc_priority": null
+    },
+    {
+      "post_id": 12166,
+      "url": "https://na-ryby.eu/rybarska-dovolena-jizni-morava/",
+      "intent": "ubytovani_v_regionu_jizni_morava",
+      "source_modified_gmt": "2017-06-28T21:26:22",
+      "editorial_state": "stale_historical_chata_catalogue_needs_source_refresh",
+      "offer_ids_for_review": [],
+      "gsc_priority": null
+    },
+    {
+      "post_id": 59113,
+      "url": "https://na-ryby.eu/nezapomenutelna-rybarska-dovolena-na-privatnim-reviru-s-komfortnim-ubytovanim/",
+      "intent": "soukromy_revir_s_ubytovanim",
+      "source_modified_gmt": "2023-08-18T07:08:57",
+      "editorial_state": "misleading_first_person_claim_about_own_private_fisheries_rewrite_before_promoting",
+      "offer_ids_for_review": [],
+      "gsc_priority": null
+    }
+  ],
+  "waters": [
+    {
+      "water_key": "private_pond_jedraz",
+      "name": "Soukromý rybník u Statku Jedraž",
+      "water_type": "merchant_described_private_pond",
+      "region": "Jižní Čechy",
+      "public_fishery_id": null,
+      "existing_site_revir_url": null,
+      "source": "https://www.slevomat.cz/akce/2462030-statek-na-jihu-cech-snidane-i-privatni-sauna-ci-rybareni"
+    },
+    {
+      "water_key": "private_pond_stuchanov",
+      "name": "Soukromý rybník u Pohodičky na rybníčku",
+      "water_type": "merchant_described_private_pond",
+      "region": "Střední Čechy",
+      "public_fishery_id": null,
+      "existing_site_revir_url": null,
+      "source": "https://www.slevomat.cz/akce/2345808-hausbot-na-rybnicku-pobyt-s-rybolovem-i-lodkou"
+    }
+  ],
+  "stay_offers": [
+    {
+      "offer_id": "2462030",
+      "name": "Statek Jedraž – pobyt s rybařením na soukromém rybníku",
+      "merchant": "slevomat.cz",
+      "direct_url": "https://www.slevomat.cz/akce/2462030-statek-na-jihu-cech-snidane-i-privatni-sauna-ci-rybareni",
+      "region": "Jižní Čechy",
+      "water_key": "private_pond_jedraz",
+      "facts": [
+        "Vybrané varianty zahrnují lov chyť a pusť na 2 pruty po dobu 24 hodin.",
+        "Vybavení si rybář bere vlastní.",
+        "Od 1. května do 1. listopadu je lov mimo soboty."
+      ],
+      "merchant_validity_until": "2027-11-30",
+      "availability": "term_dependent_not_independently_reserved",
+      "relevance": "specific_onsite_fishing",
+      "offer_review_state": "source_facts_reviewed",
+      "affiliate_url": null,
+      "affiliate_evidence": null,
+      "publishable": false
+    },
+    {
+      "offer_id": "2345808",
+      "name": "Hausbót Pohodička na rybníčku",
+      "merchant": "slevomat.cz",
+      "direct_url": "https://www.slevomat.cz/akce/2345808-hausbot-na-rybnicku-pobyt-s-rybolovem-i-lodkou",
+      "region": "Střední Čechy",
+      "water_key": "private_pond_stuchanov",
+      "facts": [
+        "Pobyt v hausbotu pro 2 až 4 osoby.",
+        "Součástí pobytu je sportovní lov kaprů a amurů chyť a pusť.",
+        "K dispozici je malá loďka."
+      ],
+      "merchant_validity_until": "2027-01-03",
+      "availability": "merchant_page_also_shows_offer_unavailable_warning",
+      "relevance": "specific_onsite_fishing",
+      "offer_review_state": "availability_conflict_blocked",
+      "affiliate_url": null,
+      "affiliate_evidence": null,
+      "publishable": false
+    },
+    {
+      "offer_id": "2450904",
+      "name": "Hotel Kouty – pobyt s rybníkem a wellness",
+      "merchant": "slevomat.cz",
+      "direct_url": "https://www.slevomat.cz/akce/2450904-hotel-uprostred-lesu-v-posazavi-snidane-i-wellnes",
+      "region": "Vysočina / Posázaví",
+      "water_key": null,
+      "facts": [
+        "Nabídka uvádí rybářský lístek zdarma po dobu pobytu.",
+        "Samotný rybářský lístek není potvrzením oprávnění lovit na libovolném revíru."
+      ],
+      "merchant_validity_until": "2027-06-30",
+      "availability": "term_dependent_not_independently_reserved",
+      "relevance": "possible_family_stay_fishing_conditions_unclear",
+      "offer_review_state": "fishing_rights_need_confirmation",
+      "affiliate_url": null,
+      "affiliate_evidence": null,
+      "publishable": false
+    }
+  ],
+  "excluded_offers": [
+    {
+      "offer_id": "2459432",
+      "reason": "Rybník v rekonstrukci: obchodník výslovně uvádí, že nelze rybařit ani se koupat."
+    },
+    {
+      "offer_id": "1512080",
+      "reason": "Zobrazená rybářská varianta má historickou platnost do 15. 12. 2019."
+    }
+  ],
+  "site_to_core_handoff": {
+    "matching": "Match specific fishery identity and real fishing rights; no unverified distance or place inference.",
+    "measurement": "Real consenting outbound events, deterministic click/source join where available, and network-approved/paid commission evidence; do not fabricate orders.",
+    "activation": "Only after current live affiliate link, publisher ownership, merchant validity, page/source binding, authenticated publication gate and independent public readback."
+  }
+}
