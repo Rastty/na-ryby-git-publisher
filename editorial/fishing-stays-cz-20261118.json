@@ -28,6 +28,16 @@
       "url": "https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/",
       "intent": "vyber_rybarskeho_pobytu",
       "source_modified_gmt": "2026-04-14T14:33:18",
+      "authenticated_source_binding": {
+        "captured_on": "2026-11-18",
+        "method": "connected_wordpress_rest_context_edit_read_only",
+        "raw_post_content_bytes": 14101,
+        "raw_post_content_sha256": "0edcd92cf829f6386277a24c371cd1a3239430fff9b1c10e9280bc926a1d8e79",
+        "candidate_block_marker": "fishing-stays-cz-59891-20261118-v1",
+        "candidate_block_bytes": 4234,
+        "candidate_block_sha256": "531bd77829fdc59f8cdee206df1259dad942efc40d67c6e3c60a2c1a5c73c86b",
+        "release_state": "needs_private_wordpress_rollback_authorized_external_link_guard_and_public_readback"
+      },
       "editorial_state": "good_evergreen_content_missing_specific_bookable_offers",
       "offer_ids_for_review": ["2462030", "2345808", "2450904", "hportal-pension-u-vlcku", "hportal-penzion-janata", "hportal-penzion-u-kohoutu", "hportal-pension-rybarska-basta"],
       "gsc_priority": null
