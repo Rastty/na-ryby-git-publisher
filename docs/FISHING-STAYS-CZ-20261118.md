@@ -1,5 +1,46 @@
 # Fishing stays CZ — source-first commercial audit (18 Nov 2026)
 
+**Owner affiliate confirmation (18 Nov 2026, newer than the frozen audit
+snapshot below):** Hauzi.cz/.sk is **approved** through AffiliatePort,
+advertiser `o=1990`, publisher `a=1736`. Its property-level deep link uses
+`https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=DEEPURL`,
+where `DEEPURL` is the percent-encoded reviewed Hauzi destination; it is
+not a raw unescaped URL. Advertiser terms report a **30-day cookie** and
+**€2.40 CPA for a completed reservation** (goal `Reservation (2957)`), not
+per outbound click. The first Hauzi listing is live on Dyje 6 post **14517**
+after [site PR #261](https://github.com/Rastty/na-ryby-git-publisher/pull/261),
+guarded [deploy #44321689496](https://github.com/Rastty/na-ryby-git-publisher/actions/runs/44321689496)
+and independent [PUBLIC_VERIFIED readback #44322013396](https://github.com/Rastty/na-ryby-git-publisher/actions/runs/44322013396).
+There are three *individual* exact offers in the single Dyje 6 offer panel;
+no real click, reservation, approved or paid commission is asserted.
+
+The owner also provided a generated **Slevomat.cz** direct affiliate example
+for Imperial Karlovy Vary (`/akce/2442260-...`):
+`utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_na-ryby.eu`,
+`utm_source=affiliate`, `utm_medium=cpc`, and `utm_term=j3d7tsgc`.
+This confirms partner ID `j3d7tsgc` and the owner-provided campaign-domain
+spelling **`na-ryby.eu` for future CZ deep links**. The exact example omits
+`a_box`, while the earlier owner-provided generic program URL included
+`a_box=j3d7tsgc`. Existing source-locked live 59891 and Dyje 6 links use
+the earlier `narybyCZ` generator-derived campaign label *and* `a_box`.
+Neither variant has a measured affiliate conversion receipt in this review:
+do **not** silently swap existing monetized destinations or infer a broken
+attribution from different UTM-label spellings. Imperial is a sample of
+link construction, not a vetted rybářský pobyt or locality recommendation.
+Future source-reviewed fishing stays should use the exact new owner-approved
+domain spelling, with merchant attribution and actual order evidence reviewed
+in Prometheus Core. No synthetic redirect test is permitted.
+
+**Next locality, awaiting fresh source lock:** existing post **12166**
+([Rybářská dovolená jižní Morava](https://na-ryby.eu/rybarska-dovolena-jizni-morava/))
+can potentially route readers to the existing Nové Mlýny/Dyje 6 guide and
+the *geographically matched* Pasohlávky/Dolní Věstonice offers. Its older
+2016–18 property descriptions need trust review, fresh authenticated raw
+source/hash and a separate guarded release. The currently available Windsor
+GSC connection exposes only Klix.cz, so 12166 is an **editorial candidate**,
+not a numerically established GSC winner. No WP write or published placement
+on 12166 is claimed.
+
 **Production follow-up (18 Nov 2026, after the historical audit below):**
 The standalone post **59891** affiliate canary is **applied and independently
 public-verified**. The owner supplied the guarded Git Publisher receipt
