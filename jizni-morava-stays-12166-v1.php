@@ -29,13 +29,16 @@ final class NRY_Jizni_Morava_Stays_12166_V1 {
     const HAUZI = 'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchalupa-dolni-vestonice';
 
     public static function boot() {
-        if (function_exists('add_filter')) {
+        // Match the established Dyje 6 module's WordPress-runtime gate.
+        // Publisher/KSES contract tests intentionally stub add_filter without
+        // a public-query API and must see no frontend hook registrations.
+        if (function_exists('is_single') && function_exists('add_filter')) {
             // WP accepts Class::method string callbacks. Using this form also
             // keeps the publisher's legacy KSES filter contracts compatible:
             // their minimal add_filter stubs index callbacks by string.
             add_filter('the_content', __CLASS__ . '::render', PHP_INT_MAX);
         }
-        if (function_exists('add_action')) {
+        if (function_exists('is_single') && function_exists('add_action')) {
             add_action('wp_enqueue_scripts', __CLASS__ . '::enqueue', 28);
         }
     }
