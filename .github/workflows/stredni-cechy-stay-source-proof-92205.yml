@@ -1,0 +1,31 @@
+name: Na-Ryby Stredni Cechy Stay Source Proof (read only)
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'stredni-cechy-stay-source-proof-92205-v1.php'
+      - 'tests/test-stredni-cechy-stay-source-proof-92205-v1.php'
+      - 'scripts/verify-stredni-cechy-stay-source-proof-92205.py'
+      - '.github/workflows/stredni-cechy-stay-source-proof-92205.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-proof:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP and Python offline guards
+        run: |
+          php -l na-ryby-git-publisher.php
+          php -l stredni-cechy-stay-source-proof-92205-v1.php
+          php tests/test-stredni-cechy-stay-source-proof-92205-v1.php
+          python3 -m py_compile scripts/verify-stredni-cechy-stay-source-proof-92205.py
+      - name: Anonymous production source fingerprint
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/verify-stredni-cechy-stay-source-proof-92205.py --verify
