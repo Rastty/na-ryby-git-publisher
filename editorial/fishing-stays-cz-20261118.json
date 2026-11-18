@@ -14,8 +14,12 @@
   "affiliate": {
     "slevomat_program": "owner_reports_approved",
     "hauzi_program": "owner_reports_pending_affiliateport_approval",
-    "slevomat_affil_id": null,
-    "slevomat_deep_link_evidence": null,
+    "hportal_dognet_program": "owner_reports_approved",
+    "hportal_dognet_chid": "5QoXiSqx",
+    "hportal_link_evidence": "owner_supplied_exact_redirect_pattern_not_clicked_to_avoid_synthetic_attribution",
+    "slevomat_affil_id": "j3d7tsgc",
+    "slevomat_deep_link_evidence": "owner_supplied_a_box_and_public_official_generator_dummy_id_utm_shape; no tracked click or commission confirmation",
+    "slevomat_utm_domain": "narybyCZ",
     "click_and_commission_join": "await_shared_prometheus_core_contract"
   },
   "target_pages": [
@@ -25,7 +29,7 @@
       "intent": "vyber_rybarskeho_pobytu",
       "source_modified_gmt": "2026-04-14T14:33:18",
       "editorial_state": "good_evergreen_content_missing_specific_bookable_offers",
-      "offer_ids_for_review": ["2462030", "2345808", "2450904"],
+      "offer_ids_for_review": ["2462030", "2345808", "2450904", "hportal-pension-u-vlcku", "hportal-penzion-janata", "hportal-penzion-u-kohoutu", "hportal-pension-rybarska-basta"],
       "gsc_priority": null
     },
     {
@@ -76,6 +80,40 @@
       "source": "https://www.slevomat.cz/akce/2345808-hausbot-na-rybnicku-pobyt-s-rybolovem-i-lodkou"
     }
   ],
+  "fishing_areas": [
+    {
+      "area_key": "hracholusky",
+      "name": "Hracholusky",
+      "region": "Plzeňský kraj",
+      "existing_site_context_url": "https://na-ryby.eu/bungalov-u-prehrady-hracholusky/",
+      "context_type": "historical_lodging_article_not_legal_revir_authority",
+      "specific_public_fishery_id": null
+    },
+    {
+      "area_key": "slapy",
+      "name": "Slapy / Rabyně",
+      "region": "Středočeský kraj",
+      "existing_site_context_url": "https://na-ryby.eu/zimni-privlac-v-okoli-prahy-kde-najit-nejlepsi-reviry/",
+      "context_type": "broad_fishing_guide_mentions_slapy_not_property_specific_revir",
+      "specific_public_fishery_id": null
+    },
+    {
+      "area_key": "lipno",
+      "name": "Lipno / Horní Planá",
+      "region": "Jihočeský kraj",
+      "existing_site_context_url": "https://na-ryby.eu/vybrane-reviry-vhodne-pro-hlubinnou-privlac-v-cesku/",
+      "context_type": "broad_fishing_guide_mentions_lipno_not_property_specific_revir",
+      "specific_public_fishery_id": null
+    },
+    {
+      "area_key": "rozmberk_vltava",
+      "name": "Rožmberk nad Vltavou",
+      "region": "Jihočeský kraj",
+      "existing_site_context_url": null,
+      "context_type": "locality_match_only_distinct_from_trebon_rozmberk_pond",
+      "specific_public_fishery_id": null
+    }
+  ],
   "stay_offers": [
     {
       "offer_id": "2462030",
@@ -93,8 +131,8 @@
       "availability": "term_dependent_not_independently_reserved",
       "relevance": "specific_onsite_fishing",
       "offer_review_state": "source_facts_reviewed",
-      "affiliate_url": null,
-      "affiliate_evidence": null,
+      "affiliate_url": "https://www.slevomat.cz/akce/2462030-statek-na-jihu-cech-snidane-i-privatni-sauna-ci-rybareni?utm_source=affiliate&utm_medium=cpc&utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_narybyCZ&utm_content=stay_59891_jedraz&utm_term=j3d7tsgc&a_box=j3d7tsgc",
+      "affiliate_evidence": "slevomat_official_public_generator_utm_shape_plus_owner_supplied_a_box; syntax_only_no_order_or_click_receipt",
       "publishable": false
     },
     {
@@ -134,6 +172,70 @@
       "offer_review_state": "fishing_rights_need_confirmation",
       "affiliate_url": null,
       "affiliate_evidence": null,
+      "publishable": false
+    },
+    {
+      "offer_id": "hportal-pension-u-vlcku",
+      "name": "Pension U Vlčků, Hracholusky",
+      "merchant": "hportal.cz",
+      "direct_url": "https://hportal.cz/cs/ulice/pension-u-vlcku/",
+      "region": "Plzeňský kraj",
+      "area_key": "hracholusky",
+      "water_key": null,
+      "facts": ["Hportal uvádí adresu Hracholusky 29.", "Mezi aktivitami uvádí rybaření a vybavení pro vodní sporty."],
+      "availability": "date_dependent_not_checked",
+      "relevance": "area_lodging_merchant_lists_fishing_amenity",
+      "offer_review_state": "area_amenity_rights_not_included_or_confirmed",
+      "affiliate_url": "https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fulice%2Fpension-u-vlcku%2F",
+      "affiliate_evidence": "owner_supplied_dognet_pattern_plus_merchant_listing; redirect_not_clicked",
+      "publishable": false
+    },
+    {
+      "offer_id": "hportal-penzion-janata",
+      "name": "Penzion Janata, Rabyně u Slap",
+      "merchant": "hportal.cz",
+      "direct_url": "https://hportal.cz/cs/rabyne/penzion-janata/",
+      "region": "Středočeský kraj",
+      "area_key": "slapy",
+      "water_key": null,
+      "facts": ["Hportal uvádí adresu Nová Rabyně 25 a obec Slapy.", "Mezi aktivitami uvádí rybaření a polohu vedle pláže."],
+      "availability": "date_dependent_not_checked",
+      "relevance": "area_lodging_merchant_lists_fishing_amenity",
+      "offer_review_state": "area_amenity_rights_not_included_or_confirmed",
+      "affiliate_url": "https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Frabyne%2Fpenzion-janata%2F",
+      "affiliate_evidence": "owner_supplied_dognet_pattern_plus_merchant_listing; redirect_not_clicked",
+      "publishable": false
+    },
+    {
+      "offer_id": "hportal-penzion-u-kohoutu",
+      "name": "Pension U Kohoutů, Horní Planá",
+      "merchant": "hportal.cz",
+      "direct_url": "https://hportal.cz/cs/horni-plana/penzion-u-kohoutu/",
+      "region": "Jihočeský kraj",
+      "area_key": "lipno",
+      "water_key": null,
+      "facts": ["Hportal uvádí adresu Náměstí 16, Horní Planá.", "Mezi aktivitami uvádí rybaření a rodinné pokoje."],
+      "availability": "date_dependent_not_checked",
+      "relevance": "area_lodging_merchant_lists_fishing_amenity",
+      "offer_review_state": "area_amenity_rights_not_included_or_confirmed",
+      "affiliate_url": "https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fhorni-plana%2Fpenzion-u-kohoutu%2F",
+      "affiliate_evidence": "owner_supplied_dognet_pattern_plus_merchant_listing; redirect_not_clicked",
+      "publishable": false
+    },
+    {
+      "offer_id": "hportal-pension-rybarska-basta",
+      "name": "Pension Rybářská Bašta, Rožmberk nad Vltavou",
+      "merchant": "hportal.cz",
+      "direct_url": "https://hportal.cz/cs/rozmberk-nad-vltavou/pension-rybarska-basta/",
+      "region": "Jihočeský kraj",
+      "area_key": "rozmberk_vltava",
+      "water_key": null,
+      "facts": ["Hportal uvádí adresu Rožmberk nad Vltavou 124.", "Mezi aktivitami uvádí rybaření; není to rybník Rožmberk u Třeboně."],
+      "availability": "date_dependent_not_checked",
+      "relevance": "area_lodging_merchant_lists_fishing_amenity",
+      "offer_review_state": "area_amenity_rights_not_included_or_confirmed",
+      "affiliate_url": "https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Frozmberk-nad-vltavou%2Fpension-rybarska-basta%2F",
+      "affiliate_evidence": "owner_supplied_dognet_pattern_plus_merchant_listing; redirect_not_clicked",
       "publishable": false
     }
   ],

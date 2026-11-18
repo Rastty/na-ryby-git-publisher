@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'editorial/fishing-stays-cz-20261118.json'
+      - 'editorial/fishing-stays-cz-20261118-recommendation-blocks.html'
       - 'scripts/verify-fishing-stays-cz-offline-v1.mjs'
       - 'docs/FISHING-STAYS-CZ-20261118.md'
       - '.github/workflows/fishing-stays-cz-evidence-v1.yml'
@@ -10,6 +11,7 @@ on:
     branches: [main]
     paths:
       - 'editorial/fishing-stays-cz-20261118.json'
+      - 'editorial/fishing-stays-cz-20261118-recommendation-blocks.html'
       - 'scripts/verify-fishing-stays-cz-offline-v1.mjs'
       - 'docs/FISHING-STAYS-CZ-20261118.md'
       - '.github/workflows/fishing-stays-cz-evidence-v1.yml'
@@ -23,5 +25,5 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Reject guessed affiliate links and fabricated GSC ranking
+      - name: Validate owner-derived affiliate syntax, grounded offers and absent GSC ranking
         run: node scripts/verify-fishing-stays-cz-offline-v1.mjs

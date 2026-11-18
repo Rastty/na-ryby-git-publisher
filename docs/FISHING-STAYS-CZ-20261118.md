@@ -1,6 +1,6 @@
 # Fishing stays CZ — source-first commercial audit (18 Nov 2026)
 
-**Status: OFFLINE REVIEW ONLY. No new WordPress content or affiliate links were published.**
+**Status: OFFLINE REVIEW ONLY. Five partner-derived deep-link candidates and two HTML recommendation blocks have been prepared and syntax-tested; no new WordPress content or links were published.**
 
 ## North Star and separation of ownership
 
@@ -35,9 +35,34 @@ Official merchant pages opened and reviewed on 18 Nov 2026. The offer's existenc
 
 ## Offer presentation and activation gate
 
-First candidate block on post 59891 should display at most **one** currently available, geographically and thematically correct, bookable stay, with: real property name; specific water and its permission rules; optional family suitability only when supported; last-checked date; one honest “Ověřit termín a nabídku” CTA; and a nearby link to the relevant verified site revír guide **only when the identity/geography match is real**. No fake stock, prices, proximity, paid endorsement, or claim to be the water operator.
+The first controlled activation on post 59891 should lead with **one clearly distinguished property whose selected variant includes fishing**, followed by a separately labeled set of geographically appropriate accommodation alternatives. Each entry needs a real property name, honestly stated fishing/permit conditions, a last-source-check date and an “Ověřit termín a nabídku” CTA; a relevant existing site guide may be linked **only with an honest geographic and topic label**. No fake stock, prices, proximity, paid endorsement, or claim to be the water operator. A smaller locality-specific block should be activated only after a real first-page readback.
 
-Owner reports Slevomat CZ approved. The [official link generator](https://slevomat.cz/affiliate-link-generator) requires the actual AffilBox partner ID, source domain, target URL and tracking term. Partner terms also require UTM source/medium/campaign/term. The connected cloud browser sees a login page, not the owner account; a valid generated deep link, its entitlement, and merchant click/commission data are therefore **not currently verified**. Hauzi CZ/SK is still pending approval. No direct links will be mislabeled as affiliate and no unauthenticated automated click will be sent as a conversion test.
+## New owner-provided publisher route evidence — 18 Nov 2026
+
+The owner additionally confirmed **Hportal.cz approved through Dognet** and supplied the example redirect shape `https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fjesenik%2Fpension-iva%2F`. The review stores `chid=5QoXiSqx` as **owner-supplied**, constructs future Hportal destination URLs with `encodeURIComponent`, and validates them offline. Do **not** ping Dognet links as an artificial test click. A matching URL is not confirmation of earned commission. The example Pension Iva does not list fishing under its reviewed amenities; it was not recommended solely on the basis of being the tracking example.
+
+The owner supplied a Slevomat landing link with `a_box=j3d7tsgc`, but UTM placeholders `VASEID`, `VASEID_DOMENACZ` and `cokoliv`. The publicly linked [Slevomat affiliate generator](https://www.slevomat.cz/affiliate-link-generator) was opened and tested with a **dummy partner ID and dummy domain** (no owner's identifier sent to the Google-hosted form). It confirmed the UTM shape `utm_source=affiliate`, `utm_medium=cpc`, `utm_campaign=dis_akv_gen_cze_all_buy_<AffilID>_<domenaCZ>`, `utm_term=<AffilID>` and optional `utm_content`. The generator output itself omitted `a_box`, so the reviewed Jedraž link *adds the owner's independently supplied* `a_box=j3d7tsgc` alongside the corrected UTM fields. This is **syntax/reconstruction evidence, not a logged-in AffilBox conversion validation**. Use publisher domain label `narybyCZ`. No artificial Slevomat click was sent.
+
+Hauzi CZ/SK is still pending owner-reported AffiliatePort approval; there are no Hauzi tracked links.
+
+### Verified Hportal source listings and locality joins
+
+| Property and owner-derived destination | Verified listing facts | Area and site guide context | Caveat |
+| --- | --- | --- | --- |
+| [Pension U Vlčků](https://hportal.cz/cs/ulice/pension-u-vlcku/) | Hracholusky 29; Hportal lists fishing and water sports | Hracholusky; [older accommodation article](https://na-ryby.eu/bungalov-u-prehrady-hracholusky/) | No fishing entitlement or room inventory confirmed |
+| [Penzion Janata](https://hportal.cz/cs/rabyne/penzion-janata/) | Nová Rabyně 25, Slapy; fishing, beach/water-sports amenities | Slapy; [broader Prague-region fishing guide](https://na-ryby.eu/zimni-privlac-v-okoli-prahy-kde-najit-nejlepsi-reviry/) | No claim that the stay includes a Slapy permit |
+| [Pension U Kohoutů](https://hportal.cz/cs/horni-plana/penzion-u-kohoutu/) | Horní Planá; fishing listed; family rooms | Lipno; [broader deep-spinning guide](https://na-ryby.eu/vybrane-reviry-vhodne-pro-hlubinnou-privlac-v-cesku/) | Family room does not prove children's suitability/availability for all dates |
+| [Pension Rybářská Bašta](https://hportal.cz/cs/rozmberk-nad-vltavou/pension-rybarska-basta/) | Rožmberk nad Vltavou 124; fishing activity listed | Vltava locality; no verified exact site revír page | **Not** Rybník Rožmberk near Třeboň; never conflate |
+
+The Hportal merchant pages are primary source descriptions of amenities, **not independent verification that the advertised property is bookable for a particular date or that a named public fishery's rules are satisfied**. Exact ČRS/MRS revír ID is deliberately null for all four area entries. No invented distance estimates.
+
+### Safe placement drafts and release block
+
+- `editorial/fishing-stays-cz-20261118-recommendation-blocks.html`: a semantically structured, clearly marked affiliate block for existing evergreen post **59891**, led by the Slevomat offer that explicitly includes fishing in selected variants; four Hportal location alternatives; a smaller Hracholusky alternative for an existing 2018 accommodation page.
+- Six outbound CTA placements reference five source-reviewed owner-derived links. `rel="sponsored nofollow noopener"` and honest permissions/dates/availability wording are checked offline. Two included internal links refer to **broad fishing guides**, not property-specific legal revír detail pages.
+- `scripts/verify-fishing-stays-cz-offline-v1.mjs` verifies the owner-supplied network identifiers, UTM shape, Dognet redirect `url` encoding, merchant allowlist, area/water separation, linked HTML consistency and absence of placeholder IDs. All 7 offers deliberately remain `publishable=false`, since this status means **no completed production safety release yet**, not unavailability of every room.
+
+This site's WPVibe account reported **99/100 free-tier calls used** in the rolling 24-hour window. More importantly, WordPress publication through the Git publisher requires a **fresh source/hash binding, private rollback, authorized WP Admin Apply and independent public readback**. Current live post source/hash has not been rebound for these two snippets; do not append to `manifest.json` blindly or bypass its guard. A GitHub merge and offline test do not count as publication. When an authorized admin path and fresh source binding are available, release just one entry first (post 59891), verify the live link and real consent-aware click instrumentation, and only then roll out to locality pages.
 
 An eligible production batch additionally needs: fresh authenticated post raw source SHA/modified GMT and safe snapshot, exact post/slug guards, one-writer check, WP Admin gate if content is mutated, successful authorized Deployer if plugin code changes, independent authenticated/public HTML readback, and exact rollback path. CI/Git merge alone does **not** prove publication.
 
