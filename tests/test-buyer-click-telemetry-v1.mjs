@@ -513,14 +513,15 @@ unrelated.click(stayTargets[0].href,
 assert.equal(unrelated.calls.length,0,'no broad merchant hostname tracking');
 console.log('PASS: five exact stay offers measured on trusted click only, no new tracker');
 
-// Separate approved Dyje 6 page: two source-reviewed regional lodging offers.
+// Separate approved Dyje 6 page: three source-reviewed regional lodging offers.
 // This is the SAME gtag event, consent gate and exact-CTA classifier.
 const dyje6Path='/vestonicka-nadrz-dyje-6-rybarina-jihomoravsky-kraj/';
 const dyje6Source=readFileSync('dyje6-stay-trust-14517-v1.php','utf8');
 assert.ok(dyje6Source.includes('const SOURCE_SHA256 ='));
 const dyje6Targets=[
   {id:'2464086',partner:'slevomat_cz',href:'https://www.slevomat.cz/akce/2464086-dovolena-na-palave-polopenze-i-vstup-do-wellness?utm_source=affiliate&utm_medium=cpc&utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_narybyCZ&utm_content=dyje6_14517_termal_musov&utm_term=j3d7tsgc&a_box=j3d7tsgc'},
-  {id:'hportal-penzion-pasohlavky',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fpasohlavky%2Fpenzion-pasohlavky%2F'}
+  {id:'hportal-penzion-pasohlavky',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fpasohlavky%2Fpenzion-pasohlavky%2F'},
+  {id:'hauzi-chalupa-dolni-vestonice',partner:'hauzi_affiliateport_cz',href:'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchalupa-dolni-vestonice'}
 ];
 const dyje6=browser({page:dyje6Path});
 assert.equal(dyje6.callbacks.length,1);
@@ -561,4 +562,4 @@ assert.equal(dyje6NoGtag.calls.length,0,'respect existing consent; no new tracke
 const unrelatedRevir=browser({page:'/soukromy-revir-sterkac-zajeci/'});
 unrelatedRevir.click(dyje6Targets[0].href,{sourcePinnedDyje6Block:true,stayOfferId:'2464086'});
 assert.equal(unrelatedRevir.callbacks.length,0,'unapproved revír never instrumented');
-console.log('PASS: two Dyje 6 region stays, source-scoped genuine user clicks only');
+console.log('PASS: three Dyje 6 region stays, source-scoped genuine user clicks only');

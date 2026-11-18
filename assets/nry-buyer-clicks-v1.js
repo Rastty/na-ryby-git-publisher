@@ -47,7 +47,8 @@
   // PHP-generated CTA hrefs; do not generalize to arbitrary merchant links.
   const dyje6Stays = Object.freeze([
     {id:'2464086',partner:'slevomat_cz',href:'https://www.slevomat.cz/akce/2464086-dovolena-na-palave-polopenze-i-vstup-do-wellness?utm_source=affiliate&utm_medium=cpc&utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_narybyCZ&utm_content=dyje6_14517_termal_musov&utm_term=j3d7tsgc&a_box=j3d7tsgc'},
-    {id:'hportal-penzion-pasohlavky',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fpasohlavky%2Fpenzion-pasohlavky%2F'}
+    {id:'hportal-penzion-pasohlavky',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fpasohlavky%2Fpenzion-pasohlavky%2F'},
+    {id:'hauzi-chalupa-dolni-vestonice',partner:'hauzi_affiliateport_cz',href:'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchalupa-dolni-vestonice'}
   ]);
   document.addEventListener('click', event => {
     // Browser-generated user interaction only. Never send tests or bot clicks

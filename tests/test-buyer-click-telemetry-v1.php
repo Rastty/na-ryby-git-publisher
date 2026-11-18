@@ -56,7 +56,7 @@ foreach($more as $id=>$route) {
   must(count($GLOBALS['queue'])===1,'exact released buyer must have script');
   must(nry_buyer_click_approved_scope($id,$route),'whitelisted ID/path binding');
   must($GLOBALS['queue'][0]['handle']==='nry-buyer-offer-click-v1','same local JS');
-  must($GLOBALS['queue'][0]['version']==='1.11.0','new script version');
+  must($GLOBALS['queue'][0]['version']==='1.11.1','new script version');
 }
 must(!nry_buyer_click_approved_scope(59891,'/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/'),
     'stay measurement cannot be bound to a different article');

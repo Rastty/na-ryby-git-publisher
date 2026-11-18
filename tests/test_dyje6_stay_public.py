@@ -22,6 +22,8 @@ class PublicVerification(unittest.TestCase):
             '<a href="' + m.SLEVOMAT + '?utm_source=affiliate&amp;utm_medium=cpc&amp;utm_term=j3d7tsgc&amp;a_box=j3d7tsgc">Slevomat</a></article>'
             '<article data-nry-offer-id="hportal-penzion-pasohlavky">Penzion Pasohlávky'
             '<a href="' + m.HPORTAL + '">Hportal</a></article>'
+            '<article data-nry-offer-id="hauzi-chalupa-dolni-vestonice">Chalupa Dolní Věstonice'
+            '<a href="' + m.HAUZI + '">Hauzi</a></article>'
             '<a href="https://na-ryby.eu/booking-cesko">Další pobyty</a></section>'
         )
 
@@ -32,6 +34,7 @@ class PublicVerification(unittest.TestCase):
         self.assertFalse(m.verify(self.good.replace('Hotel Termal Mušov', 'Cizí hotel')))
         self.assertFalse(m.verify(self.good.replace('Rybníkářstvím Pohořelice', 'bez povolenky')))
         self.assertFalse(m.verify(self.good.replace(m.HPORTAL, 'https://evil.test/')))
+        self.assertFalse(m.verify(self.good.replace(m.HAUZI, 'https://evil.test/')))
 
     def test_old_price_or_duplicate_fail(self):
         self.assertFalse(m.verify(self.good + 'denní povolenka: 200 korun'))
@@ -44,7 +47,7 @@ class PublicVerification(unittest.TestCase):
         js = b'/* reviewed local browser asset */' + b'x' * 1300
         self.assertTrue(m.verify(doc, deployed=True, public_js=js, reviewed_js=js))
         self.assertFalse(m.verify(doc, deployed=True, public_js=js + b'unsafe', reviewed_js=js))
-        self.assertFalse(m.verify(doc.replace('ver=1.11.0', 'ver=1.10.0'),
+        self.assertFalse(m.verify(doc.replace('ver=1.11.1', 'ver=1.11.0'),
                                   deployed=True, public_js=js, reviewed_js=js))
 
 

@@ -46,6 +46,8 @@ check(strpos($new,'https://na-ryby.eu/stary-clanek/')!==false,'other href kept')
 check(strpos($new,$class::EXISTING_CATEGORY)!==false,'pre-existing partner category preserved');
 check(strpos($new,htmlspecialchars($class::SLEVOMAT,ENT_QUOTES,'UTF-8'))!==false,'exact Slevomat deeplink');
 check(strpos($new,htmlspecialchars($class::HPORTAL,ENT_QUOTES,'UTF-8'))!==false,'exact Dognet deeplink');
+check(strpos($new,htmlspecialchars($class::HAUZI,ENT_QUOTES,'UTF-8'))!==false,'exact approved Hauzi AffiliatePort deeplink');
+check(substr_count($new,'data-nry-offer-id=')===3,'three independent reviewed stay offers');
 check($class::transform($new)===$new,'idempotent');
 check($class::render($good)===$good,'unapproved raw SHA blocks render');
 $drift=str_replace('denní povolenka: 200 korun','denní povolenka: 350 korun',$good);
@@ -55,6 +57,8 @@ check($class::transform($drift)===$drift,'merchant block drift blocks whole patc
 check($class::transform($good.$good)===$good.$good,'duplicate article blocks patch');
 $drift=$good.'<a href="'. $class::SLEVOMAT .'">Injected partner</a>';
 check($class::transform($drift)===$drift,'pre-existing destination blocks duplicate tracking');
+$drift=$good.'<a href="'. $class::HAUZI .'">Injected Hauzi partner</a>';
+check($class::transform($drift)===$drift,'pre-existing Hauzi destination blocks duplicate tracking');
 
 // The verbatim authenticated published source is archived only as a local,
 // read-only fixture; one appended LF belongs to the text fixture, not WP.
@@ -81,5 +85,6 @@ $actual=$class::transform($rendered);
 check($actual!==$rendered,'actual WP fully rendered HTML transforms');
 check(substr_count($actual,$class::FACTS_MARKER)===1,'actual rendered adds one official facts block');
 check(substr_count($actual,$class::OFFERS_MARKER)===1,'actual rendered adds one offer block');
+check(substr_count($actual,'data-nry-offer-id=')===3,'actual WordPress rendered has exactly three vetted offers');
 check($class::transform($actual)===$actual,'actual rendered is idempotent');
-echo "PASS: Dyje 6 exact-source conservation, safety and two approved partner routes; no writes\n";
+echo "PASS: Dyje 6 exact-source conservation, safety and three approved partner routes; no writes\n";

@@ -14,8 +14,9 @@ FACTS = 'data-nry-dyje6-facts="v1"'
 OFFERS = 'data-nry-dyje6-offers="v1"'
 SLEVOMAT = "https://www.slevomat.cz/akce/2464086-dovolena-na-palave-polopenze-i-vstup-do-wellness"
 HPORTAL = "https://go.dognet.com/?chid=5QoXiSqx&amp;url=https%3A%2F%2Fhportal.cz%2Fcs%2Fpasohlavky%2Fpenzion-pasohlavky%2F"
+HAUZI = "https://tracking.affiliateport.eu/click?o=1990&amp;a=1736&amp;sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchalupa-dolni-vestonice"
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
-VERSION = "ver=1.11.0"
+VERSION = "ver=1.11.1"
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -59,9 +60,12 @@ def verify(html, *, deployed=False, public_js=b"", reviewed_js=b""):
         'www.rybnikarstvipohorelice.cz/dyje-6/' in facts,
         'Hotel Termal Mušov' in offers,
         'Penzion Pasohlávky' in offers,
-        offers.count('data-nry-offer-id=') == 2,
+        'Chalupa Dolní Věstonice' in offers,
+        offers.count('data-nry-offer-id=') == 3,
         offers.count(SLEVOMAT) == 1,
         offers.count(HPORTAL) == 1,
+        offers.count(HAUZI) == 1,
+        'data-nry-offer-id="hauzi-chalupa-dolni-vestonice"' in offers,
         'utm_term=j3d7tsgc&amp;a_box=j3d7tsgc' in offers,
         'https://na-ryby.eu/booking-cesko' in offers,
         'denní povolenka: 200 korun' not in html,
