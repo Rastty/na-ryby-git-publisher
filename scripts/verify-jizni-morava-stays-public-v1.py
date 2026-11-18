@@ -21,8 +21,8 @@ ORIGIN = 'https://na-ryby.eu'
 PATH = '/rybarska-dovolena-jizni-morava/'
 JS = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js'
 CSS = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-jizni-morava-stays-v1.css'
-CURRENT_VERSION = 'ver=1.11.3'
-PREVIOUS_VERSION = 'ver=1.11.2'
+CURRENT_VERSION = 'ver=1.11.4'
+PREVIOUS_VERSION = 'ver=1.11.3'
 OFFERS = {
     '2464086': 'https://www.slevomat.cz/akce/2464086-dovolena-na-palave-polopenze-i-vstup-do-wellness?utm_source=affiliate&utm_medium=cpc&utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_na-ryby.eu&utm_content=stay_12166_termal_musov&utm_term=j3d7tsgc&a_box=j3d7tsgc',
     'hportal-penzion-pasohlavky': 'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fpasohlavky%2Fpenzion-pasohlavky%2F',

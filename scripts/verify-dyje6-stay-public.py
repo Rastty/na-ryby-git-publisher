@@ -16,7 +16,7 @@ SLEVOMAT = "https://www.slevomat.cz/akce/2464086-dovolena-na-palave-polopenze-i-
 HPORTAL = "https://go.dognet.com/?chid=5QoXiSqx&amp;url=https%3A%2F%2Fhportal.cz%2Fcs%2Fpasohlavky%2Fpenzion-pasohlavky%2F"
 HAUZI = "https://tracking.affiliateport.eu/click?o=1990&amp;a=1736&amp;sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchalupa-dolni-vestonice"
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
-VERSION = "ver=1.11.3"
+VERSION = "ver=1.11.4"
 ROOT = Path(__file__).resolve().parents[1]
 
 

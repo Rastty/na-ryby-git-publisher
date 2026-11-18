@@ -27,7 +27,8 @@
     '/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/':'fishing_stays_59891',
     '/vestonicka-nadrz-dyje-6-rybarina-jihomoravsky-kraj/':'dyje6_14517',
     '/rybarska-dovolena-jizni-morava/':'jizni_morava_12166',
-    '/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/':'family_stays_59271'
+    '/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/':'family_stays_59271',
+    '/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/':'stredni_cechy_stays_92205'
   });
   if (location.origin !== 'https://na-ryby.eu' ||
       !Object.prototype.hasOwnProperty.call(allowedPages, location.pathname)) return;
@@ -176,6 +177,32 @@
             transport_type:'beacon'
           });
         } catch { /* Never impede the genuine affiliate navigation. */ }
+      }
+      return;
+    }
+    if (page === 'stredni_cechy_stays_92205') {
+      // One already-live, raw-SHA-gated article and one previously approved
+      // Hportal route. Reuse the exact Janata identity, not a host wildcard.
+      const section = link.closest('section[data-nry-sc-stay="v1"]');
+      const article = link.closest('article[data-nry-sc-offer]');
+      const offerId = article && typeof article.getAttribute === 'function'
+        ? article.getAttribute('data-nry-sc-offer') : null;
+      const stay = section && familyStays.find(
+        row => row.id === 'slapy-janata' && row.id === offerId &&
+          Object.is(row.href, url.toString())
+      );
+      if (stay) {
+        try {
+          window.gtag('event','nry_buyer_offer_click',{
+            buyer_page:page,
+            buyer_cta_type:'fishing_stay_outbound',
+            source_post_id:'92205',
+            placement_id:'stredni-cechy-stay-92205-v1',
+            stay_offer_id:stay.id,
+            stay_partner:stay.partner,
+            transport_type:'beacon'
+          });
+        } catch { /* A genuine user click must continue to the affiliate. */ }
       }
       return;
     }
