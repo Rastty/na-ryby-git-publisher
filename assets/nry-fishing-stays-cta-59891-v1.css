@@ -1,0 +1,81 @@
+/* Only the five existing reviewed offers on post 59891. No sitewide styling. */
+section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"] {
+  margin: 22px 0 28px;
+  padding: clamp(15px, 2.7vw, 26px);
+  border: 1px solid #b9d9c9;
+  border-left: 5px solid #147653;
+  border-radius: 12px;
+  background: #f1faf5;
+  color: #183d2d;
+  line-height: 1.55;
+}
+section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"] > h2 {
+  margin: 0 0 12px;
+  line-height: 1.22;
+}
+section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"] > h3 {
+  margin: 24px 0 12px;
+  color: #22563d;
+}
+section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"] article[data-nry-offer-id] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(210px, 235px);
+  align-items: center;
+  column-gap: 22px;
+  margin: 12px 0;
+  padding: 17px 18px;
+  border: 1px solid #c0d9cb;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(17, 73, 47, .06);
+}
+section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"] article[data-nry-offer-id="2462030"] {
+  border: 2px solid #147653;
+  background: #fffefa;
+}
+section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"] article h4 {
+  grid-column: 1;
+  margin: 0 0 6px;
+  line-height: 1.3;
+  color: #173c2b;
+}
+section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"] article p:first-of-type {
+  grid-column: 1;
+  margin: 0;
+}
+section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"] article p:last-of-type {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  margin: 0;
+  text-align: center;
+}
+section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"] article a[rel~="sponsored"] {
+  display: block;
+  padding: 13px 12px;
+  border-radius: 7px;
+  background: #126747;
+  color: #fff !important;
+  font-weight: 750;
+  line-height: 1.4;
+  text-decoration: none !important;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"] article a[rel~="sponsored"]:hover,
+section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"] article a[rel~="sponsored"]:focus-visible {
+  background: #0d4f35;
+  color: #fff !important;
+  outline: 3px solid #f2a93b;
+  outline-offset: 2px;
+}
+@media (max-width: 760px) {
+  section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"] article[data-nry-offer-id] {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 10px;
+  }
+  section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"] article p:last-of-type {
+    grid-column: 1;
+    grid-row: auto;
+    text-align: left;
+  }
+}
