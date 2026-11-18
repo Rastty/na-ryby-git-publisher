@@ -27,7 +27,8 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
   const click=(href,{trusted=true,sourcePinnedBaitboatCallout=false,
     sourcePinnedStayBlock=false,sourcePinnedDyje6Block=false,
     sourcePinnedJMBlock=false,sourcePinnedFamilyBlock=false,
-    sourcePinnedSCBlock=false,stayOfferId=null,familyOfferId=null,scOfferId=null}={})=>{
+    sourcePinnedSCBlock=false,sourcePinnedSportBlock=false,
+    stayOfferId=null,familyOfferId=null,scOfferId=null,sportOfferId=null}={})=>{
     const link={href,closest:selector=>{
       if(selector==='aside[data-nry-baitboat-choice-link="v1"]' &&
          sourcePinnedBaitboatCallout) return {};
@@ -41,12 +42,16 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
          sourcePinnedFamilyBlock) return {};
       if(selector==='section[data-nry-sc-stay="v1"]' &&
          sourcePinnedSCBlock) return {};
+      if(selector==='section[data-nry-sport-stays="v1"]' &&
+         sourcePinnedSportBlock) return {};
       if(selector==='article[data-nry-offer-id]' && stayOfferId)
         return {getAttribute:name=>name==='data-nry-offer-id'?stayOfferId:null};
       if(selector==='article[data-nry-family-offer]' && familyOfferId)
         return {getAttribute:name=>name==='data-nry-family-offer'?familyOfferId:null};
       if(selector==='article[data-nry-sc-offer]' && scOfferId)
         return {getAttribute:name=>name==='data-nry-sc-offer'?scOfferId:null};
+      if(selector==='article[data-nry-sport-offer]' && sportOfferId)
+        return {getAttribute:name=>name==='data-nry-sport-offer'?sportOfferId:null};
       return null;
     }};
     const element={closest:selector=>selector==='a[href]'?link:null};
@@ -719,3 +724,54 @@ const scUnrelated=browser({page:'/jine-ubytovani-ve-strednich-cechach/'});
 scUnrelated.click(scOffer.href,{sourcePinnedSCBlock:true,scOfferId:'slapy-janata'});
 assert.equal(scUnrelated.callbacks.length,0,'no sitewide merchant host tracking');
 console.log('PASS: Stredni Cechy 92205 exact stay click observer, no synthetic events');
+
+// Nationwide sport-fishing stays guide #85384 reuses three already approved
+// partner destinations, but its source and placement remain separate.
+const sportPath='/nejlepsi-mista-pro-sportovni-rybolov-s-ubytovanim-v-ceske-republice/';
+const sportSource=readFileSync('sport-stays-offers-85384-v1.php','utf8');
+const sportOffers=[
+  {id:'statek-jih-cech',partner:'slevomat_cz',href:'https://www.slevomat.cz/akce/2462030-statek-na-jihu-cech-snidane-i-privatni-sauna-ci-rybareni?utm_source=affiliate&utm_medium=cpc&utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_narybyCZ&utm_content=stay_59891_jedraz&utm_term=j3d7tsgc&a_box=j3d7tsgc'},
+  {id:'slapy-janata',partner:'hportal_dognet_cz',href:scOffer.href},
+  {id:'palava-vestonice',partner:'hauzi_affiliateport_cz',href:'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchalupa-dolni-vestonice'}
+];
+assert.ok(sportSource.includes('data-nry-sport-stays='));
+const sport=browser({page:sportPath});
+assert.equal(sport.callbacks.length,1);
+for(const offer of sportOffers){
+  assert.ok(sportSource.includes(offer.href),'nationwide offer has exact approved PHP href');
+  sport.click(offer.href,{sourcePinnedSportBlock:true,sportOfferId:offer.id});
+  assert.equal(sport.calls.length,sportOffers.indexOf(offer)+1);
+  const [sportKind,sportEvent,sportPayload]=sport.calls.at(-1);
+  assert.equal(sportKind,'event');assert.equal(sportEvent,'nry_buyer_offer_click');
+  assert.deepEqual(Object.keys(sportPayload).sort(),[
+    'buyer_page','buyer_cta_type','source_post_id','placement_id',
+    'stay_offer_id','stay_partner','transport_type'
+  ].sort());
+  assert.equal(sportPayload.buyer_page,'sport_stays_85384');
+  assert.equal(sportPayload.buyer_cta_type,'fishing_stay_outbound');
+  assert.equal(sportPayload.source_post_id,'85384');
+  assert.equal(sportPayload.placement_id,'sport-stays-85384-v1');
+  assert.equal(sportPayload.stay_offer_id,offer.id);
+  assert.equal(sportPayload.stay_partner,offer.partner);
+  assert.equal(sportPayload.transport_type,'beacon');
+  assert.ok(!JSON.stringify(sportPayload).includes('https://'));
+  assert.ok(!JSON.stringify(sportPayload).includes('5QoXiSqx'));
+}
+for(const offer of sportOffers){
+  sport.click(offer.href,{sportOfferId:offer.id});
+  sport.click(offer.href,{sourcePinnedSportBlock:true});
+  sport.click(offer.href,{sourcePinnedSportBlock:true,sportOfferId:'other'});
+  sport.click(offer.href,{sourcePinnedSportBlock:true,sportOfferId:offer.id,trusted:false});
+  sport.click(offer.href+'&extra=1',{sourcePinnedSportBlock:true,sportOfferId:offer.id});
+  sport.click(offer.href+'#probe',{sourcePinnedSportBlock:true,sportOfferId:offer.id});
+  sport.click(offer.href.replace('https://','http://'),{sourcePinnedSportBlock:true,sportOfferId:offer.id});
+  sport.click(offer.href.replace('https://','https://evil.'),{sourcePinnedSportBlock:true,sportOfferId:offer.id});
+}
+assert.equal(sport.calls.length,3,'only three genuine exact nationwide CTA clicks');
+const noConsentSport=browser({page:sportPath,gtagEnabled:false});
+noConsentSport.click(sportOffers[0].href,{sourcePinnedSportBlock:true,sportOfferId:'statek-jih-cech'});
+assert.equal(noConsentSport.calls.length,0,'never bypass current gtag/consent');
+const offSourceSport=browser({page:'/jine-rybarske-ubytovani/'});
+offSourceSport.click(sportOffers[0].href,{sourcePinnedSportBlock:true,sportOfferId:'statek-jih-cech'});
+assert.equal(offSourceSport.callbacks.length,0,'no sitewide affiliate-host tracking');
+console.log('PASS: sport-fishing stays 85384 exact three real click events only');

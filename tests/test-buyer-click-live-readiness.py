@@ -32,6 +32,7 @@ assert result['pages']['bivak_pillar']['state']=='DIRECT_SCRIPT_ENQUEUED'
 assert result['pages']['bivak_budget']['state']=='DIRECT_SCRIPT_ENQUEUED'
 assert result['pages']['family_stays_59271']['state']=='DIRECT_SCRIPT_ENQUEUED'
 assert result['pages']['stredni_cechy_stays_92205']['state']=='DIRECT_SCRIPT_ENQUEUED'
+assert result['pages']['sport_stays_85384']['state']=='DIRECT_SCRIPT_ENQUEUED'
 assert result['pages']['unscoped_control']['state']=='DIRECT_SCRIPT_NOT_OBSERVABLE'
 assert result['assetIntegrity']=='BYTE_IDENTICAL_TO_REVIEWED_JS'
 assert result['ga4DeliveryProven'] is False and result['paidCommissionProven'] is False
@@ -59,4 +60,4 @@ try:
     assert False, "failed network cannot pass"
 except ValueError as exc:
     assert str(exc)=="PAGE_PIPAKY_GUIDE_ValueError", "never leak arbitrary underlying exceptions"
-print("PASS buyer-click audit: nine exact GETs, 1 local asset only if used, no GA4/CJ/fake-click proofs")
+print("PASS buyer-click audit: ten exact GETs, 1 local asset only if used, no GA4/CJ/fake-click proofs")

@@ -23,8 +23,8 @@ HUB = '/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/'
 EVERGREEN = '/jak-vybrat-rybarske-kreslo/'
 ADVISOR = '/poradce-vybavy/'
 ASSET = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js'
-VERSION = 'ver=1.11.4'
-BASELINE_VERSION = 'ver=1.11.3'
+VERSION = 'ver=1.11.5'
+BASELINE_VERSION = 'ver=1.11.4'
 CJ_HOSTS = frozenset({
     'www.kqzyfj.com', 'www.tkqlhce.com', 'www.jdoqocy.com',
     'www.dpbolvw.net', 'www.anrdoezrs.net'
