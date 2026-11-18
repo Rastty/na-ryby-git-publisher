@@ -1,0 +1,51 @@
+name: Tipy Stay Trust Public Readback (GET only)
+on:
+  pull_request:
+    paths:
+      - 'tipy-stay-trust-57228-v1.php'
+      - 'assets/nry-tipy-stay-trust-v1.css'
+      - 'scripts/verify-tipy-stay-trust-public.py'
+      - 'tests/test-tipy-stay-trust-57228-v1.php'
+      - 'tests/test_tipy_stay_trust_public.py'
+      - '.github/workflows/tipy-stay-trust-public-v1.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  schedule:
+    - cron: '36 7 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check bounded source and readback fixtures
+        run: |
+          set -euo pipefail
+          php -l tipy-stay-trust-57228-v1.php
+          php tests/test-tipy-stay-trust-57228-v1.php
+          python3 -m unittest discover -s tests -p test_tipy_stay_trust_public.py -v
+  public_readback:
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    needs: review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check anonymous production HTML without partner clicks
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if python3 scripts/verify-tipy-stay-trust-public.py; then exit 0; fi
+            if [ "$attempt" -lt 3 ]; then sleep 8; fi
+          done
+          exit 1
