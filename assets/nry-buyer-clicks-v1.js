@@ -28,7 +28,8 @@
     '/vestonicka-nadrz-dyje-6-rybarina-jihomoravsky-kraj/':'dyje6_14517',
     '/rybarska-dovolena-jizni-morava/':'jizni_morava_12166',
     '/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/':'family_stays_59271',
-    '/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/':'stredni_cechy_stays_92205'
+    '/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/':'stredni_cechy_stays_92205',
+    '/nejlepsi-mista-pro-sportovni-rybolov-s-ubytovanim-v-ceske-republice/':'sport_stays_85384'
   });
   if (location.origin !== 'https://na-ryby.eu' ||
       !Object.prototype.hasOwnProperty.call(allowedPages, location.pathname)) return;
@@ -65,6 +66,13 @@
   const familyStays = Object.freeze([
     {id:'lipno-kohoutu',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fhorni-plana%2Fpenzion-u-kohoutu%2F'},
     {id:'slapy-janata',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Frabyne%2Fpenzion-janata%2F'}
+  ]);
+  // Three previously published/approved destinations on the new nationwide
+  // guide; no arbitrary partner-host matching and no merchant probes.
+  const sportStays = Object.freeze([
+    {id:'statek-jih-cech',partner:'slevomat_cz',href:'https://www.slevomat.cz/akce/2462030-statek-na-jihu-cech-snidane-i-privatni-sauna-ci-rybareni?utm_source=affiliate&utm_medium=cpc&utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_narybyCZ&utm_content=stay_59891_jedraz&utm_term=j3d7tsgc&a_box=j3d7tsgc'},
+    {id:'slapy-janata',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Frabyne%2Fpenzion-janata%2F'},
+    {id:'palava-vestonice',partner:'hauzi_affiliateport_cz',href:'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchalupa-dolni-vestonice'}
   ]);
   document.addEventListener('click', event => {
     // Browser-generated user interaction only. Never send tests or bot clicks
@@ -203,6 +211,29 @@
             transport_type:'beacon'
           });
         } catch { /* A genuine user click must continue to the affiliate. */ }
+      }
+      return;
+    }
+    if (page === 'sport_stays_85384') {
+      const section = link.closest('section[data-nry-sport-stays="v1"]');
+      const article = link.closest('article[data-nry-sport-offer]');
+      const offerId = article && typeof article.getAttribute === 'function'
+        ? article.getAttribute('data-nry-sport-offer') : null;
+      const stay = section && sportStays.find(
+        row => row.id === offerId && Object.is(row.href, url.toString())
+      );
+      if (stay) {
+        try {
+          window.gtag('event','nry_buyer_offer_click',{
+            buyer_page:page,
+            buyer_cta_type:'fishing_stay_outbound',
+            source_post_id:'85384',
+            placement_id:'sport-stays-85384-v1',
+            stay_offer_id:stay.id,
+            stay_partner:stay.partner,
+            transport_type:'beacon'
+          });
+        } catch { /* Never block a genuine user navigation. */ }
       }
       return;
     }

@@ -28,12 +28,12 @@ block = ('<section data-nry-jm-stays="v1">'
          '<a href="https://www.rybnikarstvipohorelice.cz/dyje-6/">Pravidla</a>'
          +articles+'</section><p data-nry-jm-archive="v1">Archiv 2016–18</p>')
 head = ('<link rel="stylesheet" href="'+m.ORIGIN+m.CSS+'?ver=1.0.0">'
-        '<script src="'+m.ORIGIN+m.JS+'?ver=1.11.4"></script>')
+        '<script src="'+m.ORIGIN+m.JS+'?ver=1.11.5"></script>')
 ready = base().replace(b'</head>', (head+'</head>').encode()).replace(
     b'<body>', ('<body>'+block).encode())
 ready = ready.replace(('<div class="agoda-booking-box"><a href="'+m.LEGACY_AGODA+'">Olomouc</a></div>').encode(),b'')
 assert m.verify(ready, deployed=False)['status'] == 'REGIONAL_PUBLISHED_BASELINE_VERIFIED'
-assert m.verify(ready.replace(b'ver=1.11.4',b'ver=1.11.3'), deployed=False)['status'] == (
+assert m.verify(ready.replace(b'ver=1.11.5',b'ver=1.11.4'), deployed=False)['status'] == (
     'REGIONAL_PUBLISHED_BASELINE_VERIFIED')
 assert m.verify(ready, deployed=True, public_js=js, reviewed_js=js,
                 public_css=css, reviewed_css=css)['status'] == 'REGIONAL_PUBLIC_VERIFIED'
@@ -54,7 +54,7 @@ blocked(ready.replace(b'utm_content=stay_12166_termal_musov',b'utm_content=bad')
 blocked(ready.replace(b'&amp;a_box=j3d7tsgc',b'&amp;a_box=not_owner'))
 blocked(ready.replace(b'Go',b'Tracked',1),wrong_js=js+b'rogue')
 blocked(ready,wrong_css=css+b'rogue')
-blocked(ready.replace(b'ver=1.11.4',b'ver=1.11.3'))
+blocked(ready.replace(b'ver=1.11.5',b'ver=1.11.4'))
 blocked(ready.replace('Chata Brněnská přehrada'.encode(), 'Smazaná chata'.encode()))
 try:
     m.verify(base(), deployed=False)

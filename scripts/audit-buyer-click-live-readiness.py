@@ -23,10 +23,11 @@ PAGES = {
     "bivak_budget": "/nejlepsi-rybarske-bivaky-do-10-000-kc/",
     "family_stays_59271": "/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/",
     "stredni_cechy_stays_92205": "/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/",
+    "sport_stays_85384": "/nejlepsi-mista-pro-sportovni-rybolov-s-ubytovanim-v-ceske-republice/",
     "unscoped_control": "/nejlepsi-rybarske-hlasice-a-signalizatory/",
 }
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
-VERSION = "1.11.4"
+VERSION = "1.11.5"
 OUTPUT = "buyer-click-live-readonly.json"
 ROOT = Path(__file__).resolve().parents[1]
 

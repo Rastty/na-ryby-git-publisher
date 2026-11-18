@@ -1,0 +1,81 @@
+/* Source-pinned, visible CZ fishing-stay choices on post 85384 only. */
+body.single-post.postid-85384 .td-post-content .nry-sport-stays {
+  margin: 22px 0 30px;
+  padding: clamp(19px, 3vw, 28px);
+  border: 2px solid #b4dbc7;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #edf9f2 0%, #fff 80%);
+  box-shadow: 0 8px 26px rgba(22, 85, 58, .1);
+  color: #193d30;
+  line-height: 1.5;
+}
+body.single-post.postid-85384 .td-post-content .nry-sport-stays__eyebrow {
+  margin: 0 0 5px;
+  font-size: .82em;
+  font-weight: 800;
+  letter-spacing: .035em;
+  color: #08714c;
+  text-transform: uppercase;
+}
+body.single-post.postid-85384 .td-post-content .nry-sport-stays h2 {
+  margin: 0 0 13px;
+  font-size: clamp(23px, 2.8vw, 30px);
+  line-height: 1.24;
+}
+body.single-post.postid-85384 .td-post-content .nry-sport-stays__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 19px 0;
+}
+body.single-post.postid-85384 .td-post-content .nry-sport-stays__grid article {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #cadfd4;
+  border-radius: 11px;
+  background: #fff;
+}
+body.single-post.postid-85384 .td-post-content .nry-sport-stays__place {
+  margin: 0 0 6px;
+  color: #14734e;
+  font-size: .87em;
+  font-weight: 800;
+}
+body.single-post.postid-85384 .td-post-content .nry-sport-stays h3 {
+  margin: 0 0 9px;
+  font-size: 20px;
+  line-height: 1.24;
+}
+body.single-post.postid-85384 .td-post-content .nry-sport-stays__grid p { margin: 0 0 12px; }
+body.single-post.postid-85384 .td-post-content a.nry-sport-stays__cta,
+body.single-post.postid-85384 .td-post-content a.nry-sport-stays__cta:visited {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  margin-top: auto;
+  padding: 12px;
+  background: #08724d;
+  border-radius: 9px;
+  color: #fff !important;
+  font-weight: 800;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none !important;
+}
+body.single-post.postid-85384 .td-post-content a.nry-sport-stays__cta:hover,
+body.single-post.postid-85384 .td-post-content a.nry-sport-stays__cta:focus-visible {
+  background: #045b3c;
+  color: #fff !important;
+  outline: 3px solid #f2c84b;
+  outline-offset: 3px;
+}
+body.single-post.postid-85384 .td-post-content .nry-sport-stays__more a { font-weight: 800; }
+body.single-post.postid-85384 .td-post-content .nry-sport-stays__note { color: #4b665a; }
+@media (max-width: 900px) {
+  body.single-post.postid-85384 .td-post-content .nry-sport-stays__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
