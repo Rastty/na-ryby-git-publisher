@@ -61,10 +61,23 @@ final class NRY_Git_Publisher {
     const MARKER = 'data-nry-advisor-internal-link="cohort-01"';
     const DESTINATION = 'https://na-ryby.eu/poradce-vybavy/';
     const RECEIPT = 'nry_git_publisher_last_receipt';
+    const FISHING_STAYS_RECEIPT = 'nry_gp_fishing_stays_v9_last_receipt';
+    const FISHING_STAYS_FILE = 'fishing-stays-cz-59891-release-v9.json';
 
     public static function manifest() {
         $raw = @file_get_contents(__DIR__ . '/manifest.json');
         $data = $raw === false ? null : json_decode($raw, true);
+        return self::validate_manifest($data);
+    }
+
+    // Independent single-cohort candidate. This never replaces the active
+    // schema-v8 auto-publisher manifest or grants external-link rights to it.
+    public static function fishing_stays_manifest() {
+        $raw = @file_get_contents(__DIR__ . '/' . self::FISHING_STAYS_FILE);
+        $data = $raw === false ? null : json_decode($raw, true);
+        if (!is_array($data) || ($data['schema_version'] ?? null) !== 9) {
+            return new WP_Error('v9_file_missing', 'Samostatný manifest pobytů chybí.');
+        }
         return self::validate_manifest($data);
     }
 
@@ -1259,6 +1272,22 @@ final class NRY_Git_Publisher {
                 return array('status' => 'blocked_no_writes', 'writes' => 0, 'rows' => self::safe_rows($rows));
             }
         }
+        $strictV9 = ($manifest['schema_version'] ?? null) === 9;
+        if ($strictV9 && count(array_filter($rows, function($r) { return $r['status'] === 'ready'; })) > 0) {
+            // V9 deliberately DOES NOT bypass WordPress KSES. Prove the old
+            // content can be restored byte-for-byte through the same filters
+            // before placing a backup or attempting any new affiliate write.
+            if (!function_exists('wp_kses_post') || !function_exists('wp_slash')) {
+                return array('status'=>'v9_filter_safety_unavailable_no_writes','writes'=>0);
+            }
+            foreach ($rows as $row) {
+                if ($row['status'] !== 'ready') continue;
+                if (wp_kses_post($row['source']) !== $row['source']
+                    || wp_kses_post($row['candidate']) !== $row['candidate']) {
+                    return array('status'=>'v9_kses_drift_no_writes','writes'=>0);
+                }
+            }
+        }
         // Persist originals on WordPress itself before the first v5 write.
         // Never overwrite an older backup for the same immutable batch ID.
         if (in_array($manifest['schema_version'] ?? null, array(5, 6, 7, 8, 9), true)
@@ -1291,7 +1320,7 @@ final class NRY_Git_Publisher {
                 $failed = array('id' => $row['id'], 'reason' => 'concurrent_edit'); break;
             }
             $result = self::verified_local_write($row['id'],$row['candidate'],
-                in_array($manifest['schema_version'] ?? null,array(5,6,7,8),true));
+                in_array($manifest['schema_version'] ?? null,array(5,6,7,8),true), $strictV9);
             if (is_wp_error($result) || (int) $result !== (int) $row['id']) {
                 $failed = array('id' => $row['id'], 'reason' => 'write_failed'); break;
             }
@@ -1316,7 +1345,7 @@ final class NRY_Git_Publisher {
                     $uncertain[] = $row['id']; continue;
                 }
                 $r = self::verified_local_write($row['id'],$row['source'],
-                    in_array($manifest['schema_version'] ?? null,array(5,6,7,8),true));
+                    in_array($manifest['schema_version'] ?? null,array(5,6,7,8),true), $strictV9);
                 $p = get_post($row['id']);
                 if (is_wp_error($r) || !$p || hash('sha256', $p->post_content) !== $row['source_sha']) {
                     $uncertain[] = $row['id'];
@@ -1337,7 +1366,11 @@ final class NRY_Git_Publisher {
      * happen in plan/inspect/execute before reaching this helper.
      * WP arrays require wp_slash; KSES would silently strip legacy scripts.
      */
-    private static function verified_local_write($postId,$content,$trusted) {
+    private static function verified_local_write($postId,$content,$trusted,$strictV9=false) {
+        if ($strictV9) {
+            // WordPress expects slashed data. Retain normal security filters.
+            return wp_update_post(array('ID'=>$postId,'post_content'=>wp_slash($content)),true);
+        }
         if (!$trusted || !function_exists('wp_slash')
             || !function_exists('has_filter') || !function_exists('remove_filter')
             || !function_exists('add_filter')) {
@@ -1649,6 +1682,71 @@ final class NRY_Git_Publisher {
         add_management_page('Na-Ryby Git Publisher', 'Na-Ryby Git Publisher', 'manage_options',
             'nry-git-publisher', array(__CLASS__, 'page'));
     }
+    private static function fishing_stays_admin_section($autoEnabled) {
+        echo '<h2>Rybářské pobyty – samostatný affiliate canary (post 59891)</h2>';
+        echo '<p>Tento přesně vymezený balík používá stejný zálohovaný Git Publisher, ale nenahrazuje hlavní manifest. Externí odkazy jsou pevně ověřené pro tuto jedinou dávku.</p>';
+        $rows = self::plan(self::fishing_stays_manifest());
+        if (is_wp_error($rows)) {
+            echo '<p>' . esc_html($rows->get_error_message()) . '</p>';
+            return;
+        }
+        $ready = true;
+        echo '<table class="widefat striped"><thead><tr><th>Post ID</th><th>Kontrola pobytů</th></tr></thead><tbody>';
+        foreach ($rows as $row) {
+            if (!in_array($row['status'], array('ready', 'already_applied'), true)) $ready = false;
+            echo '<tr><td>' . esc_html((string)$row['id']) . '</td><td>'
+                . esc_html($row['status']) . '</td></tr>';
+        }
+        echo '</tbody></table>';
+        $receipt = get_option(self::FISHING_STAYS_RECEIPT, array());
+        if (is_array($receipt) && isset($receipt['status'])) {
+            echo '<p>Poslední pokus pobytů: <strong>' . esc_html($receipt['status']) . '</strong></p>';
+        }
+        if ($autoEnabled) {
+            echo '<p>Nejdříve je nutné standardně vypnout hlavní automatiku v Nástroje → Na-Ryby Auto Publisher. Dva souběžné publikační režimy nejsou povoleny.</p>';
+        } elseif (get_option('nry_gp_auto_lock_v1', null) !== null) {
+            echo '<p>Publikační zámek je obsazen; neprovádějte zápis ani automatický reset bez kontroly.</p>';
+        } elseif (!$ready) {
+            echo '<p>Zdroj článku se změnil nebo neprošel kontrolou. Zápis je blokován.</p>';
+        } elseif ($rows[0]['status'] === 'ready') {
+            echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+            echo '<input type="hidden" name="action" value="nry_git_publisher_fishing_stays_apply">';
+            wp_nonce_field('nry_git_publisher_fishing_stays_apply');
+            submit_button('Zapsat jediný ověřený blok pobytů');
+            echo '</form>';
+        } else {
+            echo '<p>Pobytový blok je již aplikovaný; další zápis není potřeba.</p>';
+        }
+    }
+
+    // Fixed public GET proof of canary readiness and local marker state.
+    // Never returns raw post content, URLs or network credentials; zero writes.
+    public static function handle_fishing_stays_public_proof() {
+        if (!isset($_GET['nry_fishing_stays_release_proof'])
+            || $_GET['nry_fishing_stays_release_proof'] !== '1'
+            || !function_exists('is_page') || !is_page('poradce-vybavy')
+            || rtrim(home_url('/'), '/') !== 'https://na-ryby.eu') return;
+        $manifest = self::fishing_stays_manifest();
+        $ready = !is_wp_error($manifest);
+        $status = 'manifest_invalid';
+        if ($ready) {
+            $rows = self::plan($manifest);
+            $status = is_wp_error($rows) ? 'plan_error' : $rows[0]['status'];
+        }
+        $post = get_post(59891);
+        $markers = $post && is_string($post->post_content)
+            ? substr_count($post->post_content,
+                'data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"') : 0;
+        nocache_headers();
+        header('Content-Type: application/json; charset=utf-8');
+        header('X-Robots-Tag: noindex, nofollow');
+        echo wp_json_encode(array('schema'=>1,'site'=>'https://na-ryby.eu',
+            'data_class'=>'BOUNDED_STATUS_NO_POST_CONTENT',
+            'candidate_loaded'=>$ready,'batch_id'=>$ready ? $manifest['batch_id'] : null,
+            'post_id'=>59891,'preflight_status'=>$status,'marker_count'=>$markers,
+            'publication_triggered'=>false,'wordpress_writes'=>0));
+        exit;
+    }
     public static function page() {
         if (!current_user_can('manage_options')) { wp_die('Access denied'); }
         $rows = self::plan(self::manifest()); $last = get_option(self::RECEIPT, array());
@@ -1673,7 +1771,45 @@ final class NRY_Git_Publisher {
             wp_nonce_field('nry_git_publisher_apply');
             submit_button('Zapsat ověřené změny do WordPressu'); echo '</form>';
         } elseif ($blocked) { echo '<p>Nelze pokračovat: některý článek se mezitím změnil.</p>'; }
+        self::fishing_stays_admin_section($autoEnabled);
         echo '</div>';
+    }
+    public static function handle_fishing_stays_apply() {
+        if (!current_user_can('manage_options')) { wp_die('Access denied'); }
+        check_admin_referer('nry_git_publisher_fishing_stays_apply');
+        if (get_option('nry_gp_auto_enabled_v1', 'no') === 'yes') {
+            wp_die('Nejprve vypněte automatiku v Nástroje → Na-Ryby Auto Publisher.');
+        }
+        // Use the EXISTING auto publisher's atomic writer lock, even though
+        // this is a manually authorized and separate fixed manifest.
+        $token = wp_generate_uuid4();
+        $lock = array('token'=>$token,'expires'=>time()+10*MINUTE_IN_SECONDS);
+        if (!add_option('nry_gp_auto_lock_v1', $lock, '', 'no')) {
+            wp_die('Publikační zámek obsazen. Před dalším pokusem ověřte stav.');
+        }
+        try {
+            if (get_option('nry_gp_auto_enabled_v1', 'no') === 'yes') {
+                $receipt = array('status'=>'auto_enabled_no_writes', 'writes'=>0);
+            } else {
+                $manifest = self::fishing_stays_manifest();
+                $receipt = is_wp_error($manifest) ? array('status'=>'manifest_invalid_no_writes','writes'=>0)
+                    : self::execute($manifest);
+                if (is_wp_error($receipt)) {
+                    $receipt = array('status'=>'manifest_invalid_no_writes','writes'=>0);
+                }
+            }
+            update_option(self::FISHING_STAYS_RECEIPT, $receipt, false);
+        } catch (\Throwable $error) {
+            update_option(self::FISHING_STAYS_RECEIPT,
+                array('status'=>'unexpected_exception_manual_review','writes'=>'unknown'), false);
+        } finally {
+            $held = get_option('nry_gp_auto_lock_v1', null);
+            if (is_array($held) && ($held['token'] ?? null) === $token) {
+                delete_option('nry_gp_auto_lock_v1');
+            }
+        }
+        wp_safe_redirect(admin_url('tools.php?page=nry-git-publisher'));
+        exit;
     }
     public static function handle_apply() {
         if (!current_user_can('manage_options')) { wp_die('Access denied'); }
@@ -1687,5 +1823,8 @@ final class NRY_Git_Publisher {
     }
 }
 add_action('template_redirect',array('NRY_Git_Publisher','handle_buyer_public_proof'),22);
+add_action('template_redirect',array('NRY_Git_Publisher','handle_fishing_stays_public_proof'),23);
 add_action('admin_menu', array('NRY_Git_Publisher', 'register_menu'));
 add_action('admin_post_nry_git_publisher_apply', array('NRY_Git_Publisher', 'handle_apply'));
+add_action('admin_post_nry_git_publisher_fishing_stays_apply',
+    array('NRY_Git_Publisher', 'handle_fishing_stays_apply'));

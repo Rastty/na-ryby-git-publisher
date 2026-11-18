@@ -77,6 +77,18 @@ The existing v5–v8 WordPress publisher **correctly rejects external links**. F
 
 **Current status: tested candidate, not a live CTA.** A source hash alone is not a private rollback snapshot. Before live execution the WordPress editor/Deployer must confirm no other writer, current source equality, the immutable manifest, authorized Admin Apply and complete public verification. If the post has changed, regenerate the evidence and pass a fresh review; do not force an old SHA through.
 
+### Standalone Admin Apply successor — no main-manifest swap
+
+The production Deployer pull of main after PR #250 completed with a successful guarded deployment job (GitHub Actions run `44276892074`, 18 Nov 2026). The live health endpoint still reports the older distinct schema-v8 recovery cohort; its status is **not** evidence that the 59891 affiliate block was published. An authenticated `wp-admin` view could not be opened in this execution session: it redirected to WordPress login. WPVibe source-file inspection also cannot inspect the plugin (installed WPVibe enforces a 64-KiB file limit), and its rolling-call budget is nearly exhausted. Do not equate these restrictions with authorization to bypass the admin gate.
+
+To make this exact release operable without replacing the unrelated active `manifest.json`, the next version of the existing Git Publisher includes a separately committed, immutable `fishing-stays-cz-59891-release-v9.json` candidate. It is validated by the **same** schema-v9 allowlist and its source/HTML SHA guards. The management screen (Nástroje → Na-Ryby Git Publisher) displays the independent 59891 preflight and offers a dedicated one-post Apply only if:
+
+1. An authenticated WordPress administrator has the existing `manage_options` capability and a valid per-action nonce.
+2. The main auto-publisher has been **normally disabled by an administrator** via its existing Tools screen, and the existing atomic writer lock is unoccupied. The new Apply takes **that same lock**, never a parallel writer.
+3. The exact source post remains unchanged, the candidate still matches all static allowlists, and a private WordPress-local backup can be verified before the first write.
+
+The candidate is a review-and-apply payload, **not a deploy-triggered auto-publication**. On a successful local receipt, independently read the public 59891 page and confirm the exact block, merchant destinations, internal links and accessibility; capture genuine user interactions through the shared Prometheus contract and keep order/approved/paid commission state unknown until network evidence is available. The new GET-only `/poradce-vybavy/?nry_fishing_stays_release_proof=1` returns only bounded readiness and marker counts, no content, credentials, clicks or WordPress writes. A failed or drifted source is a hard stop; never regenerate an SHA solely to force publication.
+
 An eligible production batch additionally needs: fresh authenticated post raw source SHA/modified GMT and safe snapshot, exact post/slug guards, one-writer check, WP Admin gate if content is mutated, successful authorized Deployer if plugin code changes, independent authenticated/public HTML readback, and exact rollback path. CI/Git merge alone does **not** prove publication.
 
 ## Core handoff contract (no new Na-ryby engine)
