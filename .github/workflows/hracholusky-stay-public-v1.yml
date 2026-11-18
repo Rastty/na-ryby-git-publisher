@@ -1,0 +1,51 @@
+name: Hracholusky Stay Trust Public Readback (GET only)
+on:
+  pull_request:
+    paths:
+      - 'hracholusky-stay-trust-17606-v1.php'
+      - 'assets/nry-hracholusky-stay-trust-v1.css'
+      - 'scripts/verify-hracholusky-stay-trust-public.py'
+      - 'tests/test-hracholusky-stay-trust-17606-v1.php'
+      - 'tests/test_hracholusky_stay_public.py'
+      - '.github/workflows/hracholusky-stay-public-v1.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  schedule:
+    - cron: '27 7 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check exact post guard and offline public fixtures
+        run: |
+          set -euo pipefail
+          php -l hracholusky-stay-trust-17606-v1.php
+          php tests/test-hracholusky-stay-trust-17606-v1.php
+          python3 -m unittest discover -s tests -p test_hracholusky_stay_public.py -v
+  public_readback:
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    needs: review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify public article and absence of obsolete affiliate
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if python3 scripts/verify-hracholusky-stay-trust-public.py; then exit 0; fi
+            if [ "$attempt" -lt 3 ]; then sleep 8; fi
+          done
+          exit 1

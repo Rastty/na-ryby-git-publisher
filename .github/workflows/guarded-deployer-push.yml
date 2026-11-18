@@ -67,6 +67,7 @@ on:
       - 'reel-dashboard-nextsteps-v1.php'
       - 'signal-dashboard-paths-118209-v1.php'
       - 'legacy-baitboat-trust-61251-v1.php'
+      - 'hracholusky-stay-trust-17606-v1.php'
       - 'legacy-net-buyer-guides-v1.php'
       - 'tests/test-legacy-net-buyer-guides-v1.php'
       - 'scripts/verify-legacy-net-buyer-guides-public.py'
@@ -214,6 +215,10 @@ on:
       - 'baitboat-compromise-recovery-v1.php'
       - 'assets/**'
       - 'tests/test-deployer-trigger-parity.py'
+      - 'tests/test-hracholusky-stay-trust-17606-v1.php'
+      - 'tests/test_hracholusky_stay_public.py'
+      - 'scripts/verify-hracholusky-stay-trust-public.py'
+      - '.github/workflows/hracholusky-stay-public-v1.yml'
       - 'tests/test_guarded_v8_readback.py'
       - 'scripts/guarded_v8_readback.py'
       - 'scripts/readonly_urlopen_retry.py'
@@ -242,6 +247,7 @@ on:
       - 'reel-dashboard-nextsteps-v1.php'
       - 'signal-dashboard-paths-118209-v1.php'
       - 'legacy-baitboat-trust-61251-v1.php'
+      - 'hracholusky-stay-trust-17606-v1.php'
       - 'legacy-net-buyer-guides-v1.php'
       - 'carp-mat-buyer-trust-v1.php'
       - 'barrow-buyer-trust-v1.php'
@@ -310,6 +316,9 @@ jobs:
           python3 -m py_compile scripts/readonly_urlopen_retry.py
           python3 tests/test-readonly-urlopen-retry.py -v
           php -l advisor-existing-page-release-v1.php
+          php -l hracholusky-stay-trust-17606-v1.php
+          php tests/test-hracholusky-stay-trust-17606-v1.php
+          python3 -m unittest discover -s tests -p test_hracholusky_stay_public.py -v
           php -l guarded-auto-publisher.php
           php -l home-trust-cleanup-118641-v1.php
           php -l carp-pillar-source-proof-118541-v1.php
