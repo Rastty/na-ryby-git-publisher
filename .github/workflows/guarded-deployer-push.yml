@@ -74,6 +74,13 @@ on:
       - 'tests/test_dyje6_stay_public.py'
       - 'scripts/verify-dyje6-stay-public.py'
       - '.github/workflows/dyje6-stay-public-v1.yml'
+      - 'jizni-morava-stays-12166-v1.php'
+      - 'tests/test-jizni-morava-stays-12166-v1.php'
+      - 'tests/fixtures/jizni-morava-12166-source-20261118.b64'
+      - 'tests/fixtures/jizni-morava-12166-wp-rendered-20261118.b64'
+      - 'tests/test-jizni-morava-stays-public-v1.py'
+      - 'scripts/verify-jizni-morava-stays-public-v1.py'
+      - '.github/workflows/jizni-morava-stays-12166-v1.yml'
       - 'tests/test-tipy-stay-trust-57228-v1.php'
       - 'tests/test_tipy_stay_trust_public.py'
       - 'scripts/verify-tipy-stay-trust-public.py'
@@ -260,6 +267,7 @@ on:
       - 'hracholusky-stay-trust-17606-v1.php'
       - 'tipy-stay-trust-57228-v1.php'
       - 'dyje6-stay-trust-14517-v1.php'
+      - 'jizni-morava-stays-12166-v1.php'
       - 'legacy-net-buyer-guides-v1.php'
       - 'carp-mat-buyer-trust-v1.php'
       - 'barrow-buyer-trust-v1.php'
@@ -337,6 +345,9 @@ jobs:
           php -l dyje6-stay-trust-14517-v1.php
           php tests/test-dyje6-stay-trust-14517-v1.php
           python3 -m unittest discover -s tests -p test_dyje6_stay_public.py -v
+          php -l jizni-morava-stays-12166-v1.php
+          php tests/test-jizni-morava-stays-12166-v1.php
+          python3 tests/test-jizni-morava-stays-public-v1.py
           php -l guarded-auto-publisher.php
           php -l home-trust-cleanup-118641-v1.php
           php -l carp-pillar-source-proof-118541-v1.php

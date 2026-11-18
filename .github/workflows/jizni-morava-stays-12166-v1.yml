@@ -1,0 +1,51 @@
+name: Na-Ryby South Moravia Stays 12166 Source And Public Proof
+
+on:
+  pull_request:
+    paths:
+      - 'jizni-morava-stays-12166-v1.php'
+      - 'assets/nry-jizni-morava-stays-v1.css'
+      - 'assets/nry-buyer-clicks-v1.js'
+      - 'buyer-click-telemetry-v1.php'
+      - 'tests/test-jizni-morava-stays-12166-v1.php'
+      - 'tests/fixtures/jizni-morava-12166-source-20261118.b64'
+      - 'tests/fixtures/jizni-morava-12166-wp-rendered-20261118.b64'
+      - 'tests/test-jizni-morava-stays-public-v1.py'
+      - 'scripts/verify-jizni-morava-stays-public-v1.py'
+      - '.github/workflows/jizni-morava-stays-12166-v1.yml'
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: 'preflight before deploy or independent public verification after deploy'
+        type: choice
+        options:
+          - preflight
+          - verify
+        default: verify
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  reviewed-source-and-offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and locked source + existing Core click contract
+        run: |
+          php -l jizni-morava-stays-12166-v1.php
+          php tests/test-jizni-morava-stays-12166-v1.php
+          php tests/test-buyer-click-telemetry-v1.php
+          node --check assets/nry-buyer-clicks-v1.js
+          node tests/test-buyer-click-telemetry-v1.mjs
+          python3 tests/test-jizni-morava-stays-public-v1.py
+  independent-public:
+    runs-on: ubuntu-latest
+    needs: reviewed-source-and-offline
+    steps:
+      - uses: actions/checkout@v4
+      - name: GET-only public readiness/readback; never touches partner endpoints
+        env:
+          RELEASE_PHASE: ${{ github.event_name == 'workflow_dispatch' && inputs.phase || 'preflight' }}
+        run: python3 scripts/verify-jizni-morava-stays-public-v1.py --"${RELEASE_PHASE}"

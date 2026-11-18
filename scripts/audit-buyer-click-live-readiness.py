@@ -24,7 +24,7 @@ PAGES = {
     "unscoped_control": "/nejlepsi-rybarske-hlasice-a-signalizatory/",
 }
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
-VERSION = "1.11.1"
+VERSION = "1.11.2"
 OUTPUT = "buyer-click-live-readonly.json"
 ROOT = Path(__file__).resolve().parents[1]
 

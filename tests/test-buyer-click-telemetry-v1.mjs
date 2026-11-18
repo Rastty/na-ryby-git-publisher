@@ -25,7 +25,8 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
   };
   vm.runInNewContext(script,context,{timeout:1500});
   const click=(href,{trusted=true,sourcePinnedBaitboatCallout=false,
-    sourcePinnedStayBlock=false,sourcePinnedDyje6Block=false,stayOfferId=null}={})=>{
+    sourcePinnedStayBlock=false,sourcePinnedDyje6Block=false,
+    sourcePinnedJMBlock=false,stayOfferId=null}={})=>{
     const link={href,closest:selector=>{
       if(selector==='aside[data-nry-baitboat-choice-link="v1"]' &&
          sourcePinnedBaitboatCallout) return {};
@@ -33,6 +34,8 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
          sourcePinnedStayBlock) return {};
       if(selector==='section[data-nry-dyje6-offers="v1"]' &&
          sourcePinnedDyje6Block) return {};
+      if(selector==='section[data-nry-jm-stays="v1"]' &&
+         sourcePinnedJMBlock) return {};
       if(selector==='article[data-nry-offer-id]' && stayOfferId)
         return {getAttribute:name=>name==='data-nry-offer-id'?stayOfferId:null};
       return null;
@@ -563,3 +566,48 @@ const unrelatedRevir=browser({page:'/soukromy-revir-sterkac-zajeci/'});
 unrelatedRevir.click(dyje6Targets[0].href,{sourcePinnedDyje6Block:true,stayOfferId:'2464086'});
 assert.equal(unrelatedRevir.callbacks.length,0,'unapproved revír never instrumented');
 console.log('PASS: three Dyje 6 region stays, source-scoped genuine user clicks only');
+
+// Separate regional south-Moravia historical landing: distinct location,
+// placement and Slevomat utm_content, same consent-aware Core event contract.
+const jmPath='/rybarska-dovolena-jizni-morava/';
+const jmSource=readFileSync('jizni-morava-stays-12166-v1.php','utf8');
+assert.ok(jmSource.includes('const SOURCE_SHA256 ='));
+const jmTargets=[
+  {id:'2464086',partner:'slevomat_cz',href:'https://www.slevomat.cz/akce/2464086-dovolena-na-palave-polopenze-i-vstup-do-wellness?utm_source=affiliate&utm_medium=cpc&utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_na-ryby.eu&utm_content=stay_12166_termal_musov&utm_term=j3d7tsgc&a_box=j3d7tsgc'},
+  {id:'hportal-penzion-pasohlavky',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fpasohlavky%2Fpenzion-pasohlavky%2F'},
+  {id:'hauzi-chalupa-dolni-vestonice',partner:'hauzi_affiliateport_cz',href:'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchalupa-dolni-vestonice'}
+];
+const jm=browser({page:jmPath});
+assert.equal(jm.callbacks.length,1);
+for(const item of jmTargets){
+  assert.ok(jmSource.includes(item.href.replaceAll('&','&amp;')) || jmSource.includes(item.href),
+    'outbound matches reviewed PHP offer');
+  jm.click(item.href,{sourcePinnedJMBlock:true,stayOfferId:item.id});
+  const [kind,name,payload]=jm.calls.at(-1);
+  assert.equal(kind,'event');assert.equal(name,'nry_buyer_offer_click');
+  assert.equal(payload.buyer_page,'jizni_morava_12166');
+  assert.equal(payload.source_post_id,'12166');
+  assert.equal(payload.placement_id,'jizni-morava-stays-12166-v1');
+  assert.equal(payload.buyer_cta_type,'fishing_stay_outbound');
+  assert.equal(payload.stay_offer_id,item.id);
+  assert.equal(payload.stay_partner,item.partner);
+  assert.equal(payload.transport_type,'beacon');
+  assert.ok(!JSON.stringify(payload).includes('https://'));
+}
+assert.equal(jm.calls.length,3);
+for(const item of jmTargets){
+  jm.click(item.href,{stayOfferId:item.id});
+  jm.click(item.href,{sourcePinnedJMBlock:true});
+  jm.click(item.href,{sourcePinnedJMBlock:true,stayOfferId:'wrong'});
+  jm.click(item.href,{sourcePinnedJMBlock:true,stayOfferId:item.id,trusted:false});
+  jm.click(item.href+'&unexpected=1',{sourcePinnedJMBlock:true,stayOfferId:item.id});
+  jm.click(item.href.replace('https://','http://'),{sourcePinnedJMBlock:true,stayOfferId:item.id});
+}
+assert.equal(jm.calls.length,3,'never count altered, spoofed or untrusted regional links');
+const jmNoGtag=browser({page:jmPath,gtagEnabled:false});
+jmNoGtag.click(jmTargets[0].href,{sourcePinnedJMBlock:true,stayOfferId:'2464086'});
+assert.equal(jmNoGtag.calls.length,0);
+const unrelatedRegional=browser({page:'/rybarska-dovolena-v-cechach/'});
+unrelatedRegional.click(jmTargets[0].href,{sourcePinnedJMBlock:true,stayOfferId:'2464086'});
+assert.equal(unrelatedRegional.callbacks.length,0);
+console.log('PASS: regional 12166 exact stay clicks, no synthetic events');
