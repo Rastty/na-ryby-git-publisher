@@ -55,7 +55,7 @@ function nry_buyer_click_enqueue() {
         'nry-buyer-offer-click-v1',
         plugins_url('assets/nry-buyer-clicks-v1.js', __FILE__),
         array(),
-        '1.11.0',
+        '1.11.1',
         true
     );
 }

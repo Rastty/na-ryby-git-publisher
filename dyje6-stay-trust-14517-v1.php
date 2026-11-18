@@ -20,6 +20,9 @@ final class NRY_Dyje6_Stay_Trust_14517_V1 {
     // these from code, QA, monitors or CI: only real human CTAs navigate.
     const SLEVOMAT = 'https://www.slevomat.cz/akce/2464086-dovolena-na-palave-polopenze-i-vstup-do-wellness?utm_source=affiliate&utm_medium=cpc&utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_narybyCZ&utm_content=dyje6_14517_termal_musov&utm_term=j3d7tsgc&a_box=j3d7tsgc';
     const HPORTAL = 'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fpasohlavky%2Fpenzion-pasohlavky%2F';
+    // Owner confirmed AffiliatePort Hauzi CZ/SK approval on 18 Nov 2026:
+    // advertiser 1990, publisher 1736, encoded direct listing in sub_id5.
+    const HAUZI = 'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchalupa-dolni-vestonice';
     const FACTS_MARKER = 'data-nry-dyje6-facts="v1"';
     const OFFERS_MARKER = 'data-nry-dyje6-offers="v1"';
 
@@ -94,6 +97,7 @@ final class NRY_Dyje6_Stay_Trust_14517_V1 {
     private static function offers() {
         $slevomat = htmlspecialchars(self::SLEVOMAT, ENT_QUOTES, 'UTF-8');
         $hportal = htmlspecialchars(self::HPORTAL, ENT_QUOTES, 'UTF-8');
+        $hauzi = htmlspecialchars(self::HAUZI, ENT_QUOTES, 'UTF-8');
         return '<section class="nry-dyje6-offers" '.self::OFFERS_MARKER.' aria-label="Ubytování v okolí Nových Mlýnů">'
             .'<h2>Kde přespat při výpravě na Věstonickou nádrž</h2>'
             .'<p>Ubytování vybírejte v Pasohlávkách a okolí. <strong>Jde o samostatné '
@@ -115,6 +119,15 @@ final class NRY_Dyje6_Stay_Trust_14517_V1 {
             .'<p><a class="nry-dyje6-offers__cta nry-dyje6-offers__cta--secondary" href="'.$hportal.'" '
             .'rel="sponsored nofollow noopener" target="_blank">'
             .'Ověřit Penzion Pasohlávky na Hportalu</a></p></article>'
+            .'<article data-nry-offer-id="hauzi-chalupa-dolni-vestonice" data-nry-merchant="hauzi.cz">'
+            .'<h3>Chalupa Dolní Věstonice – pro partu rybářů</h3>'
+            .'<p>Samostatná chalupa v Dolních Věstonicích pro až 11 osob, 3 ložnice. '
+            .'Hauzi ji řadí i mezi ubytování pro rybáře. To však neznamená '
+            .'přístup k lovnému úseku Dyje 6 ani povolenku; dostupnost '
+            .'a podmínky ubytování ověřte pro svůj termín.</p>'
+            .'<p><a class="nry-dyje6-offers__cta nry-dyje6-offers__cta--secondary" href="'.$hauzi.'" '
+            .'rel="sponsored nofollow noopener" target="_blank">'
+            .'Ověřit chalupu v Dolních Věstonicích na Hauzi</a></p></article>'
             .'<p><a href="'.self::EXISTING_CATEGORY.'">Prohlédnout i další pobyty v Česku</a>.</p>'
             .'<p><small>Partnerské odkazy. Provize se odvíjí od podmínek affiliate programu; '
             .'povolenka k rybolovu ani dostupnost ubytování není automaticky v ceně. '
@@ -125,7 +138,8 @@ final class NRY_Dyje6_Stay_Trust_14517_V1 {
     public static function transform($html) {
         if (!is_string($html) || strpos($html, self::FACTS_MARKER) !== false
             || strpos($html, self::OFFERS_MARKER) !== false
-            || strpos($html, self::SLEVOMAT) !== false || strpos($html, self::HPORTAL) !== false) return $html;
+            || strpos($html, self::SLEVOMAT) !== false || strpos($html, self::HPORTAL) !== false
+            || strpos($html, self::HAUZI) !== false) return $html;
         $old_prices = "<p>Podle dostupných informací se na Věstonické nádrži prodávají denní i týdenní povolenky, a to i ve zvýhodněné variantě pro mládež. Uvedené ceny byly:</p>\n"
             ."<ul>\n<li>denní povolenka: 200 korun</li>\n<li>denní povolenka pro mládež do 15 let: 100 korun</li>\n"
             ."<li>týdenní povolenka: 800 korun</li>\n<li>týdenní povolenka pro mládež: 400 korun</li>\n</ul>\n"
@@ -150,7 +164,7 @@ final class NRY_Dyje6_Stay_Trust_14517_V1 {
             $changed = str_replace($old, $new, $changed);
         }
         $new_links = self::hrefs($changed);
-        $new_only = array(self::OFFICIAL, self::SLEVOMAT, self::HPORTAL);
+        $new_only = array(self::OFFICIAL, self::SLEVOMAT, self::HPORTAL, self::HAUZI);
         $preserved = array_values(array_filter($old_links, function($link) {
             return $link !== self::OLD_BIVAK_GUIDE;
         }));
@@ -158,11 +172,12 @@ final class NRY_Dyje6_Stay_Trust_14517_V1 {
             return !in_array($link, $new_only, true);
         }));
         return ($new_links !== null && $remaining === $preserved
-            && count($new_links) === count($old_links) + 2
+            && count($new_links) === count($old_links) + 3
             && substr_count($changed, self::FACTS_MARKER) === 1
             && substr_count($changed, self::OFFERS_MARKER) === 1
             && substr_count($changed, htmlspecialchars(self::SLEVOMAT, ENT_QUOTES, 'UTF-8')) === 1
             && substr_count($changed, htmlspecialchars(self::HPORTAL, ENT_QUOTES, 'UTF-8')) === 1
+            && substr_count($changed, htmlspecialchars(self::HAUZI, ENT_QUOTES, 'UTF-8')) === 1
             && strpos($changed, 'denní povolenka: 200 korun') === false
             && strpos($changed, 'týdenní povolenka: 800 korun') === false)
             ? $changed : $html;
