@@ -23,7 +23,8 @@
     '/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/':'chair_hub',
     '/jak-vybrat-rybarske-kreslo/':'chair_evergreen',
     '/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/':'bivak_pillar',
-    '/nejlepsi-rybarske-bivaky-do-10-000-kc/':'bivak_budget'
+    '/nejlepsi-rybarske-bivaky-do-10-000-kc/':'bivak_budget',
+    '/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/':'fishing_stays_59891'
   });
   if (location.origin !== 'https://na-ryby.eu' ||
       !Object.prototype.hasOwnProperty.call(allowedPages, location.pathname)) return;
@@ -31,6 +32,15 @@
   const networkHosts = new Set([
     'www.kqzyfj.com','www.tkqlhce.com','www.jdoqocy.com',
     'www.dpbolvw.net','www.anrdoezrs.net'
+  ]);
+  // Exact already-published, source-pinned URLs. These are local comparisons:
+  // never fetch, visit, rewrite, or probe an affiliate destination for a test.
+  const publishedStayOffers = Object.freeze([
+    {id:'2462030',partner:'slevomat_cz',href:'https://www.slevomat.cz/akce/2462030-statek-na-jihu-cech-snidane-i-privatni-sauna-ci-rybareni?utm_source=affiliate&utm_medium=cpc&utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_narybyCZ&utm_content=stay_59891_jedraz&utm_term=j3d7tsgc&a_box=j3d7tsgc'},
+    {id:'hportal-pension-u-vlcku',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fulice%2Fpension-u-vlcku%2F'},
+    {id:'hportal-penzion-janata',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Frabyne%2Fpenzion-janata%2F'},
+    {id:'hportal-penzion-u-kohoutu',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fhorni-plana%2Fpenzion-u-kohoutu%2F'},
+    {id:'hportal-pension-rybarska-basta',partner:'hportal_dognet_cz',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Frozmberk-nad-vltavou%2Fpension-rybarska-basta%2F'}
   ]);
   document.addEventListener('click', event => {
     // Browser-generated user interaction only. Never send tests or bot clicks
@@ -52,6 +62,31 @@
        /^\/click-[0-9]{6,12}-[0-9]{6,16}-[0-9]{9,18}$/.test(url.pathname));
     if ((url.protocol !== 'https:' && !chairHttpCJ) ||
         url.username || url.password || url.port) return;
+    if (page === 'fishing_stays_59891') {
+      // Match an exact live CTA, its containing offer and the released block.
+      // A different Dognet/Slevomat link on the page is not this placement.
+      const section = link.closest('section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"]');
+      const article = link.closest('article[data-nry-offer-id]');
+      const offerId = article && typeof article.getAttribute === 'function'
+        ? article.getAttribute('data-nry-offer-id') : null;
+      const stay = section && publishedStayOffers.find(
+        row => row.id === offerId && Object.is(row.href, url.toString())
+      );
+      if (stay) {
+        try {
+          window.gtag('event','nry_buyer_offer_click',{
+            buyer_page:page,
+            buyer_cta_type:'fishing_stay_outbound',
+            source_post_id:'59891',
+            placement_id:'fishing-stays-cz-59891-20261118-v1',
+            stay_offer_id:stay.id,
+            stay_partner:stay.partner,
+            transport_type:'beacon'
+          });
+        } catch { /* Never impede the genuine affiliate navigation. */ }
+      }
+      return;
+    }
     // Count only the existing, source-pinned buyer callout, not every link
     // to the picker; the approved picker itself is never instrumented.
     if (page === 'baitboat_guide' &&
