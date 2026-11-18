@@ -30,10 +30,13 @@ final class NRY_Jizni_Morava_Stays_12166_V1 {
 
     public static function boot() {
         if (function_exists('add_filter')) {
-            add_filter('the_content', array(__CLASS__, 'render'), PHP_INT_MAX);
+            // WP accepts Class::method string callbacks. Using this form also
+            // keeps the publisher's legacy KSES filter contracts compatible:
+            // their minimal add_filter stubs index callbacks by string.
+            add_filter('the_content', __CLASS__ . '::render', PHP_INT_MAX);
         }
         if (function_exists('add_action')) {
-            add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue'), 28);
+            add_action('wp_enqueue_scripts', __CLASS__ . '::enqueue', 28);
         }
     }
 
