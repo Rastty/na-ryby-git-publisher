@@ -26,7 +26,8 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
   vm.runInNewContext(script,context,{timeout:1500});
   const click=(href,{trusted=true,sourcePinnedBaitboatCallout=false,
     sourcePinnedStayBlock=false,sourcePinnedDyje6Block=false,
-    sourcePinnedJMBlock=false,stayOfferId=null}={})=>{
+    sourcePinnedJMBlock=false,sourcePinnedFamilyBlock=false,
+    stayOfferId=null,familyOfferId=null}={})=>{
     const link={href,closest:selector=>{
       if(selector==='aside[data-nry-baitboat-choice-link="v1"]' &&
          sourcePinnedBaitboatCallout) return {};
@@ -36,8 +37,12 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
          sourcePinnedDyje6Block) return {};
       if(selector==='section[data-nry-jm-stays="v1"]' &&
          sourcePinnedJMBlock) return {};
+      if(selector==='section[data-nry-family-stays="v1"]' &&
+         sourcePinnedFamilyBlock) return {};
       if(selector==='article[data-nry-offer-id]' && stayOfferId)
         return {getAttribute:name=>name==='data-nry-offer-id'?stayOfferId:null};
+      if(selector==='article[data-nry-family-offer]' && familyOfferId)
+        return {getAttribute:name=>name==='data-nry-family-offer'?familyOfferId:null};
       return null;
     }};
     const element={closest:selector=>selector==='a[href]'?link:null};
@@ -611,3 +616,55 @@ const unrelatedRegional=browser({page:'/rybarska-dovolena-v-cechach/'});
 unrelatedRegional.click(jmTargets[0].href,{sourcePinnedJMBlock:true,stayOfferId:'2464086'});
 assert.equal(unrelatedRegional.callbacks.length,0);
 console.log('PASS: regional 12166 exact stay clicks, no synthetic events');
+
+// Post 59271 is already live: same consent-aware event on only two precise
+// reviewed Hportal destinations, no URL values, visitor IDs or fake clicks.
+const familyPath='/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/';
+const familySource=readFileSync('family-stays-59271-v1.php','utf8');
+const familyOffers=[
+  {id:'lipno-kohoutu',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fhorni-plana%2Fpenzion-u-kohoutu%2F'},
+  {id:'slapy-janata',href:'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Frabyne%2Fpenzion-janata%2F'}
+];
+const family=browser({page:familyPath});
+assert.equal(family.callbacks.length,1);
+for(const offer of familyOffers){
+  assert.ok(familySource.includes(offer.href),'exact existing PHP partner target');
+  family.click(offer.href,{sourcePinnedFamilyBlock:true,familyOfferId:offer.id});
+  assert.equal(family.calls.length,familyOffers.indexOf(offer)+1);
+  const [kind,event,payload]=family.calls.at(-1);
+  assert.equal(kind,'event');assert.equal(event,'nry_buyer_offer_click');
+  assert.equal(payload.buyer_page,'family_stays_59271');
+  assert.equal(payload.buyer_cta_type,'fishing_stay_outbound');
+  assert.equal(payload.source_post_id,'59271');
+  assert.equal(payload.placement_id,'family-stays-59271-v1');
+  assert.equal(payload.stay_offer_id,offer.id);
+  assert.equal(payload.stay_partner,'hportal_dognet_cz');
+  assert.equal(payload.transport_type,'beacon');
+  assert.deepEqual(Object.keys(payload).sort(),[
+    'buyer_page','buyer_cta_type','source_post_id','placement_id',
+    'stay_offer_id','stay_partner','transport_type'
+  ].sort());
+  assert.ok(!JSON.stringify(payload).includes('https://'));
+  assert.ok(!JSON.stringify(payload).includes('5QoXiSqx'));
+}
+const familyRealClicks=family.calls.length;
+for(const offer of familyOffers){
+  family.click(offer.href,{familyOfferId:offer.id});
+  family.click(offer.href,{sourcePinnedFamilyBlock:true});
+  family.click(offer.href,{sourcePinnedFamilyBlock:true,familyOfferId:'other'});
+  family.click(offer.href,{sourcePinnedFamilyBlock:true,familyOfferId:offer.id,trusted:false});
+  family.click(offer.href+'&unexpected=1',{sourcePinnedFamilyBlock:true,familyOfferId:offer.id});
+  family.click(offer.href+'#other',{sourcePinnedFamilyBlock:true,familyOfferId:offer.id});
+  family.click(offer.href.replace('https://','http://'),{sourcePinnedFamilyBlock:true,familyOfferId:offer.id});
+  family.click(offer.href.replace('https://','https://evil.'),{sourcePinnedFamilyBlock:true,familyOfferId:offer.id});
+}
+family.click('https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Funknown%2F',
+  {sourcePinnedFamilyBlock:true,familyOfferId:'lipno-kohoutu'});
+assert.equal(family.calls.length,familyRealClicks,'tampered/unrelated family links ignored');
+const familyNoGtag=browser({page:familyPath,gtagEnabled:false});
+familyNoGtag.click(familyOffers[0].href,{sourcePinnedFamilyBlock:true,familyOfferId:'lipno-kohoutu'});
+assert.equal(familyNoGtag.calls.length,0,'existing consent not overridden');
+const unrelatedFamily=browser({page:'/rodinna-dovolena-u-more/' });
+unrelatedFamily.click(familyOffers[0].href,{sourcePinnedFamilyBlock:true,familyOfferId:'lipno-kohoutu'});
+assert.equal(unrelatedFamily.callbacks.length,0,'no sitewide Hportal host tracking');
+console.log('PASS: family 59271 source-locked real click observer, zero synthetic events');

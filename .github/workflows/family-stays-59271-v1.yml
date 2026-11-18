@@ -5,9 +5,13 @@ on:
     paths:
       - 'family-stays-59271-v1.php'
       - 'na-ryby-git-publisher.php'
+      - 'buyer-click-telemetry-v1.php'
+      - 'assets/nry-buyer-clicks-v1.js'
       - 'assets/nry-family-stays-59271-v1.css'
       - 'tests/test-family-stays-59271-v1.php'
       - 'tests/test-family-stays-59271-public.py'
+      - 'tests/test-buyer-click-telemetry-v1.php'
+      - 'tests/test-buyer-click-telemetry-v1.mjs'
       - 'scripts/verify-family-stays-59271-public.py'
       - '.github/workflows/family-stays-59271-v1.yml'
   workflow_dispatch:
@@ -31,6 +35,10 @@ jobs:
         run: |
           php -l family-stays-59271-v1.php
           php tests/test-family-stays-59271-v1.php
+          php -l buyer-click-telemetry-v1.php
+          php tests/test-buyer-click-telemetry-v1.php
+          node --check assets/nry-buyer-clicks-v1.js
+          node tests/test-buyer-click-telemetry-v1.mjs
           python3 -m py_compile scripts/verify-family-stays-59271-public.py
           python3 tests/test-family-stays-59271-public.py
           python3 tests/test-deployer-trigger-parity.py

@@ -21,8 +21,8 @@ ORIGIN = 'https://na-ryby.eu'
 PATH = '/rybarska-dovolena-jizni-morava/'
 JS = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js'
 CSS = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-jizni-morava-stays-v1.css'
-CURRENT_VERSION = 'ver=1.11.2'
-PREVIOUS_VERSION = 'ver=1.11.1'
+CURRENT_VERSION = 'ver=1.11.3'
+PREVIOUS_VERSION = 'ver=1.11.2'
 OFFERS = {
     '2464086': 'https://www.slevomat.cz/akce/2464086-dovolena-na-palave-polopenze-i-vstup-do-wellness?utm_source=affiliate&utm_medium=cpc&utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_na-ryby.eu&utm_content=stay_12166_termal_musov&utm_term=j3d7tsgc&a_box=j3d7tsgc',
     'hportal-penzion-pasohlavky': 'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fpasohlavky%2Fpenzion-pasohlavky%2F',
@@ -85,15 +85,9 @@ def verify(html, *, deployed=False, public_js=b'', reviewed_js=b'',
     assert page.canonical == [ORIGIN + PATH], 'REGIONAL_CANONICAL_DRIFT'
     assert 'Chata Brněnská přehrada'.encode() in html, 'ORIGINAL_ARCHIVE_MISSING'
     assert 'Rybářský wellness srub'.encode() in html, 'ORIGINAL_REGIONAL_LINKS_MISSING'
-    if not deployed:
-        assert page.marker_count == 0, 'REGIONAL_PREDEPLOY_ALREADY_MODIFIED'
-        assert page.archive_count == 0, 'REGIONAL_PREDEPLOY_ARCHIVE_ALREADY_MODIFIED'
-        assert page.styles == [], 'REGIONAL_PREDEPLOY_STYLE_ALREADY_ENQUEUED'
-        assert page.scripts in ([], [PREVIOUS_VERSION]), 'REGIONAL_PREDEPLOY_SCRIPT_DRIFT'
-        assert 'agoda-booking-box'.encode() in html, 'REGIONAL_LEGACY_BOX_ALREADY_CHANGED'
-        assert LEGACY_AGODA.encode() in html, 'REGIONAL_LEGACY_OLMOUC_URL_NOT_FOUND'
-        return {'status': 'REGIONAL_PREFLIGHT_READY', 'source_post_id': 12166,
-                'wordPressWrites': 0, 'merchantRequests': 0, 'syntheticClicks': 0}
+    # The regional offers were already published and independently verified.
+    # PR preflight now proves this existing live baseline while the new shared
+    # buyer JS version is still waiting for the next guarded deployment.
     assert page.marker_count == 1 and page.archive_count == 1, 'REGIONAL_BLOCK_NOT_ONCE'
     assert set(page.ctas) == set(OFFERS), 'REGIONAL_OFFER_IDS_DRIFT'
     assert b'agoda-booking-box' not in html, 'WRONG_REGION_AGODA_BOX_STILL_VISIBLE'
@@ -107,8 +101,14 @@ def verify(html, *, deployed=False, public_js=b'', reviewed_js=b'',
         actual = page.ctas[offer_id]
         assert actual == [(href, 'sponsored nofollow noopener', '_blank')], (
             'REGIONAL_AFFILIATE_URL_OR_REL_DRIFT')
-    assert page.scripts == [CURRENT_VERSION], 'REGIONAL_JS_VERSION_DRIFT'
     assert page.styles == ['ver=1.0.0'], 'REGIONAL_CSS_NOT_ENQUEUED_ONCE'
+    if not deployed:
+        assert page.scripts in ([PREVIOUS_VERSION], [CURRENT_VERSION]), (
+            'REGIONAL_PREDEPLOY_SCRIPT_DRIFT')
+        return {'status': 'REGIONAL_PUBLISHED_BASELINE_VERIFIED', 'source_post_id': 12166,
+                'exact_sponsored_offers': 3, 'wordPressWrites': 0,
+                'merchantRequests': 0, 'syntheticClicks': 0}
+    assert page.scripts == [CURRENT_VERSION], 'REGIONAL_JS_VERSION_DRIFT'
     assert len(public_js) > 1000 and public_js == reviewed_js, 'REGIONAL_JS_BYTES_NOT_REVIEWED'
     assert len(public_css) > 200 and public_css == reviewed_css, 'REGIONAL_CSS_BYTES_NOT_REVIEWED'
     return {'status': 'REGIONAL_PUBLIC_VERIFIED', 'source_post_id': 12166,

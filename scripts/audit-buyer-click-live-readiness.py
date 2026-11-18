@@ -21,10 +21,11 @@ PAGES = {
     "baitboat_guide": "/zavazeci-lodky-pro-rybare/",
     "bivak_pillar": "/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/",
     "bivak_budget": "/nejlepsi-rybarske-bivaky-do-10-000-kc/",
+    "family_stays_59271": "/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/",
     "unscoped_control": "/nejlepsi-rybarske-hlasice-a-signalizatory/",
 }
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
-VERSION = "1.11.2"
+VERSION = "1.11.3"
 OUTPUT = "buyer-click-live-readonly.json"
 ROOT = Path(__file__).resolve().parents[1]
 

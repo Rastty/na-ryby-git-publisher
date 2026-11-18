@@ -9,10 +9,11 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 
-def page(*, rel='sponsored nofollow noopener', extra=''):
+def page(*, rel='sponsored nofollow noopener', extra='', script=True):
     return (f'<html><head><link rel="canonical" href="{module.ORIGIN + module.PATH}">'
             f'<link rel="stylesheet" href="{module.ORIGIN + module.CSS}?ver=1.0.0">'
-            '</head><body class="postid-59271">'
+            + (f'<script src="{module.ORIGIN + module.JS}?{module.VERSION}"></script>' if script else '')
+            + '</head><body class="postid-59271">'
             '<h3>Rybolov na řece Vltavě</h3>'
             '<h3>Rybářská osada Dolní Vltavice</h3>'
             '<section data-nry-family-stays="v1">'
@@ -26,15 +27,19 @@ def page(*, rel='sponsored nofollow noopener', extra=''):
 
 
 css = b'/* fixture CSS, reviewed and byte-identical */' + b'x' * 600
-ok = module.public_assertions(page(), deployed=True, css_public=css, css_reviewed=css)
+js = b'/* fixture JS, reviewed and byte-identical */' + b'x' * 1500
+ok = module.public_assertions(page(), deployed=True, css_public=css, css_reviewed=css,
+                              js_public=js, js_reviewed=js)
 assert ok['status'] == 'FAMILY_STAYS_PUBLIC_VERIFIED'
 assert ok['affiliateOffers'] == 2
+assert ok['clickScriptByteIdentical'] and ok['ga4DeliveryProven'] is False
 assert ok['realClicks'] is None and ok['paidCommissions'] is None
 
 
 def should_fail(candidate, reason):
     try:
-        module.public_assertions(candidate, deployed=True, css_public=css, css_reviewed=css)
+        module.public_assertions(candidate, deployed=True, css_public=css, css_reviewed=css,
+                                 js_public=js, js_reviewed=js)
     except AssertionError as exc:
         assert reason in str(exc), f'unexpected reason: {exc}'
         return
@@ -48,11 +53,11 @@ should_fail(page(extra='<section data-nry-family-stays="v1"></section>'),
             'FAMILY_BLOCK_NOT_ONCE')
 should_fail(page().replace(b'Zde je p\xc3\xa1r tip\xc5\xaf', b'Source removed'),
             'FAMILY_CTA_BURIED_AFTER_INTRO')
-try:
-    module.public_assertions(page(), deployed=False)
-except AssertionError as exc:
-    assert 'FAMILY_ALREADY_DEPLOYED' in str(exc)
-else:
-    raise AssertionError('preflight must refuse already-published marker')
+should_fail(page(script=False), 'FAMILY_CLICK_SCRIPT_NOT_EXACTLY_ONCE')
+assert module.public_assertions(page(script=False), deployed=False)['status'] == (
+    'FAMILY_STAYS_CLICK_PREFLIGHT_READY')
+assert module.public_assertions(page(script=True), deployed=False)['affiliateOffers'] == 2
+should_fail(page().replace(module.VERSION.encode(), b'ver=1.11.2'),
+            'FAMILY_CLICK_SCRIPT_NOT_EXACTLY_ONCE')
 
-print('PASS: family live verifier rejects link, rel, duplicate or placement drift')
+print('PASS: family public CTA + JS verifier rejects link, rel, duplicate or script drift')

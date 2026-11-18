@@ -47,7 +47,7 @@ class PublicVerification(unittest.TestCase):
         js = b'/* reviewed local browser asset */' + b'x' * 1300
         self.assertTrue(m.verify(doc, deployed=True, public_js=js, reviewed_js=js))
         self.assertFalse(m.verify(doc, deployed=True, public_js=js + b'unsafe', reviewed_js=js))
-        self.assertFalse(m.verify(doc.replace('ver=1.11.2', 'ver=1.11.1'),
+        self.assertFalse(m.verify(doc.replace('ver=1.11.3', 'ver=1.11.2'),
                                   deployed=True, public_js=js, reviewed_js=js))
 
 
