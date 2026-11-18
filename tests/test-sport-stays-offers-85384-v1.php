@@ -1,6 +1,7 @@
 <?php
 /** Offline regression of the literal, source-pinned, frontend-only offer block. */
 define('ABSPATH', __DIR__);
+function is_single($id = null) { return $id === 85384; }
 function add_filter($hook, $callback, $priority) { $GLOBALS['sport_filter'] = array($hook, $callback, $priority); }
 function add_action($hook, $callback, $priority) { $GLOBALS['sport_action'] = array($hook, $callback, $priority); }
 function check_85384($ok, $reason) { if (!$ok) throw new RuntimeException($reason); }

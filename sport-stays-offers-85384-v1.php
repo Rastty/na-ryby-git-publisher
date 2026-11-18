@@ -25,8 +25,14 @@ final class NRY_Sport_Stays_Offers_85384_V1 {
     const PALAVA = 'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchalupa-dolni-vestonice';
 
     public static function boot() {
-        if (function_exists('add_filter')) add_filter('the_content', __CLASS__.'::render', PHP_INT_MAX);
-        if (function_exists('add_action')) add_action('wp_enqueue_scripts', __CLASS__.'::enqueue', 28);
+        // In the publisher's isolated writer tests, WordPress query functions
+        // are deliberately unavailable. Never attach a new content filter there.
+        if (function_exists('is_single') && function_exists('add_filter')) {
+            add_filter('the_content', __CLASS__.'::render', PHP_INT_MAX);
+        }
+        if (function_exists('is_single') && function_exists('add_action')) {
+            add_action('wp_enqueue_scripts', __CLASS__.'::enqueue', 28);
+        }
     }
 
     private static function eligible($loop = true) {
