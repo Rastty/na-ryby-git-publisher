@@ -46,11 +46,12 @@ $original = $prefix
 check(strlen($original) > 2000, 'sufficient source body');
 check(count($GLOBALS['family_filter_calls']) === 1, 'one render filter registered');
 $result = $klass::render($original);
+$decoded_result = html_entity_decode($result, ENT_QUOTES, 'UTF-8');
 check($result !== $original, 'matching source gets one family booking block');
 check(substr_count($result, $klass::MARKER) === 1, 'exactly one section');
 check(substr_count($result, 'data-nry-family-offer=') === 2, 'exactly two partner offers');
-check(substr_count($result, $klass::HPORTAL_LIPNO) === 1, 'unchanged Lipno affiliate URL');
-check(substr_count($result, $klass::HPORTAL_SLAPY) === 1, 'unchanged Slapy affiliate URL');
+check(substr_count($decoded_result, $klass::HPORTAL_LIPNO) === 1, 'unchanged Lipno affiliate URL');
+check(substr_count($decoded_result, $klass::HPORTAL_SLAPY) === 1, 'unchanged Slapy affiliate URL');
 check(substr_count($result, $klass::STAYS) === 1, 'one internal comparison link');
 check(substr_count($result, 'rel="sponsored nofollow noopener"') === 2, 'both affiliate disclosures');
 check(strpos($result, $klass::MARKER) < strpos($result, $klass::ANCHOR), 'CTA near top');

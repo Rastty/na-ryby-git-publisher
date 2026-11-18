@@ -111,19 +111,23 @@ final class NRY_Family_Stays_59271_V1 {
             || strpos($html, self::STAYS) !== false) return $html;
         $old = self::hrefs($html);
         if ($old === null) return $html;
+        $added = array(self::HPORTAL_LIPNO, self::HPORTAL_SLAPY, self::STAYS);
+        foreach ($added as $url) {
+            if (in_array($url, $old, true)) return $html;
+        }
         $changed = str_replace(self::ANCHOR, self::block() . "\n" . self::ANCHOR, $html);
         $new = self::hrefs($changed);
-        $added = array(self::HPORTAL_LIPNO, self::HPORTAL_SLAPY, self::STAYS);
         $preserved = array_values(array_filter($new ?? array(), function($url) use($added) {
             return !in_array($url, $added, true);
         }));
+        $new_counts = $new === null ? array() : array_count_values($new);
         return ($new !== null && $preserved === $old
             && count($new) === count($old) + 3
             && substr_count($changed, self::MARKER) === 1
             && substr_count($changed, 'data-nry-family-offer=') === 2
-            && substr_count($changed, self::HPORTAL_LIPNO) === 1
-            && substr_count($changed, self::HPORTAL_SLAPY) === 1
-            && substr_count($changed, self::STAYS) === 1)
+            && ($new_counts[self::HPORTAL_LIPNO] ?? 0) === 1
+            && ($new_counts[self::HPORTAL_SLAPY] ?? 0) === 1
+            && ($new_counts[self::STAYS] ?? 0) === 1)
             ? $changed : $html;
     }
 
