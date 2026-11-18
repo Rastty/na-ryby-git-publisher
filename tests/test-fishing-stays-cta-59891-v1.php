@@ -39,7 +39,7 @@ check(strpos($GLOBALS['stay_styles'][0]['src'], '/assets/nry-fishing-stays-cta-5
     'site-local stylesheet only');
 
 foreach (array('draft_status','wrong_page','different_slug','removed_offer','duplicate_marker',
-    'altered_affiliate') as $scenario) {
+    'altered_affiliate','changed_destination') as $scenario) {
     $GLOBALS['stay_id']=59891;
     $GLOBALS['stay_url']=$class::URL;
     $GLOBALS['stay_post']->post_status='publish';
@@ -53,9 +53,18 @@ foreach (array('draft_status','wrong_page','different_slug','removed_offer','dup
     if ($scenario==='duplicate_marker') $GLOBALS['stay_post']->post_content=$m[0].$m[0];
     if ($scenario==='altered_affiliate') $GLOBALS['stay_post']->post_content=str_replace(
         'chid=5QoXiSqx', 'chid=unreviewed', $m[0]);
+    if ($scenario==='changed_destination') $GLOBALS['stay_post']->post_content=str_replace(
+        'pension-u-vlcku%2F', 'pension-unreviewed%2F', $m[0]);
     $GLOBALS['stay_styles']=array();
     check(!$class::eligible(), 'blocked scenario: '.$scenario);
     $class::enqueue();
     check(count($GLOBALS['stay_styles'])===0, 'no CSS when source guard fails: '.$scenario);
 }
+$GLOBALS['stay_id']=59891;
+$GLOBALS['stay_url']=$class::URL;
+$GLOBALS['stay_post']->post_status='publish';
+$GLOBALS['stay_post']->post_name=$class::SLUG;
+$GLOBALS['stay_post']->post_content=str_replace('Vybrali jsme pobyt',
+    'Právě doporučujeme pobyt', $m[0]);
+check($class::eligible(), 'unrelated editorial wording changes do not break exact affiliate cards');
 echo "PASS: published five-offer block gets scoped visible CTAs; drift fails closed\n";

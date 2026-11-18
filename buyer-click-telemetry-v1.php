@@ -70,10 +70,18 @@ final class NRY_Fishing_Stays_CTA_59891_V1 {
     const SLUG = 'rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare';
     const URL = 'https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/';
     const MARKER = 'data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"';
-    const APPROVED_BLOCK_SHA256 = '531bd77829fdc59f8cdee206df1259dad942efc40d67c6e3c60a2c1a5c73c86b';
     const OFFER_IDS = array(
         '2462030', 'hportal-pension-u-vlcku', 'hportal-penzion-janata',
         'hportal-penzion-u-kohoutu', 'hportal-pension-rybarska-basta'
+    );
+    // The raw WordPress block can change harmlessly after KSES/paragraph
+    // formatting. Only five exact, reviewed destinations may be emphasized.
+    const APPROVED_HREFS = array(
+        'https://www.slevomat.cz/akce/2462030-statek-na-jihu-cech-snidane-i-privatni-sauna-ci-rybareni?utm_source=affiliate&utm_medium=cpc&utm_campaign=dis_akv_gen_cze_all_buy_j3d7tsgc_narybyCZ&utm_content=stay_59891_jedraz&utm_term=j3d7tsgc&a_box=j3d7tsgc',
+        'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fulice%2Fpension-u-vlcku%2F',
+        'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Frabyne%2Fpenzion-janata%2F',
+        'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fhorni-plana%2Fpenzion-u-kohoutu%2F',
+        'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Frozmberk-nad-vltavou%2Fpension-rybarska-basta%2F'
     );
 
     public static function eligible() {
@@ -95,15 +103,21 @@ final class NRY_Fishing_Stays_CTA_59891_V1 {
             || !is_string($post->post_content ?? null)) return false;
         $raw = $post->post_content;
         if (substr_count($raw, self::MARKER) !== 1) return false;
-        foreach (self::OFFER_IDS as $id) {
-            if (substr_count($raw, 'data-nry-offer-id="' . $id . '"') !== 1) return false;
-        }
-        $start = strpos($raw, '<section ' . self::MARKER);
+        $start = strpos($raw, self::MARKER);
         if ($start === false) return false;
         $closing = strpos($raw, '</section>', $start);
         if ($closing === false) return false;
-        $block = substr($raw, $start, $closing + strlen('</section>') - $start);
-        return hash('sha256', $block) === self::APPROVED_BLOCK_SHA256;
+        $block = html_entity_decode(substr($raw, $start,
+            $closing + strlen('</section>') - $start), ENT_QUOTES, 'UTF-8');
+        foreach (self::OFFER_IDS as $id) {
+            if (substr_count($block, 'data-nry-offer-id="' . $id . '"') !== 1) return false;
+        }
+        foreach (self::APPROVED_HREFS as $href) {
+            // A different publisher ID, offer destination, or extra placement
+            // prevents the enhancement; CSS never modifies those links.
+            if (substr_count($block, $href) !== 1) return false;
+        }
+        return true;
     }
 
     public static function enqueue() {
