@@ -214,6 +214,8 @@ on:
       - 'baitboat-compromise-recovery-v1.php'
       - 'assets/**'
       - 'tests/test-deployer-trigger-parity.py'
+      - 'tests/test_guarded_v8_readback.py'
+      - 'scripts/guarded_v8_readback.py'
       - 'scripts/readonly_urlopen_retry.py'
       - 'tests/test-readonly-urlopen-retry.py'
   push:
@@ -304,6 +306,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 tests/test-deployer-trigger-parity.py
+          python3 -m unittest discover -s tests -p test_guarded_v8_readback.py -v
           python3 -m py_compile scripts/readonly_urlopen_retry.py
           python3 tests/test-readonly-urlopen-retry.py -v
           php -l advisor-existing-page-release-v1.php
@@ -493,6 +496,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0
       - name: Verify reviewed repository checkout is present before guarded release
         run: |
           set -euo pipefail
@@ -1172,16 +1176,23 @@ jobs:
           PY
 
       - name: Assert approved V8 batch genuinely committed in WordPress before success
+        env:
+          NRY_DEPLOY_EVENT: ${{ github.event_name }}
+          NRY_DEPLOY_BEFORE_SHA: ${{ github.event.before }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from scripts.readonly_urlopen_retry import guarded_urlopen
-          import json,urllib.request,urllib.error,time
-          with open('manifest.json',encoding='utf8') as f: manifest=json.load(f)
+          from scripts.guarded_v8_readback import classify_receipt,previous_manifest_bytes
+          import json,os,urllib.request,urllib.error,time
+          manifest_bytes=open('manifest.json','rb').read()
+          manifest=json.loads(manifest_bytes)
           if manifest.get('schema_version')!=8:
               print('SKIP: no V8 buyer content manifest in current release')
               raise SystemExit(0)
           expected=manifest['batch_id']
+          before_bytes=previous_manifest_bytes(
+              os.environ.get('NRY_DEPLOY_EVENT'),os.environ.get('NRY_DEPLOY_BEFORE_SHA'))
           for attempt in range(5):
               req=urllib.request.Request('https://na-ryby.eu/poradce-vybavy/?nry_release_health=1&buyer_batch='+str(attempt),
                  headers={'Cache-Control':'no-cache','User-Agent':'NryExactNativeBatchReadback/1.0'})
@@ -1199,10 +1210,16 @@ jobs:
                   'expected_batch':expected,'current_batch':health.get('last_auto_batch_id'),
                   'status':health.get('last_auto_receipt_status'),
                   'publisher_version':health.get('publisher_version')},sort_keys=True))
-              if (health.get('publisher_version')=='0.16.0'
-                  and health.get('last_auto_batch_id')==expected
-                  and health.get('last_auto_receipt_status')=='applied_and_verified_local'):
+              mode=classify_receipt(manifest,manifest_bytes,health,before_bytes,
+                                    os.environ.get('NRY_DEPLOY_EVENT'))
+              if mode=='verified':
                   print('PASS: full reviewed V8 batch committed, local SHA readback complete')
+                  break
+              if mode=='historical_disabled':
+                  print('DEFERRED: historical immutable V8 manifest unchanged; '
+                        'auto-publisher explicitly disabled by admin, NO V8 write claimed')
+                  with open(os.environ['GITHUB_ENV'],'a',encoding='utf8') as github_env:
+                      github_env.write('NRY_FROZEN_V8_DEFERRED=true\n')
                   break
               if attempt==4:
                   raise SystemExit('BLOCKED: reviewed V8 batch not committed in WordPress')
@@ -1210,6 +1227,7 @@ jobs:
           PY
 
       - name: Independent public HTTP readback of exact current reviewed editorial manifest
+        if: env.NRY_FROZEN_V8_DEFERRED != 'true'
         run: |
           set -euo pipefail
           for attempt in 1 2 3; do
