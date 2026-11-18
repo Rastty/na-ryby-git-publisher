@@ -1,0 +1,40 @@
+name: Na-Ryby Published Stay CTA Visual Readback (GET only)
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'buyer-click-telemetry-v1.php'
+      - 'assets/nry-fishing-stays-cta-59891-v1.css'
+      - 'tests/test-fishing-stays-cta-59891-v1.php'
+      - 'tests/test-fishing-stays-cta-59891-public.py'
+      - 'scripts/verify-fishing-stays-cta-59891-public.py'
+      - '.github/workflows/fishing-stays-cta-59891-v1.yml'
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: Preflight before deploy or public CSS verification after deploy
+        type: choice
+        options: [preflight, verify]
+        required: true
+        default: verify
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Source-marked five-offer, presentation-only contract
+        run: |
+          php -l buyer-click-telemetry-v1.php
+          php tests/test-fishing-stays-cta-59891-v1.php
+          python3 tests/test-fishing-stays-cta-59891-public.py
+  public:
+    needs: offline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Anonymous, exact-origin readback without merchant requests
+        env:
+          PHASE: ${{ github.event_name == 'workflow_dispatch' && inputs.phase || 'preflight' }}
+        run: python3 scripts/verify-fishing-stays-cta-59891-public.py --"${PHASE}"

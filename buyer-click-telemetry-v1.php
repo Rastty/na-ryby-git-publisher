@@ -60,4 +60,61 @@ function nry_buyer_click_enqueue() {
         true
     );
 }
+/**
+ * Source-reviewed UX: make the five already-published fishing-stay links
+ * obvious without rewriting article content, hrefs, tracking or inventory.
+ * The extra hook is independent of the existing buyer click observer.
+ */
+final class NRY_Fishing_Stays_CTA_59891_V1 {
+    const ID = 59891;
+    const SLUG = 'rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare';
+    const URL = 'https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/';
+    const MARKER = 'data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"';
+    const APPROVED_BLOCK_SHA256 = '531bd77829fdc59f8cdee206df1259dad942efc40d67c6e3c60a2c1a5c73c86b';
+    const OFFER_IDS = array(
+        '2462030', 'hportal-pension-u-vlcku', 'hportal-penzion-janata',
+        'hportal-penzion-u-kohoutu', 'hportal-pension-rybarska-basta'
+    );
+
+    public static function eligible() {
+        if (!function_exists('is_single') || !is_single(self::ID)
+            || !function_exists('is_singular') || !is_singular('post')
+            || !function_exists('get_queried_object_id')
+            || (int) get_queried_object_id() !== self::ID
+            || !function_exists('is_admin') || is_admin()
+            || !function_exists('is_preview') || is_preview()
+            || !function_exists('home_url') || rtrim(home_url('/'), '/') !== 'https://na-ryby.eu'
+            || !function_exists('get_permalink') || get_permalink(self::ID) !== self::URL
+            || !function_exists('get_post')) return false;
+
+        $post = get_post(self::ID);
+        if (!is_object($post) || (int) ($post->ID ?? 0) !== self::ID
+            || ($post->post_type ?? '') !== 'post'
+            || ($post->post_status ?? '') !== 'publish'
+            || ($post->post_name ?? '') !== self::SLUG
+            || !is_string($post->post_content ?? null)) return false;
+        $raw = $post->post_content;
+        if (substr_count($raw, self::MARKER) !== 1) return false;
+        foreach (self::OFFER_IDS as $id) {
+            if (substr_count($raw, 'data-nry-offer-id="' . $id . '"') !== 1) return false;
+        }
+        $start = strpos($raw, '<section ' . self::MARKER);
+        if ($start === false) return false;
+        $closing = strpos($raw, '</section>', $start);
+        if ($closing === false) return false;
+        $block = substr($raw, $start, $closing + strlen('</section>') - $start);
+        return hash('sha256', $block) === self::APPROVED_BLOCK_SHA256;
+    }
+
+    public static function enqueue() {
+        if (!self::eligible() || !function_exists('wp_enqueue_style')
+            || !function_exists('plugins_url')) return;
+        wp_enqueue_style('nry-fishing-stays-cta-59891-v1',
+            plugins_url('assets/nry-fishing-stays-cta-59891-v1.css', __FILE__),
+            array(), '1.0.0');
+    }
+}
+// Keep the existing event script callback registered last for older PHP
+// contract tests; WordPress execution order follows the explicit priorities.
+add_action('wp_enqueue_scripts', 'NRY_Fishing_Stays_CTA_59891_V1::enqueue', 30);
 add_action('wp_enqueue_scripts', 'nry_buyer_click_enqueue', 24);
