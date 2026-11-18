@@ -25,6 +25,23 @@ event. Actual clicks, bookings, approved/paid commissions and attribution all
 remain **UNKNOWN** until source-authorized measurements arrive. No
 synthetic link requests, impression-to-click guesses or second engine.
 
+**Hracholusky locality follow-up:** the published 2018 post **17606** still
+contains a legacy Agoda/CJ outbound box, an unsupported lowest-price claim,
+and old bungalow details whose current saleability was not independently
+confirmed. The proposed `hracholusky-stay-trust-17606-v1.php` is a **render-only,
+source-drift-locked trust correction**, not a WordPress stored-content write:
+when the exact old box, published post identity and 2018 modified timestamp
+match, it replaces only that box with a clear historic-information warning,
+honest mention of the **different property** Pension U Vlčků and an internal
+link to the already-live, tracked 59891 offers. It introduces no second
+merchant/outbound link and makes no claim about fishing permits or inventory.
+All other source HTML, links, post fields and originals remain untouched;
+the entire intervention is reversible via the guarded Git deploy. Any mismatch
+preserves the old rendered content and is a **blocked/fail-closed** signal,
+not an invitation to relax the guard. `scripts/verify-hracholusky-stay-trust-public.py`
+is the separate anonymous GET-only monitor. A green PR is not proof of a live
+change; final production status requires successful deploy and public proof.
+
 **Status: OFFLINE REVIEW ONLY. Five partner-derived deep-link candidates and two HTML recommendation blocks have been prepared and syntax-tested; no new WordPress content or links were published.**
 
 ## North Star and separation of ownership
