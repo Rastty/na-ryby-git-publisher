@@ -54,7 +54,7 @@ should_block("untrusted click-out merchant",
 should_block("untrusted redirect",
     source.replace(dognet.encode(), b'<a href="http://go.dognet.com/offer">HTTP</a>'))
 
-# The prior intervention is live at 1.10.0. Preflight may see those
+# The prior intervention is live at 1.11.0. Preflight may see those
 # installed bytes; after-deploy readback must prove v1.11.1 bytes.
 pillar_canonical='<link rel="canonical" href="'+m["ORIGIN"]+m["PILLAR"]+'">'
 pillar_merchant='<a href="https://www.chytapust.cz/Echoloty/?utm_source=site">Merchant</a>'

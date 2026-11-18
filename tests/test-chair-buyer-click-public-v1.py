@@ -51,8 +51,8 @@ blocked(h=hub_v.replace((origin+m['EVERGREEN']).encode(),(origin+'/other').encod
 blocked(e=evergreen_v.replace(b'www.dpbolvw.net',b'www.fake-merchant.example'))
 blocked(e=evergreen_v.replace(b'click-7777777-12347575-1234567890123',b'click-7777777-12347575'))
 blocked(e=evergreen_v.replace((origin+m['ADVISOR']).encode(),(origin+'/other').encode()))
-blocked(h=hub_v.replace(b'ver=1.11.1',b'ver=1.11.0'))
-blocked(e=evergreen_v.replace(b'ver=1.11.1',b'ver=1.11.0'))
+blocked(h=hub_v.replace(b'ver=1.11.1',b'ver=1.10.0'))
+blocked(e=evergreen_v.replace(b'ver=1.11.1',b'ver=1.10.0'))
 blocked(h=hub_v.replace(b'</head>',b'<script src="'+(origin+m['ASSET']+'?ver=1.11.1').encode()+b'"></script></head>'))
 assert m['inspect'](hub,evergreen,after=False)['state']=='PUBLIC_CHAIR_BUYER_CLICK_PREFLIGHT'
 print('PASS: exact chair guide and CJ handoffs, JS bytes, no synthetic clicks')

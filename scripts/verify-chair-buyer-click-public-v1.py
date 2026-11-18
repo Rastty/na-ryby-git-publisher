@@ -24,7 +24,7 @@ EVERGREEN = '/jak-vybrat-rybarske-kreslo/'
 ADVISOR = '/poradce-vybavy/'
 ASSET = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js'
 VERSION = 'ver=1.11.1'
-BASELINE_VERSION = 'ver=1.10.0'
+BASELINE_VERSION = 'ver=1.11.0'
 CJ_HOSTS = frozenset({
     'www.kqzyfj.com', 'www.tkqlhce.com', 'www.jdoqocy.com',
     'www.dpbolvw.net', 'www.anrdoezrs.net'
