@@ -27,6 +27,7 @@ require_once __DIR__ . '/dyje6-stay-trust-14517-v1.php';
 require_once __DIR__ . '/jizni-morava-stays-12166-v1.php';
 require_once __DIR__ . '/family-stays-59271-v1.php';
 require_once __DIR__ . '/stredni-cechy-stay-source-proof-92205-v1.php';
+require_once __DIR__ . '/stredni-cechy-stay-offer-trust-92205-v1.php';
 require_once __DIR__ . '/legacy-net-buyer-guides-v1.php';
 require_once __DIR__ . '/carp-mat-buyer-trust-v1.php';
 require_once __DIR__ . '/barrow-buyer-trust-v1.php';
