@@ -25,7 +25,12 @@ final class NRY_Dyje6_Stay_Trust_14517_V1 {
 
     public static function boot() {
         if (function_exists('is_single') && function_exists('add_filter')) {
-            add_filter('the_content', array(__CLASS__, 'render'), 75);
+            // WordPress autop and the internal-link manager change this
+            // page's compact stored HTML into its displayed form. The four
+            // reviewed replacement spans are pinned to that *final* form;
+            // priority 75 ran before some of those transformations, so the
+            // exact source-locked operation safely made no changes live.
+            add_filter('the_content', array(__CLASS__, 'render'), PHP_INT_MAX);
         }
         if (function_exists('is_single') && function_exists('add_action')) {
             add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue'), 28);

@@ -1,7 +1,7 @@
 <?php
 /** Offline exact-render fixture, no WordPress writes or merchant requests. */
 define('ABSPATH', __DIR__);
-function add_filter($n,$cb,$p) { return true; }
+function add_filter($n,$cb,$p) { $GLOBALS['dyje_filter_priority']=$p; return true; }
 function add_action($n,$cb,$p) { return true; }
 function is_single($id) { return $id === 14517; }
 function is_singular($type) { return $type === 'post'; }
@@ -32,6 +32,7 @@ $good = '<p>Revír v Jihomoravském kraji.</p><a href="https://na-ryby.eu/stary-
   .'<li>ochrana proti větru a dešti, pokud zůstáváte přes noc</li>'
   .$stay.'<p>Další odborný text a starší odkazy.</p>';
 $class='NRY_Dyje6_Stay_Trust_14517_V1';
+check(($GLOBALS['dyje_filter_priority'] ?? null)===PHP_INT_MAX,'render after WP autop and internal-link manager');
 $new=$class::transform($good);
 check($new !== $good,'approved exact rendered template transforms');
 check(substr_count($new,$class::FACTS_MARKER)===1,'one sourced facts panel');
@@ -68,4 +69,17 @@ $GLOBALS['dyje_in_loop']=false;
 check($class::render($good)!==$good,'Newspaper off-main-loop post content still renders');
 $GLOBALS['dyje_mock']->post_content='source drift';
 check($class::render($good)===$good,'source drift blocks off-main-loop render');
+
+// Unlike the synthetic $good, this is the exact *fully filtered* WordPress
+// REST rendered HTML from the authenticated source. WordPress stores compact
+// markup and dynamically injects internal link markup + wpautop paragraphs.
+$rendered=file_get_contents(__DIR__.'/fixtures/dyje6-14517-wp-rendered-20261118.html');
+check(substr($rendered,-1)==="\n",'actual rendered fixture has original trailing LF');
+check(substr_count($rendered,'denní povolenka: 200 korun')===1,'actual rendered source has stale price');
+check(substr_count($rendered,'<li>prostor pro <a href="'.$class::OLD_BIVAK_GUIDE.'" data-internallinksmanager029f6b8e52c')===1,'actual rendered source auto-links bivak exactly once');
+$actual=$class::transform($rendered);
+check($actual!==$rendered,'actual WP fully rendered HTML transforms');
+check(substr_count($actual,$class::FACTS_MARKER)===1,'actual rendered adds one official facts block');
+check(substr_count($actual,$class::OFFERS_MARKER)===1,'actual rendered adds one offer block');
+check($class::transform($actual)===$actual,'actual rendered is idempotent');
 echo "PASS: Dyje 6 exact-source conservation, safety and two approved partner routes; no writes\n";
