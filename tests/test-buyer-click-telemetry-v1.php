@@ -44,7 +44,8 @@ $more=array(
   60341 => '/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/',
   11901 => '/jak-vybrat-rybarske-kreslo/',
   118388 => '/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/',
-  119575 => '/nejlepsi-rybarske-bivaky-do-10-000-kc/'
+  119575 => '/nejlepsi-rybarske-bivaky-do-10-000-kc/',
+  59891 => '/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/'
 );
 foreach($more as $id=>$route) {
   $GLOBALS['queue']=array();
@@ -54,8 +55,10 @@ foreach($more as $id=>$route) {
   must(count($GLOBALS['queue'])===1,'exact released buyer must have script');
   must(nry_buyer_click_approved_scope($id,$route),'whitelisted ID/path binding');
   must($GLOBALS['queue'][0]['handle']==='nry-buyer-offer-click-v1','same local JS');
-  must($GLOBALS['queue'][0]['version']==='1.9.0','new script version');
+  must($GLOBALS['queue'][0]['version']==='1.10.0','new script version');
 }
+must(!nry_buyer_click_approved_scope(59891,'/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/'),
+    'stay measurement cannot be bound to a different article');
 must(!nry_buyer_click_approved_scope(60341,'/jak-vybrat-rybarske-kreslo/'),'never bind hub id to evergreen');
 must(!nry_buyer_click_approved_scope(11901,'/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/'),'never bind evergreen id to hub');
 must(!nry_buyer_click_approved_scope(118388,'/nejlepsi-rybarske-bivaky-do-10-000-kc/'),'bivak post ID cannot be swapped');

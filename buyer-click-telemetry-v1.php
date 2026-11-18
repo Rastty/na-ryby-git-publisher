@@ -28,7 +28,9 @@ function nry_buyer_click_approved_scope($post_id, $public_path) {
         60341 => '/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/',
         11901 => '/jak-vybrat-rybarske-kreslo/',
         118388 => '/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/',
-        119575 => '/nejlepsi-rybarske-bivaky-do-10-000-kc/'
+        119575 => '/nejlepsi-rybarske-bivaky-do-10-000-kc/',
+        // Exact published v9 stay canary only; no generic accommodation pages.
+        59891 => '/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/'
     );
     return is_int($post_id) && isset($allowed[$post_id])
         && is_string($public_path) && $public_path === $allowed[$post_id];
@@ -52,7 +54,7 @@ function nry_buyer_click_enqueue() {
         'nry-buyer-offer-click-v1',
         plugins_url('assets/nry-buyer-clicks-v1.js', __FILE__),
         array(),
-        '1.9.0',
+        '1.10.0',
         true
     );
 }

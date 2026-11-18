@@ -24,9 +24,17 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
     window:{...(gtagEnabled?{gtag:(...a)=>calls.push(a)}:{})}
   };
   vm.runInNewContext(script,context,{timeout:1500});
-  const click=(href,{trusted=true,sourcePinnedBaitboatCallout=false}={})=>{
-    const link={href,closest:selector=>
-      selector==='aside[data-nry-baitboat-choice-link="v1"]' && sourcePinnedBaitboatCallout ? {} : null};
+  const click=(href,{trusted=true,sourcePinnedBaitboatCallout=false,
+    sourcePinnedStayBlock=false,stayOfferId=null}={})=>{
+    const link={href,closest:selector=>{
+      if(selector==='aside[data-nry-baitboat-choice-link="v1"]' &&
+         sourcePinnedBaitboatCallout) return {};
+      if(selector==='section[data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"]' &&
+         sourcePinnedStayBlock) return {};
+      if(selector==='article[data-nry-offer-id]' && stayOfferId)
+        return {getAttribute:name=>name==='data-nry-offer-id'?stayOfferId:null};
+      return null;
+    }};
     const element={closest:selector=>selector==='a[href]'?link:null};
     for(const cb of callbacks)cb({isTrusted:trusted,target:element});
   };
@@ -447,3 +455,58 @@ const genericPage=browser({page:'/jak-vybrat-rybarske-kreslo/'});
 genericPage.click(otherCJ);
 assert.equal(genericPage.calls.length,0,'historical bivak identity scoped to exactly one page');
 console.log('PASS: bivak historical CJ, Dognet and internal journeys are consent-gated, read-only');
+
+// Live published post 59891: only the five exact source-pinned merchant CTAs
+// inside the actual release section may emit measurement metadata. Neither
+// this fixture nor the JS ever calls the merchant or sends a synthetic event.
+const stayPath='/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/';
+const publishedHtml=readFileSync('editorial/fishing-stays-cz-20261118-recommendation-blocks.html','utf8');
+const stayTargets=[...publishedHtml.matchAll(
+  /<article data-nry-offer-id="([^"]+)"[\s\S]*?<p><a href="([^"]+)" rel="sponsored nofollow noopener"/g
+) ].map(([,id,href])=>({id,href:href.replaceAll('&amp;','&')}));
+assert.equal(stayTargets.length,5,'exact published Slevomat + Hportal records');
+const stays=browser({page:stayPath});
+assert.equal(stays.callbacks.length,1);
+for(const {id,href} of stayTargets){
+  stays.click(href,{sourcePinnedStayBlock:true,stayOfferId:id});
+  assert.equal(stays.calls.length,stayTargets.indexOf(stayTargets.find(x=>x.id===id))+1);
+  const [eventType,eventName,payload]=stays.calls.at(-1);
+  assert.equal(eventType,'event');
+  assert.equal(eventName,'nry_buyer_offer_click');
+  assert.equal(payload.buyer_page,'fishing_stays_59891');
+  assert.equal(payload.buyer_cta_type,'fishing_stay_outbound');
+  assert.equal(payload.source_post_id,'59891');
+  assert.equal(payload.placement_id,'fishing-stays-cz-59891-20261118-v1');
+  assert.equal(payload.stay_offer_id,id);
+  assert.equal(payload.stay_partner,id==='2462030'?'slevomat_cz':'hportal_dognet_cz');
+  assert.equal(payload.transport_type,'beacon');
+  assert.deepEqual(Object.keys(payload).sort(),[
+    'buyer_page','buyer_cta_type','source_post_id','placement_id',
+    'stay_offer_id','stay_partner','transport_type'
+  ].sort());
+  assert.ok(!JSON.stringify(payload).includes('https://'),'no href or visit data');
+  assert.ok(!JSON.stringify(payload).includes('5QoXiSqx'),'no affiliate query');
+}
+const clickCount=stays.calls.length;
+for(const {id,href} of stayTargets){
+  stays.click(href,{stayOfferId:id}); // same merchant URL outside the block
+  stays.click(href,{sourcePinnedStayBlock:true}); // no offer container
+  stays.click(href,{sourcePinnedStayBlock:true,stayOfferId:'wrong-offer'});
+  stays.click(href,{sourcePinnedStayBlock:true,stayOfferId:id,trusted:false});
+  stays.click(href+'&extra=bad',{sourcePinnedStayBlock:true,stayOfferId:id});
+  stays.click(href+'#fragment',{sourcePinnedStayBlock:true,stayOfferId:id});
+  stays.click(href.replace('https://','http://'),{sourcePinnedStayBlock:true,stayOfferId:id});
+  stays.click(href.replace('https://','https://evil.'),{sourcePinnedStayBlock:true,stayOfferId:id});
+}
+stays.click('https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fother%2F',
+  {sourcePinnedStayBlock:true,stayOfferId:'hportal-penzion-janata'});
+assert.equal(stays.calls.length,clickCount,'untrusted, tampered or misplaced stay links ignored');
+const staysNoGtag=browser({page:stayPath,gtagEnabled:false});
+staysNoGtag.click(stayTargets[0].href,
+  {sourcePinnedStayBlock:true,stayOfferId:stayTargets[0].id});
+assert.equal(staysNoGtag.calls.length,0,'never override site consent');
+const unrelated=browser({page:'/jak-vybrat-rybarske-kreslo/'});
+unrelated.click(stayTargets[0].href,
+  {sourcePinnedStayBlock:true,stayOfferId:stayTargets[0].id});
+assert.equal(unrelated.calls.length,0,'no broad merchant hostname tracking');
+console.log('PASS: five exact stay offers measured on trusted click only, no new tracker');

@@ -1,5 +1,30 @@
 # Fishing stays CZ — source-first commercial audit (18 Nov 2026)
 
+**Production follow-up (18 Nov 2026, after the historical audit below):**
+The standalone post **59891** affiliate canary is **applied and independently
+public-verified**. The owner supplied the guarded Git Publisher receipt
+`applied_and_verified` with subsequent `already_applied`; authenticated
+read-only WP REST returned `modified_gmt=2026-11-18T10:32:38` and the exact
+v9 block at the start of `content.raw`. Independent anonymous rendered
+HTML readback of the actual article showed the one release marker, all five
+published Slevomat/Hportal CTA URLs with `rel=sponsored nofollow noopener`,
+the three relevant internal links and the original article after the block.
+**No repeat WordPress write is required**. The older source-binding hashes,
+`publishable=false` review records and "not published" wording below describe
+the immutable *pre-release evidence snapshot*, not the site's present state.
+The sole active site release remains the immutable v9 canary; the main
+manifest was not replaced.
+
+**Measurement follow-up:** page 59891 was initially not included in the
+existing `nry-buyer-clicks-v1.js` enqueue allowlist. The subsequent
+source-locked measurement change reuses that **same** existing consent-aware
+`gtag` click event channel for only the five exact published links and is
+separately gated by CI, guarded plugin deploy and public JS-byte readback.
+Instrumented code in Git does **not** establish an accepted real GA4/Core
+event. Actual clicks, bookings, approved/paid commissions and attribution all
+remain **UNKNOWN** until source-authorized measurements arrive. No
+synthetic link requests, impression-to-click guesses or second engine.
+
 **Status: OFFLINE REVIEW ONLY. Five partner-derived deep-link candidates and two HTML recommendation blocks have been prepared and syntax-tested; no new WordPress content or links were published.**
 
 ## North Star and separation of ownership
