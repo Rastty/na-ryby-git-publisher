@@ -1,0 +1,40 @@
+name: Na-Ryby Fishing Stays Affiliate V9 Offline Contract
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'editorial/fishing-stays-cz-20261118.json'
+      - 'editorial/fishing-stays-cz-20261118-recommendation-blocks.html'
+      - 'scripts/build-fishing-stays-cz-manifest-v9.mjs'
+      - 'scripts/verify-fishing-stays-cz-offline-v1.mjs'
+      - 'tests/test-fishing-stays-affiliate-release-v9.php'
+      - '.github/workflows/fishing-stays-cz-affiliate-release-v9.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'editorial/fishing-stays-cz-20261118.json'
+      - 'editorial/fishing-stays-cz-20261118-recommendation-blocks.html'
+      - 'scripts/build-fishing-stays-cz-manifest-v9.mjs'
+      - 'scripts/verify-fishing-stays-cz-offline-v1.mjs'
+      - 'tests/test-fishing-stays-affiliate-release-v9.php'
+      - '.github/workflows/fishing-stays-cz-affiliate-release-v9.yml'
+permissions:
+  contents: read
+jobs:
+  immutable-canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate exact merchant evidence and source-bound HTML digest
+        run: node scripts/verify-fishing-stays-cz-offline-v1.mjs
+      - name: Verify existing publisher and immutable affiliate schema syntax
+        run: |
+          php -l na-ryby-git-publisher.php
+          php -l tests/test-fishing-stays-affiliate-release-v9.php
+          node --check scripts/build-fishing-stays-cz-manifest-v9.mjs
+      - name: Reject altered partner links, post targets and source fingerprints
+        run: node scripts/build-fishing-stays-cz-manifest-v9.mjs --stdout | php tests/test-fishing-stays-affiliate-release-v9.php

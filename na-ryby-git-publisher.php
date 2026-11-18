@@ -85,7 +85,7 @@ final class NRY_Git_Publisher {
     }
 
     public static function validate_manifest($data) {
-        if (!is_array($data) || !in_array($data['schema_version'] ?? null, array(1, 2, 3, 4, 5, 6, 7, 8), true)
+        if (!is_array($data) || !in_array($data['schema_version'] ?? null, array(1, 2, 3, 4, 5, 6, 7, 8, 9), true)
             || ($data['site'] ?? '') !== 'https://na-ryby.eu'
             || !isset($data['batch_id'], $data['edits'])
             || !is_string($data['batch_id'])
@@ -101,7 +101,8 @@ final class NRY_Git_Publisher {
         $v6 = $data['schema_version'] === 6;
         $v7 = $data['schema_version'] === 7;
         $v8 = $data['schema_version'] === 8;
-        if (!$v2 && !$v3 && !$v4 && !$v5 && !$v6 && !$v7 && !$v8 && (count($data['edits']) !== 2
+        $v9 = $data['schema_version'] === 9;
+        if (!$v2 && !$v3 && !$v4 && !$v5 && !$v6 && !$v7 && !$v8 && !$v9 && (count($data['edits']) !== 2
             || array_column($data['edits'], 'post_id') !== array(52975, 118517))) {
             return new WP_Error('legacy_scope', 'V1 povoluje jen historickou dvojici.');
         }
@@ -112,11 +113,18 @@ final class NRY_Git_Publisher {
                 || in_array($e['post_id'], array(38064, 42671), true)
                 || isset($seen[$e['post_id']])
                 || !is_string($e['slug']) || !preg_match('/^[a-z0-9-]{10,140}$/D', $e['slug'])
-                || (!$v4 && !$v5 && !$v6 && !$v7 && !$v8 && (!isset($e['anchor']) || !is_string($e['anchor'])))
-                || (!$v4 && !$v5 && !$v6 && !$v7 && !$v8 && !preg_match($v3 ? '~^<h[23](?:\s[^>]*)?>[^<]{8,280}</h[23]>$~uD' : '~^<h[12](?:\s[^>]*)?>[^<]{8,280}</h[12]>$~uD', $e['anchor']))) {
+                || (!$v4 && !$v5 && !$v6 && !$v7 && !$v8 && !$v9 && (!isset($e['anchor']) || !is_string($e['anchor'])))
+                || (!$v4 && !$v5 && !$v6 && !$v7 && !$v8 && !$v9 && !preg_match($v3 ? '~^<h[23](?:\s[^>]*)?>[^<]{8,280}</h[23]>$~uD' : '~^<h[12](?:\s[^>]*)?>[^<]{8,280}</h[12]>$~uD', $e['anchor']))) {
                 return new WP_Error('invalid_item', 'Neschválená identita, kotva nebo chráněný článek.');
             }
             $seen[$e['post_id']] = true;
+            if ($v9) {
+                // Deliberately no generic external-link permission. This exact
+                // owner-provided fishing stay canary is the only schema-9 cohort.
+                $check = self::validate_fishing_stays_affiliate_v9($e, $data);
+                if (is_wp_error($check)) { return $check; }
+                continue;
+            }
             if ($v8) {
                 if (count($data['edits']) > 4 || in_array($e['post_id'], array(44102), true)) {
                     return new WP_Error('v8_scope', 'Neplatný rozsah automatické dávky.');
@@ -755,6 +763,94 @@ final class NRY_Git_Publisher {
         return array('candidate'=>$candidate);
     }
 
+    /**
+     * One owner-confirmed, source-bound fishing-stay release candidate.
+     * Keep ordinary v5–v8 internal-only linking unchanged. Even this schema
+     * cannot run via the guarded auto publisher (which still allows 5–8).
+     */
+    private static function validate_fishing_stays_affiliate_v9($e, $manifest) {
+        $expected=array('post_id','slug','source_modified_gmt','source_min_bytes',
+            'source_max_bytes','source_sha256','edit_id','placement','insert_html');
+        $keys=array_keys($e);
+        sort($keys);sort($expected);
+        if (($manifest['batch_id']??'')!=='fishing-stays-cz-59891-affiliate-20261118-v1'
+            || count($manifest['edits']??array())!==1
+            || $keys!==$expected
+            || $e['post_id']!==59891
+            || $e['slug']!=='rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare'
+            || $e['source_modified_gmt']!=='2026-04-14 14:33:18'
+            || $e['source_min_bytes']!==14101 || $e['source_max_bytes']!==14102
+            || $e['source_sha256']!=='0edcd92cf829f6386277a24c371cd1a3239430fff9b1c10e9280bc926a1d8e79'
+            || $e['edit_id']!=='fishing-stays-cz-59891-20261118-v1'
+            || $e['placement']!=='prepend'
+            || !is_string($e['insert_html']) || strlen($e['insert_html'])!==4234
+            || hash('sha256',$e['insert_html'])!=='531bd77829fdc59f8cdee206df1259dad942efc40d67c6e3c60a2c1a5c73c86b') {
+            return new WP_Error('v9_fishing_stays_scope','Jen přesně prověřený affiliate blok 59891 je povolen.');
+        }
+        $html=$e['insert_html'];
+        if (substr_count($html,'data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"')!==1
+            || !preg_match('/^<section data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"/D',$html)
+            || substr($html,-10)!=='</section>'
+            || preg_match('~<(?:script|iframe|form|img|svg|object|embed)\b|\bon[a-z]+\s*=~i',$html)) {
+            return new WP_Error('v9_fishing_stays_html','Neschválený HTML tvar.');
+        }
+        preg_match_all('~<a\b[^>]*href="([^"]+)"[^>]*>~iu',$html,$matches);
+        if (count($matches[1])!==8 || substr_count($html,'<a ')!==8) {
+            return new WP_Error('v9_fishing_stays_links','Neschválený počet odkazů.');
+        }
+        $local=array(
+            'https://na-ryby.eu/bungalov-u-prehrady-hracholusky/',
+            'https://na-ryby.eu/zimni-privlac-v-okoli-prahy-kde-najit-nejlepsi-reviry/',
+            'https://na-ryby.eu/vybrane-reviry-vhodne-pro-hlubinnou-privlac-v-cesku/'
+        );
+        $hportal=array(
+            'https://hportal.cz/cs/ulice/pension-u-vlcku/',
+            'https://hportal.cz/cs/rabyne/penzion-janata/',
+            'https://hportal.cz/cs/horni-plana/penzion-u-kohoutu/',
+            'https://hportal.cz/cs/rozmberk-nad-vltavou/pension-rybarska-basta/'
+        );
+        $found=array('slevomat'=>0,'dognet'=>0,'internal'=>0);
+        foreach ($matches[1] as $i=>$encoded) {
+            $url=html_entity_decode($encoded,ENT_QUOTES|ENT_HTML5,'UTF-8');
+            $host=parse_url($url,PHP_URL_HOST);
+            if ($host==='na-ryby.eu') {
+                if (!in_array($url,$local,true)) return new WP_Error('v9_local_url','Nepovolená interní URL.');
+                $found['internal']++;
+                continue;
+            }
+            if (strpos($matches[0][$i],'rel="sponsored nofollow noopener"')===false
+                || strpos($matches[0][$i],'target="_blank"')===false) {
+                return new WP_Error('v9_link_rel','Partnerský odkaz nemá bezpečné atributy.');
+            }
+            $query=array();
+            parse_str((string) parse_url($url,PHP_URL_QUERY),$query);
+            if ($host==='go.dognet.com') {
+                if (array_keys($query)!==array('chid','url')
+                    || $query['chid']!=='5QoXiSqx'
+                    || !in_array($query['url'],$hportal,true)) {
+                    return new WP_Error('v9_dognet_url','Neschválený Dognet cíl.');
+                }
+                $found['dognet']++;
+            } elseif ($host==='www.slevomat.cz') {
+                if (parse_url($url,PHP_URL_PATH)!=='/akce/2462030-statek-na-jihu-cech-snidane-i-privatni-sauna-ci-rybareni'
+                    || $query!==array(
+                        'utm_source'=>'affiliate','utm_medium'=>'cpc',
+                        'utm_campaign'=>'dis_akv_gen_cze_all_buy_j3d7tsgc_narybyCZ',
+                        'utm_content'=>'stay_59891_jedraz','utm_term'=>'j3d7tsgc',
+                        'a_box'=>'j3d7tsgc')) {
+                    return new WP_Error('v9_slevomat_url','Neschválený Slevomat cíl.');
+                }
+                $found['slevomat']++;
+            } else {
+                return new WP_Error('v9_external_host','Neschválený affiliate host.');
+            }
+        }
+        if ($found!==array('slevomat'=>1,'dognet'=>4,'internal'=>3)) {
+            return new WP_Error('v9_fishing_stays_mix','Nesprávné složení nabídky.');
+        }
+        return true;
+    }
+
     private static function validate_v6_edit($e) {
         if (!isset($e['source_min_bytes'], $e['source_max_bytes'])
             || !is_int($e['source_min_bytes']) || !is_int($e['source_max_bytes'])
@@ -1165,7 +1261,7 @@ final class NRY_Git_Publisher {
         }
         // Persist originals on WordPress itself before the first v5 write.
         // Never overwrite an older backup for the same immutable batch ID.
-        if (in_array($manifest['schema_version'] ?? null, array(5, 6, 7, 8), true)
+        if (in_array($manifest['schema_version'] ?? null, array(5, 6, 7, 8, 9), true)
             && count(array_filter($rows, function($r) { return $r['status'] === 'ready'; })) > 0) {
             $key = 'nry_gp_backup_' . md5($manifest['batch_id']);
             $snapshots = array();

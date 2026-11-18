@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Site-only evidence contract; Product/Offer matching and economic ranking belong in Core.
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
 
 const data = JSON.parse(readFileSync(new URL('../editorial/fishing-stays-cz-20261118.json', import.meta.url), 'utf8'));
@@ -122,6 +123,17 @@ assert.equal(areas.size, 4);
 
 // Site-specific editorial HTML only: no dynamic matcher, redirector or synthetic click beacon.
 const html = readFileSync(new URL('../editorial/fishing-stays-cz-20261118-recommendation-blocks.html', import.meta.url), 'utf8');
+const primary = html.match(/<section data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"[\s\S]*?<\/section>/);
+assert(primary, 'missing primary offer block');
+const source = data.target_pages.find(page => page.post_id === 59891);
+const binding = source.authenticated_source_binding;
+assert.equal(binding.method, 'connected_wordpress_rest_context_edit_read_only');
+assert.equal(binding.raw_post_content_bytes, 14101);
+assert.match(binding.raw_post_content_sha256, /^[0-9a-f]{64}$/);
+assert.equal(binding.candidate_block_marker, 'fishing-stays-cz-59891-20261118-v1');
+assert.equal(binding.candidate_block_bytes, Buffer.byteLength(primary[0]));
+assert.equal(binding.candidate_block_sha256, createHash('sha256').update(primary[0]).digest('hex'));
+assert.equal(binding.release_state, 'needs_private_wordpress_rollback_authorized_external_link_guard_and_public_readback');
 const markers = [...html.matchAll(/data-nry-editorial-edit="([^"]+)"/g)].map(m => m[1]);
 assert.deepEqual(markers, ['fishing-stays-cz-59891-20261118-v1', 'fishing-stays-cz-hracholusky-20261118-v1']);
 assert(!/<script\b|\bonclick\s*=|<iframe\b|VASEID|DOMENACZ/i.test(html));
@@ -143,4 +155,4 @@ for (const offer of data.stay_offers.filter(x => x.affiliate_url !== null)) {
   assert(tracked.some(link => link.href === offer.affiliate_url), `candidate missing from reviewed HTML: ${offer.offer_id}`);
 }
 assert(!html.includes('Rybník Rožmberk'), 'do not mix Rožmberk nad Vltavou with Třeboň pond');
-console.log('FISHING_STAYS_CZ_OFFLINE_EVIDENCE_VALID (4 pages, 2 merchant-described private ponds, 4 locality areas, 7 review-only offers, 2 exclusions; 5 syntax-checked owner-supplied affiliate routes; 6 CTA placements; 0 public releases)');
+console.log('FISHING_STAYS_CZ_OFFLINE_EVIDENCE_VALID (4 pages, 1 authenticated post source binding, 2 private ponds, 4 locality areas, 7 review-only offers, 5 syntax-checked affiliate routes; 6 CTAs; 0 public releases)');
