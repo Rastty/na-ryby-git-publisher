@@ -5,9 +5,10 @@ Status: **release candidate only; production CSS not yet verified**. On
 all five exact reviewed sponsored destinations, the original article and
 canonical URL. Public WordPress REST confirms published post 59891; its
 `modified_gmt` has advanced since the original editorial insertion, so the
-CSS eligibility deliberately checks the *approved five-offer section hash*
-`531bd77829fdc59f8cdee206df1259dad942efc40d67c6e3c60a2c1a5c73c86b`
-and post identity rather than assuming an old whole-post hash. It never
+CSS eligibility checks the exact published post identity, one marked section,
+all five reviewed offer IDs and **all five original affiliate URLs**. This
+keeps the guard intact when WordPress reformats the stored block or editorial
+copy changes without changing the merchant links. It never
 changes the WordPress post or another contributor's newer copy.
 
 ## Visitor outcome
@@ -23,7 +24,7 @@ fishing permit is added.
 
 The existing `buyer-click-telemetry-v1.php` now enqueues a small local CSS file only on
 the exact single post ID, canonical permalink and published raw-content
-marker with all five exact offer IDs once. Source drift, changed identity,
+marker with all five exact offer IDs and approved URLs once. Affiliate drift, changed identity,
 draft, preview or admin view fail closed. CSS selectors are fully scoped to
 `data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"`.
 
