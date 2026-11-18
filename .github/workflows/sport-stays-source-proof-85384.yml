@@ -1,0 +1,39 @@
+name: Na-Ryby Sport Stays 85384 Exact Source Proof (GET only)
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'sport-stays-source-proof-85384-v1.php'
+      - 'scripts/verify-sport-stays-source-proof-85384.py'
+      - 'tests/test-sport-stays-source-proof-85384-v1.php'
+      - 'tests/test-sport-stays-source-proof-85384.py'
+      - '.github/workflows/sport-stays-source-proof-85384.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pure read-only fingerprint schema and fail-closed source identity
+        run: |
+          php -l na-ryby-git-publisher.php
+          php -l sport-stays-source-proof-85384-v1.php
+          php tests/test-sport-stays-source-proof-85384-v1.php
+          python3 -m py_compile scripts/verify-sport-stays-source-proof-85384.py
+          python3 tests/test-sport-stays-source-proof-85384.py
+  public:
+    needs: contract
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Anonymous exact original WordPress source digest, no writes
+        run: python3 scripts/verify-sport-stays-source-proof-85384.py --verify
