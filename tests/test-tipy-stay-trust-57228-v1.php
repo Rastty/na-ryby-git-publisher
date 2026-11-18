@@ -49,7 +49,8 @@ check(strpos($fixed, 'https://na-ryby.eu/stary-odkaz/') !== false, 'original int
 check(strpos($fixed, 'Další neměněný obsah') !== false, 'unaffected text retained');
 check($class::transform($fixed) === $fixed, 'idempotent');
 check($class::render($original) === $original, 'source SHA mismatch fails closed');
-check($class::transform(str_replace('Zlínský kraj', 'Jiný kraj', $original)) === $original,
+$drift = str_replace('Zlínský kraj', 'Jiný kraj', $original);
+check($class::transform($drift) === $drift,
     'drifted visible anchor does not allow partial changes');
 check($class::transform($original.$original) === $original.$original,
     'duplicate article blocks all changes');
