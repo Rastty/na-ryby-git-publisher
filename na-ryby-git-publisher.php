@@ -1265,6 +1265,12 @@ final class NRY_Git_Publisher {
     }
 
     public static function execute($manifest) {
+        $strictV9 = is_array($manifest) && ($manifest['schema_version'] ?? null) === 9;
+        if ($strictV9 && is_wp_error(self::validate_manifest($manifest))) {
+            // This one externally linked cohort may never enter the trusted
+            // writer through an unvalidated programmatic execute() call.
+            return array('status'=>'v9_scope_invalid_no_writes','writes'=>0);
+        }
         $rows = self::plan($manifest);
         if (is_wp_error($rows)) { return $rows; }
         foreach ($rows as $row) {
@@ -1272,19 +1278,25 @@ final class NRY_Git_Publisher {
                 return array('status' => 'blocked_no_writes', 'writes' => 0, 'rows' => self::safe_rows($rows));
             }
         }
-        $strictV9 = ($manifest['schema_version'] ?? null) === 9;
         if ($strictV9 && count(array_filter($rows, function($r) { return $r['status'] === 'ready'; })) > 0) {
-            // V9 deliberately DOES NOT bypass WordPress KSES. Prove the old
-            // content can be restored byte-for-byte through the same filters
-            // before placing a backup or attempting any new affiliate write.
-            if (!function_exists('wp_kses_post') || !function_exists('wp_slash')) {
+            // Production proved that the EXACT new section is KSES-safe but
+            // legacy source HTML is not. Preserve ONLY the old, SHA-pinned
+            // bytes through the publisher's existing scoped trusted write;
+            // never permit an unsafe new section or global filter changes.
+            if (!function_exists('wp_kses_post') || !function_exists('wp_slash')
+                || !function_exists('has_filter') || !function_exists('remove_filter')
+                || !function_exists('add_filter')) {
                 return array('status'=>'v9_filter_safety_unavailable_no_writes','writes'=>0);
+            }
+            $approvedInsert = $manifest['edits'][0]['insert_html'];
+            if (wp_kses_post($approvedInsert) !== $approvedInsert) {
+                return array('status'=>'v9_new_html_kses_drift_no_writes','writes'=>0);
             }
             foreach ($rows as $row) {
                 if ($row['status'] !== 'ready') continue;
-                if (wp_kses_post($row['source']) !== $row['source']
-                    || wp_kses_post($row['candidate']) !== $row['candidate']) {
-                    return array('status'=>'v9_kses_drift_no_writes','writes'=>0);
+                if ($row['candidate'] !== $approvedInsert . "\n" . $row['source']
+                    || !hash_equals($manifest['edits'][0]['source_sha256'], $row['source_sha'])) {
+                    return array('status'=>'v9_legacy_preservation_mismatch_no_writes','writes'=>0);
                 }
             }
         }
@@ -1320,7 +1332,7 @@ final class NRY_Git_Publisher {
                 $failed = array('id' => $row['id'], 'reason' => 'concurrent_edit'); break;
             }
             $result = self::verified_local_write($row['id'],$row['candidate'],
-                in_array($manifest['schema_version'] ?? null,array(5,6,7,8),true), $strictV9);
+                in_array($manifest['schema_version'] ?? null,array(5,6,7,8),true) || $strictV9);
             if (is_wp_error($result) || (int) $result !== (int) $row['id']) {
                 $failed = array('id' => $row['id'], 'reason' => 'write_failed'); break;
             }
@@ -1345,7 +1357,7 @@ final class NRY_Git_Publisher {
                     $uncertain[] = $row['id']; continue;
                 }
                 $r = self::verified_local_write($row['id'],$row['source'],
-                    in_array($manifest['schema_version'] ?? null,array(5,6,7,8),true), $strictV9);
+                    in_array($manifest['schema_version'] ?? null,array(5,6,7,8),true) || $strictV9);
                 $p = get_post($row['id']);
                 if (is_wp_error($r) || !$p || hash('sha256', $p->post_content) !== $row['source_sha']) {
                     $uncertain[] = $row['id'];
@@ -1361,16 +1373,13 @@ final class NRY_Git_Publisher {
 
 
     /**
-     * Only trusted schema v5-v8 candidate writes can bypass WordPress's
-     * anonymous-post KSES filters. All candidate and backup/source SHA checks
-     * happen in plan/inspect/execute before reaching this helper.
+     * Trusted schema v5-v8 and the sole immutable, KSES-safe-new-HTML v9
+     * cohort may temporarily detach legacy KSES save filters to preserve
+     * pre-existing bytes. They are always restored in finally; never changed
+     * globally. All candidate, source SHA and backup checks precede this.
      * WP arrays require wp_slash; KSES would silently strip legacy scripts.
      */
-    private static function verified_local_write($postId,$content,$trusted,$strictV9=false) {
-        if ($strictV9) {
-            // WordPress expects slashed data. Retain normal security filters.
-            return wp_update_post(array('ID'=>$postId,'post_content'=>wp_slash($content)),true);
-        }
+    private static function verified_local_write($postId,$content,$trusted) {
         if (!$trusted || !function_exists('wp_slash')
             || !function_exists('has_filter') || !function_exists('remove_filter')
             || !function_exists('add_filter')) {
@@ -1746,6 +1755,10 @@ final class NRY_Git_Publisher {
             }
         }
         $post = get_post(59891);
+        $legacyWriterReady = $ready && $status === 'ready'
+            && $kses['insert_preserved'] === true
+            && function_exists('wp_slash') && function_exists('has_filter')
+            && function_exists('remove_filter') && function_exists('add_filter');
         $markers = $post && is_string($post->post_content)
             ? substr_count($post->post_content,
                 'data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"') : 0;
@@ -1757,6 +1770,7 @@ final class NRY_Git_Publisher {
             'candidate_loaded'=>$ready,'batch_id'=>$ready ? $manifest['batch_id'] : null,
             'post_id'=>59891,'preflight_status'=>$status,'marker_count'=>$markers,
             'kses_diagnostic'=>$kses,
+            'v9_safe_legacy_writer_ready'=>$legacyWriterReady,
             'publication_triggered'=>false,'wordpress_writes'=>0));
         exit;
     }

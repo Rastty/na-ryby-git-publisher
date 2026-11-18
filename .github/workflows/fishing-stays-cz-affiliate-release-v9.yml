@@ -9,6 +9,7 @@ on:
       - 'fishing-stays-cz-59891-release-v9.json'
       - 'scripts/verify-fishing-stays-cz-offline-v1.mjs'
       - 'tests/test-fishing-stays-affiliate-release-v9.php'
+      - 'tests/test-fishing-stays-v9-trusted-write-scope.php'
       - '.github/workflows/fishing-stays-cz-affiliate-release-v9.yml'
   push:
     branches: [main]
@@ -20,6 +21,7 @@ on:
       - 'fishing-stays-cz-59891-release-v9.json'
       - 'scripts/verify-fishing-stays-cz-offline-v1.mjs'
       - 'tests/test-fishing-stays-affiliate-release-v9.php'
+      - 'tests/test-fishing-stays-v9-trusted-write-scope.php'
       - '.github/workflows/fishing-stays-cz-affiliate-release-v9.yml'
 permissions:
   contents: read
@@ -37,8 +39,10 @@ jobs:
         run: |
           php -l na-ryby-git-publisher.php
           php -l tests/test-fishing-stays-affiliate-release-v9.php
+          php -l tests/test-fishing-stays-v9-trusted-write-scope.php
           node --check scripts/build-fishing-stays-cz-manifest-v9.mjs
       - name: Reject altered partner links, post targets and source fingerprints
         run: |
           node scripts/build-fishing-stays-cz-manifest-v9.mjs --stdout | cmp - fishing-stays-cz-59891-release-v9.json
           node scripts/build-fishing-stays-cz-manifest-v9.mjs --stdout | php tests/test-fishing-stays-affiliate-release-v9.php
+          php tests/test-fishing-stays-v9-trusted-write-scope.php

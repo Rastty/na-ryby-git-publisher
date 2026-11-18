@@ -36,6 +36,9 @@ must(!is_wp_error($standalone) && $standalone===$valid,
 $bad=$manifest;
 $bad['edits'][0]['insert_html'].='<script>bad()</script>';
 must(is_wp_error(NRY_Git_Publisher::validate_manifest($bad)),'unapproved HTML accepted');
+$untrusted=NRY_Git_Publisher::execute($bad);
+must(($untrusted['status']??'')==='v9_scope_invalid_no_writes' && $writes===0,
+    'unvalidated v9 direct execute bypassed exact affiliate allowlist');
 $bad=$manifest;
 $bad['edits'][0]['insert_html']=str_replace('5QoXiSqx','other',$bad['edits'][0]['insert_html']);
 must(is_wp_error(NRY_Git_Publisher::validate_manifest($bad)),'wrong Dognet attribution accepted');
