@@ -20,10 +20,13 @@ final class NRY_Hracholusky_Stay_Trust_17606_V1 {
     const MARKER = 'data-nry-hracholusky-stay-trust="v1"';
 
     public static function boot() {
-        if (function_exists('add_filter')) {
+        // Offline publisher writer-contract tests intentionally provide a
+        // minimal add_filter stub, without the frontend query functions.
+        // Never register a frontend correction in that backend/test context.
+        if (function_exists('is_single') && function_exists('add_filter')) {
             add_filter('the_content', array(__CLASS__, 'render'), 75);
         }
-        if (function_exists('add_action')) {
+        if (function_exists('is_single') && function_exists('add_action')) {
             add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue'), 28);
         }
     }
