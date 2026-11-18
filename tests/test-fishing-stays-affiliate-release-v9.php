@@ -9,9 +9,17 @@ function is_wp_error($v) { return $v instanceof WP_Error; }
 function add_action($name, $fn) { return true; }
 function wp_kses($html, $allowed, $protocols) { return $html; }
 $posts=array(); $writes=0; $options=array();
+define('MINUTE_IN_SECONDS', 60);
+function current_user_can($cap) { global $is_admin; return $is_admin; }
+function check_admin_referer($action) { global $valid_nonce; if (!$valid_nonce) throw new RuntimeException('missing nonce'); }
+function wp_die($message) { throw new RuntimeException($message); }
 function get_post($id) { global $posts; return $posts[$id]??null; }
 function wp_update_post($data,$returnError=false) { global $writes; $writes++; return $data['ID']; }
-function add_option($key,$value,$deprecated='',$autoload='yes') { global $options; $options[$key]=$value; return true; }
+function add_option($key,$value,$deprecated='',$autoload='yes') {
+    global $options;
+    if (array_key_exists($key,$options)) return false;
+    $options[$key]=$value; return true;
+}
 function get_option($key,$default=false) { global $options; return $options[$key]??$default; }
 function must($value,$reason) { if (!$value) throw new RuntimeException($reason); }
 require dirname(__DIR__) . '/na-ryby-git-publisher.php';
@@ -21,6 +29,9 @@ must(is_array($manifest) && $manifest['schema_version']===9,'bad input candidate
 $valid=NRY_Git_Publisher::validate_manifest($manifest);
 must(!is_wp_error($valid),'exact v9 candidate must validate');
 must($valid['edits'][0]['post_id']===59891,'wrong post');
+$standalone=NRY_Git_Publisher::fishing_stays_manifest();
+must(!is_wp_error($standalone) && $standalone===$valid,
+    'separate on-disk release candidate differs from generated review input');
 
 $bad=$manifest;
 $bad['edits'][0]['insert_html'].='<script>bad()</script>';
@@ -55,4 +66,30 @@ must($rows[0]['status']==='blocked'
 $result=NRY_Git_Publisher::execute($valid);
 must(($result['status']??'')==='blocked_no_writes' && $writes===0
     && count($options)===0,'unexpected write or private backup with invalid raw source');
-echo "ok: one immutable 59891 affiliate candidate, owner IDs, external allowlist, raw SHA gate, no writes\n";
+
+// New manual path must retain admin capability, nonce and existing one-writer
+// protections. None of these negative cases may create a backup or write.
+$is_admin=false; $valid_nonce=true;
+try { NRY_Git_Publisher::handle_fishing_stays_apply();
+    throw new RuntimeException('unauthorized admin accepted');
+} catch (RuntimeException $e) { must($e->getMessage()==='Access denied', 'capability gate weakened'); }
+$is_admin=true; $valid_nonce=false;
+try { NRY_Git_Publisher::handle_fishing_stays_apply();
+    throw new RuntimeException('missing nonce accepted');
+} catch (RuntimeException $e) { must($e->getMessage()==='missing nonce', 'nonce gate weakened'); }
+$valid_nonce=true; $options['nry_gp_auto_enabled_v1']='yes';
+try { NRY_Git_Publisher::handle_fishing_stays_apply();
+    throw new RuntimeException('auto-enabled release accepted');
+} catch (RuntimeException $e) {
+    must(strpos($e->getMessage(),'vypněte automatiku')!==false, 'auto writer gate weakened');
+}
+$options['nry_gp_auto_enabled_v1']='no';
+$options['nry_gp_auto_lock_v1']=array('token'=>'other-writer','expires'=>time()+200);
+function wp_generate_uuid4() { return 'new-release-uuid'; }
+try { NRY_Git_Publisher::handle_fishing_stays_apply();
+    throw new RuntimeException('competing writer accepted');
+} catch (RuntimeException $e) {
+    must(strpos($e->getMessage(),'zámek obsazen')!==false, 'atomic writer lock weakened');
+}
+must($writes===0,'manual-route negative gates caused content write');
+echo "ok: immutable v9 standalone candidate, partner IDs, source SHA, nonce/capability/one-writer no-write gates\n";
