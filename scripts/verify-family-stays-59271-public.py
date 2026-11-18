@@ -20,6 +20,9 @@ ORIGIN = 'https://na-ryby.eu'
 PATH = '/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/'
 REST = ORIGIN + '/wp-json/wp/v2/posts/59271'
 CSS = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-family-stays-59271-v1.css'
+JS = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js'
+VERSION = 'ver=1.11.3'
+PREVIOUS_VERSION = 'ver=1.11.2'
 SOURCE_PREFIX_SHA256 = '02228a68098a012f31a5df6c96f82ea9231b2d8fd9fd1ea392929a08d750b04a'
 HPORTAL_LIPNO = 'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fhorni-plana%2Fpenzion-u-kohoutu%2F'
 HPORTAL_SLAPY = 'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Frabyne%2Fpenzion-janata%2F'
@@ -32,6 +35,7 @@ class Page(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.canonical = []
         self.styles = []
+        self.script_versions = []
         self.block_count = 0
         self.inside = False
         self.article = None
@@ -49,6 +53,10 @@ class Page(HTMLParser):
         if tag == 'section' and a.get('data-nry-family-stays') == 'v1':
             self.block_count += 1
             self.inside = True
+        if tag == 'script':
+            url = urlsplit(a.get('src') or '')
+            if url.path == JS and url.scheme in ('', 'https') and url.netloc in ('', 'na-ryby.eu'):
+                self.script_versions.append(url.query)
         if tag == 'article' and self.inside:
             self.article = a.get('data-nry-family-offer')
             self.ctas.setdefault(self.article, [])
@@ -66,7 +74,8 @@ class Page(HTMLParser):
             self.inside = False
 
 
-def public_assertions(html, *, deployed, css_public=b'', css_reviewed=b''):
+def public_assertions(html, *, deployed, css_public=b'', css_reviewed=b'',
+                      js_public=b'', js_reviewed=b''):
     decoded = html.decode('utf-8', 'replace')
     page = Page()
     page.feed(decoded)
@@ -75,11 +84,6 @@ def public_assertions(html, *, deployed, css_public=b'', css_reviewed=b''):
     assert 'postid-59271' in decoded, 'FAMILY_POST_ID_DRIFT'
     assert 'Rybolov na řece Vltavě' in decoded, 'FAMILY_ORIGINAL_VLTAVA_MISSING'
     assert 'Rybářská osada Dolní Vltavice' in decoded, 'FAMILY_ORIGINAL_LIPNO_MISSING'
-    if not deployed:
-        assert page.block_count == 0 and page.styles == [], 'FAMILY_ALREADY_DEPLOYED_OR_STYLE_DRIFT'
-        assert not page.ctas, 'FAMILY_PREDEPLOY_OFFER_PRESENT'
-        return {'status': 'FAMILY_STAYS_PREFLIGHT_READY', 'postId': 59271,
-                'wordPressWrites': 0, 'merchantRequests': 0, 'syntheticClicks': 0}
     assert page.block_count == 1, 'FAMILY_BLOCK_NOT_ONCE'
     assert set(page.ctas) == set(OFFERS), 'FAMILY_OFFER_COUNT_OR_IDS_DRIFT'
     for offer_id, expected in OFFERS.items():
@@ -90,9 +94,21 @@ def public_assertions(html, *, deployed, css_public=b'', css_reviewed=b''):
     assert placement >= 0 and decoded.find('data-nry-family-stays="v1"') < placement, (
         'FAMILY_CTA_BURIED_AFTER_INTRO')
     assert page.styles == ['ver=1.0.0'], 'FAMILY_STYLE_NOT_EXACTLY_ONCE'
+    if not deployed:
+        # The two public affiliate cards already exist. On PR, accept the
+        # current absence of the measurement script or its exact reviewed
+        # historical version; future PRs can observe the deployed version.
+        assert page.script_versions in ([], [PREVIOUS_VERSION], [VERSION]), (
+            'FAMILY_UNREVIEWED_SCRIPT_BASELINE')
+        return {'status': 'FAMILY_STAYS_CLICK_PREFLIGHT_READY', 'postId': 59271,
+                'affiliateOffers': 2, 'wordPressWrites': 0,
+                'merchantRequests': 0, 'syntheticClicks': 0}
     assert len(css_public) > 500 and css_public == css_reviewed, 'FAMILY_STYLES_NOT_BYTE_IDENTICAL'
+    assert page.script_versions == [VERSION], 'FAMILY_CLICK_SCRIPT_NOT_EXACTLY_ONCE'
+    assert len(js_public) > 1000 and js_public == js_reviewed, 'FAMILY_CLICK_JS_NOT_BYTE_IDENTICAL'
     return {'status': 'FAMILY_STAYS_PUBLIC_VERIFIED', 'postId': 59271,
-            'affiliateOffers': 2, 'stylingByteIdentical': True,
+            'affiliateOffers': 2, 'stylingByteIdentical': True, 'clickScriptByteIdentical': True,
+            'clickObservationEnabled': True, 'ga4DeliveryProven': False,
             'wordPressWrites': 0, 'merchantRequests': 0, 'syntheticClicks': 0,
             'realClicks': None, 'fulfilledReservations': None, 'paidCommissions': None}
 
@@ -113,7 +129,7 @@ def rest_preflight(data):
 
 
 def get(url, max_bytes):
-    allowed = {ORIGIN + PATH, REST, ORIGIN + CSS + '?ver=1.0.0'}
+    allowed = {ORIGIN + PATH, REST, ORIGIN + CSS + '?ver=1.0.0', ORIGIN + JS + '?' + VERSION}
     assert url in allowed, 'FAMILY_UNAPPROVED_GET'
     request = Request(url, headers={'User-Agent': 'NaRyby-Family-Stays-ReadOnly/1.0',
                                     'Cache-Control': 'no-cache, no-store'}, method='GET')
@@ -132,6 +148,8 @@ def main():
         get(ORIGIN + PATH, 1500000), deployed=deployed,
         css_public=get(ORIGIN + CSS + '?ver=1.0.0', 30000) if deployed else b'',
         css_reviewed=(ROOT / 'assets/nry-family-stays-59271-v1.css').read_bytes() if deployed else b'',
+        js_public=get(ORIGIN + JS + '?' + VERSION, 50000) if deployed else b'',
+        js_reviewed=(ROOT / 'assets/nry-buyer-clicks-v1.js').read_bytes() if deployed else b'',
     )
     print(json.dumps(result, ensure_ascii=False))
 

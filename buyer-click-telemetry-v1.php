@@ -32,7 +32,8 @@ function nry_buyer_click_approved_scope($post_id, $public_path) {
         // Explicit source-pinned fishing-stay cohorts; not a sitewide allowlist.
         59891 => '/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/',
         14517 => '/vestonicka-nadrz-dyje-6-rybarina-jihomoravsky-kraj/',
-        12166 => '/rybarska-dovolena-jizni-morava/'
+        12166 => '/rybarska-dovolena-jizni-morava/',
+        59271 => '/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/'
     );
     return is_int($post_id) && isset($allowed[$post_id])
         && is_string($public_path) && $public_path === $allowed[$post_id];
@@ -56,7 +57,7 @@ function nry_buyer_click_enqueue() {
         'nry-buyer-offer-click-v1',
         plugins_url('assets/nry-buyer-clicks-v1.js', __FILE__),
         array(),
-        '1.11.2',
+        '1.11.3',
         true
     );
 }
