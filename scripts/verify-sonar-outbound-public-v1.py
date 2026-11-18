@@ -24,11 +24,10 @@ BOAT = "/jak-vybrat-nejlepsi-rybarsky-echolot-na-lod-vybirame-sonar-pro-rybare/"
 HISTORIC = "/porovnani-nejlepsich-echolotu-na-trhu-v-roce-2023/"
 ADVISOR = "/poradce-vybavy/"
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
-VERSION = "ver=1.10.0"
-# PR preflight pins the actual independently observed public JS version on
-# A live 1.9.0 asset predates the newly source-bound fishing-stay event;
-# the next deployed asset is 1.10.0 and must be byte-identical.
-BASELINE_VERSION = "ver=1.9.0"
+VERSION = "ver=1.11.0"
+# Previously deployed v1.10.0 is valid for read-only PR preflight;
+# after guarded deploy the reviewed v1.11.0 bytes must match exactly.
+BASELINE_VERSION = "ver=1.10.0"
 ROOT = Path(__file__).resolve().parents[1]
 
 

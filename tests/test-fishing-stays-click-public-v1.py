@@ -43,7 +43,7 @@ def blocked(html, *, js=asset, deployed=False):
 live = document(module['VERSION'])
 blocked(live, deployed=True, js=b'not the installed asset')
 blocked(document(module['PREVIOUS_VERSION']), deployed=True)
-blocked(document('ver=1.11.0'))
+blocked(document('ver=1.12.0'))
 blocked(document().replace(origin.encode(), b'https://evil.example', 1))
 blocked(document().replace(b'data-nry-editorial-edit="fishing-stays-cz-59891-20261118-v1"',
                            b'data-nry-editorial-edit="other-marker"'))

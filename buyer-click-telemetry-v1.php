@@ -29,8 +29,9 @@ function nry_buyer_click_approved_scope($post_id, $public_path) {
         11901 => '/jak-vybrat-rybarske-kreslo/',
         118388 => '/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/',
         119575 => '/nejlepsi-rybarske-bivaky-do-10-000-kc/',
-        // Exact published v9 stay canary only; no generic accommodation pages.
-        59891 => '/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/'
+        // Explicit source-pinned fishing-stay cohorts; not a sitewide allowlist.
+        59891 => '/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/',
+        14517 => '/vestonicka-nadrz-dyje-6-rybarina-jihomoravsky-kraj/'
     );
     return is_int($post_id) && isset($allowed[$post_id])
         && is_string($public_path) && $public_path === $allowed[$post_id];
@@ -54,7 +55,7 @@ function nry_buyer_click_enqueue() {
         'nry-buyer-offer-click-v1',
         plugins_url('assets/nry-buyer-clicks-v1.js', __FILE__),
         array(),
-        '1.10.0',
+        '1.11.0',
         true
     );
 }
