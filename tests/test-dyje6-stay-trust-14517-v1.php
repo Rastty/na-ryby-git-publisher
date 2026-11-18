@@ -76,7 +76,7 @@ check($class::render($good)===$good,'source drift blocks off-main-loop render');
 $rendered=file_get_contents(__DIR__.'/fixtures/dyje6-14517-wp-rendered-20261118.html');
 check(substr($rendered,-1)==="\n",'actual rendered fixture has original trailing LF');
 check(substr_count($rendered,'denní povolenka: 200 korun')===1,'actual rendered source has stale price');
-check(substr_count($rendered,'data-internallinksmanager029f6b8e52c')===1,'actual rendered source auto-links bivak');
+check(substr_count($rendered,'<li>prostor pro <a href="'.$class::OLD_BIVAK_GUIDE.'" data-internallinksmanager029f6b8e52c')===1,'actual rendered source auto-links bivak exactly once');
 $actual=$class::transform($rendered);
 check($actual!==$rendered,'actual WP fully rendered HTML transforms');
 check(substr_count($actual,$class::FACTS_MARKER)===1,'actual rendered adds one official facts block');
