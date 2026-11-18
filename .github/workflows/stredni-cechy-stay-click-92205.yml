@@ -1,0 +1,43 @@
+name: Na-Ryby Stredni Cechy Stay Click Public Proof
+on:
+  pull_request:
+    paths:
+      - 'buyer-click-telemetry-v1.php'
+      - 'assets/nry-buyer-clicks-v1.js'
+      - 'scripts/verify-stredni-cechy-stay-click-public-92205.py'
+      - 'tests/test-stredni-cechy-stay-click-public-92205.py'
+      - 'tests/test-buyer-click-telemetry-v1.mjs'
+      - 'tests/test-buyer-click-telemetry-v1.php'
+      - '.github/workflows/stredni-cechy-stay-click-92205.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Existing same-consent handler and exact event tests
+        run: |
+          php -l buyer-click-telemetry-v1.php
+          php tests/test-buyer-click-telemetry-v1.php
+          node --check assets/nry-buyer-clicks-v1.js
+          node tests/test-buyer-click-telemetry-v1.mjs
+          python3 -m py_compile scripts/verify-stredni-cechy-stay-click-public-92205.py
+          python3 tests/test-stredni-cechy-stay-click-public-92205.py
+  public:
+    needs: contract
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exact public offer and consent-aware script readback
+        env:
+          PHASE: ${{ github.event_name == 'pull_request' && 'preflight' || 'verify' }}
+        run: python3 scripts/verify-stredni-cechy-stay-click-public-92205.py --"${PHASE}"

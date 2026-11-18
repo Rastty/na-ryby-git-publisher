@@ -27,7 +27,7 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
   const click=(href,{trusted=true,sourcePinnedBaitboatCallout=false,
     sourcePinnedStayBlock=false,sourcePinnedDyje6Block=false,
     sourcePinnedJMBlock=false,sourcePinnedFamilyBlock=false,
-    stayOfferId=null,familyOfferId=null}={})=>{
+    sourcePinnedSCBlock=false,stayOfferId=null,familyOfferId=null,scOfferId=null}={})=>{
     const link={href,closest:selector=>{
       if(selector==='aside[data-nry-baitboat-choice-link="v1"]' &&
          sourcePinnedBaitboatCallout) return {};
@@ -39,10 +39,14 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
          sourcePinnedJMBlock) return {};
       if(selector==='section[data-nry-family-stays="v1"]' &&
          sourcePinnedFamilyBlock) return {};
+      if(selector==='section[data-nry-sc-stay="v1"]' &&
+         sourcePinnedSCBlock) return {};
       if(selector==='article[data-nry-offer-id]' && stayOfferId)
         return {getAttribute:name=>name==='data-nry-offer-id'?stayOfferId:null};
       if(selector==='article[data-nry-family-offer]' && familyOfferId)
         return {getAttribute:name=>name==='data-nry-family-offer'?familyOfferId:null};
+      if(selector==='article[data-nry-sc-offer]' && scOfferId)
+        return {getAttribute:name=>name==='data-nry-sc-offer'?scOfferId:null};
       return null;
     }};
     const element={closest:selector=>selector==='a[href]'?link:null};
@@ -668,3 +672,50 @@ const unrelatedFamily=browser({page:'/rodinna-dovolena-u-more/' });
 unrelatedFamily.click(familyOffers[0].href,{sourcePinnedFamilyBlock:true,familyOfferId:'lipno-kohoutu'});
 assert.equal(unrelatedFamily.callbacks.length,0,'no sitewide Hportal host tracking');
 console.log('PASS: family 59271 source-locked real click observer, zero synthetic events');
+
+// Stredni Cechy post 92205 uses the exact previously approved Janata route,
+// but a distinct source post and placement. Only its live section can emit.
+const scPath='/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/';
+const scSource=readFileSync('stredni-cechy-stay-offer-trust-92205-v1.php','utf8');
+const scOffer=familyOffers.find(x=>x.id==='slapy-janata');
+assert.ok(scSource.includes(scOffer.href),'source-pinned Janata affiliate href');
+assert.ok(scSource.includes('data-nry-sc-stay='),'reviewed live section marker');
+const sc=browser({page:scPath});
+assert.equal(sc.callbacks.length,1);
+sc.click(scOffer.href,{sourcePinnedSCBlock:true,scOfferId:'slapy-janata'});
+assert.equal(sc.calls.length,1);
+const [kind,event,payload]=sc.calls[0];
+assert.equal(kind,'event');assert.equal(event,'nry_buyer_offer_click');
+assert.deepEqual(Object.keys(payload).sort(),[
+  'buyer_page','buyer_cta_type','source_post_id','placement_id',
+  'stay_offer_id','stay_partner','transport_type'
+].sort());
+assert.equal(payload.buyer_page,'stredni_cechy_stays_92205');
+assert.equal(payload.source_post_id,'92205');
+assert.equal(payload.placement_id,'stredni-cechy-stay-92205-v1');
+assert.equal(payload.buyer_cta_type,'fishing_stay_outbound');
+assert.equal(payload.stay_offer_id,'slapy-janata');
+assert.equal(payload.stay_partner,'hportal_dognet_cz');
+assert.equal(payload.transport_type,'beacon');
+assert.ok(!JSON.stringify(payload).includes('https://'));
+assert.ok(!JSON.stringify(payload).includes('5QoXiSqx'));
+const scCount=sc.calls.length;
+for(const [href,options] of [
+  [scOffer.href,{scOfferId:'slapy-janata'}],
+  [scOffer.href,{sourcePinnedSCBlock:true}],
+  [scOffer.href,{sourcePinnedSCBlock:true,scOfferId:'not-janata'}],
+  [scOffer.href,{sourcePinnedSCBlock:true,scOfferId:'slapy-janata',trusted:false}],
+  [scOffer.href+'&utm_source=probe',{sourcePinnedSCBlock:true,scOfferId:'slapy-janata'}],
+  [scOffer.href+'#probe',{sourcePinnedSCBlock:true,scOfferId:'slapy-janata'}],
+  [scOffer.href.replace('https://','http://'),{sourcePinnedSCBlock:true,scOfferId:'slapy-janata'}],
+  [scOffer.href.replace('https://','https://evil.'),{sourcePinnedSCBlock:true,scOfferId:'slapy-janata'}],
+  [familyOffers[0].href,{sourcePinnedSCBlock:true,scOfferId:'slapy-janata'}]
+])sc.click(href,options);
+assert.equal(sc.calls.length,scCount,'other links, section drift or synthetic events ignored');
+const scNoGtag=browser({page:scPath,gtagEnabled:false});
+scNoGtag.click(scOffer.href,{sourcePinnedSCBlock:true,scOfferId:'slapy-janata'});
+assert.equal(scNoGtag.calls.length,0,'existing site consent respected');
+const scUnrelated=browser({page:'/jine-ubytovani-ve-strednich-cechach/'});
+scUnrelated.click(scOffer.href,{sourcePinnedSCBlock:true,scOfferId:'slapy-janata'});
+assert.equal(scUnrelated.callbacks.length,0,'no sitewide merchant host tracking');
+console.log('PASS: Stredni Cechy 92205 exact stay click observer, no synthetic events');
