@@ -164,7 +164,14 @@ final class NRY_Dyje6_Stay_Trust_14517_V1 {
     }
 
     public static function render($html) {
-        return self::eligible() ? self::transform($html) : $html;
+        // Newspaper's custom post module can apply the_content outside the
+        // main WordPress Loop. The exact queried post, canonical permalink,
+        // published status, modified timestamp and *raw content SHA* checks
+        // still guard this source-locked correction; the transform also
+        // requires four unique reviewed spans and conserves existing links.
+        // Requiring is_main_query()/in_the_loop() here caused the live post
+        // to fail closed even though its source and enqueued CSS matched.
+        return self::eligible(false) ? self::transform($html) : $html;
     }
 }
 NRY_Dyje6_Stay_Trust_14517_V1::boot();

@@ -95,6 +95,7 @@ def main():
         if len(raw) > 1_600_000:
             raise ValueError("unexpectedly long response")
     html = raw.decode("utf-8", "replace")
+    css_deployed = 'nry-dyje6-stay-trust-v1.css?ver=1.0.0' in html
     script_url = "https://na-ryby.eu" + ASSET + "?" + VERSION
     script_req = urllib.request.Request(script_url, headers={
         "Cache-Control": "no-cache", "User-Agent": "NaRyby-Dyje6-Stay-GET-Only/1.0",
@@ -110,6 +111,8 @@ def main():
     ok = verify(html, deployed=True, public_js=public_js, reviewed_js=reviewed_js)
     print(json.dumps({"url": PAGE, "status": "PUBLIC_VERIFIED" if ok else "PUBLIC_NOT_VERIFIED",
                       "facts_count": html.count(FACTS), "offer_count": html.count(OFFERS),
+                      "css_deployed": css_deployed,
+                      "stale_price_visible": "denní povolenka: 200 korun" in html,
                       "buyer_js_sha256": hashlib.sha256(public_js).hexdigest(),
                       "no_write": True, "no_partner_requests": True}, ensure_ascii=False))
     return 0 if ok else 1

@@ -6,8 +6,8 @@ function add_action($n,$cb,$p) { return true; }
 function is_single($id) { return $id === 14517; }
 function is_singular($type) { return $type === 'post'; }
 function get_queried_object_id() { return 14517; }
-function is_main_query() { return true; }
-function in_the_loop() { return true; }
+function is_main_query() { return $GLOBALS['dyje_main_query'] ?? true; }
+function in_the_loop() { return $GLOBALS['dyje_in_loop'] ?? true; }
 function is_admin() { return false; }
 function is_preview() { return false; }
 function home_url($path) { return 'https://na-ryby.eu/'; }
@@ -54,4 +54,18 @@ check($class::transform($drift)===$drift,'merchant block drift blocks whole patc
 check($class::transform($good.$good)===$good.$good,'duplicate article blocks patch');
 $drift=$good.'<a href="'. $class::SLEVOMAT .'">Injected partner</a>';
 check($class::transform($drift)===$drift,'pre-existing destination blocks duplicate tracking');
+
+// The verbatim authenticated published source is archived only as a local,
+// read-only fixture; one appended LF belongs to the text fixture, not WP.
+$raw=file_get_contents(__DIR__.'/fixtures/dyje6-14517-source-20261118.html');
+check(substr($raw,-1)==="\n",'fixture has one formatting newline');
+$raw=substr($raw,0,-1);
+check(hash('sha256',$raw)===$class::SOURCE_SHA256,'approved WP post source SHA fixture');
+$GLOBALS['dyje_mock']->post_content=$raw;
+check($class::render($good)!==$good,'source-locked render in normal loop');
+$GLOBALS['dyje_main_query']=false;
+$GLOBALS['dyje_in_loop']=false;
+check($class::render($good)!==$good,'Newspaper off-main-loop post content still renders');
+$GLOBALS['dyje_mock']->post_content='source drift';
+check($class::render($good)===$good,'source drift blocks off-main-loop render');
 echo "PASS: Dyje 6 exact-source conservation, safety and two approved partner routes; no writes\n";
