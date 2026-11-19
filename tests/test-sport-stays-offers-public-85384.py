@@ -10,6 +10,7 @@ old = ('<p><a href="' + m['LEGACY'] + '">Starý odkaz</a></p>') * 3
 banner = '<aside class="mtsnb-button"><a href="' + m['LEGACY'] + '">Globální navigace</a></aside>'
 base = (src + old + banner + '</body></html>').encode()
 assert m['verify'](base, deployed=False)['status'] == 'SPORT_STAYS_OFFERS_PREFLIGHT_READY'
+assert m['verify_current'](base)['status'] == 'SPORT_STAYS_OFFERS_PREFLIGHT_READY'
 style = '<link href="' + m['ORIGIN'] + m['CSS'] + '?' + m['CSS_VERSION'] + '" rel="stylesheet">'
 script = '<script src="' + m['ORIGIN'] + m['JS'] + '?' + m['JS_VERSION'] + '"></script>'
 ctas = ''.join('<article data-nry-sport-offer="' + offer + '"><a href="' + link.replace('&','&amp;') +
@@ -24,6 +25,8 @@ def deployed(doc, *, css_content=css, js_content=js):
     return m['verify'](doc, deployed=True, css_bytes=css_content, js_bytes=js_content,
                        reviewed_css=css, reviewed_js=js)
 assert deployed(ready)['exactSponsoredOffers'] == 3
+assert m['verify_current'](ready, css_bytes=css, js_bytes=js,
+                           reviewed_css=css, reviewed_js=js)['status'] == 'SPORT_STAYS_OFFERS_PUBLIC_VERIFIED'
 def blocked(doc, *, css_content=css, js_content=js):
     try:
         deployed(doc, css_content=css_content, js_content=js_content)
@@ -43,4 +46,18 @@ blocked(ready + b'<a href="https://na-ryby.eu/booking-cesko">legacy</a>')
 blocked(ready.replace(b'</body>', block.encode() + b'</body>'))
 blocked(ready, css_content=css + b'drift')
 blocked(ready, js_content=js + b'drift')
+def current_blocked(doc, *, css_content=css, js_content=js):
+    try:
+        m['verify_current'](doc, css_bytes=css_content, js_bytes=js_content,
+                            reviewed_css=css, reviewed_js=js)
+    except AssertionError:
+        return
+    raise AssertionError('current live page drift wrongly accepted')
+current_blocked(ready.replace(b'chid=5QoXiSqx', b'chid=other'))
+current_blocked(ready.replace(b'rel="sponsored nofollow noopener"', b'rel="nofollow"'))
+current_blocked(ready.replace(b'ver=1.11.5', b'ver=1.11.4'))
+current_blocked(ready.replace(b'data-nry-sport-stays="v1"', b'data-nry-sport-stays="v2"'))
+current_blocked(ready.replace(b'</body>', block.encode() + b'</body>'))
+current_blocked(ready, css_content=css + b'drift')
+current_blocked(ready, js_content=js + b'drift')
 print('PASS: sport-stays 85384 public links, style and genuine click script fail closed')
