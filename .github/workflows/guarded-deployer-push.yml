@@ -90,6 +90,8 @@ on:
       - 'sterkac-rules-repair-12040-v1.php'
       - 'assets/nry-sterkac-rules-12040-v1.css'
       - 'tests/test-sterkac-rules-repair-12040-v1.php'
+      - 'scripts/verify-sterkac-rules-repair-12040-public.py'
+      - 'tests/test-sterkac-rules-repair-12040-public.py'
       - '.github/workflows/sterkac-rules-repair-12040.yml'
       - 'brno-reservoir-trust-stays-17591-v1.php'
       - 'assets/nry-brno-reservoir-stays-17591-v1.css'
@@ -420,6 +422,7 @@ jobs:
           python3 tests/test-sterkac-source-proof-12040.py
           php -l sterkac-rules-repair-12040-v1.php
           php tests/test-sterkac-rules-repair-12040-v1.php
+          python3 tests/test-sterkac-rules-repair-12040-public.py
           php -l brno-reservoir-trust-stays-17591-v1.php
           php tests/test-brno-reservoir-trust-stays-17591-v1.php
           python3 tests/test-brno-reservoir-trust-stays-public-17591.py
