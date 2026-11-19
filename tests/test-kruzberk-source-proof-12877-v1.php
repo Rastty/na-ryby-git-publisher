@@ -21,6 +21,12 @@ proof_assert($GLOBALS['kruzberk_action'] === array('template_redirect', array($c
 $snapshot = $class::snapshot();
 proof_assert($snapshot['state'] === 'SOURCE_SHA_AVAILABLE_NO_PUBLICATION', 'valid source');
 proof_assert($snapshot['sourceSha256'] === hash('sha256', $GLOBALS['kruzberk_post']->post_content), 'raw source SHA');
+proof_assert($snapshot['canonical'] === $class::URL
+    && $snapshot['sourceBytes'] === strlen($GLOBALS['kruzberk_post']->post_content), 'original page identity and byte count');
+proof_assert(!array_key_exists('post_content', $snapshot)
+    && !array_key_exists('content', $snapshot)
+    && strpos(json_encode($snapshot), 'Rybářská chata Kružberk') === false,
+    'anonymous proof must not reveal raw article content');
 proof_assert($snapshot['literalCounts']['legacyAffiliateClubLinks'] === 1, 'legacy link count');
 proof_assert($snapshot['literalCounts']['bookingCategoryLinks'] === 1, 'category link count');
 proof_assert($snapshot['publicationAuthorized'] === false && $snapshot['wordpressWrites'] === 0
