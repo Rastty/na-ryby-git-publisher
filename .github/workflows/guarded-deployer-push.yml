@@ -87,6 +87,10 @@ on:
       - 'tests/test-sterkac-source-proof-12040-v1.php'
       - 'tests/test-sterkac-source-proof-12040.py'
       - '.github/workflows/sterkac-source-proof-12040.yml'
+      - 'sterkac-rules-repair-12040-v1.php'
+      - 'assets/nry-sterkac-rules-12040-v1.css'
+      - 'tests/test-sterkac-rules-repair-12040-v1.php'
+      - '.github/workflows/sterkac-rules-repair-12040.yml'
       - 'brno-reservoir-trust-stays-17591-v1.php'
       - 'assets/nry-brno-reservoir-stays-17591-v1.css'
       - 'tests/test-brno-reservoir-trust-stays-17591-v1.php'
@@ -329,6 +333,7 @@ on:
       - 'kruzberk-source-proof-12877-v1.php'
       - 'brno-reservoir-source-proof-17591-v1.php'
       - 'sterkac-source-proof-12040-v1.php'
+      - 'sterkac-rules-repair-12040-v1.php'
       - 'brno-reservoir-trust-stays-17591-v1.php'
       - 'kruzberk-fishing-trust-12877-v1.php'
       - 'legacy-net-buyer-guides-v1.php'
@@ -413,6 +418,8 @@ jobs:
           php -l sterkac-source-proof-12040-v1.php
           php tests/test-sterkac-source-proof-12040-v1.php
           python3 tests/test-sterkac-source-proof-12040.py
+          php -l sterkac-rules-repair-12040-v1.php
+          php tests/test-sterkac-rules-repair-12040-v1.php
           php -l brno-reservoir-trust-stays-17591-v1.php
           php tests/test-brno-reservoir-trust-stays-17591-v1.php
           python3 tests/test-brno-reservoir-trust-stays-public-17591.py
