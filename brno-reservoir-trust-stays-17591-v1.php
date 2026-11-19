@@ -129,7 +129,11 @@ final class NRY_Brno_Reservoir_Stays_17591_V1 {
     }
 
     public static function render($html) {
-        return self::eligible() ? self::transform($html) : $html;
+        // tagDiv single-content blocks can render the queried post outside
+        // the global main Loop. The exact queried post ID + raw WP source SHA
+        // and original rendered-prefix/literal guards still bind this to the
+        // one reviewed article, even when is_main_query() is false here.
+        return self::eligible(false) ? self::transform($html) : $html;
     }
 }
 NRY_Brno_Reservoir_Stays_17591_V1::boot();
