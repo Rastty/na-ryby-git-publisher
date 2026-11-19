@@ -4,16 +4,12 @@ on:
     paths:
       - 'scripts/audit_live_advisor_browser.py'
       - 'tests/test-live-advisor-browser.py'
-      - '.github/workflows/advisor-browser-readonly.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/audit_live_advisor_browser.py'
       - 'tests/test-live-advisor-browser.py'
-      - '.github/workflows/advisor-browser-readonly.yml'
   workflow_dispatch:
-  schedule:
-    - cron: '47 4,16 * * *'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]

@@ -1,0 +1,32 @@
+name: Na-Ryby Scheduled Live Probe Pause Offline Contract
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/advisor-public-readonly.yml'
+      - '.github/workflows/advisor-browser-readonly.yml'
+      - '.github/workflows/baitboat-v5-stock-affiliate-public.yml'
+      - '.github/workflows/baitboat-v5-visitor-journey.yml'
+      - '.github/workflows/chair-candidates-readonly.yml'
+      - '.github/workflows/cj-property-identity-readonly.yml'
+      - '.github/workflows/dyje6-stay-public-v1.yml'
+      - '.github/workflows/echolot-cluster-readonly.yml'
+      - '.github/workflows/hracholusky-stay-public-v1.yml'
+      - '.github/workflows/guarded-auto-public-readback.yml'
+      - '.github/workflows/fishing-stays-click-public-v1.yml'
+      - '.github/workflows/reel-dashboard-navigation-public.yml'
+      - '.github/workflows/tipy-stay-trust-public-v1.yml'
+      - 'tests/test-scheduled-live-probes-pause.py'
+      - '.github/workflows/scheduled-live-probes-pause-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify scheduled probes paused without network access
+        run: python3 tests/test-scheduled-live-probes-pause.py

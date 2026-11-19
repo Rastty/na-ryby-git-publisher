@@ -4,15 +4,11 @@ on:
     paths:
       - 'scripts/verify-baitboat-stock-live-v5.py'
       - 'tests/test-baitboat-stock-live-v5.py'
-      - '.github/workflows/baitboat-v5-stock-affiliate-public.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/verify-baitboat-stock-live-v5.py'
       - 'tests/test-baitboat-stock-live-v5.py'
-      - '.github/workflows/baitboat-v5-stock-affiliate-public.yml'
-  schedule:
-    - cron: '17 */4 * * *'
   workflow_dispatch:
 permissions:
   contents: read
