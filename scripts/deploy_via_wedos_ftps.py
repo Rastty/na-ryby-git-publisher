@@ -17,7 +17,7 @@ import secrets
 import ssl
 import subprocess
 import sys
-from ftplib import FTP_TLS, error_perm
+from ftplib import FTP, FTP_TLS, error_perm
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -48,6 +48,30 @@ class SafeFtpStageError(Exception):
 
     def __init__(self, stage: str, reply_code: str):
         super().__init__(stage + ":" + reply_code)
+
+
+class SessionReuseFTP_TLS(FTP_TLS):
+    """Reuse control-channel TLS on data transfers required by WEDOS vsftpd.
+
+    The stdlib FTP_TLS opens a *new* TLS session for each RETR/STOR. WEDOS
+    rejects these data channels with FTP 522, despite valid login and TLS.
+    Keep certificate verification and encrypted data enabled; never fall back
+    to plaintext FTP if resumption is unavailable.
+    """
+
+    def ntransfercmd(self, cmd, rest=None):
+        data_socket, size = FTP.ntransfercmd(self, cmd, rest)
+        if not self._prot_p:
+            data_socket.close()
+            raise ValueError("FTPS protected data channel is required")
+        try:
+            secured_socket = self.context.wrap_socket(
+                data_socket, server_hostname=self.host, session=self.sock.session
+            )
+        except Exception:
+            data_socket.close()
+            raise
+        return secured_socket, size
 
 
 def ftps_stage(stage: str, operation):
@@ -287,7 +311,7 @@ def main() -> int:
         raise ValueError("WEDOS FTPS credential fields are missing or invalid")
     tls = ssl.create_default_context()
     tls.minimum_version = ssl.TLSVersion.TLSv1_2
-    with FTP_TLS(context=tls, timeout=30) as ftp:
+    with SessionReuseFTP_TLS(context=tls, timeout=30) as ftp:
         ftps_stage("connect", lambda: ftp.connect(host, 21, timeout=30))
         ftps_stage("login", lambda: ftp.login(user, password))
         ftps_stage("data_tls", ftp.prot_p)  # mandatory encrypted data

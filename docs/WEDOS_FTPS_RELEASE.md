@@ -47,8 +47,10 @@ the existing guarded GitHub Actions workflow, not a WordPress content-write API.
 - Transfers only root PHP/JSON/HTML, `assets/` and `editorial/` tracked files.
   CI files, tests, git metadata and unrelated host files are not transferred.
 - Connects to a `.wedos.net` FTP host with explicit TLS on port 21 and verified
-  server certificate, with encrypted data transfers; no HTTP route or Wordfence
-  exception is needed.
+  server certificate, with encrypted data transfers. WEDOS's `522` TLS session
+  reuse requirement is handled by binding each encrypted data transfer to the
+  authenticated control-channel TLS session; plaintext fallback is forbidden.
+  No HTTP route or Wordfence exception is needed.
 - Automatically resolves exactly one WEDOS WordPress folder by inspecting the
   installed Na-Ryby publisher, never by assuming the host's first WordPress
   installation or using a user-supplied arbitrary path.
