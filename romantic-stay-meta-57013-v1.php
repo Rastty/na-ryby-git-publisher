@@ -40,7 +40,9 @@ final class NRY_Romantic_Stay_Meta_57013_V1 {
     }
 
     public static function boot() {
-        if (!function_exists('add_filter')) return;
+        // Some independent publisher safety tests deliberately load the plugin
+        // before any frontend query functions exist. Never register partial hooks.
+        if (!function_exists('add_filter') || !function_exists('is_singular')) return;
         add_filter('wpseo_metadesc', array(__CLASS__, 'description'), 20);
         add_filter('wpseo_opengraph_desc', array(__CLASS__, 'description'), 20);
     }
