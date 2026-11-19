@@ -32,7 +32,9 @@ check(strlen($html) > 8500, 'historical body length');
 $new = $cls::transform($html);
 check($new !== $html && substr_count($new, $cls::MARKER) === 1, 'front section visible once');
 check(substr_count($new, 'data-nry-offer-id=') === 2, 'two distinct nearby alternatives');
-check(substr_count($new, $cls::HAUZI) === 1 && substr_count($new, $cls::HPORTAL) === 1, 'approved URLs exactly once');
+check(substr_count($new, htmlspecialchars($cls::HAUZI, ENT_QUOTES, 'UTF-8')) === 1
+    && substr_count($new, htmlspecialchars($cls::HPORTAL, ENT_QUOTES, 'UTF-8')) === 1,
+    'approved safely escaped URLs exactly once');
 check(substr_count($new, 'rel="sponsored nofollow noopener"') === 2, 'partner disclosure');
 check(strpos($new, $cls::BAD_TITLE) === false && strpos($new, $cls::OLD_CTA) === false, 'bad headings and cheapest claim gone');
 check(strpos($new, $cls::ORIGINAL_CTA_URL) === false && strpos($new, 'href="#'.$cls::ANCHOR.'"') !== false, 'old CTA replaced by internal jump');
