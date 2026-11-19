@@ -1,0 +1,42 @@
+name: Na-Ryby Orlik Expired Stay 119551 CTA Public Proof
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'orlik-expired-stay-cta-119551-v1.php'
+      - 'tests/test-orlik-expired-stay-cta-119551-v1.php'
+      - 'scripts/verify-orlik-expired-stay-public-119551.py'
+      - 'tests/test-orlik-expired-stay-public-119551.py'
+      - '.github/workflows/orlik-expired-stay-119551.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exact old/new CTA, syntax and guarded paths
+        run: |
+          php -l na-ryby-git-publisher.php
+          php -l orlik-expired-stay-cta-119551-v1.php
+          php tests/test-orlik-expired-stay-cta-119551-v1.php
+          python3 -m py_compile scripts/verify-orlik-expired-stay-public-119551.py
+          python3 tests/test-orlik-expired-stay-public-119551.py
+          python3 tests/test-deployer-trigger-parity.py
+  public:
+    needs: contract
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: GET-only original-source preflight or deployed CTA readback
+        env:
+          PHASE: ${{ github.event_name == 'pull_request' && 'preflight' || 'verify' }}
+        run: python3 scripts/verify-orlik-expired-stay-public-119551.py --"${PHASE}"
