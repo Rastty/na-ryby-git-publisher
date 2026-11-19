@@ -56,4 +56,20 @@ $bad = str_replace($cls::OLD_PERMIT, 'changed permit price', $html);
 check($cls::transform($bad) === $bad, 'old price identity drift fails closed');
 $bad = str_replace($cls::BAD_TITLE, 'Corrected title', $html);
 check($cls::transform($bad) === $bad, 'title count drift fails closed');
+$document = '<!doctype html><html><head><title>Brno chalet</title></head><body>'
+    .str_repeat('<div class="unrelated-navigation">Navigation content</div>', 750)
+    .$html.$cls::BODY_TAIL
+    .'<section id="review-statistics">Original tagDiv review widget must be untouched.</section>'
+    .'</body></html>';
+check(strlen($document) > 40000, 'whole-document fixture');
+$transformed_doc = $cls::transformDocument($document);
+check($transformed_doc !== $document && substr_count($transformed_doc, $cls::MARKER) === 1,
+    'server-side tagDiv fallback actually inserts verified section');
+check(strpos($transformed_doc, 'Original tagDiv review widget must be untouched.') !== false,
+    'adjacent theme review remains intact');
+check($cls::transformDocument($transformed_doc) === $transformed_doc, 'document fallback idempotent');
+$tail_drift = str_replace($cls::BODY_TAIL, '<div>Modified ending</div>', $document);
+check($cls::transformDocument($tail_drift) === $tail_drift, 'source end anchor drift blocked');
+$intro_drift = str_replace($cls::BODY_START, '<p><strong>Another chalet</strong>', $document);
+check($cls::transformDocument($intro_drift) === $intro_drift, 'source start anchor drift blocked');
 echo "PASS: Brno reservoir chalet 17591 trust, offer and fail-closed HTML contract\n";

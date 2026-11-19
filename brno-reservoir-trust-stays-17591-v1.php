@@ -26,6 +26,9 @@ final class NRY_Brno_Reservoir_Stays_17591_V1 {
     // one ordinary date CTA and one unsupported cheapest-offer superlative.
     const NORMALIZED_CTA = 'Volné termíny a další informace';
     const BAD_TITLE = 'Chata Brněnská přehrada &#8211; Vranovská přehrada';
+    // Exact reviewed body boundaries; tagDiv review widgets follow BODY_TAIL.
+    const BODY_START = '<p><strong>Chata Brněnská přehrada</strong>';
+    const BODY_TAIL = "<div>Chata není vhodná k pořádání oslav nad rámec maximální kapacity objektu.</div>\n</div>\n</div>\n</div>\n";
     const OLD_PERMIT = '<div>možnost zakoupení povolenky 300 Kč / týden</div>';
     const OLD_PRICE = '<span class="complete-price">2 420 Kč</span>';
 
@@ -35,6 +38,7 @@ final class NRY_Brno_Reservoir_Stays_17591_V1 {
         }
         if (function_exists('is_single') && function_exists('add_action')) {
             add_action('wp_enqueue_scripts', __CLASS__.'::enqueue', 28);
+            add_action('template_redirect', __CLASS__.'::startBuffer', 24);
         }
     }
 
@@ -134,6 +138,34 @@ final class NRY_Brno_Reservoir_Stays_17591_V1 {
         // and original rendered-prefix/literal guards still bind this to the
         // one reviewed article, even when is_main_query() is false here.
         return self::eligible(false) ? self::transform($html) : $html;
+    }
+
+    public static function startBuffer() {
+        // This legacy tagDiv template bypasses the_content's final output.
+        // Whole-document fallback is only on exact GET, post, raw SHA and
+        // permalink identity. It does not change stored WordPress content.
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET'
+            || !self::eligible(false) || headers_sent()
+            || (function_exists('is_feed') && is_feed())) return;
+        ob_start(array(__CLASS__, 'transformDocument'));
+    }
+
+    public static function transformDocument($document, $flags = 0) {
+        if (!is_string($document) || strlen($document) < 40000
+            || strpos($document, self::MARKER) !== false
+            || substr_count($document, self::BODY_START) !== 1
+            || substr_count($document, self::BODY_TAIL) !== 1) return $document;
+        $start = strpos($document, self::BODY_START);
+        $tail = strpos($document, self::BODY_TAIL, $start);
+        if ($start === false || $tail === false || $tail <= $start) return $document;
+        $end = $tail + strlen(self::BODY_TAIL);
+        $original = substr($document, $start, $end - $start);
+        $changed = self::transform($original);
+        if ($changed === $original) return $document;
+        $result = substr($document, 0, $start).$changed.substr($document, $end);
+        return substr_count($result, self::MARKER) === 1
+            && substr_count($result, 'data-nry-offer-id=') === 2
+            ? $result : $document;
     }
 }
 NRY_Brno_Reservoir_Stays_17591_V1::boot();
