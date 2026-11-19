@@ -10,8 +10,8 @@ function check($condition, $label) { if (!$condition) throw new RuntimeException
 require dirname(__DIR__).'/sterkac-rules-repair-12040-v1.php';
 $cls = 'NRY_Sterkac_Rules_12040_V1';
 check(!$cls::armed(), 'not armed before source proof');
-check(in_array('the_content', $GLOBALS['filters'], true), 'content hook');
-check(in_array('template_redirect', $GLOBALS['actions'], true), 'document fallback hook');
+check($GLOBALS['filters'] === array() && $GLOBALS['actions'] === array(),
+    'no hook at all until source SHA independently confirmed');
 
 $h = $cls::HEADING;
 $h .= '<p><strong>Rychlá odpověď:</strong> Sezóna od dubna do listopadu, háčky bez protihrotu; '
