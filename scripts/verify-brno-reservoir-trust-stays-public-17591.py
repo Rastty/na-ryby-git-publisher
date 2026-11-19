@@ -68,7 +68,7 @@ class Surface(HTMLParser):
             self.inside = False
 
 
-def verify(html, *, deployed, css=b'', reviewed_css=b''):
+def verify(html, *, deployed, css=b'', reviewed_css=b'', allow_css_only=False):
     text = html.decode('utf-8', 'replace')
     s = Surface()
     s.feed(text)
@@ -76,14 +76,19 @@ def verify(html, *, deployed, css=b'', reviewed_css=b''):
     assert s.canonicals == [ORIGIN + PAGE], 'CANONICAL_CHANGED'
     assert 'postid-17591' in s.post, 'POST_ID_CHANGED'
     if not deployed:
-        assert s.sections == 0 and s.offers == [] and s.styles == [], 'BASELINE_CHANGED'
+        assert s.sections == 0 and s.offers == [], 'BASELINE_CHANGED'
+        assert s.styles == [] or (allow_css_only and s.styles == [CSS_QUERY]), 'BASELINE_CHANGED'
+        if s.styles:
+            assert css == reviewed_css and len(css) > 500, 'CSS_ONLY_BYTES_MISMATCH'
+            return {'status': 'BRNO_RESERVOIR_STAYS_CSS_ONLY_REPAIR_READY', 'postId': 17591,
+                    'cssByteIdentical': True, 'wordpressWrites': 0, 'merchantRequests': 0}
         return {'status': 'BRNO_RESERVOIR_STAYS_PREFLIGHT_READY', 'postId': 17591,
                 'wordpressWrites': 0, 'merchantRequests': 0}
     assert s.sections == 1 and s.offers == list(OFFERS), 'TWO_OFFERS_NOT_VISIBLE'
     assert s.links == [(key, url, 'sponsored nofollow noopener', '_blank')
                        for key, url in OFFERS.items()], 'AFFILIATE_LINK_CHANGED'
-    assert s.archive_jump == 1, 'HISTORIC_CTA_NOT_FIXED'
-    assert 'NEJLEVNĚJŠÍ NABÍDKA' not in text, 'UNSUPPORTED_SUPERLATIVE'
+    assert s.archive_jump == 2, 'BOTH_HISTORIC_CTAS_NOT_FIXED'
+    assert 'NEJLEVNĚJŠÍ NABÍDKA' not in text and 'Volné termíny a další informace' not in text, 'UNSUPPORTED_LEGACY_CTA'
     assert 'Chata Brněnská přehrada &#8211; Vranovská přehrada' not in text, 'WRONG_GEOGRAPHY'
     assert 'aktuální cena neověřena' in text and 'není ověřen' in text, 'ARCHIVE_WARNING_MISSING'
     assert 'nejsou původní chata' in text, 'ALTERNATIVES_MISLABELED'
@@ -124,9 +129,11 @@ def main():
     inspected.feed(html.decode('utf-8', 'replace'))
     inspected.close()
     deployed = phase == '--verify' or (phase == '--current' and inspected.sections > 0)
-    css = get(CSS + '?' + CSS_QUERY, 25000) if deployed else b''
-    reviewed = (ROOT / 'assets/nry-brno-reservoir-stays-17591-v1.css').read_bytes() if deployed else b''
-    print(json.dumps(verify(html, deployed=deployed, css=css, reviewed_css=reviewed), ensure_ascii=False))
+    need_css = deployed or (phase == '--current' and inspected.styles == [CSS_QUERY])
+    css = get(CSS + '?' + CSS_QUERY, 25000) if need_css else b''
+    reviewed = (ROOT / 'assets/nry-brno-reservoir-stays-17591-v1.css').read_bytes() if need_css else b''
+    print(json.dumps(verify(html, deployed=deployed, css=css, reviewed_css=reviewed,
+                            allow_css_only=phase == '--current'), ensure_ascii=False))
 
 
 if __name__ == '__main__':

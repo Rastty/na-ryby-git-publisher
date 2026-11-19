@@ -22,6 +22,9 @@ final class NRY_Brno_Reservoir_Stays_17591_V1 {
     const HPORTAL = 'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fbrno%2Fhotel-kozi-horka%2F';
     const ORIGINAL_CTA_URL = 'href="https://na-ryby.eu/chata-brnenska"';
     const OLD_CTA = 'NEJLEVNĚJŠÍ NABÍDKA';
+    // The unchanged original article has TWO obsolete self-linked buttons:
+    // one ordinary date CTA and one unsupported cheapest-offer superlative.
+    const NORMALIZED_CTA = 'Volné termíny a další informace';
     const BAD_TITLE = 'Chata Brněnská přehrada &#8211; Vranovská přehrada';
     const OLD_PERMIT = '<div>možnost zakoupení povolenky 300 Kč / týden</div>';
     const OLD_PRICE = '<span class="complete-price">2 420 Kč</span>';
@@ -97,8 +100,9 @@ final class NRY_Brno_Reservoir_Stays_17591_V1 {
             || substr_count($html, self::BAD_TITLE) !== 3
             || substr_count($html, self::OLD_PERMIT) !== 1
             || substr_count($html, self::OLD_PRICE) !== 1
-            || substr_count($html, self::ORIGINAL_CTA_URL) !== 1
+            || substr_count($html, self::ORIGINAL_CTA_URL) !== 2
             || substr_count($html, self::OLD_CTA) !== 1
+            || substr_count($html, self::NORMALIZED_CTA) !== 1
             || strpos($html, self::HAUZI) !== false
             || strpos($html, self::HPORTAL) !== false) return $html;
         $changed = str_replace(self::BAD_TITLE, 'Chata Brněnská přehrada', $html, $count_title);
@@ -109,16 +113,18 @@ final class NRY_Brno_Reservoir_Stays_17591_V1 {
             '<span class="complete-price">2 420 Kč (archiv 2018; aktuální cena neověřena)</span>',
             $changed, $count_price);
         $changed = str_replace(self::ORIGINAL_CTA_URL, 'href="#'.self::ANCHOR.'"', $changed, $count_href);
-        $changed = str_replace(self::OLD_CTA, 'OVĚŘIT UBYTOVÁNÍ V OKOLÍ', $changed, $count_cta);
+        $changed = str_replace(self::OLD_CTA, 'OVĚŘIT UBYTOVÁNÍ V OKOLÍ', $changed, $count_old_cta);
+        $changed = str_replace(self::NORMALIZED_CTA, 'POROVNAT DALŠÍ CHATU A HOTEL', $changed, $count_normalized_cta);
         $changed = self::block()."\n".$changed;
         return ($count_title === 3 && $count_permit === 1 && $count_price === 1
-            && $count_href === 1 && $count_cta === 1
+            && $count_href === 2 && $count_old_cta === 1 && $count_normalized_cta === 1
             && substr_count($changed, self::MARKER) === 1
             && substr_count($changed, 'data-nry-offer-id=') === 2
             && substr_count($changed, htmlspecialchars(self::HAUZI, ENT_QUOTES, 'UTF-8')) === 1
             && substr_count($changed, htmlspecialchars(self::HPORTAL, ENT_QUOTES, 'UTF-8')) === 1
             && strpos($changed, self::BAD_TITLE) === false
-            && strpos($changed, self::OLD_CTA) === false)
+            && strpos($changed, self::OLD_CTA) === false
+            && strpos($changed, self::NORMALIZED_CTA) === false)
             ? $changed : $html;
     }
 
