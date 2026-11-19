@@ -24,13 +24,19 @@ the existing guarded GitHub Actions workflow, not a WordPress content-write API.
    `/`. An explicit WEDOS main-account path, if ever needed, must be one of
    `/www/wp-content` or `/www/domains/na-ryby.eu/wp-content` and is still
    validated against the exact installed plugin.
-4. **Before** merging this transport, set `NRY_AUTO_DEPLOY_ENABLED=false` to
-   avoid the legacy HTTP 401 Deployer being run on the setup merge. Merge only
-   after review, keep existing protected checks, and set
-   `NRY_DEPLOY_TRANSPORT=ftps` before enabling deployment again.
-   The updated workflow also **fails closed** if the transport variable is
-   missing: it will never silently fall back to the old Deployer endpoint.
-5. Run **one** reviewed, main-only controlled release; require authenticated
+4. Leave the repository variable `NRY_FTPS_RELEASE_ARMED` **absent or false**
+   during merge. This independent opt-in keeps production writes disabled even
+   if the existing `NRY_AUTO_DEPLOY_ENABLED` is unexpectedly `true`. The merge
+   automatically runs a **read-only** FTPS login/installed-plugin probe on
+   `main` (when `NRY_DEPLOY_TRANSPORT=ftps` is selected in the environment).
+   It neither uploads files nor creates folders or changes WordPress. A
+   failed probe must be diagnosed before arming the release. The updated
+   workflow **fails closed** if the transport variable is missing: it never
+   silently falls back to the old Deployer endpoint.
+5. Only after the read-only probe and required checks pass, explicitly set
+   repository variables `NRY_AUTO_DEPLOY_ENABLED=true` and
+   `NRY_FTPS_RELEASE_ARMED=true` for one controlled main-only release. Run
+   **one** reviewed release; require authenticated
    WordPress-local receipt and independent exact public readback before
    treating it as live. Existing higher-risk content/admin gates still apply.
 

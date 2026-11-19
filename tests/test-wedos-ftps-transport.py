@@ -107,9 +107,22 @@ class TransportContract(unittest.TestCase):
         workflow = (ROOT / ".github/workflows/guarded-deployer-push.yml").read_text()
         self.assertIn('case "${NRY_DEPLOY_TRANSPORT:-unset}" in', workflow)
         self.assertEqual(workflow.count("if: vars.NRY_DEPLOY_TRANSPORT == 'deployer'"), 2)
-        self.assertEqual(workflow.count("if: vars.NRY_DEPLOY_TRANSPORT == 'ftps'"), 1)
+        self.assertEqual(workflow.count("if: vars.NRY_DEPLOY_TRANSPORT == 'ftps'"), 2)
         self.assertNotIn("vars.NRY_DEPLOY_TRANSPORT == '' ||", workflow)
         self.assertIn("environment: na-ryby-production", workflow)
+
+    def test_unknown_repository_auto_deploy_state_cannot_arm_ftps_during_merge(self):
+        workflow = (ROOT / ".github/workflows/guarded-deployer-push.yml").read_text()
+        self.assertIn("vars.NRY_AUTO_DEPLOY_ENABLED == 'true' && vars.NRY_FTPS_RELEASE_ARMED == 'true'", workflow)
+        self.assertIn("python3 scripts/deploy_via_wedos_ftps.py inspect", workflow)
+        self.assertIn("needs: [verify, ftps_inspect]", workflow)
+
+    def test_inspect_mode_is_read_only_before_deploy(self):
+        source = (ROOT / "scripts/deploy_via_wedos_ftps.py").read_text()
+        inspect = source.index('if action == "inspect":')
+        first_write = source.index("backup = deploy(ftp, wp_content, sha, files)")
+        self.assertLess(inspect, first_write)
+        self.assertIn("return 0", source[inspect:first_write])
 
     def test_exact_sha_and_path_allowlists(self):
         with self.assertRaises(ValueError):

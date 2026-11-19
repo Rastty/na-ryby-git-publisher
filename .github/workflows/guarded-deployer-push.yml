@@ -595,9 +595,32 @@ jobs:
           python3 tests/test-118455-spec-bonus-public-semantic.py
           python3 tests/test-54272-public-semantic.py
           python3 tests/test-echolot-boat-historic-two-public-semantic.py
-  deploy:
+  ftps_inspect:
     needs: verify
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.NRY_AUTO_DEPLOY_ENABLED == 'true'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: na-ryby-production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Read-only WEDOS FTPS credentials and installed-plugin probe
+        if: vars.NRY_DEPLOY_TRANSPORT == 'ftps'
+        env:
+          NRY_FTPS_HOST: ${{ secrets.NRY_FTPS_HOST }}
+          NRY_FTPS_USER: ${{ secrets.NRY_FTPS_USER }}
+          NRY_FTPS_PASSWORD: ${{ secrets.NRY_FTPS_PASSWORD }}
+          NRY_FTPS_WP_CONTENT: ${{ vars.NRY_FTPS_WP_CONTENT }}
+        run: |
+          set -euo pipefail
+          python3 scripts/deploy_via_wedos_ftps.py inspect
+  deploy:
+    needs: [verify, ftps_inspect]
+    # This independent, repository-scoped switch defaults to false. Never
+    # write to production just because previously configured auto-deploy and
+    # environment transport variables happen to be true during cutover.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.NRY_AUTO_DEPLOY_ENABLED == 'true' && vars.NRY_FTPS_RELEASE_ARMED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 18
     environment: na-ryby-production

@@ -249,8 +249,8 @@ def deploy(ftp: FTP_TLS, wp_content: str, sha: str, files: dict[str, bytes]) -> 
 
 
 def main() -> int:
-    if len(sys.argv) != 2 or sys.argv[1] not in {"preflight", "deploy"}:
-        raise ValueError("Usage: deploy_via_wedos_ftps.py preflight|deploy")
+    if len(sys.argv) != 2 or sys.argv[1] not in {"preflight", "inspect", "deploy"}:
+        raise ValueError("Usage: deploy_via_wedos_ftps.py preflight|inspect|deploy")
     action = sys.argv[1]
     sha = validate_sha(os.environ.get("GITHUB_SHA", ""))
     if os.environ.get("GITHUB_REF") != "refs/heads/main":
@@ -276,6 +276,11 @@ def main() -> int:
         ftp.prot_p()  # mandatory TLS on data connections, not just login
         ftp.set_pasv(True)
         wp_content = resolve_wp_content(ftp, configured_wp_content)
+        if action == "inspect":
+            # No uploads, directory creation, or renames: only authenticate,
+            # read the expected installed PHP loader and close the session.
+            print("FTPS_REMOTE_INSPECT_OK sha=" + sha[:12] + " target=confirmed")
+            return 0
         backup = deploy(ftp, wp_content, sha, files)
     print("FTPS_CODE_SWAPPED sha=" + sha[:12] + " rollback=" + backup)
     print("CONTENT_NOT_YET_VERIFIED: preserve prior code until protected public receipts pass")
