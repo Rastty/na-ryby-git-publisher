@@ -28,6 +28,7 @@ require_once __DIR__ . '/jizni-morava-stays-12166-v1.php';
 require_once __DIR__ . '/family-stays-59271-v1.php';
 require_once __DIR__ . '/stredni-cechy-stay-source-proof-92205-v1.php';
 require_once __DIR__ . '/stredni-cechy-stay-offer-trust-92205-v1.php';
+require_once __DIR__ . '/lipno-pair-offers-119692-v1.php';
 require_once __DIR__ . '/sport-stays-source-proof-85384-v1.php';
 require_once __DIR__ . '/sport-stays-offers-85384-v1.php';
 require_once __DIR__ . '/kruzberk-source-proof-12877-v1.php';
