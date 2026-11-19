@@ -6,8 +6,9 @@ function add_action($name, $callback, $priority) { $GLOBALS['action'] = array($n
 function is_single($id = null) { return $id === null || $id === 17591; }
 function is_singular($type) { return $type === 'post'; }
 function get_queried_object_id() { return 17591; }
-function is_main_query() { return true; }
-function in_the_loop() { return true; }
+// On this tagDiv template the real single post need not be within WP's Loop.
+function is_main_query() { return false; }
+function in_the_loop() { return false; }
 function is_admin() { return false; }
 function is_preview() { return false; }
 function home_url($path) { return 'https://na-ryby.eu/'; }
