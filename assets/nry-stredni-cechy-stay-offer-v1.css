@@ -60,6 +60,16 @@ body.single-post.postid-92205 .td-post-content .nry-sc-stay__cta:focus-visible {
   outline: 3px solid #eac967;
   outline-offset: 2px;
 }
+body.single-post.postid-92205 .td-post-content .nry-sc-stay__cta--hauzi,
+body.single-post.postid-92205 .td-post-content .nry-sc-stay__cta--hauzi:visited {
+  background: #145a78;
+  color: #fff !important;
+}
+body.single-post.postid-92205 .td-post-content .nry-sc-stay__cta--hauzi:hover,
+body.single-post.postid-92205 .td-post-content .nry-sc-stay__cta--hauzi:focus-visible {
+  background: #0b425e;
+  color: #fff !important;
+}
 body.single-post.postid-92205 .td-post-content .nry-sc-stay__more a { font-weight: 800; }
 body.single-post.postid-92205 .td-post-content .nry-sc-stay__note { color: #4a6257; }
 @media (max-width: 700px) {

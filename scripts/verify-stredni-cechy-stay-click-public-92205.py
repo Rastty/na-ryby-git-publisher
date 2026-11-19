@@ -21,6 +21,7 @@ ASSET = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js
 VERSION = 'ver=1.11.5'
 BASELINE_VERSION = 'ver=1.11.4'
 PARTNER = 'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Frabyne%2Fpenzion-janata%2F'
+HAUZI = 'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchata-slapy-skalice'
 
 
 class ClickSurface(HTMLParser):
@@ -60,21 +61,27 @@ def verify(html, *, deployed, public_js=b'', reviewed_js=b''):
     surface.feed(decoded)
     surface.close()
     assert surface.canonicals == [ORIGIN + PAGE] and 'postid-92205' in decoded, 'PAGE_IDENTITY_DRIFT'
-    assert surface.sections == 1 and surface.offers == ['slapy-janata'], 'SOURCE_BOUND_OFFER_MISSING'
-    assert surface.anchors == [
+    assert surface.sections == 1, 'SOURCE_BOUND_SECTION_MISSING'
+    original_links = [
         (PARTNER, 'sponsored nofollow noopener', '_blank'),
         (ORIGIN + '/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/', None, None),
-    ], 'REVIEWED_AFFILIATE_TARGET_DRIFT'
+    ]
+    updated_links = [original_links[0], (HAUZI, 'sponsored nofollow noopener', '_blank'), original_links[1]]
+    is_new = (surface.offers == ['slapy-janata', 'hauzi-slapy-skalice']
+              and surface.anchors == updated_links)
+    is_old = (surface.offers == ['slapy-janata'] and surface.anchors == original_links)
+    assert (is_new if deployed else (is_old or is_new)), 'REVIEWED_AFFILIATE_TARGET_DRIFT'
     if not deployed:
         assert surface.scripts in ([], [BASELINE_VERSION], [VERSION]), 'UNREVIEWED_SCRIPT_BASELINE'
         return {'status': 'STREDNI_CECHY_CLICK_PREFLIGHT_READY', 'postId': 92205,
-                'affiliateOffers': 1, 'wordPressWrites': 0,
+                'affiliateOffers': 2 if is_new else 1, 'wordPressWrites': 0,
                 'merchantRequests': 0, 'syntheticClicks': 0}
     assert surface.scripts == [VERSION], 'EXACT_SCRIPT_NOT_ONCE'
     assert public_js == reviewed_js and len(public_js) > 3000, 'JS_BYTES_NOT_REVIEWED'
     return {'status': 'STREDNI_CECHY_CLICK_PUBLIC_VERIFIED', 'postId': 92205,
-            'affiliateOffers': 1, 'scriptByteIdentical': True,
-            'clickObservationEnabled': True, 'ga4DeliveryProven': False,
+            'affiliateOffers': 2, 'scriptByteIdentical': True,
+            'clickObservationEnabledFor': ['slapy-janata'],
+            'hauziClickObservationEnabled': False, 'ga4DeliveryProven': False,
             'scriptSha256': hashlib.sha256(public_js).hexdigest(),
             'wordPressWrites': 0, 'merchantRequests': 0, 'syntheticClicks': 0,
             'realClicks': None, 'fulfilledReservations': None, 'paidCommissions': None}

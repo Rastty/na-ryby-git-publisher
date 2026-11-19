@@ -18,6 +18,7 @@ REST = SITE + '/wp-json/wp/v2/posts/92205?_fields=id,type,status,slug,link,modif
 CSS = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-stredni-cechy-stay-offer-v1.css'
 MARKER = 'data-nry-sc-stay="v1"'
 PARTNER = 'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Frabyne%2Fpenzion-janata%2F'
+HAUZI = 'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchata-slapy-skalice'
 STAYS = SITE + '/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/'
 SOURCE_PREFIX = '926f27c5dd1290e8d5816406fb82d4b68429cd98d930b5ca31efef2803696240'
 
@@ -54,7 +55,7 @@ class OfferPage(HTMLParser):
 
 
 def get(url, limit):
-    assert url in (SITE + PATH, REST, SITE + CSS + '?ver=1.0.0')
+    assert url in (SITE + PATH, REST, SITE + CSS + '?ver=1.0.0', SITE + CSS + '?ver=1.1.0')
     req = Request(url, headers={'User-Agent': 'NaRyby-StredniCechy-ReadOnly/1.0',
                                 'Cache-Control': 'no-cache, no-store'})
     with urlopen(req, timeout=25) as response:
@@ -93,9 +94,16 @@ def public_preflight(html):
     page.close()
     assert page.canonicals == [SITE + PATH] and 'postid-92205' in html, 'PAGE_ID_DRIFT'
     if page.blocks:
-        # Another PR may run after this release is live. Accept only the exact
-        # independently verified final state, never an arbitrary overlay.
-        return public_verify(html, get(SITE + CSS + '?ver=1.0.0', 30000),
+        # The existing single Hportal offer is already live. Accept exactly
+        # that old state on PR, but demand two precise choices after deploy.
+        if page.offers == ['slapy-janata']:
+            assert page.ctas == [(PARTNER, 'sponsored nofollow noopener', '_blank'),
+                                 (STAYS, None, None)], 'UNEXPECTED_LIVE_BASELINE_CTA'
+            assert page.styles == [CSS + '?ver=1.0.0'], 'UNEXPECTED_OLD_STYLES'
+            return {'status': 'STREDNI_CECHY_HAUZI_PREFLIGHT_READY', 'postId': 92205,
+                    'existingAffiliateOffers': 1, 'plannedAffiliateOffers': 2,
+                    'wordPressWrites': 0, 'merchantRequests': 0, 'syntheticClicks': 0}
+        return public_verify(html, get(SITE + CSS + '?ver=1.1.0', 30000),
                              (ROOT / 'assets/nry-stredni-cechy-stay-offer-v1.css').read_bytes())
     assert 'height: 100vh' in html and 'Screenshot_960.png' in html, 'OLD_BANNER_BASELINE_DRIFT'
     assert 'Nabízíme nezapomenutelné' in html, 'OLD_CLAIM_BASELINE_DRIFT'
@@ -108,10 +116,11 @@ def public_verify(html, css_public, css_reviewed):
     page.feed(html)
     page.close()
     assert page.canonicals == [SITE + PATH] and 'postid-92205' in html, 'PAGE_ID_DRIFT'
-    assert page.blocks == 1 and page.offers == ['slapy-janata'], 'OFFER_MARKER_DRIFT'
+    assert page.blocks == 1 and page.offers == ['slapy-janata', 'hauzi-slapy-skalice'], 'OFFER_MARKER_DRIFT'
     assert page.ctas == [(PARTNER, 'sponsored nofollow noopener', '_blank'),
+                         (HAUZI, 'sponsored nofollow noopener', '_blank'),
                          (STAYS, None, None)], 'EXACT_URL_OR_LINK_REL_DRIFT'
-    assert page.styles == [CSS + '?ver=1.0.0'], 'STYLE_ENQUEUE_DRIFT'
+    assert page.styles == [CSS + '?ver=1.1.0'], 'STYLE_ENQUEUE_DRIFT'
     assert css_public == css_reviewed and len(css_public) > 500, 'STYLES_NOT_BYTE_IDENTICAL'
     assert html.count('Screenshot_960.png') == 0, 'OVERSIZED_LEGACY_BANNER_REMAINS'
     assert 'Nabízíme nezapomenutelné' not in html, 'UNVERIFIED_OWNER_CLAIM_REMAINS'
@@ -119,7 +128,7 @@ def public_verify(html, css_public, css_reviewed):
     assert 'Zážitkové rybaření ve středních Čechách' in html
     assert html.find(MARKER) < html.find('<h2>Zážitkové rybaření ve středních Čechách</h2>'), 'CTA_BURIED'
     return {'status': 'STREDNI_CECHY_STAY_PUBLIC_VERIFIED', 'postId': 92205,
-            'exactSponsoredOffers': 1, 'oversizedBannerRemoved': True,
+            'exactSponsoredOffers': 2, 'oversizedBannerRemoved': True,
             'falseServiceClaimsRepaired': True, 'cssByteIdentical': True,
             'wordpressWrites': 0, 'merchantRequests': 0, 'syntheticClicks': 0,
             'realClicks': None, 'fulfilledReservations': None, 'paidCommissions': None}
@@ -133,7 +142,7 @@ def main():
     if preflight:
         out = public_preflight(html)
     else:
-        out = public_verify(html, get(SITE + CSS + '?ver=1.0.0', 30000),
+        out = public_verify(html, get(SITE + CSS + '?ver=1.1.0', 30000),
                             (ROOT / 'assets/nry-stredni-cechy-stay-offer-v1.css').read_bytes())
     print(json.dumps(out, ensure_ascii=False))
 

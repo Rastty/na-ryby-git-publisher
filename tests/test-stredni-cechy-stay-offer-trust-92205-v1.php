@@ -52,8 +52,14 @@ check(strlen($original)>2500,'sufficient article length');
 $changed=$class::transform($original);
 check($changed!==$original,'source-rendered match changes visible copy');
 check(substr_count($changed,$class::MARKER)===1,'one new offer section');
-check(substr_count($changed,'data-nry-sc-offer=')===1,'one offer identity');
+check(substr_count($changed,'data-nry-sc-offer=')===2,'two exact-property offer identities');
 check(strpos(html_entity_decode($changed,ENT_QUOTES,'UTF-8'),$class::HPORTAL_SLAPY)!==false,'approved unchanged partner href');
+check(strpos(html_entity_decode($changed,ENT_QUOTES,'UTF-8'),$class::HAUZI_SLAPY)!==false,'approved exact Slapy Hauzi href');
+parse_str(parse_url($class::HAUZI_SLAPY,PHP_URL_QUERY),$hauzi_query);
+check(parse_url($class::HAUZI_SLAPY,PHP_URL_HOST)==='tracking.affiliateport.eu'
+    && $hauzi_query['o']==='1990' && $hauzi_query['a']==='1736'
+    && $hauzi_query['sub_id5']==='https://www.hauzi.cz/chata-slapy-skalice',
+    'approved Hauzi deep link points to exact verified Slapy property');
 check(strpos($changed,$class::STAYS)!==false,'internal comparison');
 check(strpos($changed,'rel="sponsored nofollow noopener"')!==false,'sponsorship');
 check(strpos($changed,'height: 100vh')===false,'obsolete oversized banner removed');
@@ -64,9 +70,11 @@ check($class::transform('z'.substr($original,1))==='z'.substr($original,1),'rend
 check($class::transform(str_replace($class::ANCHOR,$class::ANCHOR.$class::ANCHOR,$original))===str_replace($class::ANCHOR,$class::ANCHOR.$class::ANCHOR,$original),'duplicate heading fails closed');
 $duplicatedPartner=$original.'<a href="'.$class::HPORTAL_SLAPY.'">Old partner CTA</a>';
 check($class::transform($duplicatedPartner)===$duplicatedPartner,'existing partner href blocks duplicates');
+$duplicatedHauzi=$original.'<a href="'.$class::HAUZI_SLAPY.'">Old Hauzi CTA</a>';
+check($class::transform($duplicatedHauzi)===$duplicatedHauzi,'existing Hauzi href blocks duplicates');
 $driftedWiki=str_replace('Jindřichovice pod Smrkem</a>','jiná lokalita</a>',$original);
 check($class::transform($driftedWiki)===$driftedWiki,'unsourced editorial change blocks entire overlay');
 check($class::render($original)===$original,'wrong raw SHA blocks all writes and overlays');
 $class::enqueue();
 check(count($GLOBALS['sc_styles'])===0,'no style on unapproved raw source');
-echo "PASS: exact source lock, one reviewed offer, bounded trust repair, legacy removal and no writes\n";
+echo "PASS: exact source lock, two reviewed offers, bounded trust repair, legacy removal and no writes\n";

@@ -1,7 +1,7 @@
 <?php
 /**
- * Source-locked, frontend-only trust repair and one approved Hportal/Dognet
- * accommodation choice for the old Stredni Cechy article. Stored WP content,
+ * Source-locked, frontend-only trust repair and two approved, exact-property
+ * Hportal/Dognet and Hauzi/AffiliatePort choices. Stored WP content,
  * metadata, cookies, redirects and tracking scripts remain untouched.
  */
 if (!defined('ABSPATH')) { exit; }
@@ -20,6 +20,7 @@ final class NRY_Stredni_Cechy_Stay_Offer_92205_V1 {
     const MARKER = 'data-nry-sc-stay="v1"';
     const OFFER_ID = 'slapy-janata';
     const HPORTAL_SLAPY = 'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Frabyne%2Fpenzion-janata%2F';
+    const HAUZI_SLAPY = 'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchata-slapy-skalice';
     const STAYS = 'https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/';
     const LEGACY_BOOKING = 'https://na-ryby.eu/booking-cesko';
     const MISLOCATED_WIKI = 'https://cs.wikipedia.org/wiki/Jind%C5%99ichovice_pod_Smrkem';
@@ -59,12 +60,12 @@ final class NRY_Stredni_Cechy_Stay_Offer_92205_V1 {
         if (!self::eligible(false) || !function_exists('wp_enqueue_style')
             || !function_exists('plugins_url')) return;
         wp_enqueue_style('nry-sc-stay-92205-v1',
-            plugins_url('assets/nry-stredni-cechy-stay-offer-v1.css', __FILE__), array(), '1.0.0');
+            plugins_url('assets/nry-stredni-cechy-stay-offer-v1.css', __FILE__), array(), '1.1.0');
     }
 
     public static function block() {
-        return '<section class="nry-sc-stay" '.self::MARKER.' aria-label="Ubytování u Slap pro rybářský výlet">'
-            .'<p class="nry-sc-stay__eyebrow">Konkrétní možnost ve středních Čechách</p>'
+        return '<section class="nry-sc-stay" '.self::MARKER.' aria-label="Dvě možnosti ubytování u Slap pro rybářský výlet">'
+            .'<p class="nry-sc-stay__eyebrow">Dvě konkrétní možnosti ve středních Čechách</p>'
             .'<h2>Plánujete rybářský víkend u Slap?</h2>'
             .'<p>Ubytování je samostatná služba. Pro rybolov si zvolte konkrétní vodu a ověřte pravidla; '
             .'samotný pobyt automaticky nezahrnuje povolenku ani možnost lovu.</p>'
@@ -76,9 +77,20 @@ final class NRY_Stredni_Cechy_Stay_Offer_92205_V1 {
             .'<a class="nry-sc-stay__cta" href="'.htmlspecialchars(self::HPORTAL_SLAPY, ENT_QUOTES, 'UTF-8').'"'
             .' target="_blank" rel="sponsored nofollow noopener">Zobrazit ubytování u Slap</a>'
             .'</article>'
+            .'<article class="nry-sc-stay__offer" data-nry-sc-offer="hauzi-slapy-skalice">'
+            .'<div><p class="nry-sc-stay__place">Slapy · Skalice</p>'
+            .'<h3>Chata Slapy – Skalice</h3>'
+            .'<p>Hauzi ji uvádí mezi chatami pro rybáře u Slapské přehrady, '
+            .'s kapacitou až 6 osob a venkovním posezením. '
+            .'Ověřte vzdálenost k povolenému lovnému místu, pravidla revíru '
+            .'a dostupnost pro svůj termín; ubytování samo nezahrnuje povolenku.</p></div>'
+            .'<a class="nry-sc-stay__cta nry-sc-stay__cta--hauzi" '
+            .'href="'.htmlspecialchars(self::HAUZI_SLAPY, ENT_QUOTES, 'UTF-8').'"'
+            .' target="_blank" rel="sponsored nofollow noopener">Zobrazit chatu na Hauzi</a>'
+            .'</article>'
             .'<p class="nry-sc-stay__more">Hledáte i další lokality? '
             .'<a href="'.self::STAYS.'">Srovnat konkrétní rybářské pobyty</a>.</p>'
-            .'<p class="nry-sc-stay__note"><small>Partnerský odkaz · ověřeno 18. 11. 2026. '
+            .'<p class="nry-sc-stay__note"><small>Partnerské odkazy · Hportal ověřen 18. 11., Hauzi 19. 11. 2026. '
             .'Cena a dostupnost se mění. Na svazových vodách ověřte rybářský lístek a povolenku; '
             .'na soukromých vodách pravidla provozovatele.</small></p></section>';
     }
@@ -94,6 +106,7 @@ final class NRY_Stredni_Cechy_Stay_Offer_92205_V1 {
             || substr_count($html, self::ANCHOR) !== 1
             || strpos($html, self::MARKER) !== false
             || strpos($html, self::HPORTAL_SLAPY) !== false
+            || strpos($html, self::HAUZI_SLAPY) !== false
             || strpos($html, self::STAYS) !== false) return $html;
 
         $original_hrefs = self::hrefs($html);
@@ -132,7 +145,7 @@ final class NRY_Stredni_Cechy_Stay_Offer_92205_V1 {
 
         $new_hrefs = self::hrefs($changed);
         $allowed_removals = array(self::LEGACY_BOOKING, self::MISLOCATED_WIKI);
-        $added = array(self::HPORTAL_SLAPY, self::STAYS);
+        $added = array(self::HPORTAL_SLAPY, self::HAUZI_SLAPY, self::STAYS);
         $preserved = array_values(array_filter($original_hrefs, function($u) use($allowed_removals) {
             return !in_array($u, $allowed_removals, true);
         }));
@@ -141,10 +154,11 @@ final class NRY_Stredni_Cechy_Stay_Offer_92205_V1 {
         }));
         $new_counts = $new_hrefs === null ? array() : array_count_values($new_hrefs);
         return ($new_hrefs !== null && $preserved === $actual_preserved
-            && count($new_hrefs) === count($original_hrefs)
+            && count($new_hrefs) === count($original_hrefs) + 1
             && substr_count($changed, self::MARKER) === 1
-            && substr_count($changed, 'data-nry-sc-offer=') === 1
+            && substr_count($changed, 'data-nry-sc-offer=') === 2
             && ($new_counts[self::HPORTAL_SLAPY] ?? 0) === 1
+            && ($new_counts[self::HAUZI_SLAPY] ?? 0) === 1
             && ($new_counts[self::STAYS] ?? 0) === 1
             && strpos($changed, 'height: 100vh') === false
             && strpos($changed, 'Nabízíme nezapomenutelné') === false)
