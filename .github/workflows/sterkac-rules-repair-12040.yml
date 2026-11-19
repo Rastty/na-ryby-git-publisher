@@ -1,0 +1,22 @@
+name: Na-Ryby Sterkac 12040 Rules Repair (staged, SHA locked)
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'sterkac-rules-repair-12040-v1.php'
+      - 'assets/nry-sterkac-rules-12040-v1.css'
+      - 'tests/test-sterkac-rules-repair-12040-v1.php'
+      - '.github/workflows/sterkac-rules-repair-12040.yml'
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP lint and disarmed source-gated transformation contract
+        run: |
+          php -l na-ryby-git-publisher.php
+          php -l sterkac-rules-repair-12040-v1.php
+          php tests/test-sterkac-rules-repair-12040-v1.php
