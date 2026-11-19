@@ -1,0 +1,40 @@
+name: Na-Ryby Cyklochata 11983 Exact Hauzi Offer
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'cyklochata-hauzi-offer-11983-v1.php'
+      - 'assets/nry-cyklochata-hauzi-offer-11983-v1.css'
+      - 'scripts/verify-cyklochata-hauzi-offer-public-11983.py'
+      - 'tests/test-cyklochata-hauzi-offer-11983-v1.php'
+      - 'tests/test-cyklochata-hauzi-offer-public-11983.py'
+      - '.github/workflows/cyklochata-hauzi-offer-11983.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Disarmed exact-object affiliate and source-guard contract
+        run: |
+          php -l na-ryby-git-publisher.php
+          php -l cyklochata-hauzi-offer-11983-v1.php
+          php tests/test-cyklochata-hauzi-offer-11983-v1.php
+          python3 tests/test-cyklochata-hauzi-offer-public-11983.py
+          python3 -m py_compile scripts/verify-cyklochata-hauzi-offer-public-11983.py
+  public:
+    needs: contract
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: GET-only live specific property offer after authorized deploy
+        run: python3 scripts/verify-cyklochata-hauzi-offer-public-11983.py --verify
