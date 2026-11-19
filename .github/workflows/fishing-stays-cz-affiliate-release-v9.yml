@@ -2,7 +2,6 @@ name: Na-Ryby Fishing Stays Affiliate V9 Offline Contract
 on:
   pull_request:
     paths:
-      - 'na-ryby-git-publisher.php'
       - 'editorial/fishing-stays-cz-20261118.json'
       - 'editorial/fishing-stays-cz-20261118-recommendation-blocks.html'
       - 'scripts/build-fishing-stays-cz-manifest-v9.mjs'
@@ -10,11 +9,9 @@ on:
       - 'scripts/verify-fishing-stays-cz-offline-v1.mjs'
       - 'tests/test-fishing-stays-affiliate-release-v9.php'
       - 'tests/test-fishing-stays-v9-trusted-write-scope.php'
-      - '.github/workflows/fishing-stays-cz-affiliate-release-v9.yml'
   push:
     branches: [main]
     paths:
-      - 'na-ryby-git-publisher.php'
       - 'editorial/fishing-stays-cz-20261118.json'
       - 'editorial/fishing-stays-cz-20261118-recommendation-blocks.html'
       - 'scripts/build-fishing-stays-cz-manifest-v9.mjs'
@@ -22,7 +19,6 @@ on:
       - 'scripts/verify-fishing-stays-cz-offline-v1.mjs'
       - 'tests/test-fishing-stays-affiliate-release-v9.php'
       - 'tests/test-fishing-stays-v9-trusted-write-scope.php'
-      - '.github/workflows/fishing-stays-cz-affiliate-release-v9.yml'
 permissions:
   contents: read
 jobs:

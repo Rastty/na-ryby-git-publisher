@@ -4,21 +4,17 @@ on:
     paths:
       - 'boat-load-check-119598-v1.php'
       - 'assets/nry-boat-load-v1.js'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-boat-load-check-119598-v1.php'
       - 'tests/test-boat-load-check-v1.cjs'
       - 'scripts/verify-boat-load-check-public.py'
-      - '.github/workflows/boat-load-check-v1.yml'
   push:
     branches: [main]
     paths:
       - 'boat-load-check-119598-v1.php'
       - 'assets/nry-boat-load-v1.js'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-boat-load-check-119598-v1.php'
       - 'tests/test-boat-load-check-v1.cjs'
       - 'scripts/verify-boat-load-check-public.py'
-      - '.github/workflows/boat-load-check-v1.yml'
   workflow_dispatch:
 permissions:
   contents: read

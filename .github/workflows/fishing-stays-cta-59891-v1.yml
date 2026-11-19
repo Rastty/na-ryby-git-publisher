@@ -2,13 +2,11 @@ name: Na-Ryby Published Stay CTA Visual Readback (GET only)
 on:
   pull_request:
     paths:
-      - 'na-ryby-git-publisher.php'
       - 'buyer-click-telemetry-v1.php'
       - 'assets/nry-fishing-stays-cta-59891-v1.css'
       - 'tests/test-fishing-stays-cta-59891-v1.php'
       - 'tests/test-fishing-stays-cta-59891-public.py'
       - 'scripts/verify-fishing-stays-cta-59891-public.py'
-      - '.github/workflows/fishing-stays-cta-59891-v1.yml'
   workflow_dispatch:
     inputs:
       phase:

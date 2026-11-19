@@ -3,11 +3,9 @@ on:
   pull_request:
     paths:
       - 'home-advisor-seo-snippets-v1.php'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-home-advisor-seo-snippets-v1.php'
       - 'tests/test-home-advisor-seo-public.py'
       - 'scripts/verify-home-advisor-seo-public.py'
-      - '.github/workflows/nry-home-advisor-seo-public.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]

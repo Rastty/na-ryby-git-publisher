@@ -3,9 +3,7 @@ on:
   pull_request:
     paths:
       - 'home-trust-cleanup-118641-v1.php'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-home-trust-cleanup-118641.php'
-      - '.github/workflows/nry-home-trust-contract.yml'
   workflow_dispatch:
 permissions:
   contents: read

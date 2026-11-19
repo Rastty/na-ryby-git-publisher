@@ -6,8 +6,6 @@ on:
       - 'baitboat-release-v2.php'
       - 'tests/test-baitboat-landing-v2.cjs'
       - 'tests/test-baitboat-mobile-v2.mjs'
-      - 'na-ryby-git-publisher.php'
-      - '.github/workflows/baitboat-v2-contract.yml'
   workflow_dispatch:
 permissions:
   contents: read

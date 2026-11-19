@@ -379,7 +379,25 @@ concurrency:
   group: ${{ github.event_name == 'pull_request' && format('nry-review-pr-{0}', github.event.pull_request.number) || 'nry-guarded-deployer-live' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
+  pr-offline:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Offline publisher and guarded-trigger contract; no live HTTP calls
+        run: |
+          set -euo pipefail
+          python3 tests/test-ci-trigger-scoping.py
+          python3 tests/test-deployer-trigger-parity.py
+          php -l na-ryby-git-publisher.php
+          php -l guarded-auto-publisher.php
+          php -l advisor-existing-page-release-v1.php
   verify:
+    # Public WordPress source/readback checks run only for authorized main
+    # release; PRs use pr-offline + focused feature contracts instead.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

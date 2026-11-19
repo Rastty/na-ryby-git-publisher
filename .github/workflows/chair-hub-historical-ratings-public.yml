@@ -6,12 +6,10 @@ on:
       - 'chair-hub-decision-paths-60341-v1.php'
       - 'tests/test-chair-hub-decision-paths-60341-v1.php'
       - 'scripts/verify-chair-hub-decision-paths-60341-public.py'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-chair-hub-historical-ratings-60341-v1.php'
       - 'tests/probe-chair-hub-historical-ratings-60341.php'
       - 'scripts/verify-chair-hub-historical-ratings-60341-public.py'
       - 'tests/test-chair-hub-historical-ratings-public.py'
-      - '.github/workflows/chair-hub-historical-ratings-public.yml'
   workflow_dispatch:
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']

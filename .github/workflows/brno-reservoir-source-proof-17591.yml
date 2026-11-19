@@ -2,12 +2,10 @@ name: Na-Ryby Brno Reservoir 17591 Exact Source Proof (GET only)
 on:
   pull_request:
     paths:
-      - 'na-ryby-git-publisher.php'
       - 'brno-reservoir-source-proof-17591-v1.php'
       - 'scripts/verify-brno-reservoir-source-proof-17591.py'
       - 'tests/test-brno-reservoir-source-proof-17591-v1.php'
       - 'tests/test-brno-reservoir-source-proof-17591.py'
-      - '.github/workflows/brno-reservoir-source-proof-17591.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]
