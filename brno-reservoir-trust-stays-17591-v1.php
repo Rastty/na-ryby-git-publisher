@@ -115,8 +115,8 @@ final class NRY_Brno_Reservoir_Stays_17591_V1 {
             && $count_href === 1 && $count_cta === 1
             && substr_count($changed, self::MARKER) === 1
             && substr_count($changed, 'data-nry-offer-id=') === 2
-            && substr_count($changed, self::HAUZI) === 1
-            && substr_count($changed, self::HPORTAL) === 1
+            && substr_count($changed, htmlspecialchars(self::HAUZI, ENT_QUOTES, 'UTF-8')) === 1
+            && substr_count($changed, htmlspecialchars(self::HPORTAL, ENT_QUOTES, 'UTF-8')) === 1
             && strpos($changed, self::BAD_TITLE) === false
             && strpos($changed, self::OLD_CTA) === false)
             ? $changed : $html;
