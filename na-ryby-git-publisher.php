@@ -53,6 +53,7 @@ require_once __DIR__ . '/home-advisor-entry-118641-v1.php';
 require_once __DIR__ . '/home-buyer-entry-measurement-v1.php';
 require_once __DIR__ . '/home-advisor-seo-snippets-v1.php';
 require_once __DIR__ . '/romantic-stay-meta-57013-v1.php';
+require_once __DIR__ . '/romantic-stay-offers-57013-v1.php';
 require_once __DIR__ . '/nry-privacy-contact-cleanup-v1.php';
 require_once __DIR__ . '/carp-pillar-source-proof-118541-v1.php';
 require_once __DIR__ . '/carp-pillar-trust-cleanup-118541-v1.php';

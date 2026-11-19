@@ -49,6 +49,9 @@ on:
       - 'tests/test-home-advisor-seo-public.py'
       - 'romantic-stay-meta-57013-v1.php'
       - 'tests/test-romantic-stay-meta-57013-v1.php'
+      - 'romantic-stay-offers-57013-v1.php'
+      - 'assets/nry-romantic-stay-offers-57013-v1.css'
+      - 'tests/test-romantic-stay-offers-57013-v1.php'
       - 'scripts/verify-romantic-stay-meta-public.py'
       - 'tests/test-romantic-stay-meta-public.py'
       - '.github/workflows/nry-romantic-stay-meta-public.yml'
@@ -309,6 +312,8 @@ on:
       - 'assets/nry-home-buyer-entry-v1.js'
       - 'home-advisor-seo-snippets-v1.php'
       - 'romantic-stay-meta-57013-v1.php'
+      - 'romantic-stay-offers-57013-v1.php'
+      - 'assets/nry-romantic-stay-offers-57013-v1.css'
       - 'nry-privacy-contact-cleanup-v1.php'
       - 'carp-pillar-source-proof-118541-v1.php'
       - 'carp-pillar-trust-cleanup-118541-v1.php'
@@ -528,6 +533,8 @@ jobs:
           python3 tests/test-home-advisor-seo-public.py
           php -l romantic-stay-meta-57013-v1.php
           php tests/test-romantic-stay-meta-57013-v1.php
+          php -l romantic-stay-offers-57013-v1.php
+          php tests/test-romantic-stay-offers-57013-v1.php
           python3 -m py_compile scripts/verify-romantic-stay-meta-public.py
           python3 tests/test-romantic-stay-meta-public.py
           php -l nry-privacy-contact-cleanup-v1.php

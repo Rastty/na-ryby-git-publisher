@@ -3,8 +3,11 @@ on:
   pull_request:
     paths:
       - 'romantic-stay-meta-57013-v1.php'
+      - 'romantic-stay-offers-57013-v1.php'
+      - 'assets/nry-romantic-stay-offers-57013-v1.css'
       - 'na-ryby-git-publisher.php'
       - 'tests/test-romantic-stay-meta-57013-v1.php'
+      - 'tests/test-romantic-stay-offers-57013-v1.php'
       - 'scripts/verify-romantic-stay-meta-public.py'
       - 'tests/test-romantic-stay-meta-public.py'
       - '.github/workflows/nry-romantic-stay-meta-public.yml'
@@ -27,6 +30,8 @@ jobs:
         run: |
           php -l romantic-stay-meta-57013-v1.php
           php tests/test-romantic-stay-meta-57013-v1.php
+          php -l romantic-stay-offers-57013-v1.php
+          php tests/test-romantic-stay-offers-57013-v1.php
       - name: Independent public HTML parser contract
         run: |
           python3 -m py_compile scripts/verify-romantic-stay-meta-public.py
