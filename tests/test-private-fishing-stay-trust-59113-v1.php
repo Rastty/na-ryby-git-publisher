@@ -50,7 +50,7 @@ check_private(strpos($changed, 'Rezervace je velmi jednoduchá') === false, 'fal
 check_private(strpos($changed, 'www.nezapomenutelnyrevir.cz') === false, 'unverified offsite domain removed');
 check_private(strpos($changed, '<!DOCTYPE html>') === false, 'nested documents removed');
 check_private(strpos($changed, 'Tento článek pojednává') === false, 'internal drafting note removed');
-check_private(strpos($changed, '2 pruty') !== false && strpos($changed, 'v sobotu') !== false, 'reviewed offer conditions');
+check_private(strpos($changed, 'na dva pruty') !== false && strpos($changed, 'v sobotu') !== false, 'reviewed offer conditions');
 check_private(strpos($changed, 'aktuální dostupnost') !== false, 'no inventory guarantee');
 check_private($class::transform($changed) === $changed, 'no repeated transform');
 check_private($class::transform('X'.substr($original, 1)) === 'X'.substr($original, 1), 'prefix drift stops');
