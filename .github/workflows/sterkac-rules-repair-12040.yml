@@ -6,7 +6,14 @@ on:
       - 'sterkac-rules-repair-12040-v1.php'
       - 'assets/nry-sterkac-rules-12040-v1.css'
       - 'tests/test-sterkac-rules-repair-12040-v1.php'
+      - 'scripts/verify-sterkac-rules-repair-12040-public.py'
+      - 'tests/test-sterkac-rules-repair-12040-public.py'
       - '.github/workflows/sterkac-rules-repair-12040.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -20,3 +27,14 @@ jobs:
           php -l na-ryby-git-publisher.php
           php -l sterkac-rules-repair-12040-v1.php
           php tests/test-sterkac-rules-repair-12040-v1.php
+          python3 tests/test-sterkac-rules-repair-12040-public.py
+          python3 -m py_compile scripts/verify-sterkac-rules-repair-12040-public.py
+  public:
+    needs: contract
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Source-bound exact visitor readback after real protected deploy
+        run: python3 scripts/verify-sterkac-rules-repair-12040-public.py --verify
