@@ -1,0 +1,39 @@
+name: Na-Ryby Romantic Stay Meta 57013
+on:
+  pull_request:
+    paths:
+      - 'romantic-stay-meta-57013-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-romantic-stay-meta-57013-v1.php'
+      - 'scripts/verify-romantic-stay-meta-public.py'
+      - 'tests/test-romantic-stay-meta-public.py'
+      - '.github/workflows/nry-romantic-stay-meta-public.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-post-meta:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Exact-post PHP render filters, no-write regression
+        run: |
+          php -l romantic-stay-meta-57013-v1.php
+          php tests/test-romantic-stay-meta-57013-v1.php
+      - name: Independent public HTML parser contract
+        run: |
+          python3 -m py_compile scripts/verify-romantic-stay-meta-public.py
+          python3 tests/test-romantic-stay-meta-public.py
+      - name: Anonymous baseline identity and SEO preflight
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-romantic-stay-meta-public.py --preflight
+      - name: Anonymous proof after authorized guarded deploy
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/verify-romantic-stay-meta-public.py
