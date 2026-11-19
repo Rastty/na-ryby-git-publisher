@@ -83,6 +83,12 @@ on:
       - 'kruzberk-source-proof-12877-v1.php'
       - 'brno-reservoir-source-proof-17591-v1.php'
       - 'cyklochata-source-proof-11983-v1.php'
+      - 'cyklochata-hauzi-offer-11983-v1.php'
+      - 'assets/nry-cyklochata-hauzi-offer-11983-v1.css'
+      - 'scripts/verify-cyklochata-hauzi-offer-public-11983.py'
+      - 'tests/test-cyklochata-hauzi-offer-11983-v1.php'
+      - 'tests/test-cyklochata-hauzi-offer-public-11983.py'
+      - '.github/workflows/cyklochata-hauzi-offer-11983.yml'
       - 'scripts/verify-cyklochata-source-proof-11983.py'
       - 'tests/test-cyklochata-source-proof-11983-v1.php'
       - 'tests/test-cyklochata-source-proof-11983.py'
@@ -329,6 +335,8 @@ on:
       - 'kruzberk-source-proof-12877-v1.php'
       - 'brno-reservoir-source-proof-17591-v1.php'
       - 'cyklochata-source-proof-11983-v1.php'
+      - 'cyklochata-hauzi-offer-11983-v1.php'
+      - 'assets/nry-cyklochata-hauzi-offer-11983-v1.css'
       - 'brno-reservoir-trust-stays-17591-v1.php'
       - 'kruzberk-fishing-trust-12877-v1.php'
       - 'legacy-net-buyer-guides-v1.php'
@@ -411,6 +419,10 @@ jobs:
           php -l jizni-morava-stays-12166-v1.php
           php -l brno-reservoir-source-proof-17591-v1.php
           php -l cyklochata-source-proof-11983-v1.php
+          php -l cyklochata-hauzi-offer-11983-v1.php
+          php tests/test-cyklochata-hauzi-offer-11983-v1.php
+          python3 tests/test-cyklochata-hauzi-offer-public-11983.py
+          python3 -m py_compile scripts/verify-cyklochata-hauzi-offer-public-11983.py
           php tests/test-cyklochata-source-proof-11983-v1.php
           python3 tests/test-cyklochata-source-proof-11983.py
           python3 -m py_compile scripts/verify-cyklochata-source-proof-11983.py
