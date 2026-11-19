@@ -111,8 +111,8 @@ final class NRY_Jihocesky_Lipno_Stays_13088_V1 {
         }
         $block = self::block();
         if (substr_count($block, self::MARKER) !== 1
-            || substr_count($block, self::HPORTAL) !== 1
-            || substr_count($block, self::HAUZI) !== 1
+            || substr_count($block, htmlspecialchars(self::HPORTAL, ENT_QUOTES, 'UTF-8')) !== 1
+            || substr_count($block, htmlspecialchars(self::HAUZI, ENT_QUOTES, 'UTF-8')) !== 1
             || substr_count($block, self::STAYS) !== 1) return $html;
         // Preserve every old entry, anchor, and shortcode expansion byte-for-byte.
         return $block."\n".$html;
