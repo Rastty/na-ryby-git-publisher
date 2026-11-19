@@ -5,6 +5,7 @@ $GLOBALS['filters'] = array();
 $GLOBALS['actions'] = array();
 function add_filter($tag, $callback, $priority) { $GLOBALS['filters'][] = $tag; }
 function add_action($tag, $callback, $priority) { $GLOBALS['actions'][] = $tag; }
+function is_single($postId = null) { return false; }
 function check($condition, $label) { if (!$condition) throw new RuntimeException($label); }
 require dirname(__DIR__).'/sterkac-rules-repair-12040-v1.php';
 $cls = 'NRY_Sterkac_Rules_12040_V1';
