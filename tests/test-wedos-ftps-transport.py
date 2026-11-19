@@ -10,6 +10,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from urllib.error import HTTPError
+from ftplib import error_perm
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -110,6 +111,15 @@ class TransportContract(unittest.TestCase):
         self.assertEqual(workflow.count("if: vars.NRY_DEPLOY_TRANSPORT == 'ftps'"), 2)
         self.assertNotIn("vars.NRY_DEPLOY_TRANSPORT == '' ||", workflow)
         self.assertIn("environment: na-ryby-production", workflow)
+
+    def test_ftp_diagnostic_only_logs_allowlisted_stage_and_reply_code(self):
+        with self.assertRaises(ftps.SafeFtpStageError) as caught:
+            ftps.ftps_stage("login", lambda: (_ for _ in ()).throw(
+                error_perm("530 Wrong password ftp-host=secret.example password=SENSITIVE")))
+        self.assertEqual(str(caught.exception), "login:530")
+        self.assertNotIn("SENSITIVE", str(caught.exception))
+        with self.assertRaises(AssertionError):
+            ftps.ftps_stage("arbitrary_host", lambda: None)
 
     def test_unknown_repository_auto_deploy_state_cannot_arm_ftps_during_merge(self):
         workflow = (ROOT / ".github/workflows/guarded-deployer-push.yml").read_text()
