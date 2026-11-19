@@ -114,6 +114,25 @@ def verify(html, *, deployed, css_bytes=b'', js_bytes=b'', reviewed_css=b'', rev
             'realClicks': None, 'fulfilledReservations': None, 'paidCommissions': None}
 
 
+def has_deployed_marker(html):
+    """Detect the candidate without treating its presence as publication proof."""
+    surface = Surface()
+    surface.feed(html.decode('utf-8', 'replace'))
+    surface.close()
+    return surface.sections > 0
+
+
+def verify_current(html, *, css_bytes=b'', js_bytes=b'', reviewed_css=b'', reviewed_js=b''):
+    """For later PRs, prove either the original page or the *exact* live release.
+
+    This is intentionally distinct from --preflight: the preflight contract
+    still requires no published offer. Partially deployed or drifted releases
+    may never fall back to the permissive original-page branch.
+    """
+    return verify(html, deployed=has_deployed_marker(html), css_bytes=css_bytes,
+                  js_bytes=js_bytes, reviewed_css=reviewed_css, reviewed_js=reviewed_js)
+
+
 def get(url, limit):
     assert url in (ORIGIN + PAGE, PROOF, ORIGIN + JS + '?' + JS_VERSION,
                    ORIGIN + CSS + '?' + CSS_VERSION), 'UNAPPROVED_PUBLIC_GET'
@@ -126,13 +145,17 @@ def get(url, limit):
 
 
 def main():
-    assert sys.argv[1:] in (['--preflight'], ['--verify']), 'PHASE_REQUIRED'
-    deployed = sys.argv[1] == '--verify'
+    assert sys.argv[1:] in (['--preflight'], ['--verify'], ['--current']), 'PHASE_REQUIRED'
+    mode = sys.argv[1]
     proof = json.loads(get(PROOF, 12000))
     assert proof['state'] == 'SOURCE_SHA_AVAILABLE_NO_PUBLICATION' \
         and proof['postId'] == 85384 and proof['sourceSha256'] == RAW_SHA256 \
         and proof['publicationAuthorized'] is False and proof['wordpressWrites'] == 0, 'RAW_WP_SOURCE_CHANGED'
-    result = verify(get(ORIGIN + PAGE, 2_000_000), deployed=deployed,
+    page = get(ORIGIN + PAGE, 2_000_000)
+    deployed = mode == '--verify' or (mode == '--current' and has_deployed_marker(page))
+    verifier = verify_current if mode == '--current' else verify
+    options = {} if mode == '--current' else {'deployed': deployed}
+    result = verifier(page, **options,
                     css_bytes=get(ORIGIN + CSS + '?' + CSS_VERSION, 25_000) if deployed else b'',
                     js_bytes=get(ORIGIN + JS + '?' + JS_VERSION, 50_000) if deployed else b'',
                     reviewed_css=(ROOT / 'assets/nry-sport-stays-85384-v1.css').read_bytes() if deployed else b'',
