@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'manifest.json'
+      - 'scripts/sanitize-deployer-denial-metadata.py'
+      - 'tests/test-deployer-denial-metadata.py'
       - 'tests/test-carp-3m-54272-v8.php'
       - 'tests/test-54272-public-semantic.py'
       - 'tests/v8-carp-3m-54272-20261109-frozen.json'
@@ -389,6 +391,8 @@ jobs:
         run: |
           set -euo pipefail
           python3 tests/test-deployer-trigger-parity.py
+          python3 tests/test-deployer-denial-metadata.py
+          python3 -m py_compile scripts/sanitize-deployer-denial-metadata.py
           python3 -m unittest discover -s tests -p test_guarded_v8_readback.py -v
           python3 -m py_compile scripts/readonly_urlopen_retry.py
           python3 tests/test-readonly-urlopen-retry.py -v
@@ -637,9 +641,13 @@ jobs:
           set -euo pipefail
           http_code="$(curl --silent --show-error --max-time 75 --max-redirs 0 \
             --output /tmp/nry-deployer-response.json \
+            --dump-header /tmp/nry-deployer-response.headers \
             --write-out '%{http_code}' "$NRY_DFG_DEPLOY_URL")"
           echo "Deployer HTTP status: $http_code"
           if [ "$http_code" != "200" ]; then
+              python3 scripts/sanitize-deployer-denial-metadata.py \
+                --headers /tmp/nry-deployer-response.headers \
+                --body /tmp/nry-deployer-response.json --status "$http_code"
               echo "BLOCKED: Deployer request did not receive HTTP 200. Inspect private WordPress deployment logs."
               exit 1
           fi
