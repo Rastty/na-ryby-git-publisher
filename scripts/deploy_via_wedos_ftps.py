@@ -27,10 +27,14 @@ VAULT = ".nry-ftps-vault"
 MAX_FILES = 220
 MAX_BYTES = 12_000_000
 ALLOWED_WP_CONTENT = frozenset({
-    "/",  # a separate WEDOS FTP account rooted exactly at wp-content
+    "/",  # an existing account already rooted at wp-content
     "/www/wp-content",
     "/www/domains/na-ryby.eu/wp-content",
 })
+MAIN_ACCOUNT_CANDIDATES = (
+    "/www/domains/na-ryby.eu/wp-content",
+    "/www/wp-content",
+)
 REQUIRED = frozenset({
     "na-ryby-git-publisher.php", "guarded-auto-publisher.php",
     "manifest.json", "RELEASE_INTEGRITY.json",
@@ -103,6 +107,35 @@ def existing_dir(ftp: FTP_TLS, path: str) -> bool:
         return False
     finally:
         ftp.cwd(original)
+
+
+def confirmed_plugin_root(ftp: FTP_TLS, wp_content: str) -> bool:
+    """Only accept a WordPress root containing our precise installed plugin."""
+    plugin_dir = remote_path(wp_content, "plugins/" + PLUGIN)
+    if not existing_dir(ftp, plugin_dir):
+        return False
+    previous = bytearray()
+    try:
+        ftp.retrbinary("RETR " + remote_path(plugin_dir, PLUGIN + ".php"), previous.extend)
+    except Exception as exc:
+        if str(exc).startswith("550"):
+            return False
+        raise
+    return b"NRY_Git_Publisher" in previous
+
+
+def resolve_wp_content(ftp: FTP_TLS, configured: str) -> str:
+    """Discover a single exact WEDOS target without asking for an extra account."""
+    if configured:
+        target = validate_wp_content(configured)
+        if not confirmed_plugin_root(ftp, target):
+            raise ValueError("Configured WEDOS path lacks the exact expected plugin")
+        return target
+    matches = [candidate for candidate in MAIN_ACCOUNT_CANDIDATES
+               if confirmed_plugin_root(ftp, candidate)]
+    if len(matches) != 1:
+        raise ValueError("Unable to determine one exact WEDOS WordPress plugin root")
+    return matches[0]
 
 
 def make_remote_dir(ftp: FTP_TLS, path: str) -> None:
@@ -226,7 +259,7 @@ def main() -> int:
     host = os.environ.get("NRY_FTPS_HOST", "").strip()
     user = os.environ.get("NRY_FTPS_USER", "")
     password = os.environ.get("NRY_FTPS_PASSWORD", "")
-    wp_content = validate_wp_content(os.environ.get("NRY_FTPS_WP_CONTENT", ""))
+    configured_wp_content = os.environ.get("NRY_FTPS_WP_CONTENT", "")
     if not re.fullmatch(r"[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.wedos\.net", host):
         raise ValueError("FTPS host must be the assigned WEDOS hostname, never an arbitrary URL")
     if not user or not password or any(c in user for c in "\r\n\0"):
@@ -238,6 +271,7 @@ def main() -> int:
         ftp.login(user, password)
         ftp.prot_p()  # mandatory TLS on data connections, not just login
         ftp.set_pasv(True)
+        wp_content = resolve_wp_content(ftp, configured_wp_content)
         backup = deploy(ftp, wp_content, sha, files)
     print("FTPS_CODE_SWAPPED sha=" + sha[:12] + " rollback=" + backup)
     print("CONTENT_NOT_YET_VERIFIED: preserve prior code until protected public receipts pass")

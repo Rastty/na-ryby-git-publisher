@@ -112,6 +112,38 @@ class TransportContract(unittest.TestCase):
         self.assertEqual(ftps.validate_wp_content("/"), "")
         self.assertEqual(ftps.validate_sha(SHA), SHA)
 
+    def test_existing_wedos_main_account_root_is_discovered(self):
+        remote = FakeFTP()
+        target = "/www/domains/na-ryby.eu/wp-content"
+        remote.dirs.update({"/www", "/www/domains", "/www/domains/na-ryby.eu",
+                            target, target + "/plugins", target + "/plugins/" + ftps.PLUGIN})
+        remote.files[target + "/plugins/" + ftps.PLUGIN + "/" + ftps.PLUGIN + ".php"] = (
+            b"<?php class NRY_Git_Publisher {}")
+        self.assertEqual(ftps.resolve_wp_content(remote, ""), target)
+        self.assertEqual(ftps.resolve_wp_content(remote, target), target)
+        with self.assertRaisesRegex(ValueError, "configured|Configured"):
+            ftps.resolve_wp_content(remote, "/www/wp-content")
+
+        second = "/www/wp-content"
+        remote.dirs.update({second, second + "/plugins", second + "/plugins/" + ftps.PLUGIN})
+        remote.files[second + "/plugins/" + ftps.PLUGIN + "/" + ftps.PLUGIN + ".php"] = (
+            b"<?php class NRY_Git_Publisher {}")
+        with self.assertRaisesRegex(ValueError, "one exact"):
+            ftps.resolve_wp_content(remote, "")
+
+    def test_main_account_releases_only_into_confirmed_site(self):
+        remote = FakeFTP()
+        target = "/www/domains/na-ryby.eu/wp-content"
+        remote.dirs.update({"/www", "/www/domains", "/www/domains/na-ryby.eu",
+                            target, target + "/plugins", target + "/plugins/" + ftps.PLUGIN})
+        remote.files[target + "/plugins/" + ftps.PLUGIN + "/" + ftps.PLUGIN + ".php"] = (
+            b"<?php class NRY_Git_Publisher {}")
+        chosen = ftps.resolve_wp_content(remote, "")
+        backup = ftps.deploy(remote, chosen, SHA, FILES)
+        self.assertEqual(backup, target + "/.nry-ftps-vault/.nry-ftps-backup-" + SHA[:12])
+        self.assertIn(target + "/plugins/" + ftps.PLUGIN + "/manifest.json", remote.files)
+        self.assertIn("/plugins/na-ryby-git-publisher/na-ryby-git-publisher.php", remote.files)
+
     def test_staged_files_are_verified_before_first_production_move(self):
         remote = FakeFTP(fail_stage=True)
         with self.assertRaisesRegex(ValueError, "SHA256"):
