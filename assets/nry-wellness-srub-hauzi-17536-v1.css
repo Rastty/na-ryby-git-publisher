@@ -1,0 +1,15 @@
+/* Only the exact source-bound wellness fishing cabin at post #17536. */
+.nry-wellness{margin:22px 0 28px;padding:clamp(20px,3vw,32px);border:2px solid #0f766e;border-radius:17px;background:linear-gradient(125deg,#ecfdf5,#f0fdfa);box-shadow:0 12px 24px rgba(15,118,110,.12);color:#164e47}
+.nry-wellness__eyebrow{font-size:13px;font-weight:800;letter-spacing:.045em;text-transform:uppercase;color:#0f766e}
+.nry-wellness h2{margin:8px 0 14px;color:#134e4a;font-size:clamp(23px,3vw,32px);line-height:1.22}
+.nry-wellness p,.nry-wellness__bottom p{line-height:1.65}
+.nry-wellness__warning{margin:18px 0;padding:16px 18px;background:#fffbeb;color:#78350f;border:1px solid #f59e0b;border-left:5px solid #d97706;border-radius:9px;line-height:1.6}
+.nry-wellness__actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0 12px}
+.nry-wellness__cta{display:inline-block;padding:15px 21px!important;background:#0f766e!important;color:#fff!important;text-decoration:none!important;font-weight:800!important;border-radius:10px!important;min-height:49px;box-shadow:0 8px 16px rgba(15,118,110,.23)}
+.nry-wellness__cta:hover,.nry-wellness__cta:focus{background:#115e59!important;color:#fff!important}
+.nry-wellness__secondary{display:inline-block;padding:13px 17px;border:2px solid #0f766e;border-radius:10px;text-decoration:none!important;color:#115e59!important;font-weight:700}
+.nry-wellness__fine{font-size:12px;color:#365a54;margin:8px 0 0}
+.nry-wellness__bottom{margin:25px 0;padding:22px;border:1px solid #0f766e;border-radius:13px;background:#f0fdfa;color:#164e47}
+.nry-wellness__bottom h3{margin:0 0 8px;color:#115e59}
+.nry-wellness__bottom .nry-wellness__cta{margin:7px 0}
+@media(max-width:600px){.nry-wellness{padding:17px;margin:12px 0 23px}.nry-wellness__actions{display:block}.nry-wellness__cta,.nry-wellness__secondary{display:block;box-sizing:border-box;width:100%;text-align:center;margin:10px 0}.nry-wellness__bottom{padding:17px}}
