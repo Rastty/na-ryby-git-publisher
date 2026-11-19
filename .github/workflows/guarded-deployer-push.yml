@@ -5,6 +5,8 @@ on:
       - 'manifest.json'
       - 'scripts/sanitize-deployer-denial-metadata.py'
       - 'tests/test-deployer-denial-metadata.py'
+      - 'scripts/print-runner-egress-ip.py'
+      - 'tests/test-runner-egress-ip.py'
       - 'tests/test-carp-3m-54272-v8.php'
       - 'tests/test-54272-public-semantic.py'
       - 'tests/v8-carp-3m-54272-20261109-frozen.json'
@@ -393,6 +395,8 @@ jobs:
           python3 tests/test-deployer-trigger-parity.py
           python3 tests/test-deployer-denial-metadata.py
           python3 -m py_compile scripts/sanitize-deployer-denial-metadata.py
+          python3 tests/test-runner-egress-ip.py
+          python3 -m py_compile scripts/print-runner-egress-ip.py
           python3 -m unittest discover -s tests -p test_guarded_v8_readback.py -v
           python3 -m py_compile scripts/readonly_urlopen_retry.py
           python3 tests/test-readonly-urlopen-retry.py -v
@@ -634,6 +638,8 @@ jobs:
               sys.exit(1)
           print("Approved site, plugin slug and Deployer endpoint verified")
           PY
+      - name: Record public runner egress IPv4 for WEDOS log correlation (GET only)
+        run: python3 scripts/print-runner-egress-ip.py
       - name: Request WordPress Deployer pull of reviewed main
         env:
           NRY_DFG_DEPLOY_URL: ${{ secrets.NRY_DFG_DEPLOY_URL }}
