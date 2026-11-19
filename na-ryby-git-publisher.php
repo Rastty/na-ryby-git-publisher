@@ -31,6 +31,7 @@ require_once __DIR__ . '/stredni-cechy-stay-offer-trust-92205-v1.php';
 require_once __DIR__ . '/sport-stays-source-proof-85384-v1.php';
 require_once __DIR__ . '/sport-stays-offers-85384-v1.php';
 require_once __DIR__ . '/kruzberk-source-proof-12877-v1.php';
+require_once __DIR__ . '/kruzberk-fishing-trust-12877-v1.php';
 require_once __DIR__ . '/legacy-net-buyer-guides-v1.php';
 require_once __DIR__ . '/carp-mat-buyer-trust-v1.php';
 require_once __DIR__ . '/barrow-buyer-trust-v1.php';

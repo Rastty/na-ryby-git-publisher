@@ -1,0 +1,44 @@
+name: Na-Ryby Kruzberk 12877 Visible Fishing Rules (GET only)
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'kruzberk-fishing-trust-12877-v1.php'
+      - 'assets/nry-kruzberk-trust-12877-v1.css'
+      - 'tests/test-kruzberk-fishing-trust-12877-v1.php'
+      - 'tests/test-kruzberk-fishing-trust-public-12877.py'
+      - 'scripts/verify-kruzberk-fishing-trust-public-12877.py'
+      - '.github/workflows/kruzberk-fishing-trust-12877.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Source-locked visible safety notice, no WordPress writes
+        run: |
+          php -l kruzberk-fishing-trust-12877-v1.php
+          php -l na-ryby-git-publisher.php
+          php tests/test-kruzberk-fishing-trust-12877-v1.php
+          python3 tests/test-kruzberk-fishing-trust-public-12877.py
+      - name: Exact published original or already deployed notice
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-kruzberk-fishing-trust-public-12877.py --current
+  public:
+    needs: contract
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Original source SHA, exact visible warning, approved references and CSS bytes
+        run: python3 scripts/verify-kruzberk-fishing-trust-public-12877.py --verify
