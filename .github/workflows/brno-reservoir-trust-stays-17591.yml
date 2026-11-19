@@ -1,0 +1,45 @@
+name: Na-Ryby Brno Reservoir 17591 Archive Trust and Nearby Stays
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'brno-reservoir-trust-stays-17591-v1.php'
+      - 'assets/nry-brno-reservoir-stays-17591-v1.css'
+      - 'tests/test-brno-reservoir-trust-stays-17591-v1.php'
+      - 'scripts/verify-brno-reservoir-trust-stays-public-17591.py'
+      - 'tests/test-brno-reservoir-trust-stays-public-17591.py'
+      - 'tests/fixtures/brno-reservoir-17591-wp-rendered-prefix-20261119.b64'
+      - '.github/workflows/brno-reservoir-trust-stays-17591.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Raw SHA bound frontend notice and approved partner offers
+        run: |
+          php -l na-ryby-git-publisher.php
+          php -l brno-reservoir-trust-stays-17591-v1.php
+          php tests/test-brno-reservoir-trust-stays-17591-v1.php
+          python3 tests/test-brno-reservoir-trust-stays-public-17591.py
+      - name: Existing original or already deployed exact public proof
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-brno-reservoir-trust-stays-public-17591.py --current
+  public:
+    needs: contract
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Public archive correction, two nearby offers, source SHA and CSS readback
+        run: python3 scripts/verify-brno-reservoir-trust-stays-public-17591.py --verify
