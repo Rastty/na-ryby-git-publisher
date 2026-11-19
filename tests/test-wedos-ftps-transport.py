@@ -8,9 +8,9 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from urllib.error import HTTPError
-from ftplib import error_perm
+from ftplib import FTP, error_perm
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -120,6 +120,47 @@ class TransportContract(unittest.TestCase):
         self.assertNotIn("SENSITIVE", str(caught.exception))
         with self.assertRaises(AssertionError):
             ftps.ftps_stage("arbitrary_host", lambda: None)
+
+    def test_ftp_data_transfer_reuses_authenticated_tls_session(self):
+        tls_context = Mock()
+        data_socket = Mock()
+        control_session = object()
+        tls_context.wrap_socket.return_value = Mock()
+        client = ftps.SessionReuseFTP_TLS(context=tls_context)
+        client.host = "123456.w12.wedos.net"
+        client.sock = Mock(session=control_session)
+        client._prot_p = True
+        with patch.object(FTP, "ntransfercmd", return_value=(data_socket, 42)) as start:
+            secured, length = client.ntransfercmd("RETR /www/example.php")
+        start.assert_called_once_with(client, "RETR /www/example.php", None)
+        tls_context.wrap_socket.assert_called_once_with(
+            data_socket, server_hostname=client.host, session=control_session
+        )
+        self.assertIs(secured, tls_context.wrap_socket.return_value)
+        self.assertEqual(length, 42)
+
+    def test_ftp_data_transfer_never_downgrades_to_plaintext(self):
+        tls_context = Mock()
+        data_socket = Mock()
+        client = ftps.SessionReuseFTP_TLS(context=tls_context)
+        client._prot_p = False
+        with patch.object(FTP, "ntransfercmd", return_value=(data_socket, None)):
+            with self.assertRaisesRegex(ValueError, "protected data channel"):
+                client.ntransfercmd("RETR /www/example.php")
+        data_socket.close.assert_called_once_with()
+        tls_context.wrap_socket.assert_not_called()
+
+    def test_ftp_tls_handshake_failure_closes_data_socket(self):
+        tls_context = Mock()
+        tls_context.wrap_socket.side_effect = OSError("failed handshake")
+        data_socket = Mock()
+        client = ftps.SessionReuseFTP_TLS(context=tls_context)
+        client._prot_p = True
+        client.sock = Mock(session=object())
+        with patch.object(FTP, "ntransfercmd", return_value=(data_socket, None)):
+            with self.assertRaises(OSError):
+                client.ntransfercmd("STOR /www/example.php")
+        data_socket.close.assert_called_once_with()
 
     def test_unknown_repository_auto_deploy_state_cannot_arm_ftps_during_merge(self):
         workflow = (ROOT / ".github/workflows/guarded-deployer-push.yml").read_text()
