@@ -32,6 +32,7 @@ require_once __DIR__ . '/sport-stays-source-proof-85384-v1.php';
 require_once __DIR__ . '/sport-stays-offers-85384-v1.php';
 require_once __DIR__ . '/kruzberk-source-proof-12877-v1.php';
 require_once __DIR__ . '/brno-reservoir-source-proof-17591-v1.php';
+require_once __DIR__ . '/cyklochata-source-proof-11983-v1.php';
 require_once __DIR__ . '/brno-reservoir-trust-stays-17591-v1.php';
 require_once __DIR__ . '/kruzberk-fishing-trust-12877-v1.php';
 require_once __DIR__ . '/legacy-net-buyer-guides-v1.php';
