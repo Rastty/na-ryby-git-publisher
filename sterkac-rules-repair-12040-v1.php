@@ -20,6 +20,8 @@ final class NRY_Sterkac_Rules_12040_V1 {
     const OPERATOR = 'https://vinarstviukaplicky.cz/rybarina/';
 
     public static function boot() {
+        // No hooks or side effects at all until the exact source SHA is set.
+        if (!self::armed()) return;
         if (function_exists('is_single') && function_exists('add_filter')) {
             add_filter('the_content', array(__CLASS__, 'render'), PHP_INT_MAX);
         }
