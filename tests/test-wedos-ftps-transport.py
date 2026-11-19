@@ -75,7 +75,8 @@ class FakeFTP:
 
 
 FILES = {
-    "na-ryby-git-publisher.php": b"<?php require_once __DIR__ . '/guarded-auto-publisher.php';",
+    "na-ryby-git-publisher.php": (b"<?php require_once __DIR__ . '/guarded-auto-publisher.php'; "
+                                   b"class NRY_Git_Publisher {}"),
     "guarded-auto-publisher.php": b"<?php // local guarded writer",
     "manifest.json": b"{}",
     "RELEASE_INTEGRITY.json": b"{}",
@@ -101,6 +102,14 @@ class TransportContract(unittest.TestCase):
         self.assertNotIn(".github/workflows/guarded-deployer-push.yml", files)
         self.assertNotIn("tests/test-wedos-ftps-transport.py", files)
         self.assertLess(len(files), ftps.MAX_FILES)
+
+    def test_workflow_never_falls_back_to_legacy_deployer(self):
+        workflow = (ROOT / ".github/workflows/guarded-deployer-push.yml").read_text()
+        self.assertIn('case "${NRY_DEPLOY_TRANSPORT:-unset}" in', workflow)
+        self.assertEqual(workflow.count("if: vars.NRY_DEPLOY_TRANSPORT == 'deployer'"), 2)
+        self.assertEqual(workflow.count("if: vars.NRY_DEPLOY_TRANSPORT == 'ftps'"), 1)
+        self.assertNotIn("vars.NRY_DEPLOY_TRANSPORT == '' ||", workflow)
+        self.assertIn("environment: na-ryby-production", workflow)
 
     def test_exact_sha_and_path_allowlists(self):
         with self.assertRaises(ValueError):
@@ -149,8 +158,32 @@ class TransportContract(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "SHA256"):
             ftps.deploy(remote, "", SHA, FILES)
         self.assertEqual(remote.moves, [])
-        self.assertIn("/.nry-ftps-vault/.nry-ftps-stage-" + SHA[:12], remote.dirs)
+        self.assertTrue(any(path.startswith("/.nry-ftps-vault/.nry-ftps-stage-" + SHA[:12])
+                            for path in remote.dirs))
         self.assertEqual(remote.files["/.nry-ftps-vault/.htaccess"], ftps.VAULT_DENY)
+
+    def test_partial_stage_retry_uses_new_private_directory(self):
+        remote = FakeFTP(fail_stage=True)
+        with self.assertRaisesRegex(ValueError, "SHA256"):
+            ftps.deploy(remote, "", SHA, FILES)
+        prefix = "/.nry-ftps-vault/.nry-ftps-stage-"
+        orphaned = [x for x in remote.dirs if x.startswith(prefix) and
+                    "/" not in x[len(prefix):]]
+        self.assertEqual(len(orphaned), 1)
+        remote.fail_stage = False
+        backup = ftps.deploy(remote, "", SHA, FILES)
+        self.assertIn(backup, remote.dirs)
+        self.assertIn(orphaned[0], remote.dirs)
+        self.assertIn("/plugins/na-ryby-git-publisher/manifest.json", remote.files)
+
+    def test_repeated_successful_release_blocks_without_new_stage(self):
+        remote = FakeFTP()
+        ftps.deploy(remote, "", SHA, FILES)
+        before = set(remote.dirs)
+        with self.assertRaisesRegex(ValueError, "already exists"):
+            ftps.deploy(remote, "", SHA, FILES)
+        self.assertEqual(remote.dirs, before)
+        self.assertEqual(len(remote.moves), 2)
 
     def test_swap_keeps_private_backup(self):
         remote = FakeFTP()

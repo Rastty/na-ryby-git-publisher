@@ -191,7 +191,9 @@ def verify_vault_is_not_public(ftp: FTP_TLS, vault: str) -> None:
 
 
 def stage(ftp: FTP_TLS, vault: str, sha: str, files: dict[str, bytes]) -> str:
-    stage_dir = remote_path(vault, ".nry-ftps-stage-" + sha[:12])
+    # A fresh protected directory allows a safe rerun after a partial upload;
+    # abandoned stages are kept for inspection, never silently overwritten.
+    stage_dir = remote_path(vault, ".nry-ftps-stage-" + sha[:12] + "-" + secrets.token_hex(6))
     make_remote_dir(ftp, stage_dir)
     parents = set()
     for name in files:
@@ -234,9 +236,11 @@ def swap(ftp: FTP_TLS, wp_content: str, vault: str, stage_dir: str, sha: str) ->
 
 
 def deploy(ftp: FTP_TLS, wp_content: str, sha: str, files: dict[str, bytes]) -> str:
-    if not existing_dir(ftp, remote_path(wp_content, "plugins")):
-        raise ValueError("Remote wp-content/plugins does not exist; target path is not confirmed")
+    if not confirmed_plugin_root(ftp, wp_content):
+        raise ValueError("Remote plugin identity mismatch or wrong path; refusing release")
     vault = private_vault(ftp, wp_content)
+    if existing_dir(ftp, remote_path(vault, ".nry-ftps-backup-" + sha[:12])):
+        raise ValueError("Release backup already exists; repeat release requires operator review")
     verify_vault_is_not_public(ftp, vault)
     # No production file is moved until *every* upload has been retrieved and
     # verified byte-for-byte over encrypted FTPS.

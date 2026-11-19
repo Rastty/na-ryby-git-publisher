@@ -618,13 +618,13 @@ jobs:
           NRY_DEPLOY_TRANSPORT: ${{ vars.NRY_DEPLOY_TRANSPORT }}
         run: |
           set -euo pipefail
-          case "${NRY_DEPLOY_TRANSPORT:-deployer}" in
+          case "${NRY_DEPLOY_TRANSPORT:-unset}" in
             deployer) echo 'Legacy Deployer selected' ;;
             ftps) echo 'WEDOS explicit FTPS selected' ;;
-            *) echo 'BLOCKED: unknown deployment transport'; exit 1 ;;
+            *) echo 'BLOCKED: no explicitly selected deployment transport'; exit 1 ;;
           esac
       - name: Validate exact approved Deployer destination
-        if: vars.NRY_DEPLOY_TRANSPORT == '' || vars.NRY_DEPLOY_TRANSPORT == 'deployer'
+        if: vars.NRY_DEPLOY_TRANSPORT == 'deployer'
         env:
           NRY_DFG_DEPLOY_URL: ${{ secrets.NRY_DFG_DEPLOY_URL }}
         run: |
@@ -647,7 +647,7 @@ jobs:
           print("Approved site, plugin slug and Deployer endpoint verified")
           PY
       - name: Request WordPress Deployer pull of reviewed main
-        if: vars.NRY_DEPLOY_TRANSPORT == '' || vars.NRY_DEPLOY_TRANSPORT == 'deployer'
+        if: vars.NRY_DEPLOY_TRANSPORT == 'deployer'
         env:
           NRY_DFG_DEPLOY_URL: ${{ secrets.NRY_DFG_DEPLOY_URL }}
         run: |

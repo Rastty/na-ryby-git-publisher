@@ -28,6 +28,8 @@ the existing guarded GitHub Actions workflow, not a WordPress content-write API.
    avoid the legacy HTTP 401 Deployer being run on the setup merge. Merge only
    after review, keep existing protected checks, and set
    `NRY_DEPLOY_TRANSPORT=ftps` before enabling deployment again.
+   The updated workflow also **fails closed** if the transport variable is
+   missing: it will never silently fall back to the old Deployer endpoint.
 5. Run **one** reviewed, main-only controlled release; require authenticated
    WordPress-local receipt and independent exact public readback before
    treating it as live. Existing higher-risk content/admin gates still apply.
@@ -68,7 +70,10 @@ the existing guarded GitHub Actions workflow, not a WordPress content-write API.
 - Missing secret, unknown host/path, wrong branch/SHA, absent plugin identity,
   transport failure or digest drift: **no content publish claimed**.
 - Staging failure leaves existing installed plugin untouched; an orphaned
-  stage must be reviewed/removed separately before retrying the same SHA.
+  stage stays protected for inspection. Each retry gets a unique new stage,
+  so a transient upload failure does not require manual cleanup. A previous
+  completed release with the same SHA is blocked before staging, preventing
+  accidental duplicate publication.
 - Failed second rename restores the previous plugin if the FTP session is
   healthy. If remote outcome is ambiguous, preserve the backup and stop;
   never guess the live state or delete backups automatically.
