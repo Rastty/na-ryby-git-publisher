@@ -47,6 +47,7 @@ $source=$prefix.'<p><a href="https://na-ryby.eu/">původní odkaz</a></p>'
 $updated=$class::render($source);
 offer_check($updated!==$source && strpos($updated,$class::MARKER)!==false, 'one top-fold offer block');
 offer_check(substr_count($updated,'data-nry-romantic-offer=')===2, 'exactly two choices');
+offer_check(strpos($updated,'jen v jarních měsících')!==false, 'Hauzi seasonal fishing caveat remains visible');
 offer_check(strpos($updated,$class::OLD_BUTTON)===false, 'generic bright button replaced');
 offer_check(strpos($updated,'původní redakční text.')!==false, 'original body preserved');
 offer_check($class::render($updated)===$updated, 'idempotent');
