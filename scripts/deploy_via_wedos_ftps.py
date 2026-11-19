@@ -17,7 +17,7 @@ import secrets
 import ssl
 import subprocess
 import sys
-from ftplib import FTP_TLS
+from ftplib import FTP_TLS, error_perm
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -41,6 +41,23 @@ REQUIRED = frozenset({
 })
 VAULT_DENY = (b"<IfModule mod_authz_core.c>\nRequire all denied\n</IfModule>\n"
               b"<IfModule !mod_authz_core.c>\nDeny from all\n</IfModule>\n")
+
+
+class SafeFtpStageError(Exception):
+    """Only expose a fixed stage and three-digit FTP reply, never server text."""
+
+    def __init__(self, stage: str, reply_code: str):
+        super().__init__(stage + ":" + reply_code)
+
+
+def ftps_stage(stage: str, operation):
+    """Classify permission failures without disclosing FTP reply contents."""
+    assert stage in {"connect", "login", "data_tls", "plugin_path"}
+    try:
+        return operation()
+    except error_perm as exc:
+        match = re.match(r"^([45][0-9]{2})(?:\s|$)", str(exc))
+        raise SafeFtpStageError(stage, match.group(1) if match else "unknown") from None
 
 
 def validate_sha(value: str) -> str:
@@ -271,11 +288,11 @@ def main() -> int:
     tls = ssl.create_default_context()
     tls.minimum_version = ssl.TLSVersion.TLSv1_2
     with FTP_TLS(context=tls, timeout=30) as ftp:
-        ftp.connect(host, 21, timeout=30)
-        ftp.login(user, password)
-        ftp.prot_p()  # mandatory TLS on data connections, not just login
+        ftps_stage("connect", lambda: ftp.connect(host, 21, timeout=30))
+        ftps_stage("login", lambda: ftp.login(user, password))
+        ftps_stage("data_tls", ftp.prot_p)  # mandatory encrypted data
         ftp.set_pasv(True)
-        wp_content = resolve_wp_content(ftp, configured_wp_content)
+        wp_content = ftps_stage("plugin_path", lambda: resolve_wp_content(ftp, configured_wp_content))
         if action == "inspect":
             # No uploads, directory creation, or renames: only authenticate,
             # read the expected installed PHP loader and close the session.
@@ -294,5 +311,8 @@ if __name__ == "__main__":
         # Never print server URLs, credentials or exception messages that might
         # reflect FTP replies. The private runner retains its Python traceback
         # only if an operator explicitly reproduces the error locally.
-        print("FTPS_BLOCKED: " + type(error).__name__)
+        if isinstance(error, SafeFtpStageError):
+            print("FTPS_BLOCKED: " + str(error))
+        else:
+            print("FTPS_BLOCKED: " + type(error).__name__)
         sys.exit(1)
