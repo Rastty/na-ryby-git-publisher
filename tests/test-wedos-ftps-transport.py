@@ -80,6 +80,7 @@ FILES = {
     "manifest.json": b"{}",
     "RELEASE_INTEGRITY.json": b"{}",
     "assets/page.css": b"body{}",
+    "editorial/drafts/note.html": b"<p>reviewed</p>",
 }
 
 
@@ -127,6 +128,8 @@ class TransportContract(unittest.TestCase):
         self.assertEqual(remote.files["/.nry-ftps-vault/.htaccess"], ftps.VAULT_DENY)
         self.assertIn("/plugins/na-ryby-git-publisher", remote.dirs)
         self.assertEqual(remote.files["/plugins/na-ryby-git-publisher/manifest.json"], b"{}")
+        self.assertEqual(remote.files["/plugins/na-ryby-git-publisher/editorial/drafts/note.html"],
+                         b"<p>reviewed</p>")
         self.assertEqual(len(remote.moves), 2)
 
     def test_swap_failure_restores_previous_plugin(self):

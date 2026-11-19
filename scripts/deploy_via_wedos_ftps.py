@@ -160,8 +160,13 @@ def verify_vault_is_not_public(ftp: FTP_TLS, vault: str) -> None:
 def stage(ftp: FTP_TLS, vault: str, sha: str, files: dict[str, bytes]) -> str:
     stage_dir = remote_path(vault, ".nry-ftps-stage-" + sha[:12])
     make_remote_dir(ftp, stage_dir)
-    folders = sorted({str(Path(name).parent) for name in files if "/" in name},
-                     key=lambda item: (item.count("/"), item))
+    parents = set()
+    for name in files:
+        folder = Path(name).parent
+        while folder != Path("."):
+            parents.add(folder.as_posix())
+            folder = folder.parent
+    folders = sorted(parents, key=lambda item: (item.count("/"), item))
     for folder in folders:
         ftp.mkd(remote_path(stage_dir, folder))
     for name, data in files.items():
