@@ -82,6 +82,14 @@ on:
       - 'sport-stays-offers-85384-v1.php'
       - 'kruzberk-source-proof-12877-v1.php'
       - 'brno-reservoir-source-proof-17591-v1.php'
+      - 'wellness-srub-source-proof-17536-v1.php'
+      - 'wellness-srub-hauzi-offer-17536-v1.php'
+      - 'assets/nry-wellness-srub-hauzi-17536-v1.css'
+      - 'scripts/verify-wellness-srub-source-proof-17536.py'
+      - 'tests/test-wellness-srub-source-proof-17536-v1.php'
+      - 'tests/test-wellness-srub-hauzi-offer-17536-v1.php'
+      - 'tests/test-wellness-srub-source-proof-17536.py'
+      - '.github/workflows/wellness-srub-source-and-hauzi-17536.yml'
       - 'brno-reservoir-trust-stays-17591-v1.php'
       - 'assets/nry-brno-reservoir-stays-17591-v1.css'
       - 'tests/test-brno-reservoir-trust-stays-17591-v1.php'
@@ -323,6 +331,9 @@ on:
       - 'sport-stays-offers-85384-v1.php'
       - 'kruzberk-source-proof-12877-v1.php'
       - 'brno-reservoir-source-proof-17591-v1.php'
+      - 'wellness-srub-source-proof-17536-v1.php'
+      - 'wellness-srub-hauzi-offer-17536-v1.php'
+      - 'assets/nry-wellness-srub-hauzi-17536-v1.css'
       - 'brno-reservoir-trust-stays-17591-v1.php'
       - 'kruzberk-fishing-trust-12877-v1.php'
       - 'legacy-net-buyer-guides-v1.php'
@@ -404,6 +415,12 @@ jobs:
           python3 -m unittest discover -s tests -p test_dyje6_stay_public.py -v
           php -l jizni-morava-stays-12166-v1.php
           php -l brno-reservoir-source-proof-17591-v1.php
+          php -l wellness-srub-source-proof-17536-v1.php
+          php -l wellness-srub-hauzi-offer-17536-v1.php
+          php tests/test-wellness-srub-source-proof-17536-v1.php
+          php tests/test-wellness-srub-hauzi-offer-17536-v1.php
+          python3 tests/test-wellness-srub-source-proof-17536.py
+          python3 -m py_compile scripts/verify-wellness-srub-source-proof-17536.py
           php -l brno-reservoir-trust-stays-17591-v1.php
           php tests/test-brno-reservoir-trust-stays-17591-v1.php
           python3 tests/test-brno-reservoir-trust-stays-public-17591.py
