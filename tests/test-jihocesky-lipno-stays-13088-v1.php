@@ -83,4 +83,25 @@ check(($parts['host'] ?? '') === 'tracking.affiliateport.eu'
     && ($q['o'] ?? '') === '1990' && ($q['a'] ?? '') === '1736'
     && ($q['sub_id5'] ?? '') === 'https://www.hauzi.cz/komfortny-penzion-so-saunou-na-lipne'
     && count($q) === 3, 'HAUZI_DEEP_LINK_DRIFT');
+// The diagnostic never changes a response without the exact opt-in query.
+ob_start();
+$cl::probe_footer();
+check(ob_get_clean() === '', 'UNREQUESTED_PROBE_OUTPUT');
+$_GET['nry_jc_guard_probe'] = 'source_v1';
+check($cl::render($old) === $new, 'PROBE_CHANGED_RENDER_OUTPUT');
+ob_start();
+$cl::probe_footer();
+$probeHtml = ob_get_clean();
+check(preg_match('/<!-- NRY_JC13088_PROBE_V1 (\\{.*\\}) -->/', $probeHtml, $probeMatches) === 1,
+    'PROBE_COMMENT_MISSING');
+$probe = json_decode($probeMatches[1], true);
+check(is_array($probe) && $probe['status'] === 'JIHOCESKY_13088_GUARD_PROBE_V1'
+    && $probe['postId'] === 13088 && $probe['renderCalls'] === 1
+    && $probe['best']['anchorMask'] === 127
+    && $probe['best']['prefixAllowed'] === true
+    && $probe['best']['eligible'] === true, 'PROBE_BOUNDS_OR_FLAGS_DRIFT');
+unset($_GET['nry_jc_guard_probe']);
+ob_start();
+$cl::probe_footer();
+check(ob_get_clean() === '', 'PROBE_LEAK_WITHOUT_QUERY');
 echo "JIHOCESKY_LIPNO_13088_CONTRACT_OK\n";
