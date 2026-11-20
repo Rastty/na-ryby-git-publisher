@@ -283,6 +283,8 @@ on:
       - 'tests/test-baitboat-stock-guard-v1.php'
       - 'tests/test-baitboat-stock-guard-v1.cjs'
       - 'baitboat-choice-entry-61257-v1.php'
+      - 'baitboat-cj-actor-plus-61257-v1.php'
+      - 'tests/test-baitboat-cj-actor-plus-61257-v1.php'
       - 'baitboat-compromise-recovery-v1.php'
       - 'assets/**'
       - 'tests/test-deployer-trigger-parity.py'
@@ -377,6 +379,7 @@ on:
       - 'baitboat-affiliate-release-v1.php'
       - 'baitboat-stock-guard-v1.php'
       - 'baitboat-choice-entry-61257-v1.php'
+      - 'baitboat-cj-actor-plus-61257-v1.php'
       - 'baitboat-compromise-recovery-v1.php'
       - 'assets/**'
       - 'seo-pipaky-beginner-35755-v1.php'
@@ -415,6 +418,8 @@ jobs:
           php -l guarded-auto-publisher.php
           php -l advisor-existing-page-release-v1.php
           php tests/test-native-kses-write-contract.php
+          php -l baitboat-cj-actor-plus-61257-v1.php
+          php tests/test-baitboat-cj-actor-plus-61257-v1.php
   verify:
     # Public WordPress source/readback checks run only for authorized main
     # release; PRs use pr-offline + focused feature contracts instead.
@@ -629,6 +634,8 @@ jobs:
           php -l checklist-release-v1.php
           php -l baitboat-affiliate-release-v1.php
           php tests/test-baitboat-affiliate-release-v1.php
+          php -l baitboat-cj-actor-plus-61257-v1.php
+          php tests/test-baitboat-cj-actor-plus-61257-v1.php
           php -l baitboat-stock-guard-v1.php
           php tests/test-baitboat-stock-guard-v1.php
           node tests/test-baitboat-stock-guard-v1.cjs
