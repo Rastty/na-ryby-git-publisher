@@ -41,6 +41,11 @@ check(is_string($prefix) && strlen($prefix) === 512, 'PINNED_PREFIX_BAD_BYTES');
 check(hash('sha256', $prefix) === $cl::PREFIX_SHA256, 'PINNED_PREFIX_BAD_SHA');
 check($cl::source_prefix_allowed($cl::PREFIX_SHA256), 'REST_PREFIX_REJECTED');
 check($cl::source_prefix_allowed($cl::FRONTEND_PREFIX_SHA256), 'OBSERVED_FRONTEND_PREFIX_REJECTED');
+// Public proof #44799868025: live best the_content filter input, not REST or
+// final frontend output. All seven historic anchors and full eligibility held.
+check($cl::LOOP_RENDER_PREFIX_SHA256 === '269e3a69fea8eda490c4e779c89b90c9ffff95a1921036dcd614a08a24e1488c', 'LIVE_LOOP_DIGEST_DRIFT');
+check($cl::source_prefix_allowed($cl::LOOP_RENDER_PREFIX_SHA256), 'OBSERVED_LOOP_PREFIX_REJECTED');
+check($cl::LOOP_RENDER_PREFIX_SHA256 !== $cl::FRONTEND_PREFIX_SHA256, 'LOOP_PIN_COLLAPSED');
 check(!$cl::source_prefix_allowed(str_repeat('0', 64)), 'UNREVIEWED_PREFIX_ACCEPTED');
 check(!$cl::source_prefix_allowed(null), 'NULL_PREFIX_ACCEPTED');
 check($cl::FRONTEND_PREFIX_SHA256 !== $cl::PREFIX_SHA256, 'DIAGNOSTIC_NOOP');
