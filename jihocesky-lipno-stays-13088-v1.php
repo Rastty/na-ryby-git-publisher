@@ -19,6 +19,10 @@ final class NRY_Jihocesky_Lipno_Stays_13088_V1 {
     // distinct from REST because [su_posts] rendering depends on context.
     // Both pins remain exact digests; all original anchors and identity still required.
     const FRONTEND_PREFIX_SHA256 = 'b09da61b0ae9b652455f18e563414fc2573f473ab9c088f55097d927999f4385';
+    // Exact input to the_content observed in live bounded render guard on
+    // protected FTPS release #44798893816: 12916 bytes, 7/7 original anchors,
+    // eligible=true, mainQuery=true, inLoop=true, zero WP writes.
+    const LOOP_RENDER_PREFIX_SHA256 = '269e3a69fea8eda490c4e779c89b90c9ffff95a1921036dcd614a08a24e1488c';
     const MARKER = 'data-nry-jihocesky-stays="v1"';
     const HPORTAL = 'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fhorni-plana%2Fpenzion-u-kohoutu%2F';
     const HAUZI = 'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fkomfortny-penzion-so-saunou-na-lipne';
@@ -100,7 +104,8 @@ final class NRY_Jihocesky_Lipno_Stays_13088_V1 {
     public static function source_prefix_allowed($digest) {
         return is_string($digest)
             && (hash_equals(self::PREFIX_SHA256, $digest)
-                || hash_equals(self::FRONTEND_PREFIX_SHA256, $digest));
+                || hash_equals(self::FRONTEND_PREFIX_SHA256, $digest)
+                || hash_equals(self::LOOP_RENDER_PREFIX_SHA256, $digest));
     }
 
     public static function transform($html) {

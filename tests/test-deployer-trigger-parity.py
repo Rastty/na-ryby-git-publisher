@@ -65,14 +65,33 @@ assert "editorial/receiver-46573-decision-guide-20261109.html" in push
 assert "tests/v8-carp-3m-54272-20261109-frozen.json" in push
 assert "tests/v8-echolot-budget-118455-three-offers-frozen.json" in push
 assert ".github/workflows/guarded-deployer-push.yml" in push
-# One-shot manual release never auto-deploys on a merge, even if an old
-# repository variable was left armed. The SHA must match the main checkout.
+# Owner-approved hands-off release: production payload pushes to main can
+# deploy only after verify + FTPS inspection, protected environment, emergency
+# switch, and a just-in-time fresh main HEAD check. Manual SHA dispatch remains.
 assert "  workflow_dispatch:\n    inputs:\n      release_sha:" in workflow
-assert "github.event_name == 'workflow_dispatch' &&" in workflow
-assert "inputs.release_sha == github.sha" in workflow
+assert "github.event_name == 'push' ||" in workflow
+assert "(github.event_name == 'workflow_dispatch' && inputs.release_sha == github.sha)" in workflow
+assert "github.ref == 'refs/heads/main' &&" in workflow
+assert "github.repository == 'Rastty/na-ryby-git-publisher' &&" in workflow
+assert "vars.NRY_AUTO_DEPLOY_ENABLED == 'true'" in workflow
+assert "needs: [verify, ftps_inspect]" in workflow
+assert "git -c credential.helper= fetch --no-tags --depth=1 origin refs/heads/main" in workflow
+assert 'current_main_sha="$(git rev-parse FETCH_HEAD)"' in workflow
+assert 'if [ "$current_main_sha" != "$GITHUB_SHA" ]; then' in workflow
+assert "persist-credentials: false" in workflow
 assert "NRY_EXPECTED_RELEASE_SHA" in workflow
 assert "vars.NRY_FTPS_RELEASE_ARMED" not in workflow
-assert "vars.NRY_AUTO_DEPLOY_ENABLED == 'true'" in workflow
+assert "cancel-in-progress: ${{ github.event_name == 'pull_request' }}" in workflow
+# The new unattended release must still have independent public readback.
+# Overall workflow success alone is insufficient: its deploy job may be skipped
+# by the emergency kill switch. Check the actual upstream job conclusion.
+jc_proof = (ROOT / ".github/workflows/jihocesky-lipno-stays-13088.yml").read_text(encoding="utf-8")
+assert "github.event.workflow_run.event == 'push'" in jc_proof
+assert "actions: read" in jc_proof
+assert "NRY_UPSTREAM_HEAD_SHA" in jc_proof
+assert 'if [ "$NRY_UPSTREAM_HEAD_SHA" != "$GITHUB_SHA" ]; then' in jc_proof
+assert "select(.name==\"deploy\") | .conclusion" in jc_proof
+assert "steps.upstream.outputs.deployed == 'true'" in jc_proof
 # A successful already-published 35755 content update is the CURRENT
 # protected source for future batches. Do not let a new manifest regress
 # back to the pre-edit 14984-byte content or require its historical batch.

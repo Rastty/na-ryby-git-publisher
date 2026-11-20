@@ -69,4 +69,7 @@ print('JIHOCESKY_LIPNO_13088_PUBLIC_PARSER_OK')
 blocked(prefix + historical + '<link rel="stylesheet" href="' + SITE + STYLE + '?ver=1.0.0">' + block)
 workflow = (ROOT / '.github/workflows/jihocesky-lipno-stays-13088.yml').read_text()
 assert "github.event.workflow_run.event == 'workflow_dispatch'" in workflow
-assert "github.event.workflow_run.event == 'push'" not in workflow
+assert "github.event.workflow_run.event == 'push'" in workflow
+assert "steps.upstream.outputs.deployed == 'true'" in workflow
+assert "select(.name==\"deploy\") | .conclusion" in workflow
+assert "github.event.workflow_run.conclusion == 'success'" in workflow
