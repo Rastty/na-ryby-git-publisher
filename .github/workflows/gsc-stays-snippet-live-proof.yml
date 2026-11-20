@@ -7,6 +7,14 @@ on:
       - 'scripts/verify-gsc-stays-snippets-public.py'
       - 'tests/test-gsc-stays-snippets-public.py'
       - '.github/workflows/gsc-stays-snippet-live-proof.yml'
+  # Script-only corrections are GET-only and must never require a new FTPS
+  # release or manual workflow dispatch.
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/verify-gsc-stays-snippets-public.py'
+      - 'tests/test-gsc-stays-snippets-public.py'
+      - '.github/workflows/gsc-stays-snippet-live-proof.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]
@@ -30,7 +38,7 @@ jobs:
           python3 -m py_compile scripts/verify-gsc-stays-snippets-public.py
           python3 tests/test-gsc-stays-snippets-public.py
   public:
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -39,6 +47,7 @@ jobs:
           persist-credentials: false
       - name: Require upstream real deploy success and exact current SHA
         id: provenance
+        if: github.event_name == 'workflow_run'
         env:
           GH_TOKEN: ${{ github.token }}
           NRY_UPSTREAM_ID: ${{ github.event.workflow_run.id }}
@@ -56,5 +65,5 @@ jobs:
           fi
           echo 'deployed=true' >> "$GITHUB_OUTPUT"
       - name: GET-only three-page public head versus live hook diagnostic
-        if: steps.provenance.outputs.deployed == 'true'
+        if: github.event_name == 'push' || steps.provenance.outputs.deployed == 'true'
         run: python3 scripts/verify-gsc-stays-snippets-public.py --inspect
