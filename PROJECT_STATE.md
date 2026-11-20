@@ -2,6 +2,15 @@
 
 Updated: 2026-11-20 (Europe/Prague). Source of truth: current GitHub `main` + independent public readback. **Do not infer deployment, traffic uplift, paid commissions or causality from a merge.**
 
+
+## Current TURBO handoff — 2026-11-20 16:56 CET
+
+- **Complete GET-only post-release proof:** [PR #319](https://github.com/Rastty/na-ryby-git-publisher/pull/319) merged as `775d9125cd83ce8552c1ae05db40ad85fc8a7c22`; [post-merge run #44767650739](https://github.com/Rastty/na-ryby-git-publisher/actions/runs/44767650739) **SUCCESS**, with offline contract and independent `POWER_GUIDE_PUBLIC_VERIFIED`. Live Wh guide: exact HTML + `X-NRY-Power-Guide-SHA256` header match, canonical, calculator, Fox direct-source links, exact one entry marker; no affiliate clicks or WP writes. This validates the **already deployed** Wh guide from FTPS #586, not a new production release.
+- **Second conversion fix code merged, production release PENDING:** [PR #293](https://github.com/Rastty/na-ryby-git-publisher/pull/293) refreshed against current main with original author code preserved, release event guard fixed to require successful manual `workflow_dispatch` (push is not deploy), and merged as `0f709602fea1f2d0813f72855a9a544ced88cd0e`. [PR CI #44768219332](https://github.com/Rastty/na-ryby-git-publisher/actions/runs/44768219332) **SUCCESS** (PHP, regression, GET-only `ORLIK_EXPIRED_STAY_119551_PREFLIGHT_READY`): WP #119551 still showed expired Slevomat CTA, unchanged original source, no clicks/writes. Official expired Slevomat and Hportal's named Liškův Mlýn listing independently publicly accessible 20 Nov. **Not yet FTPS deployed**. The proposed swap is a single rendered second CTA to approved Hportal/Dognet `chid=5QoXiSqx`; first Slevomat category URL unchanged; no WordPress database mutation. Availability, booking and commissions unknown.
+- **Next exact release:** after checking current main HEAD and variables, use the existing owner-authorized [manual SHA-bound guarded FTPS workflow](https://github.com/Rastty/na-ryby-git-publisher/actions/workflows/guarded-deployer-push.yml) with `release_sha` matching that HEAD. Require `verify`, `ftps_inspect`, `deploy` success, rollback backup and the Orlík GET-only `ORLIK_EXPIRED_STAY_119551_PUBLIC_VERIFIED` readback before declaring new link live. Do not dispatch from a push, disable source checks or claim merge as deployment.
+- **Other economic priorities remain distinct:** Core #1943 exact Na-Ryby CJ creative/property entitlement before admin-gated Boatman #315 (still draft, no affiliate change live); refresh approved stock/price and CJ rights for the 14-SKU advisor; measure real outbound events to paid CJ outcomes. No new recipe work or repeated completed audits.
+
+
 ## Goal
 
 Grow durable Czech fishing search traffic and verified, attributable affiliate profit by connecting revír/stay advice, buyer guides and fresh legitimate offers. Reuse shared offer/attribution capabilities from Prometheus Core rather than duplicating engines.
