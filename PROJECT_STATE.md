@@ -5,7 +5,7 @@ Updated: 2026-11-20 (Europe/Prague). This file records **verified state**, not a
 ## TURBO checkpoint — 2026-11-20
 
 1. **P0 release of existing merged growth changes:** clean `main` transport and guarded workflow passed offline checks, but a fresh FTPS production deployment is **not authorized/verified** while the owner-disarmed release gate remains unresolved. Public homepage still shows its old revír/stay section. No protected variables changed.
-2. **P1 navigation discovery:** [PR #307](https://github.com/Rastty/na-ryby-git-publisher/pull/307) proposes three directly verified first-party routes under `Revíry` (South Moravia, Dyje 6, rules/RIS), preserving the archived parent URL. Python trigger/transport contracts pass; PHP GitHub CI and an explicitly authorized production readback are required before marking this live.
+2. **P1 navigation discovery:** [PR #307](https://github.com/Rastty/na-ryby-git-publisher/pull/307) is **merged** as `afdfcf9` after **4/4 successful PR workflows**. Three first-party routes under `Revíry` (South Moravia, Dyje 6, rules/RIS) preserve the archived parent URL. An explicitly authorized production deploy and public readback remain outstanding.
 3. **P2 economic readback:** after real deployment, verify rendered menu/home/stay CTAs and use genuine GSC/GA4 and approved affiliate outcomes to decide the next cluster. Windsor.ai currently lists only `https://klix.cz/` under connected Search Console accounts; Na-Ryby historical GSC evidence remains in Prometheus Core issues #2027 and #2029, with no new result inferred.
 
 ## Goal
@@ -14,7 +14,7 @@ Grow durable Czech fishing organic traffic and trustworthy paths from revír and
 
 ## Code versus production
 
-- GitHub `main` reviewed at `1a770372a582235f178b63b8ecdbacf16bd0c628`; plugin header version **0.16.18**. Main is **not** proof of production deployment.
+- GitHub `main` reviewed at `afdfcf9ab4284cdb5d7e65fb89adcc5467136751`; plugin header version **0.16.19**. Main is **not** proof of production deployment.
 - First controlled WEDOS FTPS run [44699762724](https://github.com/Rastty/na-ryby-git-publisher/actions/runs/44699762724): code transport and swap occurred; job's final `deploy` status was **failure** because the historical V8 WordPress content acceptance was not satisfied. [PR #300](https://github.com/Rastty/na-ryby-git-publisher/pull/300) subsequently corrected the frozen-manifest acceptance condition, but was not itself another deployment.
 - The owner explicitly confirmed the release switch `NRY_FTPS_RELEASE_ARMED=false` after that run. Its **current GitHub variable value was not independently readable** in this audit. Never infer that a later merge or manual workflow trigger silently authorizes production writes.
 - Independent public homepage readback on 2026-11-20 still shows the old `Kam na ryby` and `Výprava na více dní` cards, **without** the new direct revír/stay links. The following code changes are therefore **staged, not verified live**.
@@ -28,11 +28,12 @@ Grow durable Czech fishing organic traffic and trustworthy paths from revír and
 | [#303](https://github.com/Rastty/na-ryby-git-publisher/pull/303) | Homepage direct links to Dyje 6, South Moravia revíry and stay guide | Render-only, source-locked; 4 PR CI checks passed |
 | [#304](https://github.com/Rastty/na-ryby-git-publisher/pull/304) | Top-level `Ubytování` menu bridge from 2017 archive to current stay offers guide | Frontend-only; original archive remains accessible; 4 PR CI checks passed |
 | [#305](https://github.com/Rastty/na-ryby-git-publisher/pull/305) | Two reliable onward paths below old map-only page | Historical iframe preserved; 4 PR CI checks passed |
+| [#307](https://github.com/Rastty/na-ryby-git-publisher/pull/307) | Three contextual links in `Revíry` main menu submenu | Original parent link preserved; 4 PR workflow checks passed |
 
 ## Verified release readiness
 
 - A **clean checkout** of `main` at the SHA above passed `python3 tests/test-wedos-ftps-transport.py`: **20/20 tests**. This includes checkout payload bounds, required PHP modules, exact target, TLS, private vault and rollback behavior. A dirty local worktree lacking new files in the Git index is **not** valid evidence of a main-branch transport defect.
-- Clean checked-out runtime selection: **108 files**, **896225 bytes**, below the `MAX_FILES=220` and `MAX_BYTES=12000000` transport limits. This is an **offline** package test, not a remote FTPS preflight.
+- Clean checked-out runtime selection for `afdfcf9`: **109 files**, **900250 bytes** (68 PHP), below the `MAX_FILES=220` and `MAX_BYTES=12000000` transport limits. This is an **offline** package test, not a remote FTPS preflight.
 - The guarded deployment workflow requires `NRY_AUTO_DEPLOY_ENABLED=true` **and** `NRY_FTPS_RELEASE_ARMED=true`; merge alone cannot deploy while that gate remains disarmed.
 - Other agents own 12 open PRs [#283–#294](https://github.com/Rastty/na-ryby-git-publisher/pulls); several are deliberately draft/disarmed or related to intermittent WordPress Deployer HTTP 401. Do not merge or rewrite their branches by assumption. [#288](https://github.com/Rastty/na-ryby-git-publisher/pull/288) addresses safe 401 classification in a separate lane.
 
