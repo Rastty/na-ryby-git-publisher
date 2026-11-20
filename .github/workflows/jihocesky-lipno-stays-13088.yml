@@ -9,6 +9,7 @@ on:
       - 'scripts/verify-jihocesky-lipno-stays-public-13088.py'
       - 'scripts/diagnose-jihocesky-13088-frontend.py'
       - 'scripts/diagnose-jihocesky-13088-render-guard.py'
+      - 'tests/test-diagnose-jihocesky-13088-render-guard.py'
       - 'tests/test-diagnose-jihocesky-13088-frontend.py'
       - 'tests/test-jihocesky-lipno-stays-public-13088.py'
       - '.github/workflows/jihocesky-lipno-stays-13088.yml'
@@ -33,6 +34,7 @@ jobs:
           python3 -m py_compile scripts/verify-jihocesky-lipno-stays-public-13088.py scripts/diagnose-jihocesky-13088-render-guard.py
           python3 tests/test-jihocesky-lipno-stays-public-13088.py
           python3 tests/test-diagnose-jihocesky-13088-frontend.py
+          python3 tests/test-diagnose-jihocesky-13088-render-guard.py
           python3 tests/test-deployer-trigger-parity.py
   public:
     needs: contract
