@@ -30,6 +30,8 @@ final class NRY_Jihocesky_Lipno_Stays_13088_V1 {
         }
         if (function_exists('is_single') && function_exists('add_action')) {
             add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue'), 28);
+            // Diagnostic comment is emitted only on explicit exact-post GET.
+            add_action('wp_footer', array(__CLASS__, 'probe_footer'), PHP_INT_MAX);
         }
     }
 
@@ -128,7 +130,78 @@ final class NRY_Jihocesky_Lipno_Stays_13088_V1 {
         return $block."\n".$html;
     }
 
+    private static $probe_seen = 0;
+    private static $probe_first = null;
+    private static $probe_best = null;
+    private static $probe_best_score = -1;
+
+    private static function probe_requested() {
+        return isset($_GET['nry_jc_guard_probe'])
+            && $_GET['nry_jc_guard_probe'] === 'source_v1';
+    }
+
+    private static function probe_snapshot($html) {
+        if (!self::probe_requested()) return;
+        self::$probe_seen++;
+        if (!is_string($html)) return;
+        $anchors = array(
+            '<div class="su-table su-table-alternate">',
+            '<td>Revíry</td>',
+            '<td>Ubytování</td>',
+            'id="su-post-17530"',
+            'id="su-post-17753"',
+            'https://na-ryby.eu/sportovni-rybolov-raselina/',
+            'https://na-ryby.eu/apartmany-nadeje/',
+        );
+        $mask = 0;
+        $score = 0;
+        foreach ($anchors as $index => $anchor) {
+            if (strpos($html, $anchor) !== false) {
+                $mask |= (1 << $index);
+                $score++;
+            }
+        }
+        $digest = hash('sha256', substr($html, 0, self::PREFIX_BYTES));
+        $row = array(
+            'bytes' => strlen($html),
+            'prefixSha256' => $digest,
+            'prefixAllowed' => self::source_prefix_allowed($digest),
+            'mainQuery' => function_exists('is_main_query') && is_main_query(),
+            'inLoop' => function_exists('in_the_loop') && in_the_loop(),
+            'eligible' => self::eligible(),
+            'anchorMask' => $mask,
+            'alreadyContainsBlock' => strpos($html, self::MARKER) !== false,
+            'alreadyContainsStaysLink' => strpos($html, self::STAYS) !== false,
+        );
+        if (self::$probe_first === null) self::$probe_first = $row;
+        if ($score > self::$probe_best_score) {
+            self::$probe_best_score = $score;
+            self::$probe_best = $row;
+        }
+    }
+
+    public static function probe_footer() {
+        if (!self::probe_requested() || !self::eligible(false)) return;
+        // All values are bounded predicates, lengths or digests. Never page
+        // content, cookies, visitor identifiers, credentials or click events.
+        $proof = array(
+            'status' => 'JIHOCESKY_13088_GUARD_PROBE_V1',
+            'postId' => self::ID,
+            'eligibleWithoutLoop' => true,
+            'renderCalls' => self::$probe_seen,
+            'first' => self::$probe_first,
+            'best' => self::$probe_best,
+            'wordpressWrites' => 0,
+            'merchantRequests' => 0,
+            'syntheticClicks' => 0,
+        );
+        echo "\n<!-- NRY_JC13088_PROBE_V1 "
+            .json_encode($proof, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)
+            ." -->\n";
+    }
+
     public static function render($html) {
+        self::probe_snapshot($html);
         return self::eligible() ? self::transform($html) : $html;
     }
 }
