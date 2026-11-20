@@ -2,14 +2,12 @@ name: Na-Ryby Brno Reservoir 17591 Archive Trust and Nearby Stays
 on:
   pull_request:
     paths:
-      - 'na-ryby-git-publisher.php'
       - 'brno-reservoir-trust-stays-17591-v1.php'
       - 'assets/nry-brno-reservoir-stays-17591-v1.css'
       - 'tests/test-brno-reservoir-trust-stays-17591-v1.php'
       - 'scripts/verify-brno-reservoir-trust-stays-public-17591.py'
       - 'tests/test-brno-reservoir-trust-stays-public-17591.py'
       - 'tests/fixtures/brno-reservoir-17591-wp-rendered-prefix-20261119.b64'
-      - '.github/workflows/brno-reservoir-trust-stays-17591.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]

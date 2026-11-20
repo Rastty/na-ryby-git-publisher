@@ -46,3 +46,10 @@ blocked(new.replace('</section>', '<p>Naše privátní revíry se nachází</p><
 blocked(new, css_read=css+b'changed')
 blocked(old.replace('Rezervace je velmi jednoduchá', 'jiný text'), deployed=False)
 print('PASS: private fishing stay 59113 public readback, exact two links and tamper rejection')
+
+# The historical /lov-kapra short URL redirects to CJ, not an internal guide.
+assert m['GEAR'] == m['SITE'] + '/vse-o-kaprovych-prutech-jak-vybrat-delku-akci-a-libraz/'
+assert m['GEAR'] != m['SITE'] + '/lov-kapra'
+workflow = (root / '.github/workflows/private-fishing-stay-59113.yml').read_text()
+assert "github.event.workflow_run.event == 'workflow_dispatch'" in workflow
+assert "github.event.workflow_run.event == 'push'" not in workflow

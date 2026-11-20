@@ -4,16 +4,12 @@ on:
     paths:
       - 'scripts/audit-echolot-buyer-cluster.py'
       - 'tests/test_echolot_cluster_audit.py'
-      - '.github/workflows/echolot-cluster-readonly.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/audit-echolot-buyer-cluster.py'
       - 'tests/test_echolot_cluster_audit.py'
-      - '.github/workflows/echolot-cluster-readonly.yml'
   workflow_dispatch:
-  schedule:
-    - cron: '21 */4 * * *'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]

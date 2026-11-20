@@ -16,7 +16,7 @@ final class NRY_Private_Fishing_Stay_Trust_59113_V1 {
     const RENDERED_PREFIX_SHA256 = 'ce56f7035ea3ac94ce9210629afc698440214cc16fb4bb6eac37804054caa3c9';
     const MARKER = 'data-nry-private-stay="v1"';
     const STAYS = 'https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/';
-    const GEAR = 'https://na-ryby.eu/lov-kapra';
+    const GEAR = 'https://na-ryby.eu/vse-o-kaprovych-prutech-jak-vybrat-delku-akci-a-libraz/';
 
     public static function boot() {
         if (function_exists('is_single') && function_exists('add_filter')) {
@@ -97,7 +97,7 @@ final class NRY_Private_Fishing_Stay_Trust_59113_V1 {
             .'<p>Obojí závisí na konkrétním areálu a termínu. Univerzální dvě noci ani úlovek '
             .'kapra, štiky nebo sumce nelze slíbit bez podmínek dané vody.</p>'
             .'<p class="nry-private-stay__footer">Připravujete si vlastní výbavu? '
-            .'<a href="'.self::GEAR.'">Prohlédněte si průvodce lovem kapra</a>. '
+            .'<a href="'.self::GEAR.'">Prohlédněte si průvodce výběrem kaprového prutu</a>. '
             .'Informace o nabídce prověřeny 19. 11. 2026; aktuální dostupnost '
             .'a místní pravidla je třeba ověřit znovu.</p></section>';
     }

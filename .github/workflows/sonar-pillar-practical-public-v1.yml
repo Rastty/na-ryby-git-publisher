@@ -10,12 +10,10 @@ on:
       - 'tests/test-sonar-pillar-merchant-neutral-118553-v1.php'
       - 'scripts/verify-sonar-pillar-merchant-neutral-118553-public.py'
       - 'tests/test-sonar-pillar-merchant-neutral-public.py'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-sonar-pillar-practical-handoff-118553-v1.php'
       - 'scripts/verify-sonar-pillar-practical-public-v1.py'
       - 'tests/test-sonar-pillar-practical-public-v1.py'
       - 'tests/probe-sonar-pillar-actual-render-v1.php'
-      - '.github/workflows/sonar-pillar-practical-public-v1.yml'
   workflow_dispatch:
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']

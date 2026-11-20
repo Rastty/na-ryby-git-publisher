@@ -4,21 +4,17 @@ on:
     paths:
       - 'boat-motor-click-observation-v1.php'
       - 'assets/nry-boat-motor-click-v1.js'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-boat-motor-click-observation-v1.php'
       - 'tests/test-boat-motor-click-observation-v1.mjs'
       - 'scripts/verify-boat-motor-click-public-v1.py'
-      - '.github/workflows/boat-motor-click-observation-v1.yml'
   push:
     branches: [main]
     paths:
       - 'boat-motor-click-observation-v1.php'
       - 'assets/nry-boat-motor-click-v1.js'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-boat-motor-click-observation-v1.php'
       - 'tests/test-boat-motor-click-observation-v1.mjs'
       - 'scripts/verify-boat-motor-click-public-v1.py'
-      - '.github/workflows/boat-motor-click-observation-v1.yml'
   workflow_dispatch:
 permissions:
   contents: read

@@ -4,21 +4,17 @@ on:
     paths:
       - 'motor-battery-capacity-119594-v1.php'
       - 'assets/nry-motor-battery-v1.js'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-motor-battery-capacity-119594-v1.php'
       - 'tests/test-motor-battery-capacity-v1.cjs'
       - 'scripts/verify-motor-battery-capacity-public.py'
-      - '.github/workflows/motor-battery-capacity-v1.yml'
   push:
     branches: [main]
     paths:
       - 'motor-battery-capacity-119594-v1.php'
       - 'assets/nry-motor-battery-v1.js'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-motor-battery-capacity-119594-v1.php'
       - 'tests/test-motor-battery-capacity-v1.cjs'
       - 'scripts/verify-motor-battery-capacity-public.py'
-      - '.github/workflows/motor-battery-capacity-v1.yml'
   workflow_dispatch:
 permissions:
   contents: read

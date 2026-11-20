@@ -44,6 +44,7 @@ check_private(substr_count($changed, $class::MARKER) === 1, 'one reviewed marker
 check_private(substr_count($changed, 'data-nry-private-example="jedraz"') === 1, 'one source-checked example');
 check_private(substr_count($changed, 'href="'.$class::STAYS.'"') === 1, 'one exact stay handoff');
 check_private(substr_count($changed, 'href="'.$class::GEAR.'"') === 1, 'one gear guide link');
+check_private($class::GEAR === 'https://na-ryby.eu/vse-o-kaprovych-prutech-jak-vybrat-delku-akci-a-libraz/', 'actual internal guide, no CJ redirect');
 check_private(substr_count($changed, 'href=') === 2, 'no unreviewed external or affiliate redirects');
 check_private(strpos($changed, 'Naše privátní revíry') === false, 'false owner claim removed');
 check_private(strpos($changed, 'Rezervace je velmi jednoduchá') === false, 'false booking claim removed');

@@ -4,9 +4,7 @@ on:
     paths:
       - 'assets/baitboat-picker-v1.html'
       - 'baitboat-release-v1.php'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-baitboat-landing.cjs'
-      - '.github/workflows/baitboat-landing-contract.yml'
   workflow_dispatch:
 jobs:
   contract:

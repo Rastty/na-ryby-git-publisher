@@ -21,7 +21,7 @@ PAGE = '/nezapomenutelna-rybarska-dovolena-na-privatnim-reviru-s-komfortnim-ubyt
 REST = SITE + '/wp-json/wp/v2/posts/59113?_fields=id,type,status,slug,link,modified_gmt,content'
 STYLE = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-private-fishing-stay-trust-59113-v1.css'
 STAYS = SITE + '/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/'
-GEAR = SITE + '/lov-kapra'
+GEAR = SITE + '/vse-o-kaprovych-prutech-jak-vybrat-delku-akci-a-libraz/'
 PREFIX_SHA = 'ce56f7035ea3ac94ce9210629afc698440214cc16fb4bb6eac37804054caa3c9'
 
 

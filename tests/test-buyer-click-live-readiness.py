@@ -20,7 +20,9 @@ calls = []
 source = (ROOT / "assets/nry-buyer-clicks-v1.js").read_bytes()
 def fake_get(url, maximum):
     calls.append(url)
-    if url.endswith(".js?ver="+mod.VERSION): return source
+    if url.endswith(".js?ver="+mod.VERSION):
+        assert len(source) <= maximum <= 64 * 1024, 'asset probe size must cover reviewed JS'
+        return source
     if url.endswith(mod.PAGES['unscoped_control']): return b'<html><body>control</body></html>'
     return one
 result = mod.audit(fake_get)
@@ -38,6 +40,7 @@ assert result['assetIntegrity']=='BYTE_IDENTICAL_TO_REVIEWED_JS'
 assert result['ga4DeliveryProven'] is False and result['paidCommissionProven'] is False
 assert result['wordpressWrites']==0 and result['syntheticClickEvents']==0
 assert calls==[mod.SITE+v for v in mod.PAGES.values()]+[mod.SITE+mod.ASSET+"?ver="+mod.VERSION]
+assert mod.ASSET_MAX_BYTES == 64 * 1024
 calls.clear()
 def no_script(url,maximum): calls.append(url);return b"<html><body></body></html>"
 no=mod.audit(no_script)

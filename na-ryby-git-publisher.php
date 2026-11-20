@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Na-Ryby.eu – Git Publisher
  * Description: Apply guarded Git-managed content manifests from wp-admin without WPVibe or outbound WordPress REST writes.
- * Version: 0.16.14
+ * Version: 0.16.21
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
@@ -20,6 +20,7 @@ require_once __DIR__ . '/baitboat-release-v3.php';
 require_once __DIR__ . '/baitboat-affiliate-release-v1.php';
 require_once __DIR__ . '/baitboat-stock-guard-v1.php';
 require_once __DIR__ . '/baitboat-choice-entry-61257-v1.php';
+require_once __DIR__ . '/powerbank-solar-fishing-guide-v1.php';
 require_once __DIR__ . '/legacy-baitboat-trust-61251-v1.php';
 require_once __DIR__ . '/hracholusky-stay-trust-17606-v1.php';
 require_once __DIR__ . '/tipy-stay-trust-57228-v1.php';
@@ -28,7 +29,10 @@ require_once __DIR__ . '/jizni-morava-stays-12166-v1.php';
 require_once __DIR__ . '/family-stays-59271-v1.php';
 require_once __DIR__ . '/stredni-cechy-stay-source-proof-92205-v1.php';
 require_once __DIR__ . '/stredni-cechy-stay-offer-trust-92205-v1.php';
+require_once __DIR__ . '/orlik-expired-stay-cta-119551-v1.php';
+require_once __DIR__ . '/lipno-pair-offers-119692-v1.php';
 require_once __DIR__ . '/private-fishing-stay-trust-59113-v1.php';
+require_once __DIR__ . '/seo-stredni-cechy-stay-92205-v1.php';
 require_once __DIR__ . '/sport-stays-source-proof-85384-v1.php';
 require_once __DIR__ . '/sport-stays-offers-85384-v1.php';
 require_once __DIR__ . '/kruzberk-source-proof-12877-v1.php';
@@ -53,6 +57,11 @@ require_once __DIR__ . '/home-trust-cleanup-118641-v1.php';
 require_once __DIR__ . '/home-advisor-entry-118641-v1.php';
 require_once __DIR__ . '/home-buyer-entry-measurement-v1.php';
 require_once __DIR__ . '/home-advisor-seo-snippets-v1.php';
+require_once __DIR__ . '/home-revir-stay-paths-118641-v1.php';
+require_once __DIR__ . '/stays-main-navigation-bridge-v1.php';
+require_once __DIR__ . '/revir-main-menu-discovery-v1.php';
+require_once __DIR__ . '/legacy-map-discovery-bridge-v1.php';
+require_once __DIR__ . '/gsc-revir-stays-seo-20261120-v1.php';
 require_once __DIR__ . '/nry-privacy-contact-cleanup-v1.php';
 require_once __DIR__ . '/carp-pillar-source-proof-118541-v1.php';
 require_once __DIR__ . '/carp-pillar-trust-cleanup-118541-v1.php';

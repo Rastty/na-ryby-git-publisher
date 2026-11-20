@@ -7,13 +7,10 @@ on:
       - 'scripts/verify-hracholusky-stay-trust-public.py'
       - 'tests/test-hracholusky-stay-trust-17606-v1.php'
       - 'tests/test_hracholusky_stay_public.py'
-      - '.github/workflows/hracholusky-stay-public-v1.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]
     branches: [main]
-  schedule:
-    - cron: '27 7 * * *'
   workflow_dispatch:
 permissions:
   contents: read

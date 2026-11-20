@@ -2,11 +2,9 @@ name: Na-Ryby Stredni Cechy Stay Source Proof (read only)
 on:
   pull_request:
     paths:
-      - 'na-ryby-git-publisher.php'
       - 'stredni-cechy-stay-source-proof-92205-v1.php'
       - 'tests/test-stredni-cechy-stay-source-proof-92205-v1.php'
       - 'scripts/verify-stredni-cechy-stay-source-proof-92205.py'
-      - '.github/workflows/stredni-cechy-stay-source-proof-92205.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]

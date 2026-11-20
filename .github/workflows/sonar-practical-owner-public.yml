@@ -3,12 +3,10 @@ on:
   pull_request:
     paths:
       - 'sonar-practical-owner-guide-49275-v1.php'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-sonar-practical-owner-49275-v1.php'
       - 'tests/probe-sonar-practical-owner-public-render-49275.php'
       - 'scripts/verify-sonar-practical-owner-49275-public.py'
       - 'tests/test-sonar-practical-owner-public.py'
-      - '.github/workflows/sonar-practical-owner-public.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]
