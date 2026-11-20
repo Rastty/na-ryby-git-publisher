@@ -58,4 +58,6 @@ jobs:
           php tests/test-revir-main-menu-discovery-v1.php
           php tests/test-legacy-map-discovery-bridge-v1.php
       - name: Offline workflow trigger-scope contract (zero public requests)
-        run: python3 tests/test-ci-trigger-scoping.py
+        run: |
+          python3 tests/test-ci-trigger-scoping.py
+          python3 tests/test-revir-menu-discovery-public.py
