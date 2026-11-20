@@ -113,8 +113,10 @@ def fetch(post_id):
                                     "User-Agent": "NaRybyGSCStaysProof/1.0"})
     with guarded_urlopen(request, timeout=25) as response:
         assert response.status == 200, f"HTTP_{post_id}_{response.status}"
-        content = response.read(400_000)
-        assert len(content) < 400_000, f"HTML_TOO_LARGE_{post_id}"
+        # Dyje 6 already uses the same reviewed 1.6 MB public-HTML cap
+        # in verify-dyje6-stay-public.py; 400 kB truncated legitimate pages.
+        content = response.read(1_600_001)
+        assert len(content) <= 1_600_000, f"HTML_TOO_LARGE_{post_id}"
     return inspect_html(content.decode("utf-8", "replace"), post_id)
 
 
