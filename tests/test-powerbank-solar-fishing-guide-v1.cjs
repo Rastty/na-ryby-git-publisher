@@ -29,7 +29,8 @@ const sandbox = {
   document: { getElementById(id) { assert.ok(elements.has(id), `known input ${id}`); return elements.get(id); } },
   Number, Math,
 };
-vm.runInNewContext(source[0].replace(/^<script type="module">|<\/script>$/g, ''), sandbox, {timeout:1000});
+// GitHub's shared runners can stall a cold VM for >1s; keep a finite runaway guard.
+vm.runInNewContext(source[0].replace(/^<script type="module">|<\/script>$/g, ''), sandbox, {timeout:10000});
 const result = () => elements.get('wh-result').textContent;
 const detail = () => elements.get('wh-breakdown').textContent;
 const edit = (id, val) => { elements.get(id).value=String(val); elements.get(id).listeners.forEach(fn=>fn()); };
