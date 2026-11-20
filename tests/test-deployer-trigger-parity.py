@@ -65,8 +65,13 @@ assert "editorial/receiver-46573-decision-guide-20261109.html" in push
 assert "tests/v8-carp-3m-54272-20261109-frozen.json" in push
 assert "tests/v8-echolot-budget-118455-three-offers-frozen.json" in push
 assert ".github/workflows/guarded-deployer-push.yml" in push
-# Preserve the original production-only release gate.
-assert "github.event_name != 'pull_request'" in workflow
+# One-shot manual release never auto-deploys on a merge, even if an old
+# repository variable was left armed. The SHA must match the main checkout.
+assert "  workflow_dispatch:\n    inputs:\n      release_sha:" in workflow
+assert "github.event_name == 'workflow_dispatch' &&" in workflow
+assert "inputs.release_sha == github.sha" in workflow
+assert "NRY_EXPECTED_RELEASE_SHA" in workflow
+assert "vars.NRY_FTPS_RELEASE_ARMED" not in workflow
 assert "vars.NRY_AUTO_DEPLOY_ENABLED == 'true'" in workflow
 # A successful already-published 35755 content update is the CURRENT
 # protected source for future batches. Do not let a new manifest regress

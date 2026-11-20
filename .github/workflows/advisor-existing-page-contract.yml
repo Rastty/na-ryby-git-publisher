@@ -5,18 +5,14 @@ on:
       - 'advisor-existing-page-release-v1.php'
       - 'advisor-existing-page-v1.json'
       - 'assets/advisor-existing-page-v1.html'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-advisor-existing-page-release-v1.php'
-      - '.github/workflows/advisor-existing-page-contract.yml'
   push:
     branches: [main]
     paths:
       - 'advisor-existing-page-release-v1.php'
       - 'advisor-existing-page-v1.json'
       - 'assets/advisor-existing-page-v1.html'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-advisor-existing-page-release-v1.php'
-      - '.github/workflows/advisor-existing-page-contract.yml'
 permissions:
   contents: read
 jobs:
