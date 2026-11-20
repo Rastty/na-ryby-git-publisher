@@ -23,7 +23,9 @@ final class NRY_Stredni_Cechy_Stay_SERP_92205_V1 {
     const CANDIDATE = 'Rybaření s ubytováním ve středních Čechách: konkrétní tip u Slap, co ověřit u revíru a povolenky před rezervací. Vyberte pobyt s rozmyslem.';
 
     public static function boot() {
-        if (!function_exists('add_filter')) return;
+        // Register only in a real WordPress page context. The native-writer
+        // offline sandbox defines add_filter but deliberately not is_single.
+        if (!function_exists('add_filter') || !function_exists('is_single')) return;
         add_filter('wpseo_metadesc', array(__CLASS__, 'description'), 20);
         add_filter('wpseo_opengraph_desc', array(__CLASS__, 'description'), 20);
     }
