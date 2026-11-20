@@ -71,4 +71,8 @@ for guarded_proof in (
     proof_yaml = (root / guarded_proof).read_text(encoding='utf-8')
     assert "github.event.workflow_run.event == 'workflow_dispatch'" in proof_yaml
     assert "github.event.workflow_run.event == 'push'" not in proof_yaml
+    if guarded_proof.endswith('stay-offer-public-92205.yml'):
+        assert 'SEO public baseline preflight' not in proof_yaml
+        assert 'Previously released SEO exact public proof' in proof_yaml
+        assert 'run: python3 scripts/verify-stredni-cechy-serp-public-92205.py --verify' in proof_yaml
 print('PASS: Stredni Cechy 92205 exact public click-script verification, no synthetic clicks')
