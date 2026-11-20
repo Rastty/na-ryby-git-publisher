@@ -2,7 +2,6 @@ name: Na-Ryby Sport Stays 85384 Offers And Clicks (GET only)
 on:
   pull_request:
     paths:
-      - 'na-ryby-git-publisher.php'
       - 'sport-stays-offers-85384-v1.php'
       - 'buyer-click-telemetry-v1.php'
       - 'assets/nry-sport-stays-85384-v1.css'
@@ -12,7 +11,6 @@ on:
       - 'scripts/verify-sport-stays-offers-public-85384.py'
       - 'tests/test-buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.mjs'
-      - '.github/workflows/sport-stays-offers-85384.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]

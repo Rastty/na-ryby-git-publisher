@@ -3,7 +3,6 @@ on:
   pull_request:
     paths:
       - 'carp-pillar-choice-before-shop-118541-v1.php'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-carp-pillar-choice-before-shop-118541-v1.php'
       - 'scripts/verify-carp-pillar-choice-118541-public.py'
       - 'tests/test-carp-pillar-choice-public.py'
@@ -13,7 +12,6 @@ on:
       - 'tests/test-buyer-click-telemetry-v1.mjs'
       - 'scripts/verify-carp-buyer-click-public-v1.py'
       - 'tests/test-carp-buyer-click-public-v1.py'
-      - '.github/workflows/carp-pillar-choice-public.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]

@@ -3,16 +3,12 @@ on:
   pull_request:
     paths:
       - 'baitboat-compromise-recovery-v1.php'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-baitboat-compromise-recovery-v1.*'
-      - '.github/workflows/baitboat-v6-compromise-contract.yml'
   push:
     branches: [main]
     paths:
       - 'baitboat-compromise-recovery-v1.php'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-baitboat-compromise-recovery-v1.*'
-      - '.github/workflows/baitboat-v6-compromise-contract.yml'
   workflow_dispatch:
 permissions:
   contents: read

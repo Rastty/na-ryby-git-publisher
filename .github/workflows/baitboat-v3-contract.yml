@@ -7,9 +7,7 @@ on:
       - 'baitboat-release-v3.php'
       - 'tests/test-baitboat-landing-v3.cjs'
       - 'tests/test-baitboat-mobile-v3.mjs'
-      - 'na-ryby-git-publisher.php'
       - 'scripts/verify-baitboat-photo-head-v1.py'
-      - '.github/workflows/baitboat-v3-contract.yml'
   workflow_dispatch:
 permissions:
   contents: read

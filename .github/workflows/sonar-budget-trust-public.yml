@@ -4,7 +4,6 @@ on:
     paths:
       - 'sonar-budget-trust-118455-v1.php'
       - 'sonar-budget-owner-first-118455-v1.php'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-sonar-budget-owner-first-118455-v1.php'
       - 'tests/probe-sonar-budget-owner-first-118455.php'
       - 'scripts/verify-sonar-budget-owner-first-public.py'
@@ -14,7 +13,6 @@ on:
       - 'scripts/audit-sonar-faq-schema-origin.py'
       - 'tests/test-sonar-faq-schema-origin.py'
       - 'tests/test-sonar-budget-trust-public.py'
-      - '.github/workflows/sonar-budget-trust-public.yml'
   workflow_dispatch:
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
