@@ -7,6 +7,8 @@ on:
       - 'assets/nry-jihocesky-lipno-stays-13088-v1.css'
       - 'tests/test-jihocesky-lipno-stays-13088-v1.php'
       - 'scripts/verify-jihocesky-lipno-stays-public-13088.py'
+      - 'scripts/diagnose-jihocesky-13088-frontend.py'
+      - 'tests/test-diagnose-jihocesky-13088-frontend.py'
       - 'tests/test-jihocesky-lipno-stays-public-13088.py'
       - '.github/workflows/jihocesky-lipno-stays-13088.yml'
   workflow_run:
@@ -29,6 +31,7 @@ jobs:
           php tests/test-jihocesky-lipno-stays-13088-v1.php
           python3 -m py_compile scripts/verify-jihocesky-lipno-stays-public-13088.py
           python3 tests/test-jihocesky-lipno-stays-public-13088.py
+          python3 tests/test-diagnose-jihocesky-13088-frontend.py
           python3 tests/test-deployer-trigger-parity.py
   public:
     needs: contract
@@ -37,6 +40,9 @@ jobs:
     timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
+      - name: Read-only frontend versus REST source digests (PR only)
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/diagnose-jihocesky-13088-frontend.py
       - name: GET-only preflight or exact deployed readback
         env:
           PHASE: ${{ github.event_name == 'pull_request' && 'preflight' || 'verify' }}

@@ -25,6 +25,23 @@ block = ('<section data-nry-jihocesky-stays="v1"><h2>Na ryby k Lipnu a kde přes
          '<a href="' + STAYS + '">Pobyty</a>'
          '<p>Tabulka níže je starší rozcestník</p></section>')
 css = (ROOT / 'assets/nry-jihocesky-lipno-stays-13088-v1.css').read_bytes()
+css_only_html = prefix + '<link rel="stylesheet" href="' + SITE + STYLE + '?ver=1.0.0">' + historical
+css_only = verify_public(css_only_html, deployed=False, css_public=css, css_reviewed=css)
+assert css_only['status'] == 'JIHOCESKY_LIPNO_13088_PARTIAL_STYLES_ONLY'
+assert css_only['existingOffers'] is False
+try:
+    verify_public(css_only_html, deployed=False, css_public=css + b'drift', css_reviewed=css)
+except AssertionError:
+    pass
+else:
+    raise AssertionError('PARTIAL_CSS_DRIFT_ACCEPTED')
+try:
+    verify_public(css_only_html.replace('?ver=1.0.0', '?ver=2.0.0'), deployed=False,
+                  css_public=css, css_reviewed=css)
+except AssertionError:
+    pass
+else:
+    raise AssertionError('UNKNOWN_PARTIAL_CSS_VERSION_ACCEPTED')
 html = prefix + '<link rel="stylesheet" href="' + SITE + STYLE + '?ver=1.0.0">' + block + historical
 done = verify_public(html, deployed=True, css_public=css, css_reviewed=css)
 assert done['status'] == 'JIHOCESKY_LIPNO_13088_PUBLIC_VERIFIED'

@@ -15,6 +15,10 @@ final class NRY_Jihocesky_Lipno_Stays_13088_V1 {
     // The old index expands dynamic [su_posts] lists. Drift fails closed.
     const PREFIX_BYTES = 512;
     const PREFIX_SHA256 = '3778effd5b7c012dfeedbc3cc2f1e13f07769efd805fabaf6996535c292bb801';
+    // Anonymous public td-post-content bytes captured 20 Nov 2026 via PR #321,
+    // distinct from REST because [su_posts] rendering depends on context.
+    // Both pins remain exact digests; all original anchors and identity still required.
+    const FRONTEND_PREFIX_SHA256 = 'b09da61b0ae9b652455f18e563414fc2573f473ab9c088f55097d927999f4385';
     const MARKER = 'data-nry-jihocesky-stays="v1"';
     const HPORTAL = 'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Fhorni-plana%2Fpenzion-u-kohoutu%2F';
     const HAUZI = 'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fkomfortny-penzion-so-saunou-na-lipne';
@@ -91,9 +95,15 @@ final class NRY_Jihocesky_Lipno_Stays_13088_V1 {
             .'</section>';
     }
 
+    public static function source_prefix_allowed($digest) {
+        return is_string($digest)
+            && (hash_equals(self::PREFIX_SHA256, $digest)
+                || hash_equals(self::FRONTEND_PREFIX_SHA256, $digest));
+    }
+
     public static function transform($html) {
         if (!is_string($html) || strlen($html) < 7000
-            || hash('sha256', substr($html, 0, self::PREFIX_BYTES)) !== self::PREFIX_SHA256
+            || !self::source_prefix_allowed(hash('sha256', substr($html, 0, self::PREFIX_BYTES)))
             || strpos($html, self::MARKER) !== false
             || strpos($html, self::HPORTAL) !== false
             || strpos($html, self::HAUZI) !== false
