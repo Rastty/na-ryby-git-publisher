@@ -186,3 +186,76 @@ for(const invalid of [
   assert.equal(x.clears,0,'unrelated or inactive change does not mutate result');
 }
 console.log('PASS: any decision change hides stale results and removes old links before next submit');
+
+function staleHarness({trusted=true,visible=true,stale=true,
+  oldNotice=true,duplicateNotice=false,links=[
+    'https://na-ryby.eu/vse-o-kaprovych-prutech-jak-vybrat-delku-akci-a-libraz/',
+    'https://na-ryby.eu/jak-vybrat-rybarsky-navijak-velikost-prevod-brzda-a-typy-navijaku/'
+  ],extraLink=false,analyticsThrows=false,gtag=true}={}) {
+  const events=[],before=[],layer=[],handlers=[];
+  const old='Odkazy vedou přímo na produktové stránky e-shopu. Nepotvrzujeme affiliate měření.';
+  const prefix='Konkrétní modely nyní nezobrazujeme: poslední ověření nabídek z ';
+  const notice={textContent:oldNotice?old:'Editor changed text'};
+  const paragraphs=[
+    {textContent:stale?prefix+'14. 10. 2026 je starší než 7 dní.':'Nabídky jsou platné.'},
+    notice,
+    ...(duplicateNotice?[{textContent:old}]:[])
+  ];
+  const group={
+    querySelectorAll(sel){assert.equal(sel,'a[href]');return links.map(url=>({
+      getAttribute(name){assert.equal(name,'href');return url;}
+    }));},
+    before(node){before.push(node);}
+  };
+  const panel={hidden:!visible,querySelectorAll(sel){
+    if(sel==='p')return paragraphs;
+    if(sel==='.nry-result__links')return [group];
+    if(sel==='a[href]')return Array(links.length+(extraLink?1:0)).fill(null);
+    return [];
+  }};
+  const form={elements:{style:{value:'kapr'}}};
+  const root={
+    querySelector(sel){return sel==='form'?form:sel==='[data-nry-results]'?panel:null;},
+    addEventListener(type,handler){handlers.push({type,handler});}
+  };
+  const document={readyState:'complete',querySelector(sel){return sel==='.nry-setup'?root:null;},
+    createElement(tag){assert.equal(tag,'p');return {className:'',textContent:''};}};
+  const window={dataLayer:layer};
+  if(gtag)window.gtag=(...args)=>{
+    if(analyticsThrows)throw Error('blocked GA');
+    events.push(args);
+  };
+  const location={origin:'https://na-ryby.eu',pathname:'/poradce-vybavy/',search:'',hash:''};
+  vm.runInNewContext(source,{URL,document,window,location},{timeout:5000});
+  handlers.find(h=>h.type==='submit').handler({target:form,isTrusted:trusted});
+  return {notice,before,events,layer};
+}
+const staleFixed=staleHarness();
+assert.match(staleFixed.notice.textContent,/interní|naše návody/);
+assert(!staleFixed.notice.textContent.includes('Odkazy vedou přímo'));
+assert.equal(staleFixed.before.length,1,'one accessible user-facing next step');
+assert.match(staleFixed.before[0].textContent,/ověřte konkrétní model/);
+assert.equal(staleFixed.before[0].className,'nry-advisor-expired-guides');
+assert.equal(staleFixed.events.length,1,'one genuine expired-funnel exposure');
+assert.equal(staleFixed.events[0][1],'nry_advisor_stale_result_view');
+assert.deepEqual(JSON.parse(JSON.stringify(staleFixed.events[0][2])),{
+  advisor_version:4,offer_state:'expired',destination_kind:'internal_buying_guide'
+});
+for(const blocked of [
+  {trusted:false},{visible:false},{stale:false},{oldNotice:false},
+  {duplicateNotice:true},{links:[]},{extraLink:true},{links:[
+    'https://na-ryby.eu/vse-o-kaprovych-prutech-jak-vybrat-delku-akci-a-libraz/',
+    'https://www.chytapust.cz/Kaprove-pruty/'
+  ]},{links:['https://evil.example/offer/']},
+  {links:['https://na-ryby.eu/nejlepsi-privlacove-navijaky-jak-vybrat/?tracking=1']}
+]){
+  const x=staleHarness(blocked);
+  assert.equal(x.before.length,0,'drift, hidden, merchant or untrusted submit blocks UI change');
+  assert.equal(x.events.length,0,'unverified state cannot generate stale-funnel event');
+}
+const fallback=staleHarness({gtag:false});
+assert.equal(fallback.layer.length,1,'existing dataLayer receives static event without gtag');
+assert.equal(fallback.layer[0].event,'nry_advisor_stale_result_view');
+const analyticsDown=staleHarness({analyticsThrows:true});
+assert.equal(analyticsDown.before.length,1,'blocked telemetry never blocks guidance');
+console.log('PASS: source-bound expired-offer guide handoff corrected, no merchant links or fake analytics');

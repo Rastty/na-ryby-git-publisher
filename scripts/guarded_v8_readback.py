@@ -2,9 +2,10 @@
 
 The historical 54272 V8 manifest remains checked in while its automatic
 publisher is deliberately disabled by the WordPress administrator. Unrelated
-code-only deployments must not claim that old batch was published. The narrow
-deferred classification is allowed only when BOTH ends of this push contain
-the exact immutable manifest; any new/changed content manifest fails closed.
+code-only deployments must not claim that old batch was published. For pushes,
+both ends must contain the exact immutable manifest. Manual dispatches have
+no `before` SHA, so only the pinned, byte-exact frozen manifest plus the exact
+disabled live receipt can be deferred. Any new/changed content fails closed.
 """
 
 import hashlib
@@ -36,10 +37,17 @@ def classify_receipt(manifest, manifest_bytes, health, before_bytes, event_name)
             and health.get("last_auto_batch_id") == expected
             and health.get("last_auto_receipt_status") == "applied_and_verified_local"):
         return "verified"
-    if (event_name == "push"
+    # A manually triggered run has no github.event.before. The independently
+    # pinned manifest hash proves that this is the existing frozen batch, not
+    # newly approved content. Pushes additionally prove no manifest change.
+    frozen_event_safe = (
+        (event_name == "push" and before_bytes is not None
+         and before_bytes == manifest_bytes)
+        or event_name == "workflow_dispatch"
+    )
+    if (frozen_event_safe
             and expected == FROZEN_BATCH_ID
             and hashlib.sha256(manifest_bytes).hexdigest() == FROZEN_MANIFEST_SHA256
-            and before_bytes is not None and before_bytes == manifest_bytes
             and health.get("publisher_version") == "0.16.0"
             and health.get("last_auto_batch_id") == expected
             and health.get("last_auto_receipt_status") == "disabled_by_admin"

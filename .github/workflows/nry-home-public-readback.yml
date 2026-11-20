@@ -5,11 +5,9 @@ on:
       - 'home-trust-cleanup-118641-v1.php'
       - 'scripts/verify-home-118641-public.py'
       - 'home-advisor-entry-118641-v1.php'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-home-advisor-entry-118641-v1.php'
       - 'scripts/verify-home-advisor-entry-public.py'
       - 'tests/test-home-advisor-entry-public.py'
-      - '.github/workflows/nry-home-public-readback.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]

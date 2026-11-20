@@ -8,6 +8,7 @@ on:
       - 'buyer-click-telemetry-v1.php'
       - 'assets/nry-buyer-clicks-v1.js'
       - '.github/workflows/v5-php-contract.yml'
+      - '.github/workflows/**'
   push:
     branches: [main]
     paths:
@@ -17,6 +18,7 @@ on:
       - 'buyer-click-telemetry-v1.php'
       - 'assets/nry-buyer-clicks-v1.js'
       - '.github/workflows/v5-php-contract.yml'
+      - '.github/workflows/**'
 permissions:
   contents: read
 jobs:
@@ -33,6 +35,16 @@ jobs:
           php -l tests/test-v7-chair-native-release.php
           php -l buyer-click-telemetry-v1.php
           php -l tests/test-buyer-click-telemetry-v1.php
+          php -l gsc-revir-stays-seo-20261120-v1.php
+          php -l tests/test-gsc-revir-stays-seo-20261120-v1.php
+          php -l home-revir-stay-paths-118641-v1.php
+          php -l tests/test-home-revir-stay-paths-118641-v1.php
+          php -l stays-main-navigation-bridge-v1.php
+          php -l tests/test-stays-main-navigation-bridge-v1.php
+          php -l revir-main-menu-discovery-v1.php
+          php -l tests/test-revir-main-menu-discovery-v1.php
+          php -l legacy-map-discovery-bridge-v1.php
+          php -l tests/test-legacy-map-discovery-bridge-v1.php
       - name: Source-bound and reversible v5 contract
         run: |
           php tests/test-v5-native-release.php
@@ -40,3 +52,12 @@ jobs:
           php tests/test-v7-chair-native-release.php
           php tests/test-buyer-click-telemetry-v1.php
           node tests/test-buyer-click-telemetry-v1.mjs
+          php tests/test-gsc-revir-stays-seo-20261120-v1.php
+          php tests/test-home-revir-stay-paths-118641-v1.php
+          php tests/test-stays-main-navigation-bridge-v1.php
+          php tests/test-revir-main-menu-discovery-v1.php
+          php tests/test-legacy-map-discovery-bridge-v1.php
+      - name: Offline workflow trigger-scope contract (zero public requests)
+        run: |
+          python3 tests/test-ci-trigger-scoping.py
+          python3 tests/test-revir-menu-discovery-public.py

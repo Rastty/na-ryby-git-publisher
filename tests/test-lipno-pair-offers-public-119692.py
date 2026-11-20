@@ -45,3 +45,8 @@ blocked(good.replace('povolenku ani právo rybařit','zahrnuje povolenku'))
 blocked(good.replace('postid-119692','postid-119693'))
 blocked(start+end+block)
 print('LIPNO_PAIR_119692_PUBLIC_PARSER_OK')
+
+# This readback may only expect a deployed change after a successful manual FTPS release.
+workflow = (root/'.github/workflows/lipno-pair-offers-119692.yml').read_text()
+assert "github.event.workflow_run.event == 'workflow_dispatch'" in workflow
+assert "github.event.workflow_run.event == 'push'" not in workflow

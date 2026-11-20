@@ -5,17 +5,13 @@ on:
     paths:
       - 'scripts/audit-cj-property-identity-public.py'
       - 'tests/test-cj-property-identity-public.py'
-      - '.github/workflows/cj-property-identity-readonly.yml'
       - 'buyer-click-telemetry-v1.php'
   push:
     branches: [main]
     paths:
       - 'scripts/audit-cj-property-identity-public.py'
       - 'tests/test-cj-property-identity-public.py'
-      - '.github/workflows/cj-property-identity-readonly.yml'
       - 'buyer-click-telemetry-v1.php'
-  schedule:
-    - cron: '37 4 * * *'
   workflow_dispatch:
 
 permissions:

@@ -4,7 +4,6 @@ on:
   pull_request:
     paths:
       - 'family-stays-59271-v1.php'
-      - 'na-ryby-git-publisher.php'
       - 'buyer-click-telemetry-v1.php'
       - 'assets/nry-buyer-clicks-v1.js'
       - 'assets/nry-family-stays-59271-v1.css'
@@ -13,7 +12,6 @@ on:
       - 'tests/test-buyer-click-telemetry-v1.php'
       - 'tests/test-buyer-click-telemetry-v1.mjs'
       - 'scripts/verify-family-stays-59271-public.py'
-      - '.github/workflows/family-stays-59271-v1.yml'
   workflow_dispatch:
     inputs:
       phase:

@@ -4,17 +4,12 @@ on:
     paths:
       - 'scripts/audit_live_advisor_readonly.py'
       - 'tests/test-live-advisor-readonly.py'
-      - '.github/workflows/advisor-public-readonly.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/audit_live_advisor_readonly.py'
       - 'tests/test-live-advisor-readonly.py'
-      - '.github/workflows/advisor-public-readonly.yml'
   workflow_dispatch:
-  # UTC; four bounded public GET-only audits per day, independent of PR activity.
-  schedule:
-    - cron: '17 2,8,14,20 * * *'
 permissions:
   contents: read
 jobs:

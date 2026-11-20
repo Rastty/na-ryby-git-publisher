@@ -11,6 +11,9 @@
   const ORIGIN = 'https://na-ryby.eu';
   const ADVISOR = '/poradce-vybavy/';
   const EVENT = 'nry_advisor_guide_click';
+  const STALE_EVENT = 'nry_advisor_stale_result_view';
+  const OLD_OFFER_NOTICE = 'Odkazy vedou přímo na produktové stránky e-shopu. Nepotvrzujeme affiliate měření.';
+  const STALE_OFFER_PREFIX = 'Konkrétní modely nyní nezobrazujeme: poslední ověření nabídek z ';
   const GUIDE_ROLES = Object.freeze({
     '/vse-o-kaprovych-prutech-jak-vybrat-delku-akci-a-libraz/':'carp_rod',
     '/jak-vybrat-rybarsky-navijak-velikost-prevod-brzda-a-typy-navijaku/':'reel',
@@ -21,6 +24,44 @@
   if (location.origin !== ORIGIN || location.pathname !== ADVISOR ||
       location.search || location.hash) return;
   if (window.__nryAdvisorGuideClickV1 === true) return;
+
+  function repairExpiredGuideHandoff(panel) {
+    // The original V4 inline engine owns price/stock safety and the link list.
+    // Repair only its demonstrably expired state: no merchant offers, one exact
+    // obsolete claim, and one/two explicitly reviewed first-party guides.
+    if (typeof panel.querySelectorAll !== 'function') return false;
+    const paragraphs = Array.from(panel.querySelectorAll('p'));
+    const expiry = paragraphs.filter(p =>
+      typeof p.textContent === 'string' && p.textContent.startsWith(STALE_OFFER_PREFIX));
+    const notices = paragraphs.filter(p => p.textContent === OLD_OFFER_NOTICE);
+    const groups = panel.querySelectorAll('.nry-result__links');
+    if (expiry.length !== 1 || notices.length !== 1 || groups.length !== 1) return false;
+    const links = Array.from(groups[0].querySelectorAll('a[href]'));
+    if (!links.length || links.length > 2 ||
+        panel.querySelectorAll('a[href]').length !== links.length || !links.every(link => {
+      const raw = link.getAttribute('href');
+      try {
+        const url = new URL(raw, ORIGIN);
+        return typeof raw === 'string' && raw.length < 200 && url.origin === ORIGIN
+          && !url.username && !url.password && !url.search && !url.hash
+          && Object.prototype.hasOwnProperty.call(GUIDE_ROLES, url.pathname);
+      } catch { return false; }
+    })) return false;
+    notices[0].textContent = 'Odkazy výše vedou na naše návody k výběru, nikoli na aktuálně ověřené produkty e-shopu. Affiliate měření nepotvrzujeme.';
+    const guidance = document.createElement('p');
+    guidance.className = 'nry-advisor-expired-guides';
+    guidance.textContent = 'Jak pokračovat: otevřete návod pro svůj styl rybaření a před nákupem si ověřte konkrétní model, cenu i dostupnost.';
+    groups[0].before(guidance);
+    return true;
+  }
+
+  function measureStaleHandoff() {
+    const props = {advisor_version: 4, offer_state: 'expired', destination_kind: 'internal_buying_guide'};
+    try {
+      if (typeof window.gtag === 'function') window.gtag('event', STALE_EVENT, props);
+      else if (Array.isArray(window.dataLayer)) window.dataLayer.push({event: STALE_EVENT, ...props});
+    } catch { /* Analytics must never interrupt the advisor or navigation. */ }
+  }
 
   function start() {
     const root = document.querySelector('.nry-setup');
@@ -53,8 +94,9 @@
       if (event?.isTrusted !== true) return;
       const form = root.querySelector('form');
       const panel = root.querySelector('[data-nry-results]');
-      if (!form || event.target !== form || !panel || panel.hidden !== false ||
-          form.elements?.style?.value !== 'feeder') return;
+      if (!form || event.target !== form || !panel || panel.hidden !== false) return;
+      if (repairExpiredGuideHandoff(panel)) measureStaleHandoff();
+      if (form.elements?.style?.value !== 'feeder') return;
       const headline = panel.querySelector('.nry-result__title');
       const links = panel.querySelector('.nry-result__links');
       if (!headline || !/^Feeder\s*[–-]\s*sestava pro /u.test(headline.textContent || '') ||

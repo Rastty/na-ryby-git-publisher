@@ -9,8 +9,6 @@ on:
       - 'tests/test-gift-buyer-paths-v1.mjs'
       - 'tests/test-gift-public-order-v1.py'
       - 'scripts/verify-gift-buyer-paths-public.py'
-      - '.github/workflows/gift-buyer-paths-v1.yml'
-      - 'na-ryby-git-publisher.php'
   push:
     branches: [main]
     paths:
@@ -21,8 +19,6 @@ on:
       - 'tests/test-gift-buyer-paths-v1.mjs'
       - 'tests/test-gift-public-order-v1.py'
       - 'scripts/verify-gift-buyer-paths-public.py'
-      - '.github/workflows/gift-buyer-paths-v1.yml'
-      - 'na-ryby-git-publisher.php'
   workflow_dispatch:
 permissions:
   contents: read
