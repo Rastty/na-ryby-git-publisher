@@ -35,14 +35,14 @@ class ContentDiv(HTMLParser):
         self.stop = None
         self.found = 0
 
-    def offset(self):
+    def absolute_position(self):
         line, column = self.getpos()
         return self.lines[line - 1] + column
 
     def handle_starttag(self, tag, attrs):
         if self.depth == 0 and tag == 'div' and 'td-post-content' in dict(attrs).get('class', '').split():
             self.found += 1
-            self.start = self.offset() + len(self.get_starttag_text())
+            self.start = self.absolute_position() + len(self.get_starttag_text())
             self.depth = 1
         elif self.depth and tag == 'div':
             self.depth += 1
@@ -51,7 +51,7 @@ class ContentDiv(HTMLParser):
         if self.depth and tag == 'div':
             self.depth -= 1
             if self.depth == 0:
-                self.stop = self.offset()
+                self.stop = self.absolute_position()
 
     def extract(self):
         self.feed(self.source)
