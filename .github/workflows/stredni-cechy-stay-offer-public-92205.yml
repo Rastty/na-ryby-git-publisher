@@ -36,7 +36,7 @@ jobs:
           python3 tests/test-deployer-trigger-parity.py
   public:
     needs: contract
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'workflow_dispatch' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
@@ -45,9 +45,9 @@ jobs:
         env:
           PHASE: ${{ github.event_name == 'pull_request' && 'preflight' || 'verify' }}
         run: python3 scripts/verify-stredni-cechy-stay-offer-public-92205.py --"${PHASE}"
-      - name: SEO public baseline preflight (no deployment)
+      - name: Previously released SEO exact public proof (GET only)
         if: github.event_name == 'pull_request'
-        run: python3 scripts/verify-stredni-cechy-serp-public-92205.py --preflight
+        run: python3 scripts/verify-stredni-cechy-serp-public-92205.py --verify
       - name: SEO public candidate readback (manual post-release only)
         if: github.event_name == 'workflow_dispatch'
         run: python3 scripts/verify-stredni-cechy-serp-public-92205.py --verify
