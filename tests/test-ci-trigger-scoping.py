@@ -102,5 +102,7 @@ assert "if: github.event_name == 'pull_request'" in guard
 assert 'needs: verify' in guard
 assert 'environment: na-ryby-production' in guard
 assert "vars.NRY_AUTO_DEPLOY_ENABLED == 'true'" in guard
+assert "inputs.release_sha == github.sha" in guard
+assert "vars.NRY_FTPS_RELEASE_ARMED" not in guard
 print('PASS: 34 focused workflows do not fan out on shared plugin updates; '
       'offline PR and protected production gates preserved; public HTTP calls 0')
