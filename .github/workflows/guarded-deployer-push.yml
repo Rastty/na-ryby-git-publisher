@@ -384,6 +384,11 @@ on:
       - 'sonar-practical-owner-guide-49275-v1.php'
       - '.github/workflows/guarded-deployer-push.yml'
   workflow_dispatch:
+    inputs:
+      release_sha:
+        description: 'Exact 40-character main commit SHA approved for this one release'
+        required: true
+        type: string
 permissions:
   contents: read
 # Pull-request checks are independent of the single production writer.
@@ -416,6 +421,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Require exact one-shot main SHA on manual release
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          NRY_EXPECTED_RELEASE_SHA: ${{ inputs.release_sha }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$NRY_EXPECTED_RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]] ||
+             [ "$NRY_EXPECTED_RELEASE_SHA" != "$GITHUB_SHA" ] ||
+             [ "$GITHUB_REF" != 'refs/heads/main' ]; then
+            echo 'BLOCKED: manually requested release must match exact main checkout SHA'
+            exit 1
+          fi
+          echo 'PASS: manual release pinned to exact reviewed main SHA'
       - name: Syntax and rollback contract
         run: |
           set -euo pipefail
@@ -645,10 +663,15 @@ jobs:
           python3 scripts/deploy_via_wedos_ftps.py inspect
   deploy:
     needs: [verify, ftps_inspect]
-    # This independent, repository-scoped switch defaults to false. Never
-    # write to production just because previously configured auto-deploy and
-    # environment transport variables happen to be true during cutover.
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.NRY_AUTO_DEPLOY_ENABLED == 'true' && vars.NRY_FTPS_RELEASE_ARMED == 'true'
+    # Human-authorized one-shot release: never deploy on push/PR or merely
+    # because repository variables are enabled. No temporary arm/disarm dance.
+    # Keep NRY_AUTO_DEPLOY_ENABLED as a separate emergency kill switch; the
+    # SHA input must equal the actual workflow checkout on main.
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/main' &&
+      vars.NRY_AUTO_DEPLOY_ENABLED == 'true' &&
+      inputs.release_sha == github.sha
     runs-on: ubuntu-latest
     timeout-minutes: 18
     environment: na-ryby-production
