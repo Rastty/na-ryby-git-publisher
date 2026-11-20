@@ -10,6 +10,8 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/powerbank-solar-fishing-public-v1.yml'
+      - 'scripts/verify-powerbank-solar-fishing-public-v1.py'
+      - 'tests/test_powerbank_solar_fishing_public.py'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]

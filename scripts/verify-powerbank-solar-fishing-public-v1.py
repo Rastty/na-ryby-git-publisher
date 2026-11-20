@@ -14,7 +14,15 @@ from urllib.request import Request, urlopen
 GUIDE = "https://na-ryby.eu/powerbanka-nebo-solarni-panel-na-ryby/"
 ENTRY = "https://na-ryby.eu/zavazeci-lodky-pro-rybare/"
 SHA = "6a8823edae2ed37f041ec0b800afc548a144d4bedd3f4756956393c8a53671ee"
-MAX_BYTES = 200_000
+MAX_GUIDE_BYTES = 200_000
+# The existing WordPress entry article contains a full long-form page shell.
+# Keep the exact new guide tightly bounded, but allow the legacy entry its own cap.
+MAX_ENTRY_BYTES = 1_000_000
+DIAGNOSTIC_CODES = {
+    f"{kind}_{problem}"
+    for kind in ("GUIDE", "ENTRY")
+    for problem in ("HTTP_INVALID", "REDIRECT_INVALID", "TYPE_INVALID", "TOO_LARGE")
+}
 
 
 class Links(HTMLParser):
@@ -35,13 +43,20 @@ class Links(HTMLParser):
 
 
 def fetch(url, kind):
+    if kind not in ("GUIDE", "ENTRY"):
+        raise ValueError("INVALID_PAGE_KIND")
+    limit = MAX_GUIDE_BYTES if kind == "GUIDE" else MAX_ENTRY_BYTES
     req = Request(url, headers={"User-Agent": "NaRyby-Power-Guide-Public-Readback/1.0",
                                 "Accept": "text/html", "Cache-Control": "no-cache"})
     with urlopen(req, timeout=22) as res:
-        if res.status != 200 or res.geturl() != url or res.headers.get_content_type() != "text/html":
-            raise ValueError(f"{kind}_RESPONSE_INVALID")
-        body = res.read(MAX_BYTES + 1)
-        if len(body) > MAX_BYTES:
+        if res.status != 200:
+            raise ValueError(f"{kind}_HTTP_INVALID")
+        if res.geturl() != url:
+            raise ValueError(f"{kind}_REDIRECT_INVALID")
+        if res.headers.get_content_type() != "text/html":
+            raise ValueError(f"{kind}_TYPE_INVALID")
+        body = res.read(limit + 1)
+        if len(body) > limit:
             raise ValueError(f"{kind}_TOO_LARGE")
         signature = res.headers.get("X-NRY-Power-Guide-SHA256", "")
     return body.decode("utf-8"), signature
@@ -85,7 +100,9 @@ def main():
                       status="POWER_GUIDE_PUBLIC_VERIFIED" if all(checks.values())
                              else "POWER_GUIDE_PUBLIC_MISMATCH")
     except (OSError, TimeoutError, ValueError, UnicodeError) as exc:
-        report.update(status="POWER_GUIDE_PUBLIC_UNAVAILABLE", diagnostic=type(exc).__name__)
+        # Only our fixed diagnostic codes leave CI; never leak raw URL errors or headers.
+        diagnostic = str(exc) if isinstance(exc, ValueError) and str(exc) in DIAGNOSTIC_CODES else type(exc).__name__
+        report.update(status="POWER_GUIDE_PUBLIC_UNAVAILABLE", diagnostic=diagnostic)
     print(json.dumps(report, ensure_ascii=False, sort_keys=True))
     return 0 if report["status"] == "POWER_GUIDE_PUBLIC_VERIFIED" or not args.verify else 1
 
