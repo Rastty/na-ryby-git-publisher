@@ -40,10 +40,10 @@ jobs:
     timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
+      - name: Read-only frontend versus REST source digests (PR only)
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/diagnose-jihocesky-13088-frontend.py
       - name: GET-only preflight or exact deployed readback
         env:
           PHASE: ${{ github.event_name == 'pull_request' && 'preflight' || 'verify' }}
         run: python3 scripts/verify-jihocesky-lipno-stays-public-13088.py --"${PHASE}"
-      - name: Read-only frontend versus REST source digests (PR only)
-        if: github.event_name == 'pull_request'
-        run: python3 scripts/diagnose-jihocesky-13088-frontend.py
