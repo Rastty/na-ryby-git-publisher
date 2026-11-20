@@ -706,15 +706,18 @@ jobs:
           python3 scripts/deploy_via_wedos_ftps.py inspect
   deploy:
     needs: [verify, ftps_inspect]
-    # Human-authorized one-shot release: never deploy on push/PR or merely
-    # because repository variables are enabled. No temporary arm/disarm dance.
-    # Keep NRY_AUTO_DEPLOY_ENABLED as a separate emergency kill switch; the
-    # SHA input must equal the actual workflow checkout on main.
+    # Owner-approved routine automatic releases: only changed production payload
+    # on main reaches the job, after verify + read-only FTPS inspection both pass.
+    # Manual exact-SHA dispatch remains available for recovery. Neither PRs nor
+    # branch pushes can deploy; static variable remains an emergency kill switch.
     if: >-
-      github.event_name == 'workflow_dispatch' &&
       github.ref == 'refs/heads/main' &&
+      github.repository == 'Rastty/na-ryby-git-publisher' &&
       vars.NRY_AUTO_DEPLOY_ENABLED == 'true' &&
-      inputs.release_sha == github.sha
+      (
+        github.event_name == 'push' ||
+        (github.event_name == 'workflow_dispatch' && inputs.release_sha == github.sha)
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 18
     environment: na-ryby-production
@@ -723,6 +726,24 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Require exact live main HEAD before any production write
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = 'Rastty/na-ryby-git-publisher' || {
+            echo 'BLOCKED: production writer is not running in the approved repository'
+            exit 1
+          }
+          test "$GITHUB_REF" = 'refs/heads/main' || {
+            echo 'BLOCKED: production writer must run on main'
+            exit 1
+          }
+          git -c credential.helper= fetch --no-tags --depth=1 origin refs/heads/main
+          current_main_sha="$(git rev-parse FETCH_HEAD)"
+          if [ "$current_main_sha" != "$GITHUB_SHA" ]; then
+            echo 'BLOCKED: reviewed checkout is no longer the current main HEAD'
+            exit 1
+          fi
+          echo "PASS: exact current main checkout ${GITHUB_SHA:0:12}"
       - name: Verify reviewed repository checkout is present before guarded release
         run: |
           set -euo pipefail
