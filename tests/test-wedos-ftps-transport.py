@@ -162,9 +162,14 @@ class TransportContract(unittest.TestCase):
                 client.ntransfercmd("STOR /www/example.php")
         data_socket.close.assert_called_once_with()
 
-    def test_unknown_repository_auto_deploy_state_cannot_arm_ftps_during_merge(self):
+    def test_only_exact_sha_manual_dispatch_can_deploy(self):
         workflow = (ROOT / ".github/workflows/guarded-deployer-push.yml").read_text()
-        self.assertIn("vars.NRY_AUTO_DEPLOY_ENABLED == 'true' && vars.NRY_FTPS_RELEASE_ARMED == 'true'", workflow)
+        self.assertIn("  workflow_dispatch:\n    inputs:\n      release_sha:", workflow)
+        self.assertIn("github.event_name == 'workflow_dispatch' &&", workflow)
+        self.assertIn("inputs.release_sha == github.sha", workflow)
+        self.assertIn("NRY_EXPECTED_RELEASE_SHA", workflow)
+        self.assertIn("=~ ^[0-9a-f]{40}$", workflow)
+        self.assertNotIn("vars.NRY_FTPS_RELEASE_ARMED", workflow)
         self.assertIn("python3 scripts/deploy_via_wedos_ftps.py inspect", workflow)
         self.assertIn("needs: [verify, ftps_inspect]", workflow)
 
