@@ -35,6 +35,8 @@ jobs:
           php -l tests/test-v7-chair-native-release.php
           php -l buyer-click-telemetry-v1.php
           php -l tests/test-buyer-click-telemetry-v1.php
+          php -l gsc-revir-stays-seo-20261120-v1.php
+          php -l tests/test-gsc-revir-stays-seo-20261120-v1.php
       - name: Source-bound and reversible v5 contract
         run: |
           php tests/test-v5-native-release.php
@@ -42,5 +44,6 @@ jobs:
           php tests/test-v7-chair-native-release.php
           php tests/test-buyer-click-telemetry-v1.php
           node tests/test-buyer-click-telemetry-v1.mjs
+          php tests/test-gsc-revir-stays-seo-20261120-v1.php
       - name: Offline workflow trigger-scope contract (zero public requests)
         run: python3 tests/test-ci-trigger-scoping.py
