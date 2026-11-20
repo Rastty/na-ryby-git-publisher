@@ -414,6 +414,7 @@ jobs:
           php -l na-ryby-git-publisher.php
           php -l guarded-auto-publisher.php
           php -l advisor-existing-page-release-v1.php
+          php tests/test-native-kses-write-contract.php
   verify:
     # Public WordPress source/readback checks run only for authorized main
     # release; PRs use pr-offline + focused feature contracts instead.
