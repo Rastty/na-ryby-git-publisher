@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Na-Ryby.eu – Git Publisher
  * Description: Apply guarded Git-managed content manifests from wp-admin without WPVibe or outbound WordPress REST writes.
- * Version: 0.16.20
+ * Version: 0.16.21
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
@@ -20,6 +20,7 @@ require_once __DIR__ . '/baitboat-release-v3.php';
 require_once __DIR__ . '/baitboat-affiliate-release-v1.php';
 require_once __DIR__ . '/baitboat-stock-guard-v1.php';
 require_once __DIR__ . '/baitboat-choice-entry-61257-v1.php';
+require_once __DIR__ . '/powerbank-solar-fishing-guide-v1.php';
 require_once __DIR__ . '/legacy-baitboat-trust-61251-v1.php';
 require_once __DIR__ . '/hracholusky-stay-trust-17606-v1.php';
 require_once __DIR__ . '/tipy-stay-trust-57228-v1.php';
