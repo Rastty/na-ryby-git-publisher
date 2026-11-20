@@ -8,6 +8,7 @@ root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root / "scripts"))
 code = runpy.run_path(str(root / "scripts/verify-gsc-stays-snippets-public.py"))
 inspect = code["inspect_html"]
+inspect_clean = code["inspect_clean_html"]
 pages = code["PAGES"]
 id_ = 12166
 url, title, desc = pages[id_]
@@ -33,6 +34,12 @@ def fixture(record, meta_title=title, meta_desc=desc, canonical=url):
 valid = inspect(fixture(row), id_)
 assert valid["canonicalOK"] and valid["titleOK"] and valid["descriptionOK"]
 assert valid["eligible"] and valid["titleApplied"] and valid["descriptionApplied"]
+clean = inspect_clean(fixture(row), id_)
+assert clean["cleanCanonicalOK"] and clean["cleanTitleOK"] and clean["cleanDescriptionOK"]
+assert len(clean["cleanTitleSha256"]) == 64 and len(clean["cleanDescriptionSha256"]) == 64
+assert inspect_clean(fixture(row, meta_title="cached old title"), id_)["cleanTitleOK"] is False
+assert inspect_clean(fixture(row, meta_desc="cached old meta"), id_)["cleanDescriptionOK"] is False
+assert inspect_clean(fixture(row, canonical="https://wrong.example/"), id_)["cleanCanonicalOK"] is False
 assert inspect(fixture(dict(row, eligible=False)), id_)["eligible"] is False
 assert inspect(fixture(row, meta_title="old"), id_)["titleOK"] is False
 assert inspect(fixture(row, meta_desc="old"), id_)["descriptionOK"] is False
