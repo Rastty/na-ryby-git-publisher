@@ -67,6 +67,8 @@ def normalize(row):
         return None, "non_czk"
     if availability.lower() in {"out of stock", "out_of_stock", "outofstock", "false", "0", "no", "unavailable"}:
         return None, "unavailable"
+    if availability.lower() not in {"in stock", "in_stock", "instock", "true", "1", "yes", "available"}:
+        return None, "unverified_availability"
     price_raw = re.sub(r"\s*(CZK|Kč|Kc)\s*$", "", price_raw, flags=re.I).replace("\u00a0", "").replace(" ", "").replace(",", ".")
     try:
         price = Decimal(price_raw)
@@ -172,7 +174,7 @@ def wc_request(path, method="GET", payload=None):
 def inventory():
     items = []
     for page in range(1, 102):
-        batch = wc_request("?per_page=100&page=" + str(page))
+        batch = wc_request("?per_page=100&status=any&page=" + str(page))
         if not isinstance(batch, list):
             raise ValueError("Woo_inventory_not_a_list")
         items.extend(batch)
