@@ -6,6 +6,7 @@ No WordPress writes, merchant requests, synthetic clicks, cookies or analytics e
 --verify requires exact public title + description + canonical on all three pages.
 """
 import argparse
+import hashlib
 import json
 import re
 from concurrent.futures import ThreadPoolExecutor
@@ -106,6 +107,24 @@ def inspect_html(html, post_id):
     return result
 
 
+def inspect_clean_html(html, post_id):
+    # A query-string diagnostic bypasses some page caches; only this ordinary,
+    # unparameterized anonymous URL is the public SEO delivery contract.
+    head = Head()
+    head.feed(html)
+    url, title, description = PAGES[post_id]
+    title_text = unescape(head.title.strip())
+    description_text = unescape(head.description.strip())
+    return {
+        "cleanCanonicalOK": head.canonical == url,
+        "cleanTitleOK": title_text == title,
+        "cleanDescriptionOK": description_text == description,
+        "cleanTitleSha256": hashlib.sha256(title_text.encode("utf-8")).hexdigest(),
+        "cleanDescriptionSha256": hashlib.sha256(
+            description_text.encode("utf-8")).hexdigest(),
+    }
+
+
 def fetch(post_id):
     url = PAGES[post_id][0] + "?" + urlencode(
         {"nry_gsc_snippet_probe": "source_v1", "source": "github_readonly"})
@@ -117,7 +136,17 @@ def fetch(post_id):
         # in verify-dyje6-stay-public.py; 400 kB truncated legitimate pages.
         content = response.read(1_600_001)
         assert len(content) <= 1_600_000, f"HTML_TOO_LARGE_{post_id}"
-    return inspect_html(content.decode("utf-8", "replace"), post_id)
+    result = inspect_html(content.decode("utf-8", "replace"), post_id)
+    # A second GET uses the canonical URL *without* probe/cache-busting query.
+    # Do not send no-cache request headers; inspect what anonymous readers get.
+    clean_req = Request(PAGES[post_id][0], headers={
+        "User-Agent": "Mozilla/5.0 (compatible; NaRybyCleanReadback/1.0)"})
+    with guarded_urlopen(clean_req, timeout=25) as clean_resp:
+        assert clean_resp.status == 200, f"CLEAN_HTTP_{post_id}_{clean_resp.status}"
+        clean_body = clean_resp.read(1_600_001)
+        assert len(clean_body) <= 1_600_000, f"CLEAN_HTML_TOO_LARGE_{post_id}"
+    result.update(inspect_clean_html(clean_body.decode("utf-8", "replace"), post_id))
+    return result
 
 
 def main():
@@ -134,7 +163,8 @@ def main():
         for row in rows:
             assert all(row[k] is True for k in (
                 "canonicalOK", "titleOK", "descriptionOK", "eligible",
-                "sourceMatches", "modifiedMatches")), "GSC_SNIPPET_NOT_PUBLIC_VERIFIED"
+                "sourceMatches", "modifiedMatches",
+                "cleanCanonicalOK", "cleanTitleOK", "cleanDescriptionOK")), "GSC_SNIPPET_NOT_PUBLIC_VERIFIED"
         state = "NRY_GSC_STAYS_SNIPPETS_PUBLIC_VERIFIED"
     else:
         state = "NRY_GSC_STAYS_SNIPPETS_DIAGNOSTIC_COMPLETE"
