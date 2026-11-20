@@ -39,4 +39,11 @@ blocked(new.replace('data-nry-orlik-stay="v1"', 'data-nry-orlik-stay="v2"'))
 blocked(new.replace('První vede na širší nabídku', 'Druhý vede na širší nabídku'))
 blocked(new.replace('postid-119551','postid-119552'))
 blocked(new + '<span data-nry-orlik-stay="v1"></span>')
+
+# Never claim deployment from a push-only publisher contract run. The public
+# verification is eligible only after an owner-dispatched guarded FTPS release.
+workflow = (root / '.github/workflows/orlik-expired-stay-119551.yml').read_text(encoding='utf-8')
+assert "github.event.workflow_run.event == 'workflow_dispatch'" in workflow
+assert "github.event.workflow_run.event == 'push'" not in workflow
+
 print('ORLIK_EXPIRED_STAY_119551_PUBLIC_PARSER_OK')
