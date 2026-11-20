@@ -54,4 +54,12 @@ for wrong in (
     except (AssertionError, KeyError, TypeError, ValueError):
         continue
     raise AssertionError("UNSAFE_PROBE_OR_HEAD_ACCEPTED")
+# Reuse the already-reviewed Dyje 6 HTML ceiling and preserve a GET-only
+# main-push rerun path for verifier-only fixes (never retrigger FTP payload).
+script = (root / "scripts/verify-gsc-stays-snippets-public.py").read_text()
+workflow = (root / ".github/workflows/gsc-stays-snippet-live-proof.yml").read_text()
+assert "response.read(1_600_001)" in script
+assert "len(content) <= 1_600_000" in script
+assert "  push:\n    branches: [main]\n    paths:" in workflow
+assert "github.event_name == 'push' || steps.provenance.outputs.deployed == 'true'" in workflow
 print("GSC_STAYS_SNIPPETS_PUBLIC_PARSER_OK")
