@@ -69,4 +69,5 @@ assert "response.read(1_600_001)" in script
 assert "len(content) <= 1_600_000" in script
 assert "  push:\n    branches: [main]\n    paths:" in workflow
 assert "github.event_name == 'push' || steps.provenance.outputs.deployed == 'true'" in workflow
+assert "run: python3 scripts/verify-gsc-stays-snippets-public.py --verify" in workflow
 print("GSC_STAYS_SNIPPETS_PUBLIC_PARSER_OK")
