@@ -2,6 +2,7 @@
 /** Fully offline three-URL GSC snippet contract; no WordPress writes. */
 define('ABSPATH', __DIR__);
 $GLOBALS['gsc_hooks'] = array();
+$GLOBALS['gsc_actions'] = array();
 $GLOBALS['gsc_id'] = 12166;
 $GLOBALS['gsc_admin'] = false;
 $GLOBALS['gsc_preview'] = false;
@@ -20,6 +21,9 @@ $GLOBALS['gsc_post'] = (object)array(
 function add_filter($name, $handler, $priority) {
     $GLOBALS['gsc_hooks'][$name] = array($handler, $priority);
 }
+function add_action($name, $handler, $priority) {
+    $GLOBALS['gsc_actions'][$name] = array($handler, $priority);
+}
 function is_single($id) { return $GLOBALS['gsc_id'] === $id; }
 function is_singular($type) { return $type === 'post'; }
 function get_queried_object_id() { return $GLOBALS['gsc_id']; }
@@ -33,6 +37,7 @@ function gsc_assert($condition, $reason) { if (!$condition) throw new RuntimeExc
 require dirname(__DIR__).'/gsc-revir-stays-seo-20261120-v1.php';
 $class = 'NRY_GSC_Revir_Stays_SEO_20261120_V1';
 gsc_assert(count($GLOBALS['gsc_hooks']) === 2, 'only two Yoast output filters');
+gsc_assert(isset($GLOBALS['gsc_actions']['wp_footer']), 'only opt-in diagnostic footer hook');
 gsc_assert(($GLOBALS['gsc_hooks']['wpseo_title'][1] ?? null) === 20, 'Yoast title priority');
 gsc_assert(($GLOBALS['gsc_hooks']['wpseo_metadesc'][1] ?? null) === 20, 'Yoast meta priority');
 gsc_assert($class::title('Rybářská dovolená jižní morava')
@@ -89,4 +94,43 @@ foreach (array(14517 => 'dyje6-stay-trust-14517-v1.php',
     gsc_assert(strlen($records[$id]['title']) < 100, 'bounded SEO title');
     gsc_assert(strlen($records[$id]['description']) < 250, 'bounded SEO meta');
 }
-echo "PASS: GSC 3-page SEO snippets: exact source, current baseline, editor override, safe no-write guards\n";
+// The bounded diagnostic never appears without explicit exact-post opt-in.
+$GLOBALS['gsc_id'] = 12166;
+ob_start();
+$class::probe_footer();
+gsc_assert(ob_get_clean() === '', 'probe leaked on normal visitor request');
+$_GET['nry_gsc_snippet_probe'] = 'source_v1';
+gsc_assert($class::title('Rybářská dovolená jižní morava')
+    === 'Rybářská dovolená jižní Morava: chaty a revíry', 'probe altered SEO result');
+$class::description('');
+ob_start();
+$class::probe_footer();
+$probe_html = ob_get_clean();
+gsc_assert(preg_match('/<!-- NRY_GSC_STAYS_SNIPPET_PROBE_V1 (\\{.*\\}) -->/', $probe_html, $match) === 1,
+    'missing bounded diagnostic comment');
+$probe = json_decode($match[1], true);
+gsc_assert(is_array($probe) && $probe['postId'] === 12166
+    && $probe['status'] === 'NRY_GSC_STAYS_SNIPPET_PROBE_V1'
+    && $probe['eligible'] === true && $probe['sourceMatches'] === true
+    && $probe['modifiedMatches'] === true
+    && $probe['title']['calls'] === 1 && $probe['title']['applied'] === true
+    && $probe['title']['first']['baselineMatched'] === true
+    && $probe['description']['calls'] === 1 && $probe['description']['applied'] === true
+    && $probe['wordpressWrites'] === 0 && $probe['merchantRequests'] === 0
+    && $probe['syntheticClicks'] === 0, 'bounded probe proof drift');
+$GLOBALS['gsc_post']->post_content .= 'source drift';
+ob_start();
+$class::probe_footer();
+$probe_html = ob_get_clean();
+gsc_assert(preg_match('/<!-- NRY_GSC_STAYS_SNIPPET_PROBE_V1 (\\{.*\\}) -->/', $probe_html, $match) === 1
+    && json_decode($match[1], true)['eligible'] === false
+    && json_decode($match[1], true)['sourceMatches'] === false,
+    'source drift not visible in safe probe');
+$GLOBALS['gsc_post']->post_content = $source;
+$GLOBALS['gsc_id'] = 9999;
+ob_start();
+$class::probe_footer();
+gsc_assert(ob_get_clean() === '', 'probe leaked to non-target');
+unset($_GET['nry_gsc_snippet_probe']);
+
+echo "PASS: GSC 3-page SEO snippets: exact source, current baseline, editor override, bounded opt-in diagnostic\n";
