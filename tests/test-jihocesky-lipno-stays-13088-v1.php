@@ -39,6 +39,11 @@ $prefix = base64_decode(
     true);
 check(is_string($prefix) && strlen($prefix) === 512, 'PINNED_PREFIX_BAD_BYTES');
 check(hash('sha256', $prefix) === $cl::PREFIX_SHA256, 'PINNED_PREFIX_BAD_SHA');
+check($cl::source_prefix_allowed($cl::PREFIX_SHA256), 'REST_PREFIX_REJECTED');
+check($cl::source_prefix_allowed($cl::FRONTEND_PREFIX_SHA256), 'OBSERVED_FRONTEND_PREFIX_REJECTED');
+check(!$cl::source_prefix_allowed(str_repeat('0', 64)), 'UNREVIEWED_PREFIX_ACCEPTED');
+check(!$cl::source_prefix_allowed(null), 'NULL_PREFIX_ACCEPTED');
+check($cl::FRONTEND_PREFIX_SHA256 !== $cl::PREFIX_SHA256, 'DIAGNOSTIC_NOOP');
 $old = $prefix.str_repeat(' ', 7100)
     .'<div id="su-post-17753" class="su-post ">'
     .'<a href="https://na-ryby.eu/apartmany-nadeje/">Apartmány Naděje</a>';
