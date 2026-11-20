@@ -82,9 +82,15 @@ def verify_public(html, *, deployed, css_public=b'', css_reviewed=b''):
     assert view.canonicals == [SITE + PAGE] and 'postid-13088' in html, 'PUBLIC_IDENTITY_DRIFT'
     assert 'su-table su-table-alternate' in html and 'Sportovní rybolov Rašelina' in html, 'HISTORICAL_TABLE_MISSING'
     if not deployed and view.blocks == 0:
-        assert not view.styles, 'UNEXPECTED_PREDEPLOY_STYLES'
-        return {'status': 'JIHOCESKY_LIPNO_13088_PREFLIGHT_READY', 'postId': 13088,
-                'existingOffers': False, 'plannedMerchantLinks': 2, 'plannedInternalLinks': 1,
+        # A prior guarded release can enqueue CSS while the content source pin
+        # rejects its module. This is a known *partial* release, never success.
+        assert view.styles in ([], [STYLE + '?ver=1.0.0']), 'UNEXPECTED_PREDEPLOY_STYLES'
+        if view.styles:
+            assert css_public == css_reviewed and len(css_public) >= 700, 'PARTIAL_STYLES_CSS_DRIFT'
+        return {'status': ('JIHOCESKY_LIPNO_13088_PARTIAL_STYLES_ONLY'
+                           if view.styles else 'JIHOCESKY_LIPNO_13088_PREFLIGHT_READY'),
+                'postId': 13088, 'existingOffers': False,
+                'plannedMerchantLinks': 2, 'plannedInternalLinks': 1,
                 'merchantRequests': 0, 'wordpressWrites': 0, 'syntheticClicks': 0}
     assert view.blocks == 1 and view.offers == ['kohoutu', 'vyhlidka'], 'OFFER_COUNT_OR_ORDER_DRIFT'
     assert html.index('data-nry-jihocesky-stays="v1"') < html.index('su-table su-table-alternate'), 'BLOCK_NOT_BEFORE_HISTORICAL_TABLE'
@@ -121,7 +127,8 @@ def main():
     verify_rest(json.loads(get(REST, 200000).decode('utf-8')))
     deployed = sys.argv[1] == '--verify'
     html = get(SITE + PAGE, 2000000).decode('utf-8', 'replace')
-    needs_css = deployed or 'data-nry-jihocesky-stays="v1"' in html
+    needs_css = (deployed or 'data-nry-jihocesky-stays="v1"' in html
+                 or STYLE in html)
     result = verify_public(html, deployed=deployed,
                            css_public=get(SITE + STYLE + '?ver=1.0.0', 50000) if needs_css else b'',
                            css_reviewed=(ROOT / 'assets/nry-jihocesky-lipno-stays-13088-v1.css').read_bytes()
