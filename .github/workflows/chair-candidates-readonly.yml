@@ -4,16 +4,12 @@ on:
     paths:
       - 'scripts/audit-chair-buyer-candidates.py'
       - 'tests/test_chair_commercial_freshness.py'
-      - '.github/workflows/chair-candidates-readonly.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/audit-chair-buyer-candidates.py'
       - 'tests/test_chair_commercial_freshness.py'
-      - '.github/workflows/chair-candidates-readonly.yml'
   workflow_dispatch:
-  schedule:
-    - cron: '21 5 * * *'
 permissions:
   contents: read
 jobs:

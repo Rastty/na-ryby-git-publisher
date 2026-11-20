@@ -1,0 +1,56 @@
+name: Na-Ryby Power Solar Guide Exact Public Readback (GET only)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/powerbank-solar-fishing-public-v1.yml'
+      - 'scripts/verify-powerbank-solar-fishing-public-v1.py'
+      - 'tests/test_powerbank_solar_fishing_public.py'
+      - 'assets/nry-powerbank-solar-fishing-v1.html'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/powerbank-solar-fishing-public-v1.yml'
+      - 'scripts/verify-powerbank-solar-fishing-public-v1.py'
+      - 'tests/test_powerbank_solar_fishing_public.py'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: nry-power-solar-public-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  offline_contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prove exact local fixture and fail-closed public assertions
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p 'test_powerbank_solar_fishing_public.py' -v
+  public_readback:
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    needs: offline_contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: GET only exact live HTML, SHA header, canonical, calculator and entry
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if python3 scripts/verify-powerbank-solar-fishing-public-v1.py --verify; then exit 0; fi
+            if [ "$attempt" -lt 3 ]; then sleep 7; fi
+          done
+          exit 1

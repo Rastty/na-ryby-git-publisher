@@ -1,0 +1,43 @@
+name: Na-Ryby Jihocesky Lipno Stays 13088 Public Proof
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'jihocesky-lipno-stays-13088-v1.php'
+      - 'assets/nry-jihocesky-lipno-stays-13088-v1.css'
+      - 'tests/test-jihocesky-lipno-stays-13088-v1.php'
+      - 'scripts/verify-jihocesky-lipno-stays-public-13088.py'
+      - 'tests/test-jihocesky-lipno-stays-public-13088.py'
+      - '.github/workflows/jihocesky-lipno-stays-13088.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail-closed frontend and attribution contracts
+        run: |
+          php -l na-ryby-git-publisher.php
+          php -l jihocesky-lipno-stays-13088-v1.php
+          php tests/test-jihocesky-lipno-stays-13088-v1.php
+          python3 -m py_compile scripts/verify-jihocesky-lipno-stays-public-13088.py
+          python3 tests/test-jihocesky-lipno-stays-public-13088.py
+          python3 tests/test-deployer-trigger-parity.py
+  public:
+    needs: contract
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'workflow_dispatch' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: GET-only preflight or exact deployed readback
+        env:
+          PHASE: ${{ github.event_name == 'pull_request' && 'preflight' || 'verify' }}
+        run: python3 scripts/verify-jihocesky-lipno-stays-public-13088.py --"${PHASE}"

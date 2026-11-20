@@ -5,12 +5,10 @@ on:
       - 'home-buyer-entry-measurement-v1.php'
       - 'assets/nry-home-buyer-entry-v1.js'
       - 'assets/nry-home-buyer-entry-v1.css'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-home-buyer-entry-v1.php'
       - 'tests/test-home-buyer-entry-v1.mjs'
       - 'tests/test-home-buyer-entry-public-v1.py'
       - 'scripts/verify-home-buyer-entry-public-v1.py'
-      - '.github/workflows/home-buyer-entry-public-v1.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]

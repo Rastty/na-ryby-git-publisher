@@ -50,8 +50,19 @@ class V8GuardTests(unittest.TestCase):
         self.assertEqual(self.mode(before=b"an older manifest"), "blocked")
         self.assertEqual(self.mode(raw=FROZEN_BYTES + b"\n"), "blocked")
 
-    def test_dispatch_never_grants_disabled_waiver(self):
-        self.assertEqual(self.mode(event="workflow_dispatch"), "blocked")
+    def test_manual_dispatch_frozen_manifest_is_deferred_without_claiming_write(self):
+        self.assertEqual(self.mode(event="workflow_dispatch", before=None),
+                         "historical_disabled")
+
+    def test_manual_dispatch_changed_manifest_cannot_be_deferred(self):
+        self.assertEqual(self.mode(event="workflow_dispatch", before=None,
+                                   raw=FROZEN_BYTES + b"\n"), "blocked")
+        self.assertEqual(self.mode(event="workflow_dispatch", before=None,
+                                   manifest={**FROZEN_MANIFEST, "batch_id": "new-batch"}),
+                         "blocked")
+
+    def test_unrecognized_event_and_unproven_push_remain_blocked(self):
+        self.assertEqual(self.mode(event="schedule"), "blocked")
         self.assertEqual(self.mode(before=None), "blocked")
 
     def test_new_batch_cannot_reuse_the_waiver(self):

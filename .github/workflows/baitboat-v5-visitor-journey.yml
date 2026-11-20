@@ -4,15 +4,11 @@ on:
     paths:
       - 'scripts/verify-baitboat-visitor-journey-v1.py'
       - 'tests/test-baitboat-visitor-journey-v1.py'
-      - '.github/workflows/baitboat-v5-visitor-journey.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/verify-baitboat-visitor-journey-v1.py'
       - 'tests/test-baitboat-visitor-journey-v1.py'
-      - '.github/workflows/baitboat-v5-visitor-journey.yml'
-  schedule:
-    - cron: '49 5 * * *'
   workflow_dispatch:
 permissions:
   contents: read

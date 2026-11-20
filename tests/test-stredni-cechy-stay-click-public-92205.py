@@ -61,4 +61,14 @@ blocked(with_script('1.11.5').replace(b'chata-slapy-skalice', b'chata-jina'))
 blocked(with_script('1.11.5').replace(b'chid=5QoXiSqx', b'chid=other'))
 blocked(with_script('1.11.5').replace(b'rel="sponsored nofollow noopener"',b'rel="nofollow"'))
 blocked(with_script('1.11.5'), j=js+b'tampered')
+
+# A successful push build is never a protected production FTPS release.
+for guarded_proof in (
+    '.github/workflows/stredni-cechy-stay-offer-public-92205.yml',
+    '.github/workflows/stredni-cechy-stay-click-92205.yml',
+    '.github/workflows/stredni-cechy-stay-source-proof-92205.yml',
+):
+    proof_yaml = (root / guarded_proof).read_text(encoding='utf-8')
+    assert "github.event.workflow_run.event == 'workflow_dispatch'" in proof_yaml
+    assert "github.event.workflow_run.event == 'push'" not in proof_yaml
 print('PASS: Stredni Cechy 92205 exact public click-script verification, no synthetic clicks')
