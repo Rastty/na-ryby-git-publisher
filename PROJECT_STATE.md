@@ -2,6 +2,12 @@
 
 Updated: 2026-11-20 (Europe/Prague). This file records **verified state**, not a percentage-complete estimate or a claim of live revenue.
 
+## TURBO checkpoint — 2026-11-20
+
+1. **P0 release of existing merged growth changes:** clean `main` transport and guarded workflow passed offline checks, but a fresh FTPS production deployment is **not authorized/verified** while the owner-disarmed release gate remains unresolved. Public homepage still shows its old revír/stay section. No protected variables changed.
+2. **P1 navigation discovery:** [PR #307](https://github.com/Rastty/na-ryby-git-publisher/pull/307) proposes three directly verified first-party routes under `Revíry` (South Moravia, Dyje 6, rules/RIS), preserving the archived parent URL. Python trigger/transport contracts pass; PHP GitHub CI and an explicitly authorized production readback are required before marking this live.
+3. **P2 economic readback:** after real deployment, verify rendered menu/home/stay CTAs and use genuine GSC/GA4 and approved affiliate outcomes to decide the next cluster. Windsor.ai currently lists only `https://klix.cz/` under connected Search Console accounts; Na-Ryby historical GSC evidence remains in Prometheus Core issues #2027 and #2029, with no new result inferred.
+
 ## Goal
 
 Grow durable Czech fishing organic traffic and trustworthy paths from revír and accommodation advice to verified, attributable affiliate offers. Reuse compatible Prometheus Core capabilities, and close the loop **evidence → safe change → public verification → measured outcome**. Prioritize economic impact over feature count.
