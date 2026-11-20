@@ -1,0 +1,74 @@
+name: NRY CJ WooCommerce catalog pilot (no WP All Import)
+on:
+  pull_request:
+    paths:
+      - 'scripts/cj_woo_catalog_sync.py'
+      - 'tests/test_cj_woo_catalog_sync.py'
+      - '.github/workflows/nry-cj-woo-catalog-pilot.yml'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'READ ONLY unless explicitly choosing draft-pilot'
+        required: true
+        type: choice
+        default: dry-run
+        options:
+          - dry-run
+          - draft-pilot
+permissions:
+  contents: read
+concurrency:
+  group: nry-cj-woo-catalog-pilot
+  cancel-in-progress: false
+
+jobs:
+  contract:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with: {persist-credentials: false}
+      - name: Unit tests and syntax
+        run: |
+          python3 -m py_compile scripts/cj_woo_catalog_sync.py
+          python3 -m unittest discover -s tests -p 'test_cj_woo_catalog_sync.py' -v
+
+  preview:
+    needs: contract
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'dry-run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with: {persist-credentials: false}
+      - name: Read-only feed-to-inventory collision preview
+        env:
+          NRY_CJ_FEED_URL: ${{ secrets.NRY_CJ_FEED_URL }}
+          NRY_CJ_FEED_USER: ${{ secrets.NRY_CJ_FEED_USER }}
+          NRY_CJ_FEED_PASSWORD: ${{ secrets.NRY_CJ_FEED_PASSWORD }}
+          NRY_WC_CONSUMER_KEY: ${{ secrets.NRY_WC_CONSUMER_KEY }}
+          NRY_WC_CONSUMER_SECRET: ${{ secrets.NRY_WC_CONSUMER_SECRET }}
+        run: |
+          python3 scripts/cj_woo_catalog_sync.py --limit 20
+
+  drafts:
+    needs: contract
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'draft-pilot'
+    environment: na-ryby-production
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with: {persist-credentials: false}
+      - name: Strictly bounded pilot (max 20 hidden drafts; never Merchant Center)
+        env:
+          NRY_CJ_FEED_URL: ${{ secrets.NRY_CJ_FEED_URL }}
+          NRY_CJ_FEED_USER: ${{ secrets.NRY_CJ_FEED_USER }}
+          NRY_CJ_FEED_PASSWORD: ${{ secrets.NRY_CJ_FEED_PASSWORD }}
+          NRY_WC_CONSUMER_KEY: ${{ secrets.NRY_WC_CONSUMER_KEY }}
+          NRY_WC_CONSUMER_SECRET: ${{ secrets.NRY_WC_CONSUMER_SECRET }}
+          NRY_CJ_WOO_APPLY: ${{ vars.NRY_CJ_WOO_APPLY }}
+        run: |
+          test "$NRY_CJ_WOO_APPLY" = "YES"
+          python3 scripts/cj_woo_catalog_sync.py --apply --limit 20
