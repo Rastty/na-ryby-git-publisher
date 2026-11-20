@@ -3,11 +3,9 @@ on:
   pull_request:
     paths:
       - 'sonar-budget-scenario-jumps-118455-v1.php'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-sonar-budget-scenario-jumps-118455-v1.php'
       - 'tests/probe-sonar-budget-scenarios-public-candidate.php'
       - 'scripts/verify-sonar-budget-scenario-jumps-public.py'
-      - '.github/workflows/sonar-budget-scenarios-public.yml'
   workflow_dispatch:
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']

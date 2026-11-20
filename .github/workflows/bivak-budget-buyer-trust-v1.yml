@@ -3,10 +3,8 @@ on:
   pull_request:
     paths:
       - 'bivak-budget-buyer-trust-119575-v1.php'
-      - 'na-ryby-git-publisher.php'
       - 'tests/test-bivak-budget-buyer-trust-119575-v1.php'
       - 'scripts/verify-bivak-budget-buyer-trust-public.py'
-      - '.github/workflows/bivak-budget-buyer-trust-v1.yml'
   workflow_dispatch:
 permissions:
   contents: read

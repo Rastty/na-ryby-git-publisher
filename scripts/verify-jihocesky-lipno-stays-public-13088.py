@@ -87,6 +87,7 @@ def verify_public(html, *, deployed, css_public=b'', css_reviewed=b''):
                 'existingOffers': False, 'plannedMerchantLinks': 2, 'plannedInternalLinks': 1,
                 'merchantRequests': 0, 'wordpressWrites': 0, 'syntheticClicks': 0}
     assert view.blocks == 1 and view.offers == ['kohoutu', 'vyhlidka'], 'OFFER_COUNT_OR_ORDER_DRIFT'
+    assert html.index('data-nry-jihocesky-stays="v1"') < html.index('su-table su-table-alternate'), 'BLOCK_NOT_BEFORE_HISTORICAL_TABLE'
     assert view.links == [
         (HPORTAL, '_blank', 'sponsored nofollow noopener'),
         (HAUZI, '_blank', 'sponsored nofollow noopener'),

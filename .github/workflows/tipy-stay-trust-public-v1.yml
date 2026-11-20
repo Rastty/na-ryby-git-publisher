@@ -7,13 +7,10 @@ on:
       - 'scripts/verify-tipy-stay-trust-public.py'
       - 'tests/test-tipy-stay-trust-57228-v1.php'
       - 'tests/test_tipy_stay_trust_public.py'
-      - '.github/workflows/tipy-stay-trust-public-v1.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]
     branches: [main]
-  schedule:
-    - cron: '36 7 * * *'
   workflow_dispatch:
 permissions:
   contents: read

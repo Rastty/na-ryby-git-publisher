@@ -2,12 +2,10 @@ name: Na-Ryby Sport Stays 85384 Exact Source Proof (GET only)
 on:
   pull_request:
     paths:
-      - 'na-ryby-git-publisher.php'
       - 'sport-stays-source-proof-85384-v1.php'
       - 'scripts/verify-sport-stays-source-proof-85384.py'
       - 'tests/test-sport-stays-source-proof-85384-v1.php'
       - 'tests/test-sport-stays-source-proof-85384.py'
-      - '.github/workflows/sport-stays-source-proof-85384.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]

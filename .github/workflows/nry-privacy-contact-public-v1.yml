@@ -5,8 +5,6 @@ on:
       - 'nry-privacy-contact-cleanup-v1.php'
       - 'tests/test-privacy-contact-cleanup-v1.php'
       - 'scripts/verify-privacy-contact-public-v1.py'
-      - '.github/workflows/nry-privacy-contact-public-v1.yml'
-      - 'na-ryby-git-publisher.php'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]

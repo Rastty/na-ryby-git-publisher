@@ -10,9 +10,9 @@ HPORTAL, HAUZI, STAYS = m['HPORTAL'], m['HAUZI'], m['STAYS']
 STYLE = m['STYLE']
 SITE, PAGE = m['SITE'], m['PAGE']
 prefix = ('<link rel="canonical" href="' + SITE + PAGE + '">'
-          '<body class="single postid-13088"><div class="su-table su-table-alternate">'
-          '<h2>Sportovní rybolov Rašelina</h2></div>')
-ready = verify_public(prefix, deployed=False)
+          '<body class="single postid-13088">')
+historical = '<div class="su-table su-table-alternate"><h2>Sportovní rybolov Rašelina</h2></div>'
+ready = verify_public(prefix + historical, deployed=False)
 assert ready['status'] == 'JIHOCESKY_LIPNO_13088_PREFLIGHT_READY'
 assert ready['plannedMerchantLinks'] == 2 and ready['syntheticClicks'] == 0
 block = ('<section data-nry-jihocesky-stays="v1"><h2>Na ryby k Lipnu a kde přespat?</h2>'
@@ -25,7 +25,7 @@ block = ('<section data-nry-jihocesky-stays="v1"><h2>Na ryby k Lipnu a kde přes
          '<a href="' + STAYS + '">Pobyty</a>'
          '<p>Tabulka níže je starší rozcestník</p></section>')
 css = (ROOT / 'assets/nry-jihocesky-lipno-stays-13088-v1.css').read_bytes()
-html = prefix + '<link rel="stylesheet" href="' + SITE + STYLE + '?ver=1.0.0">' + block
+html = prefix + '<link rel="stylesheet" href="' + SITE + STYLE + '?ver=1.0.0">' + block + historical
 done = verify_public(html, deployed=True, css_public=css, css_reviewed=css)
 assert done['status'] == 'JIHOCESKY_LIPNO_13088_PUBLIC_VERIFIED'
 assert done['visibleReviewedOffers'] == 2 and done['completedReservations'] is None
@@ -47,3 +47,9 @@ blocked(html.replace('Tabulka níže je starší rozcestník', 'bez poznamky'))
 blocked(html.replace('postid-13088', 'postid-13089'))
 blocked(html.replace(STYLE + '?ver=1.0.0', STYLE + '?ver=2.0.0'))
 print('JIHOCESKY_LIPNO_13088_PUBLIC_PARSER_OK')
+
+# Cards must precede the old 2017/18 index, never be hidden below it.
+blocked(prefix + historical + '<link rel="stylesheet" href="' + SITE + STYLE + '?ver=1.0.0">' + block)
+workflow = (ROOT / '.github/workflows/jihocesky-lipno-stays-13088.yml').read_text()
+assert "github.event.workflow_run.event == 'workflow_dispatch'" in workflow
+assert "github.event.workflow_run.event == 'push'" not in workflow

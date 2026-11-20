@@ -1,0 +1,44 @@
+name: Na-Ryby Private Fishing Stay 59113 Trust Public Proof
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'private-fishing-stay-trust-59113-v1.php'
+      - 'assets/nry-private-fishing-stay-trust-59113-v1.css'
+      - 'tests/test-private-fishing-stay-trust-59113-v1.php'
+      - 'tests/fixtures/post-59113-20261119-rendered.html'
+      - 'scripts/verify-private-fishing-stay-public-59113.py'
+      - 'tests/test-private-fishing-stay-public-59113.py'
+      - '.github/workflows/private-fishing-stay-59113.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Source-bound frontend contract and syntax
+        run: |
+          php -l na-ryby-git-publisher.php
+          php -l private-fishing-stay-trust-59113-v1.php
+          php tests/test-private-fishing-stay-trust-59113-v1.php
+          python3 -m py_compile scripts/verify-private-fishing-stay-public-59113.py
+          python3 tests/test-private-fishing-stay-public-59113.py
+          python3 tests/test-deployer-trigger-parity.py
+  public:
+    needs: contract
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'workflow_dispatch' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: GET-only preflight or exact deployed readback
+        env:
+          PHASE: ${{ github.event_name == 'pull_request' && 'preflight' || 'verify' }}
+        run: python3 scripts/verify-private-fishing-stay-public-59113.py --"${PHASE}"

@@ -11,10 +11,7 @@ on:
       - 'tests/test-reel-situations-handoff-v1.mjs'
       - 'tests/test-reel-handoff-enqueue-v1.php'
       - 'scripts/verify-reel-handoff-public-v1.py'
-      - '.github/workflows/reel-dashboard-navigation-public.yml'
   workflow_dispatch:
-  schedule:
-    - cron: '19 5 * * *'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]
