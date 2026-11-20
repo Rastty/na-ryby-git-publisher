@@ -20,6 +20,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   contract:
     runs-on: ubuntu-latest
@@ -38,18 +39,40 @@ jobs:
           python3 tests/test-deployer-trigger-parity.py
   public:
     needs: contract
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'workflow_dispatch' && github.event.workflow_run.conclusion == 'success')
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && (github.event.workflow_run.event == 'workflow_dispatch' || github.event.workflow_run.event == 'push') && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
+      - name: Require upstream deploy job success on exact main SHA (GET only)
+        id: upstream
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NRY_UPSTREAM_RUN_ID: ${{ github.event.workflow_run.id }}
+          NRY_UPSTREAM_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          if [ "$NRY_UPSTREAM_HEAD_SHA" != "$GITHUB_SHA" ]; then
+            echo 'BLOCKED: upstream release SHA differs from current main checkout'
+            exit 1
+          fi
+          result="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${NRY_UPSTREAM_RUN_ID}/jobs?per_page=100" --jq '.jobs[] | select(.name=="deploy") | .conclusion')"
+          if [ "$result" != 'success' ]; then
+            echo 'SKIP: upstream run did not perform successful deploy; no public release proof'
+            echo 'deployed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo 'deployed=true' >> "$GITHUB_OUTPUT"
+          echo 'PASS: upstream deploy job success bound to current main SHA'
       - name: Read-only frontend versus REST source digests (PR only)
         if: github.event_name == 'pull_request'
         run: python3 scripts/diagnose-jihocesky-13088-frontend.py
       - name: GET-only preflight or exact deployed readback
+        if: github.event_name != 'workflow_run' || steps.upstream.outputs.deployed == 'true'
         env:
           PHASE: ${{ github.event_name == 'pull_request' && 'preflight' || 'verify' }}
         run: python3 scripts/verify-jihocesky-lipno-stays-public-13088.py --"${PHASE}"
-      - name: GET-only bounded PHP render guard after manual release (even if cards missing)
-        if: always() && github.event_name == 'workflow_run' && github.event.workflow_run.event == 'workflow_dispatch' && github.event.workflow_run.conclusion == 'success'
+      - name: GET-only bounded PHP render guard after verified upstream release (even if cards missing)
+        if: always() && github.event_name == 'workflow_run' && steps.upstream.outputs.deployed == 'true'
         run: python3 scripts/diagnose-jihocesky-13088-render-guard.py
