@@ -28,6 +28,10 @@ PAGES = {
 }
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
 VERSION = "1.11.5"
+# The reviewed JS expanded beyond the old 20 KiB probe ceiling as new
+# source-pinned stay placements were added. Keep a fixed, bounded 64 KiB GET;
+# exact byte identity is still required before claiming asset readiness.
+ASSET_MAX_BYTES = 64 * 1024
 OUTPUT = "buyer-click-live-readonly.json"
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -100,7 +104,7 @@ def audit(fetch=checked_fetch):
         # The bundled asset may be served from WordPress; only a fixed local
         # same-origin path is requested, never a captured arbitrary src URL.
         try:
-            live = fetch(SITE + ASSET + "?ver=" + VERSION, 20000)
+            live = fetch(SITE + ASSET + "?ver=" + VERSION, ASSET_MAX_BYTES)
         except Exception as exc:
             safe_reason = str(exc) if str(exc) in (
                 "EXACT_PUBLIC_READBACK_UNVERIFIABLE",
