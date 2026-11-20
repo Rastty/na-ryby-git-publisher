@@ -13,9 +13,14 @@ Grow durable Czech fishing search traffic and verified, attributable affiliate p
 - **Public instrumentation proof:** [PR #312](https://github.com/Rastty/na-ryby-git-publisher/pull/312) merged as `cf9cac6`. Read-only audit had falsely rejected the 22,079-byte reviewed buyer-click JS because of an obsolete 20 KB readback bound. Corrected bounded ceiling to 64 KiB with exact SHA-256 comparison unchanged; local public audit found byte-identical production JS on nine in-scope guides and absent on an out-of-scope control. Independent post-merge [run #44729577817](https://github.com/Rastty/na-ryby-git-publisher/actions/runs/44729577817) **success**, including anonymous public instrumentation presence. This is **not** proof of real clicks or GA4 collection.
 - Public read-only verifiers for South Moravia stays, fishing-stay CTA, Dyje 6 stay and Hracholusky trust page passed after release. Avoid reworking these completed routes without new evidence.
 
+## Additional code-ready experiment — NOT yet released
+
+- [PR #313](https://github.com/Rastty/na-ryby-git-publisher/pull/313), merged as `4dbab15`: exact-source **render-only Yoast description/OG pilot** for existing Stredni Cechy/Slapy stay guide #92205, chosen from source-backed 90d GSC **213 impressions / 1 click / 0.47% CTR / avg position 17.8**. Exact current public title/canonical/metadata, private-post source fingerprint through approved read-only proof, and existing affiliate stay CTA validated. Source/slug/GMT/bytes and baseline snippet must match; otherwise **no change**. No SEO title, article, offer URL, inventory, price, affiliate tracking or WordPress database write. Scoped CI/transport + PHP/GET preflight all passed.
+- **Post-merge public GET on 2026-11-20 still shows the old description.** Code is merged, not live. The next owner-authorized release is a **single manual exact-current-main-SHA FTPS workflow**, followed by targeted `python3 scripts/verify-stredni-cechy-serp-public-92205.py --verify` and guarded public readbacks. Do not auto-dispatch on push or re-enable the retired arm switch.
+
 ## Code versus production
 
-- Last verified **GitHub main SHA**: `cf9cac6ab2a46d13e7a641e22f207a4a4046bbef` (includes non-runtime audit fix after #570).
+- **GitHub main through code merge #313**: `4dbab15ec4e61f04a13b1c700b8fa13a7c469973` (before this docs-only status commit). Current exact SHA must be checked again immediately before any release.
 - Last verified **production PHP/plugin release SHA**: `4080438457bdbf2bd6aa96c30d38d0b5afcb14e0`, plugin 0.16.20 / advisor JS 1.3.0. A subsequent code merge does **not** update live PHP.
 - Subsequent release: dispatch the guarded-deployer workflow manually with `release_sha` exactly equal to the intended `main` SHA; verify backup + job result + independent anonymous public readback. No unapproved production write.
 
