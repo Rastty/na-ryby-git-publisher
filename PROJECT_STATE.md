@@ -1,6 +1,6 @@
 # Na-Ryby.eu — PROJECT_STATE
 
-Updated: 2026-11-20 14:21 CET (Europe/Prague). Source of truth: current GitHub `main` + independent public readback. **Do not infer deployment, traffic uplift, paid commissions or causality from a merge.**
+Updated: 2026-11-20 (Europe/Prague) (Europe/Prague). Source of truth: current GitHub `main` + independent public readback. **Do not infer deployment, traffic uplift, paid commissions or causality from a merge.**
 
 ## Goal
 
@@ -32,7 +32,7 @@ Grow durable Czech fishing search traffic and verified, attributable affiliate p
 
 ## Next three cycles — estimated value/risk order
 
-1. **P0 — monetization leakage:** establish the exact eligible Na-Ryby program/creative destinations for six guides in #240 with Core; correct only source-pinned verified replacements after approved WP write path and rollback, then measure real consented conversions. No blind tracking substitutions.
+1. **P0 — monetization leakage:** owner confirms active Na-Ryby CJ Chyť a pusť relationship (2026-11-20; **attestation, not API proof**). Fresh first-party post #61257 drill-down: **20 cross-site links but only seven distinct old Chytapust targets (six product + one category), no `cjsku`**. [Exact candidate paths and placement counts #240](https://github.com/Rastty/na-ryby-git-publisher/issues/240#issuecomment-7040686921), [Core product-identity request #1944](https://github.com/Rastty/prometheus-growth-os/issues/1944#issuecomment-7040691070). Reuse protected Core CJ Product Feed Search `linkCode(pid: "8287231")` with current authorized publisher company and exact product identity; category needs separately eligible deeplink. **Do not touch links until one creative passes API/eligibility, narrow owner release and source-pinned WP rollback/public proof**.
 2. **P1 — fresh offers and measured advisor funnel:** use Core-owned licensed current inventory/price feed and correct affiliate entitlement for 14-SKU advisor cohort; restore only offers that pass seven-day freshness, inventory, URL and browser checks; verify actual public render and genuine click events.
 3. **P2 — organic growth from proven demand:** use post-recrawl GSC query/page evidence to select one high-value revír or fishing-stay expansion or CTR winner, avoiding already-shipped Dyje 6, Brno chata and South Moravia pilots and duplicate PR work.
 
