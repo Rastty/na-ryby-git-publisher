@@ -7,14 +7,11 @@ on:
       - 'editorial/fishing-stays-cz-20261118-recommendation-blocks.html'
       - 'scripts/verify-fishing-stays-click-public-v1.py'
       - 'tests/test-fishing-stays-click-public-v1.py'
-      - '.github/workflows/fishing-stays-click-public-v1.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]
     branches: [main]
   workflow_dispatch:
-  schedule:
-    - cron: '22 7 * * *'
 permissions:
   contents: read
 jobs:
