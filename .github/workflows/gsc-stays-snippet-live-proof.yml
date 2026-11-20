@@ -66,4 +66,4 @@ jobs:
           echo 'deployed=true' >> "$GITHUB_OUTPUT"
       - name: GET-only three-page public head versus live hook diagnostic
         if: github.event_name == 'push' || steps.provenance.outputs.deployed == 'true'
-        run: python3 scripts/verify-gsc-stays-snippets-public.py --inspect
+        run: python3 scripts/verify-gsc-stays-snippets-public.py --verify
