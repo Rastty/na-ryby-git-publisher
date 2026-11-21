@@ -1,0 +1,74 @@
+name: Na-Ryby Production Release Receipt Ledger
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/production-release-receipts.yml'
+      - 'scripts/report-guarded-deploy-status.py'
+      - 'tests/test-release-deploy-receipts.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/production-release-receipts.yml'
+      - 'scripts/report-guarded-deploy-status.py'
+      - 'tests/test-release-deploy-receipts.py'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nry-production-release-receipt-writer
+  cancel-in-progress: false
+
+jobs:
+  offline:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prove receipt status cannot mistake skipped deploy for live
+        run: |
+          python3 -m py_compile scripts/report-guarded-deploy-status.py
+          python3 tests/test-release-deploy-receipts.py
+          python3 tests/test-legacy-map-public-order.py
+          python3 tests/test-private-waters-concrete-choice-public.py
+          python3 tests/test-legacy-stays-archive-public.py
+
+  receipt:
+    # No fork PR artifacts or checkout, no manual releases. Only default-main
+    # code executes; workflow_run event may have write GITHUB_TOKEN but no
+    # WordPress/merchant credentials are provided to this job.
+    if: >-
+      github.repository == 'Rastty/na-ryby-git-publisher' &&
+      (
+        (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+        (github.event_name == 'workflow_run' &&
+         github.event.workflow_run.event == 'push' &&
+         github.event.workflow_run.head_branch == 'main' &&
+         github.event.workflow_run.head_repository.full_name == 'Rastty/na-ryby-git-publisher')
+      )
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    permissions:
+      contents: read
+      actions: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: main
+      - name: Offline status contracts before privileged issue-only reporting
+        run: |
+          python3 -m py_compile scripts/report-guarded-deploy-status.py
+          python3 tests/test-release-deploy-receipts.py
+      - name: Read completed protected run, inspect exact transport and publish bounded receipt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/report-guarded-deploy-status.py
