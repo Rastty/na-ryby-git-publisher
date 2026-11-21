@@ -6,7 +6,7 @@ m = runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts" /
                        "verify-reviry-autem-source.py"))
 verify = m["verify_public"]
 PAGE, STYLE = m["PAGE"], m["STYLE_URL"]
-SOURCE = {"sourceSha256": "0" * 64}
+SOURCE = {"sourceSha256": m["EXPECTED_RAW_SHA256"]}
 CSS = b"x" * 800
 LINKS = [
     "https://na-ryby.eu/rybareni-s-ubytovanim-jihocesky-kraj/",
