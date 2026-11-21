@@ -25,6 +25,13 @@ def deployed(doc, *, css_content=css, js_content=js):
     return m['verify'](doc, deployed=True, css_bytes=css_content, js_bytes=js_content,
                        reviewed_css=css, reviewed_js=js)
 assert deployed(ready)['exactSponsoredOffers'] == 3
+counts = m['diagnostic_counts'](ready)
+assert counts['status'] == 'SPORT_STAYS_LINK_DISTRIBUTION_OBSERVED_NOT_VERIFIED'
+assert counts['publicPageNewStayLinks'] == 4
+assert counts['publicPageOldBookingLinks'] == 1
+assert counts['panelInternalStayLinks'] == 1 and counts['offerCardCount'] == 3
+assert counts['merchantRequests'] == counts['wordpressWrites'] == counts['syntheticClicks'] == 0
+assert all('https://' not in str(val) for val in counts.values())
 assert m['verify_current'](ready, css_bytes=css, js_bytes=js,
                            reviewed_css=css, reviewed_js=js)['status'] == 'SPORT_STAYS_OFFERS_PUBLIC_VERIFIED'
 def blocked(doc, *, css_content=css, js_content=js):
