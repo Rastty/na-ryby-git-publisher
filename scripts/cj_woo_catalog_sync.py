@@ -50,6 +50,37 @@ def affiliate_ok(value):
         return False
 
 
+def merchant_key(value):
+    """Compare an exact Chyť a pusť destination, without clicking CJ links.
+
+    Keep variant-defining query params; discard only advertising tags.
+    """
+    try:
+        u = urllib.parse.urlsplit(str(value))
+        if u.scheme != "https" or not u.hostname or u.username or u.password:
+            return ""
+        host = u.hostname.lower().removeprefix("www.")
+        if host in CJ_HOSTS:
+            params = urllib.parse.parse_qs(u.query, max_num_fields=30)
+            targets = params.get("url", [])
+            if len(targets) != 1:
+                return ""
+            u = urllib.parse.urlsplit(targets[0])
+            host = (u.hostname or "").lower().removeprefix("www.")
+        if u.scheme != "https" or host != "chytapust.cz" or u.username or u.password:
+            return ""
+        if u.port not in (None, 443) or not u.path or u.path == "/":
+            return ""
+        query = sorted((k, v) for k, v in urllib.parse.parse_qsl(
+            u.query, keep_blank_values=True, max_num_fields=30)
+            if not k.lower().startswith("utm_") and k.lower() not in
+            {"fbclid", "gclid"})
+        tail = "?" + urllib.parse.urlencode(query) if query else ""
+        return "chytapust.cz" + u.path.rstrip("/").casefold() + tail
+    except (TypeError, ValueError):
+        return ""
+
+
 def normalize(row):
     ident = pick(row, "id", "sku", "product_id", "productid", "merchant_sku", "catalog_id")
     title = pick(row, "title", "name", "product_name", "productname")
@@ -63,6 +94,9 @@ def normalize(row):
         return None, "invalid_title"
     if not affiliate_ok(link):
         return None, "missing_verified_site_pid_click_url"
+    target = merchant_key(link)
+    if not target:
+        return None, "unverified_chytapust_destination"
     # A numeric price alone does not establish CZK; the feed may be in EUR.
     if currency:
         if currency.upper() != "CZK":
@@ -85,6 +119,7 @@ def normalize(row):
     if len(sku) > 110:
         return None, "invalid_sku"
     return {"sku": sku, "title": title, "external_url": link,
+            "merchant_key": target,
             "regular_price": str(price.quantize(Decimal("0.01"))),
             "description": pick(row, "description", "long_description")[:2500]}, None
 
@@ -193,7 +228,10 @@ def inventory():
 def decide(feed_rows, products, limit=20):
     by_sku = {str(p.get("sku", "")): p for p in products if p.get("sku")}
     titles = {str(p.get("name", "")).casefold().strip() for p in products}
+    destinations = {key for p in products
+                    if (key := merchant_key(p.get("product_url", "")))}
     seen = set()
+    seen_targets = set()
     changes = []
     counts = {"feed_rows": 0, "eligible": 0, "duplicate_feed": 0,
               "blocked_existing": 0, "create_draft": 0, "update_managed": 0, "rejected": {}}
@@ -204,25 +242,43 @@ def decide(feed_rows, products, limit=20):
             counts["rejected"][reason] = counts["rejected"].get(reason, 0) + 1
             continue
         counts["eligible"] += 1
-        if item["sku"] in seen:
+        if item["sku"] in seen or item["merchant_key"] in seen_targets:
             counts["duplicate_feed"] += 1
             continue
         seen.add(item["sku"])
+        seen_targets.add(item["merchant_key"])
         existing = by_sku.get(item["sku"])
         if existing:
             # Pilot is CREATE-ONLY, even for a source-tagged draft. It may have
             # been published since inventory GET; never mutate its affiliate URL.
             counts["blocked_existing"] += 1
-        elif item["title"].casefold().strip() in titles:
+        elif item["title"].casefold().strip() in titles or item["merchant_key"] in destinations:
             counts["blocked_existing"] += 1
         elif len(changes) < limit:
             changes.append(("create", None, item))
             counts["create_draft"] += 1
             titles.add(item["title"].casefold().strip())
+            destinations.add(item["merchant_key"])
     return changes, counts
 
 
+def verify_created_draft(saved, item, expected_id):
+    if not isinstance(saved, dict) or saved.get("id") != expected_id:
+        raise ValueError("draft_readback_id_mismatch")
+    expected = {"sku": item["sku"], "type": "external", "status": "draft",
+                "catalog_visibility": "hidden", "product_url": item["external_url"],
+                "regular_price": item["regular_price"]}
+    if any(saved.get(key) != value for key, value in expected.items()):
+        raise ValueError("draft_readback_state_mismatch")
+    meta = saved.get("meta_data")
+    if not isinstance(meta, list) or not any(
+            isinstance(m, dict) and m.get("key") == "_nry_cj_source"
+            and m.get("value") == SOURCE for m in meta):
+        raise ValueError("draft_readback_source_missing")
+
+
 def apply_changes(changes):
+    verified = 0
     for operation, product_id, item in changes:
         if operation != "create" or product_id is not None:
             raise ValueError("pilot_forbids_existing_product_writes")
@@ -231,7 +287,16 @@ def apply_changes(changes):
                 "regular_price": item["regular_price"], "status": "draft",
                 "catalog_visibility": "hidden", "description": item["description"],
                 "meta_data": [{"key": "_nry_cj_source", "value": SOURCE}]}
-        wc_request("", "POST", body)
+        created = wc_request("", "POST", body)
+        if not isinstance(created, dict) or type(created.get("id")) is not int \
+                or created["id"] <= 0:
+            raise ValueError("draft_create_receipt_missing")
+        # POST success is not proof of a hidden draft. Verify exact ID via GET
+        # before the next write. Never retry an ambiguous POST.
+        saved = wc_request("/" + str(created["id"]), "GET")
+        verify_created_draft(saved, item, created["id"])
+        verified += 1
+    return verified
 
 
 def main():
@@ -254,8 +319,9 @@ def main():
                       "sample": [{"action": op, "sku": i["sku"]} for op, _, i in changes[:5]]},
                      ensure_ascii=False))
     if args.apply:
-        apply_changes(changes)
-        print(json.dumps({"status": "DRAFT_ONLY_WRITES_FINISHED", "actions_attempted": len(changes)}))
+        verified = apply_changes(changes)
+        print(json.dumps({"status": "DRAFT_ONLY_CREATES_READBACK_VERIFIED",
+                          "actions_verified": verified}))
 
 
 if __name__ == "__main__":

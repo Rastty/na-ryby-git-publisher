@@ -94,19 +94,83 @@ class PilotTests(unittest.TestCase):
         explicit["price"] = "19990 EUR"
         self.assertIsNotNone(sync.normalize(explicit)[1])
 
-    def test_new_product_is_hidden_draft(self):
+    def test_existing_destination_with_different_title_and_sku_is_skipped(self):
+        legacy = [{"id": 7, "sku": "legacy-9922", "type": "external",
+                   "name": "Stará karta jiného názvu",
+                   "product_url": "https://www.chytapust.cz/produkt?utm_source=old"}]
+        changes, report = sync.decide([ROW], legacy)
+        self.assertEqual(changes, [])
+        self.assertEqual(report["blocked_existing"], 1)
+        self.assertEqual(sync.merchant_key(VALID), sync.merchant_key(legacy[0]["product_url"]))
+        self.assertEqual(sync.merchant_key(VALID.replace("8287231", "100927011")),
+                         sync.merchant_key(VALID))
+
+    def test_duplicate_feed_different_sku_same_destination_is_skipped(self):
+        alt = {**ROW, "id": "67890", "title": "Jiný název stejného produktu"}
+        changes, report = sync.decide([ROW, alt], [])
+        self.assertEqual(len(changes), 1)
+        self.assertEqual(report["duplicate_feed"], 1)
+
+    def test_merchant_target_must_be_the_actual_approved_store(self):
+        row = {**ROW, "buyurl": VALID.replace(
+            "%2F%2Fwww.chytapust.cz", "%2F%2Fevil.example")}
+        self.assertEqual(sync.normalize(row)[1], "unverified_chytapust_destination")
+        row["buyurl"] = "https://www.dpbolvw.net/click-8287231-12347575"
+        self.assertEqual(sync.normalize(row)[1], "unverified_chytapust_destination")
+        self.assertEqual(sync.merchant_key("https://www.chytapust.cz/produkt?variant=1"),
+                         "chytapust.cz/produkt?variant=1")
+        self.assertNotEqual(sync.merchant_key("https://www.chytapust.cz/produkt?variant=2"),
+                            sync.merchant_key("https://www.chytapust.cz/produkt?variant=1"))
+
+    def test_new_product_is_hidden_draft_with_independent_readback(self):
         changes, _ = sync.decide([ROW], [])
         calls = []
+        item = changes[0][2]
+        def fake_wc(path, method="GET", payload=None):
+            calls.append((path, method, payload))
+            if method == "POST":
+                return {"id": 9001}
+            if method == "GET" and path == "/9001":
+                return {"id": 9001, "sku": item["sku"], "type": "external",
+                        "status": "draft", "catalog_visibility": "hidden",
+                        "product_url": item["external_url"],
+                        "regular_price": item["regular_price"],
+                        "meta_data": [{"key": "_nry_cj_source", "value": sync.SOURCE}]}
+            raise AssertionError("unexpected WooCommerce request")
         old = sync.wc_request
         try:
-            sync.wc_request = lambda path, method, payload: calls.append((path, method, payload))
-            sync.apply_changes(changes)
+            sync.wc_request = fake_wc
+            self.assertEqual(sync.apply_changes(changes), 1)
         finally:
             sync.wc_request = old
-        self.assertEqual(calls[0][1], "POST")
+        self.assertEqual([(c[0], c[1]) for c in calls],
+                         [("", "POST"), ("/9001", "GET")])
         self.assertEqual(calls[0][2]["type"], "external")
         self.assertEqual(calls[0][2]["status"], "draft")
         self.assertEqual(calls[0][2]["catalog_visibility"], "hidden")
+
+    def test_failed_readback_never_counts_draft_as_verified(self):
+        item, _ = sync.normalize(ROW)
+        good = {"id": 9001, "sku": item["sku"], "type": "external",
+                "status": "draft", "catalog_visibility": "hidden",
+                "product_url": item["external_url"],
+                "regular_price": item["regular_price"],
+                "meta_data": [{"key": "_nry_cj_source", "value": sync.SOURCE}]}
+        for delta in ({"status": "publish"}, {"catalog_visibility": "visible"},
+                      {"product_url": "https://invalid.example"},
+                      {"meta_data": []}, {"id": 9002}):
+            calls = []
+            def fake_wc(path, method="GET", payload=None):
+                calls.append(method)
+                return {"id": 9001} if method == "POST" else {**good, **delta}
+            old = sync.wc_request
+            try:
+                sync.wc_request = fake_wc
+                with self.assertRaises(ValueError):
+                    sync.apply_changes([("create", None, item)])
+            finally:
+                sync.wc_request = old
+            self.assertEqual(calls, ["POST", "GET"])
 
     def test_zip_csv_read(self):
         buf = io.BytesIO()
