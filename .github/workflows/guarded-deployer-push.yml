@@ -44,6 +44,11 @@ on:
       - 'scripts/verify-home-buyer-entry-public-v1.py'
       - '.github/workflows/home-buyer-entry-public-v1.yml'
       - 'home-advisor-seo-snippets-v1.php'
+      - 'home-revir-stay-paths-118641-v1.php'
+      - 'stays-main-navigation-bridge-v1.php'
+      - 'revir-main-menu-discovery-v1.php'
+      - 'legacy-map-discovery-bridge-v1.php'
+      - 'gsc-revir-stays-seo-20261120-v1.php'
       - 'tests/test-home-advisor-seo-snippets-v1.php'
       - 'scripts/verify-home-advisor-seo-public.py'
       - 'tests/test-home-advisor-seo-public.py'
@@ -78,19 +83,46 @@ on:
       - 'family-stays-59271-v1.php'
       - 'stredni-cechy-stay-source-proof-92205-v1.php'
       - 'stredni-cechy-stay-offer-trust-92205-v1.php'
+      - 'orlik-expired-stay-cta-119551-v1.php'
+      - 'lipno-pair-offers-119692-v1.php'
+      - 'private-fishing-stay-trust-59113-v1.php'
+      - 'jihocesky-lipno-stays-13088-v1.php'
+      - 'tests/test-orlik-expired-stay-cta-119551-v1.php'
+      - 'scripts/verify-orlik-expired-stay-public-119551.py'
+      - 'tests/test-orlik-expired-stay-public-119551.py'
+      - '.github/workflows/orlik-expired-stay-119551.yml'
+      - 'tests/test-lipno-pair-offers-119692-v1.php'
+      - 'scripts/verify-lipno-pair-offers-public-119692.py'
+      - 'tests/test-lipno-pair-offers-public-119692.py'
+      - '.github/workflows/lipno-pair-offers-119692.yml'
+      - 'assets/nry-private-fishing-stay-trust-59113-v1.css'
+      - 'tests/test-private-fishing-stay-trust-59113-v1.php'
+      - 'tests/fixtures/post-59113-20261119-rendered.html'
+      - 'scripts/verify-private-fishing-stay-public-59113.py'
+      - 'tests/test-private-fishing-stay-public-59113.py'
+      - '.github/workflows/private-fishing-stay-59113.yml'
+      - 'assets/nry-jihocesky-lipno-stays-13088-v1.css'
+      - 'tests/test-jihocesky-lipno-stays-13088-v1.php'
+      - 'scripts/verify-jihocesky-lipno-stays-public-13088.py'
+      - 'tests/test-jihocesky-lipno-stays-public-13088.py'
+      - '.github/workflows/jihocesky-lipno-stays-13088.yml'
+      - 'seo-stredni-cechy-stay-92205-v1.php'
       - 'sport-stays-source-proof-85384-v1.php'
       - 'sport-stays-offers-85384-v1.php'
       - 'kruzberk-source-proof-12877-v1.php'
+      - 'reviry-autem-source-proof-56493-v1.php'
+      - 'reviry-autem-trust-56493-v1.php'
+      - 'assets/nry-reviry-autem-trust-56493-v1.css'
       - 'brno-reservoir-source-proof-17591-v1.php'
       - 'sterkac-source-proof-12040-v1.php'
+      - 'sterkac-rules-repair-12040-v1.php'
+      - 'assets/nry-sterkac-rules-12040-v1.css'
       - 'scripts/verify-sterkac-source-proof-12040.py'
       - 'tests/test-sterkac-source-proof-12040-v1.php'
       - 'tests/test-sterkac-source-proof-12040.py'
       - '.github/workflows/sterkac-source-proof-12040.yml'
-      - 'sterkac-rules-repair-12040-v1.php'
-      - 'assets/nry-sterkac-rules-12040-v1.css'
-      - 'tests/test-sterkac-rules-repair-12040-v1.php'
       - 'scripts/verify-sterkac-rules-repair-12040-public.py'
+      - 'tests/test-sterkac-rules-repair-12040-v1.php'
       - 'tests/test-sterkac-rules-repair-12040-public.py'
       - '.github/workflows/sterkac-rules-repair-12040.yml'
       - 'brno-reservoir-trust-stays-17591-v1.php'
@@ -110,6 +142,9 @@ on:
       - 'scripts/verify-kruzberk-fishing-trust-public-12877.py'
       - '.github/workflows/kruzberk-fishing-trust-12877.yml'
       - 'scripts/verify-kruzberk-source-proof-12877.py'
+      - 'tests/test-reviry-autem-source-proof-56493.php'
+      - 'tests/test-reviry-autem-trust-56493.php'
+      - 'tests/test-reviry-autem-trust-public.py'
       - 'tests/test-kruzberk-source-proof-12877-v1.php'
       - 'tests/test-kruzberk-source-proof-12877.py'
       - '.github/workflows/kruzberk-source-proof-12877.yml'
@@ -288,6 +323,10 @@ on:
       - 'tests/test-baitboat-stock-guard-v1.php'
       - 'tests/test-baitboat-stock-guard-v1.cjs'
       - 'baitboat-choice-entry-61257-v1.php'
+      - 'powerbank-solar-fishing-guide-v1.php'
+      - 'tests/test-powerbank-solar-fishing-guide-v1.php'
+      - 'tests/test-powerbank-solar-fishing-guide-v1.cjs'
+      - 'scripts/verify-powerbank-solar-fishing-public-v1.py'
       - 'baitboat-compromise-recovery-v1.php'
       - 'assets/**'
       - 'tests/test-deployer-trigger-parity.py'
@@ -299,6 +338,8 @@ on:
       - 'scripts/guarded_v8_readback.py'
       - 'scripts/readonly_urlopen_retry.py'
       - 'tests/test-readonly-urlopen-retry.py'
+      - 'scripts/deploy_via_wedos_ftps.py'
+      - 'tests/test-wedos-ftps-transport.py'
   push:
     branches: [main]
     paths:
@@ -314,6 +355,11 @@ on:
       - 'home-buyer-entry-measurement-v1.php'
       - 'assets/nry-home-buyer-entry-v1.js'
       - 'home-advisor-seo-snippets-v1.php'
+      - 'home-revir-stay-paths-118641-v1.php'
+      - 'stays-main-navigation-bridge-v1.php'
+      - 'revir-main-menu-discovery-v1.php'
+      - 'legacy-map-discovery-bridge-v1.php'
+      - 'gsc-revir-stays-seo-20261120-v1.php'
       - 'nry-privacy-contact-cleanup-v1.php'
       - 'carp-pillar-source-proof-118541-v1.php'
       - 'carp-pillar-trust-cleanup-118541-v1.php'
@@ -330,12 +376,21 @@ on:
       - 'family-stays-59271-v1.php'
       - 'stredni-cechy-stay-source-proof-92205-v1.php'
       - 'stredni-cechy-stay-offer-trust-92205-v1.php'
+      - 'orlik-expired-stay-cta-119551-v1.php'
+      - 'lipno-pair-offers-119692-v1.php'
+      - 'private-fishing-stay-trust-59113-v1.php'
+      - 'jihocesky-lipno-stays-13088-v1.php'
+      - 'seo-stredni-cechy-stay-92205-v1.php'
       - 'sport-stays-source-proof-85384-v1.php'
       - 'sport-stays-offers-85384-v1.php'
       - 'kruzberk-source-proof-12877-v1.php'
+      - 'reviry-autem-source-proof-56493-v1.php'
+      - 'reviry-autem-trust-56493-v1.php'
+      - 'assets/nry-reviry-autem-trust-56493-v1.css'
       - 'brno-reservoir-source-proof-17591-v1.php'
       - 'sterkac-source-proof-12040-v1.php'
       - 'sterkac-rules-repair-12040-v1.php'
+      - 'assets/nry-sterkac-rules-12040-v1.css'
       - 'brno-reservoir-trust-stays-17591-v1.php'
       - 'kruzberk-fishing-trust-12877-v1.php'
       - 'legacy-net-buyer-guides-v1.php'
@@ -376,14 +431,21 @@ on:
       - 'baitboat-affiliate-release-v1.php'
       - 'baitboat-stock-guard-v1.php'
       - 'baitboat-choice-entry-61257-v1.php'
+      - 'powerbank-solar-fishing-guide-v1.php'
       - 'baitboat-compromise-recovery-v1.php'
       - 'assets/**'
       - 'seo-pipaky-beginner-35755-v1.php'
+      - 'scripts/deploy_via_wedos_ftps.py'
       - 'seo-pipaky-advanced-description-36702-v1.php'
       - 'seo-sonar-practical-description-49275-v1.php'
       - 'sonar-practical-owner-guide-49275-v1.php'
       - '.github/workflows/guarded-deployer-push.yml'
   workflow_dispatch:
+    inputs:
+      release_sha:
+        description: 'Exact 40-character main commit SHA approved for this one release'
+        required: true
+        type: string
 permissions:
   contents: read
 # Pull-request checks are independent of the single production writer.
@@ -392,12 +454,48 @@ concurrency:
   group: ${{ github.event_name == 'pull_request' && format('nry-review-pr-{0}', github.event.pull_request.number) || 'nry-guarded-deployer-live' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
-  verify:
+  pr-offline:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Offline publisher and guarded-trigger contract; no live HTTP calls
+        run: |
+          set -euo pipefail
+          python3 tests/test-ci-trigger-scoping.py
+          python3 tests/test-deployer-trigger-parity.py
+          php -l na-ryby-git-publisher.php
+          php -l guarded-auto-publisher.php
+          php -l advisor-existing-page-release-v1.php
+          php tests/test-native-kses-write-contract.php
+          php -l powerbank-solar-fishing-guide-v1.php
+          php tests/test-powerbank-solar-fishing-guide-v1.php
+          node tests/test-powerbank-solar-fishing-guide-v1.cjs
+          python3 -m py_compile scripts/verify-powerbank-solar-fishing-public-v1.py
+  verify:
+    # Public WordPress source/readback checks run only for authorized main
+    # release; PRs use pr-offline + focused feature contracts instead.
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Require exact one-shot main SHA on manual release
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          NRY_EXPECTED_RELEASE_SHA: ${{ inputs.release_sha }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$NRY_EXPECTED_RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]] ||
+             [ "$NRY_EXPECTED_RELEASE_SHA" != "$GITHUB_SHA" ] ||
+             [ "$GITHUB_REF" != 'refs/heads/main' ]; then
+            echo 'BLOCKED: manually requested release must match exact main checkout SHA'
+            exit 1
+          fi
+          echo 'PASS: manual release pinned to exact reviewed main SHA'
       - name: Syntax and rollback contract
         run: |
           set -euo pipefail
@@ -405,6 +503,8 @@ jobs:
           python3 -m unittest discover -s tests -p test_guarded_v8_readback.py -v
           python3 -m py_compile scripts/readonly_urlopen_retry.py
           python3 tests/test-readonly-urlopen-retry.py -v
+          python3 -m py_compile scripts/deploy_via_wedos_ftps.py
+          python3 tests/test-wedos-ftps-transport.py
           php -l advisor-existing-page-release-v1.php
           php -l hracholusky-stay-trust-17606-v1.php
           php tests/test-hracholusky-stay-trust-17606-v1.php
@@ -416,13 +516,19 @@ jobs:
           php tests/test-dyje6-stay-trust-14517-v1.php
           python3 -m unittest discover -s tests -p test_dyje6_stay_public.py -v
           php -l jizni-morava-stays-12166-v1.php
+          php -l reviry-autem-source-proof-56493-v1.php
+          php tests/test-reviry-autem-source-proof-56493.php
+          php -l reviry-autem-trust-56493-v1.php
+          php tests/test-reviry-autem-trust-56493.php
+          python3 tests/test-reviry-autem-trust-public.py
           php -l brno-reservoir-source-proof-17591-v1.php
           php -l sterkac-source-proof-12040-v1.php
           php tests/test-sterkac-source-proof-12040-v1.php
-          python3 tests/test-sterkac-source-proof-12040.py
           php -l sterkac-rules-repair-12040-v1.php
           php tests/test-sterkac-rules-repair-12040-v1.php
+          python3 -m py_compile scripts/verify-sterkac-rules-repair-12040-public.py
           python3 tests/test-sterkac-rules-repair-12040-public.py
+          python3 tests/test-sterkac-source-proof-12040.py
           php -l brno-reservoir-trust-stays-17591-v1.php
           php tests/test-brno-reservoir-trust-stays-17591-v1.php
           python3 tests/test-brno-reservoir-trust-stays-public-17591.py
@@ -594,6 +700,10 @@ jobs:
           php -l checklist-release-v1.php
           php -l baitboat-affiliate-release-v1.php
           php tests/test-baitboat-affiliate-release-v1.php
+          php -l powerbank-solar-fishing-guide-v1.php
+          php tests/test-powerbank-solar-fishing-guide-v1.php
+          node tests/test-powerbank-solar-fishing-guide-v1.cjs
+          python3 -m py_compile scripts/verify-powerbank-solar-fishing-public-v1.py
           php -l baitboat-stock-guard-v1.php
           php tests/test-baitboat-stock-guard-v1.php
           node tests/test-baitboat-stock-guard-v1.cjs
@@ -609,9 +719,9 @@ jobs:
           python3 tests/test-118455-spec-bonus-public-semantic.py
           python3 tests/test-54272-public-semantic.py
           python3 tests/test-echolot-boat-historic-two-public-semantic.py
-  deploy:
+  ftps_inspect:
     needs: verify
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.NRY_AUTO_DEPLOY_ENABLED == 'true'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     environment: na-ryby-production
@@ -619,7 +729,56 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Read-only WEDOS FTPS credentials and installed-plugin probe
+        if: vars.NRY_DEPLOY_TRANSPORT == 'ftps'
+        env:
+          NRY_FTPS_HOST: ${{ secrets.NRY_FTPS_HOST }}
+          NRY_FTPS_USER: ${{ secrets.NRY_FTPS_USER }}
+          NRY_FTPS_PASSWORD: ${{ secrets.NRY_FTPS_PASSWORD }}
+          NRY_FTPS_WP_CONTENT: ${{ vars.NRY_FTPS_WP_CONTENT }}
+        run: |
+          set -euo pipefail
+          python3 scripts/deploy_via_wedos_ftps.py inspect
+  deploy:
+    needs: [verify, ftps_inspect]
+    # Owner-approved routine automatic releases: only changed production payload
+    # on main reaches the job, after verify + read-only FTPS inspection both pass.
+    # Manual exact-SHA dispatch remains available for recovery. Neither PRs nor
+    # branch pushes can deploy; static variable remains an emergency kill switch.
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.repository == 'Rastty/na-ryby-git-publisher' &&
+      vars.NRY_AUTO_DEPLOY_ENABLED == 'true' &&
+      (
+        github.event_name == 'push' ||
+        (github.event_name == 'workflow_dispatch' && inputs.release_sha == github.sha)
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    environment: na-ryby-production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
           fetch-depth: 0
+      - name: Require exact live main HEAD before any production write
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = 'Rastty/na-ryby-git-publisher' || {
+            echo 'BLOCKED: production writer is not running in the approved repository'
+            exit 1
+          }
+          test "$GITHUB_REF" = 'refs/heads/main' || {
+            echo 'BLOCKED: production writer must run on main'
+            exit 1
+          }
+          git -c credential.helper= fetch --no-tags --depth=1 origin refs/heads/main
+          current_main_sha="$(git rev-parse FETCH_HEAD)"
+          if [ "$current_main_sha" != "$GITHUB_SHA" ]; then
+            echo 'BLOCKED: reviewed checkout is no longer the current main HEAD'
+            exit 1
+          fi
+          echo "PASS: exact current main checkout ${GITHUB_SHA:0:12}"
       - name: Verify reviewed repository checkout is present before guarded release
         run: |
           set -euo pipefail
@@ -627,7 +786,18 @@ jobs:
           test -f na-ryby-git-publisher.php
           test -f RELEASE_INTEGRITY.json
           echo 'PASS: reviewed release files checked out; no credentials persisted'
+      - name: Require exactly one approved production transport
+        env:
+          NRY_DEPLOY_TRANSPORT: ${{ vars.NRY_DEPLOY_TRANSPORT }}
+        run: |
+          set -euo pipefail
+          case "${NRY_DEPLOY_TRANSPORT:-unset}" in
+            deployer) echo 'Legacy Deployer selected' ;;
+            ftps) echo 'WEDOS explicit FTPS selected' ;;
+            *) echo 'BLOCKED: no explicitly selected deployment transport'; exit 1 ;;
+          esac
       - name: Validate exact approved Deployer destination
+        if: vars.NRY_DEPLOY_TRANSPORT == 'deployer'
         env:
           NRY_DFG_DEPLOY_URL: ${{ secrets.NRY_DFG_DEPLOY_URL }}
         run: |
@@ -650,6 +820,7 @@ jobs:
           print("Approved site, plugin slug and Deployer endpoint verified")
           PY
       - name: Request WordPress Deployer pull of reviewed main
+        if: vars.NRY_DEPLOY_TRANSPORT == 'deployer'
         env:
           NRY_DFG_DEPLOY_URL: ${{ secrets.NRY_DFG_DEPLOY_URL }}
         run: |
@@ -663,6 +834,18 @@ jobs:
               exit 1
           fi
           echo "Deployer request accepted; LIVE code state and WordPress post writes NOT yet verified."
+
+      - name: Stage, verify and swap exact reviewed plugin over WEDOS explicit FTPS
+        if: vars.NRY_DEPLOY_TRANSPORT == 'ftps'
+        env:
+          NRY_FTPS_HOST: ${{ secrets.NRY_FTPS_HOST }}
+          NRY_FTPS_USER: ${{ secrets.NRY_FTPS_USER }}
+          NRY_FTPS_PASSWORD: ${{ secrets.NRY_FTPS_PASSWORD }}
+          NRY_FTPS_WP_CONTENT: ${{ vars.NRY_FTPS_WP_CONTENT }}
+        run: |
+          set -euo pipefail
+          python3 scripts/deploy_via_wedos_ftps.py preflight
+          python3 scripts/deploy_via_wedos_ftps.py deploy
 
 
       - name: Confirm active WordPress publisher and one-shot SHA-bound update
