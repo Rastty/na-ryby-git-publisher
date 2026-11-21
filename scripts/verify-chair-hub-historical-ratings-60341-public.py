@@ -7,7 +7,8 @@ It confirms rendering, not sales, stock, affiliate credit or source editing.
 import json
 import sys
 from html.parser import HTMLParser
-from urllib.request import Request, urlopen
+from urllib.request import Request
+from readonly_urlopen_retry import guarded_urlopen
 
 URL = 'https://na-ryby.eu/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/'
 MARKER = '<!-- nry-chair-hub-historical-ratings-60341-v1 -->'
@@ -71,7 +72,9 @@ def main():
         'User-Agent': 'NRY-ChairHub-HistoricIndependentPublic/1.0',
         'Cache-Control': 'no-cache, no-store'})
     try:
-        with urlopen(request, timeout=25) as response:
+        # Reuse the already-reviewed, same-origin GET-only transport retry.
+        # Semantic/hash mismatches still fail immediately, without retry.
+        with guarded_urlopen(request, timeout=25, attempts=3) as response:
             body = response.read(900001)
             if len(body) > 900000:
                 raise ValueError('PUBLIC_HTML_EXCEEDS_LIMIT')
