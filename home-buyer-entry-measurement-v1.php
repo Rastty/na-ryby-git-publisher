@@ -28,14 +28,14 @@ function nry_home_buyer_entry_enqueue_v1() {
         'nry-home-buyer-entry-v1',
         plugins_url('assets/nry-home-buyer-entry-v1.js', __FILE__),
         array(),
-        '1.1.0',
+        '1.2.0',
         true
     );
     wp_enqueue_style(
         'nry-home-buyer-entry-style-v1',
         plugins_url('assets/nry-home-buyer-entry-v1.css', __FILE__),
         array(),
-        '1.0.0',
+        '1.1.0',
         'all'
     );
 }
