@@ -43,19 +43,31 @@ $prefix="<h1>Romantický pobyt pro dva s rybařením</h1>\n"
 offer_check(hash('sha256',substr($prefix,0,$class::RENDERED_PREFIX_BYTES))===$class::RENDERED_PREFIX_SHA256,
     'precise public REST rendered prefix SHA');
 $source=$prefix.'<p><a href="https://na-ryby.eu/">původní odkaz</a></p>'
-    .$class::OLD_BUTTON.'<h2>Co si pod tím lidé obvykle představují</h2>'
+    .$class::OLD_BUTTON.'<p><a href="'.$class::CATEGORY.'">Další původní ubytování</a></p>'
+    .'<h2>Co si pod tím lidé obvykle představují</h2>'
     .str_repeat('původní redakční text.',110);
-$updated=$class::render($source);
+// The published raw WordPress bytes are intentionally NOT fabricated into a
+// fixture. Test the transform positively and the raw source lock negatively.
+offer_check($class::RAW_SHA256 === '17e8cc812393057c20343c3812c059291e3102421a2fbad94190ad73abada185'
+    && $class::RAW_BYTES === 14225, 'pin exact publicly proven raw WP source');
+offer_check($class::render($source)===$source, 'unapproved mock raw source cannot publish');
+$updated=$class::transform($source);
 offer_check($updated!==$source && strpos($updated,$class::MARKER)!==false, 'one top-fold offer block');
+offer_check(substr_count($updated,'href="'.$class::CATEGORY.'"')===2,
+    'both historical editor category URLs are retained');
 offer_check(substr_count($updated,'data-nry-romantic-offer=')===2, 'exactly two choices');
 offer_check(strpos($updated,'jen v jarních měsících')!==false, 'Hauzi seasonal fishing caveat remains visible');
 offer_check(strpos($updated,$class::OLD_BUTTON)===false, 'generic bright button replaced');
 offer_check(strpos($updated,'původní redakční text.')!==false, 'original body preserved');
-offer_check($class::render($updated)===$updated, 'idempotent');
-offer_check($class::render(str_replace('Když někdo hledá','Když někdo tvrdí',$source))
+offer_check($class::transform($updated)===$updated, 'idempotent');
+offer_check($class::transform(str_replace('Když někdo hledá','Když někdo tvrdí',$source))
     ===str_replace('Když někdo hledá','Když někdo tvrdí',$source), 'source prefix drift blocked');
-offer_check($class::render(str_replace('Mrknout na doporučené ubytování','Nové editorovo CTA',$source))
+offer_check($class::transform(str_replace('Mrknout na doporučené ubytování','Nové editorovo CTA',$source))
     ===str_replace('Mrknout na doporučené ubytování','Nové editorovo CTA',$source), 'anchor drift blocked');
+$oneLink=str_replace('<p><a href="'.$class::CATEGORY.'">Další původní ubytování</a></p>','',$source);
+offer_check($class::transform($oneLink)===$oneLink, 'missing second original URL must fail closed');
+$threeLinks=$source.'<p><a href="'.$class::CATEGORY.'">Third stale route</a></p>';
+offer_check($class::transform($threeLinks)===$threeLinks, 'extra editorial URL must fail closed');
 foreach (array('id'=>57014,'slug'=>'changed-slug','url'=>'https://na-ryby.eu/wrong/',
     'site'=>'https://wrong.example/','modified'=>'2026-04-19 12:01:56',
     'type'=>'page','status'=>'draft','raw'=>'other source',
@@ -65,10 +77,8 @@ foreach (array('id'=>57014,'slug'=>'changed-slug','url'=>'https://na-ryby.eu/wro
     $GLOBALS['ctx'][$key]=$old;
 }
 $class::enqueue();
-offer_check(count($GLOBALS['styles'])===1
-    && $GLOBALS['styles'][0]['ver']==='1.0.0'
-    && strpos($GLOBALS['styles'][0]['url'],'nry-romantic-stay-offers-57013-v1.css')!==false,
-    'scoped CSS enqueue');
+offer_check(count($GLOBALS['styles'])===0,
+    'wrong raw WP SHA must not enqueue new commercial CSS');
 // Explicit opt-in test uses only fake WordPress post content, no networking or writes.
 $GLOBALS['ctx']['raw'] = str_repeat('Romantický pobyt pro dva s rybařením. ', 110);
 $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -76,21 +86,8 @@ $_GET['nry_romantic_guard_probe'] = 'source_v1';
 $class::render($source);
 ob_start();
 $class::probe_footer();
-$out = ob_get_clean();
-offer_check(substr_count($out, 'NRY_ROMANTIC57013_PROBE_V1')===1, 'one opted-in source footer');
-offer_check(preg_match('/NRY_ROMANTIC57013_PROBE_V1 (\{.*\}) -->/', $out, $matches)===1,
-    'bounded JSON proof');
-$proof = json_decode($matches[1], true);
-offer_check($proof['postId'] === 57013 && $proof['renderCalls']===1,
-    'exact post render called once only on GET');
-offer_check($proof['rawSourceSha256']===hash('sha256',$GLOBALS['ctx']['raw'])
-    && $proof['rawSourceBytes']===strlen($GLOBALS['ctx']['raw']),
-    'source lock hashes raw post_content, not REST rendered');
-offer_check($proof['best']['prefixSha256']===hash('sha256',substr($source,0,512))
-    && $proof['best']['oldButtonCount']===1 && $proof['best']['headingCount']===1
-    && $proof['best']['categoryLinkCount']===1, 'source input anchors count');
-offer_check($proof['wordpressWrites']===0 && $proof['merchantRequests']===0
-    && $proof['syntheticClicks']===0, 'GET-only no mutation or tracking');
+offer_check(ob_get_clean()==='', 'invalid raw source cannot generate opt-in authoritative proof');
+
 unset($_GET['nry_romantic_guard_probe']);
 ob_start();
 $class::probe_footer();
