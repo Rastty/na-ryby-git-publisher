@@ -1,0 +1,55 @@
+.nry-sterkac-rules {
+  margin: 24px 0 30px;
+  padding: clamp(20px, 3vw, 30px);
+  border: 2px solid #087f62;
+  border-radius: 16px;
+  background: linear-gradient(125deg, #ecfff8 0%, #fffdf1 100%);
+  box-shadow: 0 10px 28px rgba(0, 70, 50, .10);
+  color: #143c30;
+  line-height: 1.6;
+}
+.nry-sterkac-rules .nry-sterkac-rules__eyebrow {
+  font-weight: 750;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-size: .82rem;
+  color: #08704f;
+}
+.nry-sterkac-rules h2 {
+  margin: 8px 0 16px;
+  color: #104d39;
+  line-height: 1.25;
+}
+.nry-sterkac-rules .nry-sterkac-rules__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 18px 0 12px;
+}
+.nry-sterkac-rules .nry-sterkac-rules__actions a {
+  display: inline-block;
+  min-height: 44px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  background: #075c45;
+  color: #fff !important;
+  font-weight: 700;
+  text-decoration: none !important;
+  text-align: center;
+}
+.nry-sterkac-rules .nry-sterkac-rules__actions a:last-child {
+  background: #fff;
+  color: #075c45 !important;
+  border: 2px solid #075c45;
+}
+.nry-sterkac-rules .nry-sterkac-rules__actions a:focus-visible {
+  outline: 3px solid #184ed0;
+  outline-offset: 3px;
+}
+.nry-sterkac-rules .nry-sterkac-rules__caveat {
+  font-size: .86rem;
+  margin: 10px 0 0;
+}
+@media (max-width: 520px) {
+  .nry-sterkac-rules .nry-sterkac-rules__actions a { width: 100%; }
+}
