@@ -55,6 +55,41 @@ final class NRY_Revir_Archive_Decision_Entry_V1 {
             .'</section>';
     }
 
+    /**
+     * The Newspaper archive renders its first batch of cards before calling
+     * loop_start on the main query. So the guarded section is emitted after
+     * that batch. Capture only this exact public category response and move
+     * its identical fragment directly after the single archive H1.
+     * If any expected byte/pattern drifts, return original HTML unmodified.
+     */
+    public static function place_after_archive_title($html) {
+        if (!is_string($html) || strlen($html) < 5000
+            || substr_count($html, self::MARKER) !== 1) return $html;
+        $block = self::block();
+        if (substr_count($html, $block) !== 1) return $html;
+        $pattern = '~<h1\\b[^>]*>\\s*Soukromé rybářské revíry\\s*</h1>~u';
+        $matches = array();
+        if (preg_match_all($pattern, $html, $matches, PREG_OFFSET_CAPTURE) !== 1
+            || !isset($matches[0][0][0], $matches[0][0][1])) return $html;
+        $title = $matches[0][0][0];
+        $titleAt = $matches[0][0][1];
+        $fragmentAt = strpos($html, $block);
+        if ($fragmentAt === false || $fragmentAt <= $titleAt + strlen($title)) return $html;
+        $without = substr_replace($html, '', $fragmentAt, strlen($block));
+        if (substr_count($without, $title) !== 1) return $html;
+        $updated = str_replace($title, $title.$block, $without);
+        if (substr_count($updated, $block) !== 1
+            || strlen($updated) !== strlen($html)
+            || strpos($updated, $title.$block) === false) return $html;
+        return $updated;
+    }
+
+    public static function start_archive_buffer() {
+        if (self::eligible() && function_exists('ob_start')) {
+            ob_start(array(__CLASS__, 'place_after_archive_title'));
+        }
+    }
+
     public static function render_on_main_loop($query) {
         if (self::$done || !is_object($query)
             || !method_exists($query,'is_main_query')
@@ -73,6 +108,7 @@ final class NRY_Revir_Archive_Decision_Entry_V1 {
 
     public static function boot() {
         if (function_exists('add_action')) {
+            add_action('template_redirect', array(__CLASS__,'start_archive_buffer'), 1);
             add_action('loop_start', array(__CLASS__,'render_on_main_loop'), 8, 1);
             add_action('wp_enqueue_scripts', array(__CLASS__,'enqueue'), 25);
         }
