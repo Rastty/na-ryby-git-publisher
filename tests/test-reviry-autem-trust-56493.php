@@ -51,6 +51,8 @@ foreach (array($c::LIPNO,$c::ORLIK,$c::DYJE,$c::RULES) as $url) {
 }
 chk(strpos($after,'https://www.podyji.cz/')!==false,'historical links preserved');
 chk($c::transform($after)===$after,'idempotence');
+$bolded = str_replace('<h2>Kam se dostanete autem</h2>', '<h2><strong>Kam se dostanete autem</strong></h2>', $before);
+chk(strpos($c::transform($bolded), $c::MARKER)!==false,'historical bold heading supported');
 foreach (array(
     str_replace($c::BAD_ORLIK,'old editor text',$before),
     str_replace($c::OLD_PODYJI,'other park',$before),
