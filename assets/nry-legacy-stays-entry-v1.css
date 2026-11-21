@@ -1,0 +1,13 @@
+/* Scope entirely to the exact historic /ubytovani-2/ first-choice section. */
+.nry-legacy-stays-entry{box-sizing:border-box;clear:both;margin:0 0 24px;padding:22px;border:1px solid #d9e7df;border-radius:12px;background:#f7faf8;color:#183629;font:inherit}
+.nry-legacy-stays-entry *{box-sizing:border-box}
+.nry-legacy-stays-entry__eyebrow{margin:0 0 5px;font-size:12px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:#276645}
+.nry-legacy-stays-entry h2{font-size:clamp(21px,2.4vw,28px);line-height:1.25;margin:0 0 8px;color:#183629}
+.nry-legacy-stays-entry p{line-height:1.55;margin:0 0 14px}
+.nry-legacy-stays-entry__choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px;margin:15px 0}
+.nry-legacy-stays-entry__choices a{display:block;padding:14px;border-radius:8px;border:1px solid #cbded1;background:#fff;color:#165637;text-decoration:none;line-height:1.4}
+.nry-legacy-stays-entry__choices a strong{display:block;font-weight:700;margin-bottom:5px}
+.nry-legacy-stays-entry__choices a span{display:block;font-size:14px;color:#40554a}
+.nry-legacy-stays-entry__choices a:hover,.nry-legacy-stays-entry__choices a:focus-visible{border-color:#347b50;outline:2px solid #347b50;outline-offset:1px}
+.nry-legacy-stays-entry .nry-legacy-stays-entry__note{font-size:13px;margin:0;color:#496354}
+@media(max-width:480px){.nry-legacy-stays-entry{padding:15px}.nry-legacy-stays-entry__choices{grid-template-columns:1fr}}

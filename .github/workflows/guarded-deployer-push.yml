@@ -56,6 +56,8 @@ on:
       - 'scripts/verify-revir-archive-entry-public.py'
       - '.github/workflows/revir-archive-decision-entry-v1.yml'
       - 'legacy-map-discovery-bridge-v1.php'
+      - 'legacy-stays-archive-entry-v1.php'
+      - 'assets/nry-legacy-stays-entry-v1.css'
       - 'gsc-revir-stays-seo-20261120-v1.php'
       - 'tests/test-home-advisor-seo-snippets-v1.php'
       - 'scripts/verify-home-advisor-seo-public.py'
@@ -380,6 +382,8 @@ on:
       - 'revir-archive-decision-entry-v1.php'
       - 'assets/nry-revir-archive-entry-v1.css'
       - 'legacy-map-discovery-bridge-v1.php'
+      - 'legacy-stays-archive-entry-v1.php'
+      - 'assets/nry-legacy-stays-entry-v1.css'
       - 'gsc-revir-stays-seo-20261120-v1.php'
       - 'nry-privacy-contact-cleanup-v1.php'
       - 'carp-pillar-source-proof-118541-v1.php'
@@ -491,6 +495,9 @@ jobs:
           php -l guarded-auto-publisher.php
           php -l revir-archive-decision-entry-v1.php
           php tests/test-revir-archive-decision-entry-v1.php
+          php -l legacy-stays-archive-entry-v1.php
+          php tests/test-legacy-stays-archive-entry-v1.php
+          python3 tests/test-legacy-stays-archive-public.py
           php -l legacy-map-discovery-bridge-v1.php
           php tests/test-legacy-map-discovery-bridge-v1.php
           python3 tests/test-legacy-map-public-order.py
@@ -534,6 +541,9 @@ jobs:
           python3 tests/test-wedos-ftps-transport.py
           php -l revir-archive-decision-entry-v1.php
           php tests/test-revir-archive-decision-entry-v1.php
+          php -l legacy-stays-archive-entry-v1.php
+          php tests/test-legacy-stays-archive-entry-v1.php
+          python3 tests/test-legacy-stays-archive-public.py
           php -l legacy-map-discovery-bridge-v1.php
           php tests/test-legacy-map-discovery-bridge-v1.php
           python3 tests/test-legacy-map-public-order.py
