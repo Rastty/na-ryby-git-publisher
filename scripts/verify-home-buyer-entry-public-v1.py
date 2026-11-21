@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Public, read-only proof of homepage buyer-entry instrumentation.
 
---preflight confirms the existing five-route public baseline or the six-route
+--preflight confirms the existing six-route public baseline or the eight-route
 candidate, plus the advisor callout.
 Normal mode additionally requires exact versioned plugin JS + CSS tags and
 byte identity with both reviewed local assets. No analytics events are emitted.
@@ -26,6 +26,8 @@ BUYER_PATHS = (
     '/jak-vybrat-zavazeci-lodku/',
     '/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/',
     '/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/',
+    '/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/',
+    '/category/soukrome-rybarske-reviry/',
 )
 
 
@@ -43,7 +45,7 @@ class Homepage(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
-        if tag == 'nav' and a.get('data-nry-home-problem-shortcuts') in ('v3', 'v4'):
+        if tag == 'nav' and a.get('data-nry-home-problem-shortcuts') in ('v4', 'v5'):
             self.in_nav += 1
             self.nav_versions.append(a['data-nry-home-problem-shortcuts'])
         elif tag == 'p' and a.get('data-nry-home-advisor-entry') == 'v1':
@@ -75,10 +77,10 @@ def verify_home(html, preflight=False):
     if doc.canonicals != [HOME]:
         raise ValueError('HOMEPAGE_CANONICAL_MISMATCH')
     expected = tuple(HOME.rstrip('/') + x for x in BUYER_PATHS)
-    current = doc.nav_versions == ['v4'] and tuple(doc.routes) == expected
-    baseline = doc.nav_versions == ['v3'] and tuple(doc.routes) == expected[:-1]
+    current = doc.nav_versions == ['v5'] and tuple(doc.routes) == expected
+    baseline = doc.nav_versions == ['v4'] and tuple(doc.routes) == expected[:-2]
     if not current and not (preflight and baseline):
-        raise ValueError('SIX_HOMEPAGE_BUYER_ROUTES_NOT_LIVE')
+        raise ValueError('EIGHT_HOMEPAGE_BUYER_ROUTES_NOT_LIVE')
     if doc.advisor != [HOME + 'poradce-vybavy/']:
         raise ValueError('EXACT_HOMEPAGE_ADVISOR_LINK_MISSING')
     if preflight:
@@ -88,13 +90,13 @@ def verify_home(html, preflight=False):
         raise ValueError('ONE_HOMEPAGE_MEASUREMENT_SCRIPT_REQUIRED')
     src = urlsplit(doc.scripts[0])
     if (src.scheme != 'https' or src.netloc != 'na-ryby.eu' or src.path != SCRIPT_PATH
-            or parse_qs(src.query) != {'ver': ['1.1.0']} or src.fragment):
+            or parse_qs(src.query) != {'ver': ['1.2.0']} or src.fragment):
         raise ValueError('HOMEPAGE_SCRIPT_IDENTITY_MISMATCH')
     if len(doc.styles) != 1:
         raise ValueError('ONE_HOMEPAGE_BUYER_STYLESHEET_REQUIRED')
     css = urlsplit(doc.styles[0])
     if (css.scheme != 'https' or css.netloc != 'na-ryby.eu' or css.path != STYLE_PATH
-            or parse_qs(css.query) != {'ver': ['1.0.0']} or css.fragment):
+            or parse_qs(css.query) != {'ver': ['1.1.0']} or css.fragment):
         raise ValueError('HOMEPAGE_STYLE_IDENTITY_MISMATCH')
     return {'state': 'HOMEPAGE_BUYER_ASSETS_DECLARED', 'script_url': doc.scripts[0],
             'style_url': doc.styles[0]}

@@ -19,20 +19,20 @@ p[data-nry-home-advisor-entry="v1"] a {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-nav[data-nry-home-problem-shortcuts="v4"] {
+nav[data-nry-home-problem-shortcuts="v5"] {
   color: #fff;
   margin: 22px 0 28px;
 }
-nav[data-nry-home-problem-shortcuts="v4"] > p {
+nav[data-nry-home-problem-shortcuts="v5"] > p {
   color: #fff !important;
   font-size: 18px;
   line-height: 1.5;
   margin: 0 0 15px !important;
 }
-nav[data-nry-home-problem-shortcuts="v4"] > p strong {
+nav[data-nry-home-problem-shortcuts="v5"] > p strong {
   color: #fff !important;
 }
-nav[data-nry-home-problem-shortcuts="v4"] ul {
+nav[data-nry-home-problem-shortcuts="v5"] ul {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
@@ -40,12 +40,12 @@ nav[data-nry-home-problem-shortcuts="v4"] ul {
   padding: 0 !important;
   margin: 0 !important;
 }
-nav[data-nry-home-problem-shortcuts="v4"] li {
+nav[data-nry-home-problem-shortcuts="v5"] li {
   margin: 0 !important;
   padding: 0 !important;
   list-style: none !important;
 }
-nav[data-nry-home-problem-shortcuts="v4"] a {
+nav[data-nry-home-problem-shortcuts="v5"] a {
   display: flex;
   align-items: center;
   min-height: 68px;
@@ -60,7 +60,7 @@ nav[data-nry-home-problem-shortcuts="v4"] a {
   text-decoration: none !important;
   transition: background-color .16s ease, border-color .16s ease;
 }
-nav[data-nry-home-problem-shortcuts="v4"] a::before {
+nav[data-nry-home-problem-shortcuts="v5"] a::before {
   content: "›";
   display: inline-block;
   flex: 0 0 18px;
@@ -69,25 +69,25 @@ nav[data-nry-home-problem-shortcuts="v4"] a::before {
   font-size: 28px;
   line-height: 1;
 }
-nav[data-nry-home-problem-shortcuts="v4"] a:hover {
+nav[data-nry-home-problem-shortcuts="v5"] a:hover {
   background: rgba(24, 75, 73, .95);
   border-color: #bdf5df;
 }
-nav[data-nry-home-problem-shortcuts="v4"] a:focus-visible,
+nav[data-nry-home-problem-shortcuts="v5"] a:focus-visible,
 p[data-nry-home-advisor-entry="v1"] a:focus-visible {
   outline: 3px solid #bdf5df;
   outline-offset: 3px;
 }
 @media (max-width: 720px) {
-  nav[data-nry-home-problem-shortcuts="v4"] ul {
+  nav[data-nry-home-problem-shortcuts="v5"] ul {
     grid-template-columns: minmax(0, 1fr);
   }
-  nav[data-nry-home-problem-shortcuts="v4"] a {
+  nav[data-nry-home-problem-shortcuts="v5"] a {
     min-height: 56px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  nav[data-nry-home-problem-shortcuts="v4"] a {
+  nav[data-nry-home-problem-shortcuts="v5"] a {
     transition: none;
   }
 }

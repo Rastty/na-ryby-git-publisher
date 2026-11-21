@@ -10,8 +10,9 @@ final class NRY_Home_Advisor_Entry_118641_V1 {
     const MARKER = 'data-nry-home-advisor-entry="v1"';
     const HERO = 'Průvodci výběrem vybavení, praktické rady, testy, srovnání i inspirace k vodě. Přehledně, vizuálně a bez zbytečného chaosu pro začátečníky i zkušené rybáře.';
     const ADVISOR = 'https://na-ryby.eu/poradce-vybavy/';
-    const PROBLEMS_MARKER = 'data-nry-home-problem-shortcuts="v4"';
-    const PREVIOUS_PROBLEMS_MARKER = 'data-nry-home-problem-shortcuts="v3"';
+    const PROBLEMS_MARKER = 'data-nry-home-problem-shortcuts="v5"';
+    const PREVIOUS_PROBLEMS_MARKER = 'data-nry-home-problem-shortcuts="v4"';
+    const OLDER_PROBLEMS_MARKER = 'data-nry-home-problem-shortcuts="v3"';
     const LEGACY_PROBLEMS_MARKER = 'data-nry-home-problem-shortcuts="v2"';
     const OLDEST_PROBLEMS_MARKER = 'data-nry-home-problem-shortcuts="v1"';
     const CARP_GUIDE = 'https://na-ryby.eu/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/';
@@ -20,7 +21,9 @@ final class NRY_Home_Advisor_Entry_118641_V1 {
     const BAITBOAT_BUYER = 'https://na-ryby.eu/jak-vybrat-zavazeci-lodku/';
     const CHAIR_HUB = 'https://na-ryby.eu/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/';
     const BIVAK_BUYER = 'https://na-ryby.eu/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/';
-    const PROBLEM_SHORTCUTS = '<nav data-nry-home-problem-shortcuts="v4" aria-label="Rychlé cesty podle rybářského problému">'
+    const STAY_GUIDE = 'https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/';
+    const REVIR_ARCHIVE = 'https://na-ryby.eu/category/soukrome-rybarske-reviry/';
+    const PROBLEM_SHORTCUTS = '<nav data-nry-home-problem-shortcuts="v5" aria-label="Rychlé cesty podle rybářského problému">'
         .'<p><strong>Co právě potřebujete vyřešit?</strong> Vyberte nejkratší cestu k praktickému návodu:</p>'
         .'<ul><li><a href="https://na-ryby.eu/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/">'
         .'Vybírám kaprový prut podle vody a stylu lovu</a></li>'
@@ -33,7 +36,11 @@ final class NRY_Home_Advisor_Entry_118641_V1 {
         .'<li><a href="https://na-ryby.eu/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/">'
         .'Vybírám rybářské křeslo podle pohodlí a nosnosti</a></li>'
         .'<li><a href="https://na-ryby.eu/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/">'
-        .'Vybírám bivak podle délky výpravy a prostoru</a></li></ul></nav>';
+        .'Vybírám bivak podle délky výpravy a prostoru</a></li>'
+        .'<li><a href="https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/">'
+        .'Plánuji rybářský pobyt u vody</a></li>'
+        .'<li><a href="https://na-ryby.eu/category/soukrome-rybarske-reviry/">'
+        .'Hledám soukromý rybářský revír</a></li></ul></nav>';
     const INSERT = '<p data-nry-home-advisor-entry="v1"><strong>Nevíte, čím začít?</strong> '
         .'Získejte orientační doporučení prutu a navijáku podle stylu rybaření, '
         .'typu vody a rozpočtu. <a href="https://na-ryby.eu/poradce-vybavy/">'
@@ -73,6 +80,7 @@ final class NRY_Home_Advisor_Entry_118641_V1 {
             || substr_count($html, self::MARKER) !== 0
             || substr_count($html, self::PROBLEMS_MARKER) !== 0
             || substr_count($html, self::PREVIOUS_PROBLEMS_MARKER) !== 0
+            || substr_count($html, self::OLDER_PROBLEMS_MARKER) !== 0
             || substr_count($html, self::LEGACY_PROBLEMS_MARKER) !== 0
             || substr_count($html, self::OLDEST_PROBLEMS_MARKER) !== 0
             || substr_count($html, self::HERO) !== 1) return $html;
