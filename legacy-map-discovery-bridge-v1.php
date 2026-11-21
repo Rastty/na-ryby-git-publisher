@@ -12,6 +12,7 @@ final class NRY_Legacy_Map_Discovery_Bridge_V1 {
     const PAGE_URL = 'https://na-ryby.eu/dovolena-u-vody/';
     const MAP_URL_TOKEN = 'mapsengine.google.com/map/embed?mid=z3EK_WPx5q6o.ksrmQWY0S3AE';
     const MARKER = 'data-nry-map-discovery="v1"';
+    const REVIR_GUIDE = 'https://na-ryby.eu/category/soukrome-rybarske-reviry/';
     const RULES_GUIDE = 'https://na-ryby.eu/jak-cist-soupis-reviru-a-ris-cislo-reviru-podrevir-a-podminky/';
     const STAYS_GUIDE = 'https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/';
 
@@ -42,6 +43,7 @@ final class NRY_Legacy_Map_Discovery_Bridge_V1 {
         if (!is_string($html) || strpos($html, self::MARKER) !== false
             || substr_count($html, self::MAP_URL_TOKEN) !== 1
             || substr_count($html, '<iframe') !== 1
+            || strpos($html, self::REVIR_GUIDE) !== false
             || strpos($html, self::RULES_GUIDE) !== false
             || strpos($html, self::STAYS_GUIDE) !== false) return $html;
         $urlAt = strpos($html, self::MAP_URL_TOKEN);
@@ -56,7 +58,8 @@ final class NRY_Legacy_Map_Discovery_Bridge_V1 {
         $block = '<section class="nry-map-discovery" '.self::MARKER.'>'
             .'<h2>Jak ověřit revír a naplánovat pobyt u vody</h2>'
             .'<p>Mapa slouží k orientaci. Před výpravou ověřte aktuální hranice revíru, povolenku, místní pravidla a dostupnost ubytování.</p>'
-            .'<ul><li><a href="'.self::RULES_GUIDE.'">Jak najít a ověřit revír v RIS a soupisu</a></li>'
+            .'<ul><li><a href="'.self::REVIR_GUIDE.'">Prohlédnout soukromé revíry podle oblasti</a></li>'
+            .'<li><a href="'.self::RULES_GUIDE.'">Jak najít a ověřit revír v RIS a soupisu</a></li>'
             .'<li><a href="'.self::STAYS_GUIDE.'">Rybářské pobyty a konkrétní možnosti ubytování</a></li></ul>'
             .'</section>';
         $insertAt = $openAt;
