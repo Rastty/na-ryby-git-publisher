@@ -491,6 +491,9 @@ jobs:
           php -l guarded-auto-publisher.php
           php -l revir-archive-decision-entry-v1.php
           php tests/test-revir-archive-decision-entry-v1.php
+          php -l legacy-map-discovery-bridge-v1.php
+          php tests/test-legacy-map-discovery-bridge-v1.php
+          python3 tests/test-legacy-map-public-order.py
           python3 -m py_compile scripts/verify-revir-archive-entry-public.py
           php -l advisor-existing-page-release-v1.php
           php tests/test-native-kses-write-contract.php
@@ -531,6 +534,9 @@ jobs:
           python3 tests/test-wedos-ftps-transport.py
           php -l revir-archive-decision-entry-v1.php
           php tests/test-revir-archive-decision-entry-v1.php
+          php -l legacy-map-discovery-bridge-v1.php
+          php tests/test-legacy-map-discovery-bridge-v1.php
+          python3 tests/test-legacy-map-public-order.py
           python3 -m py_compile scripts/verify-revir-archive-entry-public.py
           php -l advisor-existing-page-release-v1.php
           php -l hracholusky-stay-trust-17606-v1.php
