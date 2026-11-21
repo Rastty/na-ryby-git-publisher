@@ -17,14 +17,36 @@ ctas = ''.join('<article data-nry-sport-offer="' + offer + '"><a href="' + link.
                '" rel="sponsored nofollow noopener" target="_blank">Pobyt</a></article>'
                for offer, link in m['OFFERS'])
 block = '<section data-nry-sport-stays="v1">' + ctas + '<a href="' + m['STAYS'] + '">Další</a></section>'
-ready = (src.replace('</head>', style + script + '</head>') + block +
-         ('<p><a href="' + m['STAYS'] + '">Nová cesta</a></p>') * 3 + banner + '</body></html>').encode()
+ready = (src.replace('</head>', style + script + '</head>') +
+         '<div class="td-post-content">' + block +
+         ('<p><a href="' + m['STAYS'] + '">Nová cesta</a></p>') * 3 +
+         '</div>' + banner + '</body></html>').encode()
 css = (root / 'assets/nry-sport-stays-85384-v1.css').read_bytes()
 js = (root / 'assets/nry-buyer-clicks-v1.js').read_bytes()
 def deployed(doc, *, css_content=css, js_content=js):
     return m['verify'](doc, deployed=True, css_bytes=css_content, js_bytes=js_content,
                        reviewed_css=css, reviewed_js=js)
 assert deployed(ready)['exactSponsoredOffers'] == 3
+counts = m['diagnostic_counts'](ready)
+assert counts['status'] == 'SPORT_STAYS_LINK_DISTRIBUTION_OBSERVED_NOT_VERIFIED'
+assert counts['publicPageNewStayLinks'] == 4
+assert counts['publicPageOldBookingLinks'] == 1
+assert counts['panelInternalStayLinks'] == 1 and counts['offerCardCount'] == 3
+assert counts['postContentRegionCount'] == 1
+assert counts['articleNewStayLinks'] == 4 and counts['articleOldBookingLinks'] == 0
+# Additional unrelated internal navigation must not change the article proof.
+extra = ('<nav>' + ('<a href="' + m['STAYS'] + '">Region</a>') * 3 + '</nav>').encode()
+ready_with_nav = ready.replace(b'</body>', extra + b'</body>')
+nav_counts = m['diagnostic_counts'](ready_with_nav)
+assert nav_counts['publicPageNewStayLinks'] == 7
+assert nav_counts['articleNewStayLinks'] == 4
+assert nav_counts['articleOldBookingLinks'] == 0
+# Public confirmation requires four routes in the article; extra nav is okay.
+assert deployed(ready_with_nav)['articleNewStayLinks'] == 4
+assert deployed(ready_with_nav)['otherFirstPartyStayLinks'] == 3
+assert deployed(ready_with_nav)['articleOldBookingLinks'] == 0
+assert counts['merchantRequests'] == counts['wordpressWrites'] == counts['syntheticClicks'] == 0
+assert all('https://' not in str(val) for val in counts.values())
 assert m['verify_current'](ready, css_bytes=css, js_bytes=js,
                            reviewed_css=css, reviewed_js=js)['status'] == 'SPORT_STAYS_OFFERS_PUBLIC_VERIFIED'
 def blocked(doc, *, css_content=css, js_content=js):
@@ -33,6 +55,15 @@ def blocked(doc, *, css_content=css, js_content=js):
     except AssertionError:
         return
     raise AssertionError('public source or affiliate drift wrongly accepted')
+# A stale source link inside the article must still be rejected, even if the
+# sitewide banner is swapped to preserve global old/new link counts.
+article_link = ('<p><a href="' + m['STAYS'] + '">Nová cesta</a></p>').encode()
+stale_link = ('<p><a href="' + m['LEGACY'] + '">Nová cesta</a></p>').encode()
+other_link = ('<a href="' + m['LEGACY'] + '">Globální navigace</a>').encode()
+replacement = ('<a href="' + m['STAYS'] + '">Globální navigace</a>').encode()
+balanced_wrong = ready_with_nav.replace(article_link, stale_link, 1).replace(other_link, replacement, 1)
+blocked(balanced_wrong)
+blocked(ready_with_nav.replace(article_link, b'', 1))
 blocked(base)
 blocked(ready.replace(b'postid-85384',b'postid-92205'))
 blocked(ready.replace(m['PAGE'].encode(), b'/wrong-page/'))

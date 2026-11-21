@@ -47,9 +47,22 @@ class Surface(HTMLParser):
         self.anchors = []
         self.all_links = []
         self.body_classes = []
+        # TagDiv's genuine post body is distinct from the header/banner/footer.
+        # Track only DIV ancestry, not generic (possibly void) element depth.
+        self.div_depth = 0
+        self.article_div_depth = None
+        self.article_region_count = 0
+        self.article_links = []
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
+        if tag == 'div':
+            self.div_depth += 1
+            if 'td-post-content' in (a.get('class') or '').split():
+                if self.article_div_depth is not None:
+                    raise ValueError('NESTED_WORDPRESS_ARTICLE_WRAPPER')
+                self.article_div_depth = self.div_depth
+                self.article_region_count += 1
         if tag == 'body':
             self.body_classes = (a.get('class') or '').split()
         if tag == 'link' and 'canonical' in (a.get('rel') or '').split():
@@ -69,12 +82,20 @@ class Surface(HTMLParser):
             self.offers.append(a.get('data-nry-sport-offer'))
         if tag == 'a':
             self.all_links.append(a.get('href'))
+            if self.article_div_depth is not None:
+                self.article_links.append(a.get('href'))
             if self.inside:
                 self.anchors.append((a.get('href'), a.get('rel'), a.get('target')))
 
     def handle_endtag(self, tag):
         if tag == 'section' and self.inside:
             self.inside = False
+        if tag == 'div':
+            if self.article_div_depth == self.div_depth:
+                self.article_div_depth = None
+            self.div_depth -= 1
+            if self.div_depth < 0:
+                raise ValueError('UNBALANCED_WORDPRESS_DIVS')
 
 
 def verify(html, *, deployed, css_bytes=b'', js_bytes=b'', reviewed_css=b'', reviewed_js=b''):
@@ -98,13 +119,21 @@ def verify(html, *, deployed, css_bytes=b'', js_bytes=b'', reviewed_css=b'', rev
     expected = [(url, 'sponsored nofollow noopener', '_blank') for _, url in OFFERS]
     expected.append((STAYS, None, None))
     assert surface.anchors == expected, 'AFFILIATE_URL_OR_SPONSORSHIP_DRIFT'
+    assert surface.article_region_count == 1, 'EXACT_WORDPRESS_ARTICLE_REGION_REQUIRED'
+    assert surface.article_links.count(LEGACY) == 0, 'OLD_BOOKING_ROUTE_REMAINS_INSIDE_ARTICLE'
+    assert surface.article_links.count(STAYS) == 4, 'THREE_OLD_BOOKING_PATHS_NOT_REPAIRED'
+    # Current public HTML has three additional first-party links to STAYS in
+    # header/footer navigation. Those do not affect the article's four routes.
     assert surface.all_links.count(LEGACY) == 1, 'ONLY_SITEWIDE_LEGACY_BANNER_MAY_REMAIN'
-    assert surface.all_links.count(STAYS) == 4, 'THREE_OLD_BOOKING_PATHS_NOT_REPAIRED'
+    assert surface.all_links.count(STAYS) >= 4, 'PUBLIC_STAYS_LINKS_MISSING'
     assert surface.styles == [CSS_VERSION] and surface.scripts == [JS_VERSION], 'CSS_OR_JS_ASSET_NOT_EXACT'
     assert css_bytes == reviewed_css and len(css_bytes) > 800, 'CSS_BYTES_NOT_REVIEWED'
     assert js_bytes == reviewed_js and len(js_bytes) > 3000, 'JS_BYTES_NOT_REVIEWED'
     return {'status': 'SPORT_STAYS_OFFERS_PUBLIC_VERIFIED', 'postId': 85384,
             'exactSponsoredOffers': len(OFFERS), 'oldBookingLinksRepaired': 3,
+            'articleNewStayLinks': surface.article_links.count(STAYS),
+            'articleOldBookingLinks': surface.article_links.count(LEGACY),
+            'otherFirstPartyStayLinks': surface.all_links.count(STAYS) - 4,
             'sitewideLegacyBannerLinksUnchanged': 1,
             'cssByteIdentical': True, 'clickScriptByteIdentical': True,
             'clickObservationEnabled': True, 'ga4DeliveryProven': False,
@@ -112,6 +141,27 @@ def verify(html, *, deployed, css_bytes=b'', js_bytes=b'', reviewed_css=b'', rev
             'jsSha256': hashlib.sha256(js_bytes).hexdigest(),
             'wordpressWrites': 0, 'merchantRequests': 0, 'syntheticClicks': 0,
             'realClicks': None, 'fulfilledReservations': None, 'paidCommissions': None}
+
+
+def diagnostic_counts(html):
+    """GET-only metadata: never print commercial URLs, visitor IDs or HTML."""
+    surface = Surface()
+    surface.feed(html.decode('utf-8', 'replace'))
+    surface.close()
+    return {
+        "status": "SPORT_STAYS_LINK_DISTRIBUTION_OBSERVED_NOT_VERIFIED",
+        "canonicalMatched": surface.canonicals == [ORIGIN + PAGE],
+        "postIdentityMatched": "postid-85384" in surface.body_classes,
+        "offerSectionCount": surface.sections,
+        "offerCardCount": len(surface.offers),
+        "panelInternalStayLinks": sum(1 for href, _, _ in surface.anchors if href == STAYS),
+        "postContentRegionCount": surface.article_region_count,
+        "articleNewStayLinks": surface.article_links.count(STAYS),
+        "articleOldBookingLinks": surface.article_links.count(LEGACY),
+        "publicPageOldBookingLinks": surface.all_links.count(LEGACY),
+        "publicPageNewStayLinks": surface.all_links.count(STAYS),
+        "wordpressWrites": 0, "merchantRequests": 0, "syntheticClicks": 0,
+    }
 
 
 def has_deployed_marker(html):
@@ -145,7 +195,10 @@ def get(url, limit):
 
 
 def main():
-    assert sys.argv[1:] in (['--preflight'], ['--verify'], ['--current']), 'PHASE_REQUIRED'
+    assert sys.argv[1:] in (['--preflight'], ['--verify'], ['--current'], ['--diagnose']), 'PHASE_REQUIRED'
+    if sys.argv[1:] == ['--diagnose']:
+        print(json.dumps(diagnostic_counts(get(ORIGIN + PAGE, 2_000_000)), sort_keys=True))
+        return
     mode = sys.argv[1]
     proof = json.loads(get(PROOF, 12000))
     assert proof['state'] == 'SOURCE_SHA_AVAILABLE_NO_PUBLICATION' \
