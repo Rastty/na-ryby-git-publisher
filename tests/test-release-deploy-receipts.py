@@ -62,6 +62,6 @@ for secret in ("GITHUB_TOKEN", "CHYTRYRYBAR_WEDOS", "NRY_FTPS_PASSWORD"):
     assert secret not in m.render_comment(run, MAIN, good, {"map": "HTTP_401"})
 assert m.REPO == "Rastty/na-ryby-git-publisher" and m.ISSUE == 349
 assert len(m.EXPECTED) == 3
-assert all("https://na-ryby.eu/" in (p.parent.parent / "scripts" / p.name).as_posix()
-           for p in [])  # no network fixture; GET URLs are read from fixed verifiers.
+# The only public check inputs are three existing exact verifier modules.
+assert set(m.EXPECTED) == {"map", "stays", "private_waters"}
 print("NRY_RELEASE_LEDGER_OFFLINE_VERIFIED")
