@@ -262,7 +262,23 @@ def decide(feed_rows, products, limit=20):
     return changes, counts
 
 
+def verify_created_draft(saved, item, expected_id):
+    if not isinstance(saved, dict) or saved.get("id") != expected_id:
+        raise ValueError("draft_readback_id_mismatch")
+    expected = {"sku": item["sku"], "type": "external", "status": "draft",
+                "catalog_visibility": "hidden", "product_url": item["external_url"],
+                "regular_price": item["regular_price"]}
+    if any(saved.get(key) != value for key, value in expected.items()):
+        raise ValueError("draft_readback_state_mismatch")
+    meta = saved.get("meta_data")
+    if not isinstance(meta, list) or not any(
+            isinstance(m, dict) and m.get("key") == "_nry_cj_source"
+            and m.get("value") == SOURCE for m in meta):
+        raise ValueError("draft_readback_source_missing")
+
+
 def apply_changes(changes):
+    verified = 0
     for operation, product_id, item in changes:
         if operation != "create" or product_id is not None:
             raise ValueError("pilot_forbids_existing_product_writes")
@@ -271,7 +287,16 @@ def apply_changes(changes):
                 "regular_price": item["regular_price"], "status": "draft",
                 "catalog_visibility": "hidden", "description": item["description"],
                 "meta_data": [{"key": "_nry_cj_source", "value": SOURCE}]}
-        wc_request("", "POST", body)
+        created = wc_request("", "POST", body)
+        if not isinstance(created, dict) or type(created.get("id")) is not int \
+                or created["id"] <= 0:
+            raise ValueError("draft_create_receipt_missing")
+        # POST success is not proof of a hidden draft. Verify exact ID via GET
+        # before the next write. Never retry an ambiguous POST.
+        saved = wc_request("/" + str(created["id"]), "GET")
+        verify_created_draft(saved, item, created["id"])
+        verified += 1
+    return verified
 
 
 def main():
@@ -294,8 +319,9 @@ def main():
                       "sample": [{"action": op, "sku": i["sku"]} for op, _, i in changes[:5]]},
                      ensure_ascii=False))
     if args.apply:
-        apply_changes(changes)
-        print(json.dumps({"status": "DRAFT_ONLY_WRITES_FINISHED", "actions_attempted": len(changes)}))
+        verified = apply_changes(changes)
+        print(json.dumps({"status": "DRAFT_ONLY_CREATES_READBACK_VERIFIED",
+                          "actions_verified": verified}))
 
 
 if __name__ == "__main__":
