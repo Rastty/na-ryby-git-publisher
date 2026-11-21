@@ -157,7 +157,7 @@ def verify_public(html, css, source, css_reviewed):
 
 
 # Must equal the exact approved raw-source proof. A pending value is disarmed.
-EXPECTED_RAW_SHA256 = "0000000000000000000000000000000000000000000000000000000000000000"
+EXPECTED_RAW_SHA256 = "71372809934bc056f73f3e918be4e4c45d238c360d1e5155252c508cc9cd2491"
 
 
 def get(url, ceiling):
