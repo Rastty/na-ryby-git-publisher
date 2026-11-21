@@ -9,9 +9,12 @@ function is_single($postId = null) { return false; }
 function check($condition, $label) { if (!$condition) throw new RuntimeException($label); }
 require dirname(__DIR__).'/sterkac-rules-repair-12040-v1.php';
 $cls = 'NRY_Sterkac_Rules_12040_V1';
-check(!$cls::armed(), 'not armed before source proof');
-check($GLOBALS['filters'] === array() && $GLOBALS['actions'] === array(),
-    'no hook at all until source SHA independently confirmed');
+check($cls::armed(), 'source proof SHA must be pinned after independent live run');
+check($cls::VERIFIED_RAW_SHA256 === '12871a357e56edbfdd9dca38b4fac1ea14eca0d3fefcc1e4b44b4bd30752142b',
+    'exact public source proof #44882948563');
+check($GLOBALS['filters'] === array('the_content')
+    && $GLOBALS['actions'] === array('wp_enqueue_scripts', 'template_redirect'),
+    'only scoped render / stylesheet / GET document hooks after source proof');
 
 $h = $cls::HEADING;
 $h .= '<p><strong>Rychlá odpověď:</strong> Sezóna od dubna do listopadu, háčky bez protihrotu; '
@@ -48,4 +51,4 @@ $doc = '<html><body>'.str_repeat('navigation ', 2500).$h.'</body></html>';
 $updated = $cls::transformDocument($doc);
 check($updated !== $doc && substr_count($updated, $cls::MARKER) === 1, 'exact document fallback');
 check($cls::transformDocument($updated) === $updated, 'document idempotent');
-echo "PASS: Sterkac rules repair is source-disarmed and body transforms fail closed\n";
+echo "PASS: Sterkac rules repair is exact-source armed and body transforms fail closed\n";
