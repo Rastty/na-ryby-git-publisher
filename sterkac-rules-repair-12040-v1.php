@@ -23,11 +23,11 @@ final class NRY_Sterkac_Rules_12040_V1 {
         // No hooks or side effects at all until the exact source SHA is set.
         if (!self::armed()) return;
         if (function_exists('is_single') && function_exists('add_filter')) {
-            add_filter('the_content', array(__CLASS__, 'render'), PHP_INT_MAX);
+            add_filter('the_content', __CLASS__.'::render', PHP_INT_MAX);
         }
         if (function_exists('is_single') && function_exists('add_action')) {
-            add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue'), 28);
-            add_action('template_redirect', array(__CLASS__, 'startBuffer'), 24);
+            add_action('wp_enqueue_scripts', __CLASS__.'::enqueue', 28);
+            add_action('template_redirect', __CLASS__.'::startBuffer', 24);
         }
     }
 
