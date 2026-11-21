@@ -5,6 +5,9 @@ on:
       - 'scripts/cj_woo_catalog_sync.py'
       - 'tests/test_cj_woo_catalog_sync.py'
       - '.github/workflows/nry-cj-woo-catalog-pilot.yml'
+  schedule:
+    # Read-only only. No runs unless repository variable explicitly arms it.
+    - cron: '23 5 * * 2,5'
   workflow_dispatch:
     inputs:
       mode:
@@ -23,7 +26,7 @@ concurrency:
 
 jobs:
   contract:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && vars.NRY_CJ_WOO_READONLY_ENABLED == 'YES')
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
@@ -33,10 +36,11 @@ jobs:
         run: |
           python3 -m py_compile scripts/cj_woo_catalog_sync.py
           python3 -m unittest discover -s tests -p 'test_cj_woo_catalog_sync.py' -v
+          python3 tests/test-cj-woo-scheduled-preview-contract.py
 
   preview:
     needs: contract
-    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'dry-run'
+    if: (github.event_name == 'workflow_dispatch' && inputs.mode == 'dry-run') || (github.event_name == 'schedule' && vars.NRY_CJ_WOO_READONLY_ENABLED == 'YES')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -50,6 +54,15 @@ jobs:
           NRY_WC_CONSUMER_KEY: ${{ secrets.NRY_WC_CONSUMER_KEY }}
           NRY_WC_CONSUMER_SECRET: ${{ secrets.NRY_WC_CONSUMER_SECRET }}
         run: |
+          # Do not make partial network requests with an incomplete secret set.
+          set -euo pipefail
+          for name in NRY_CJ_FEED_URL NRY_CJ_FEED_USER NRY_CJ_FEED_PASSWORD NRY_WC_CONSUMER_KEY NRY_WC_CONSUMER_SECRET; do
+            if [ -z "${!name}" ]; then
+              echo "BLOCKED: missing $name; no feed/Woo requests attempted"
+              exit 1
+            fi
+          done
+          # --apply is deliberately absent: cannot mutate products or Merchant Center.
           python3 scripts/cj_woo_catalog_sync.py --limit 20
 
   drafts:
