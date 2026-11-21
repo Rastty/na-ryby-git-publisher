@@ -119,8 +119,13 @@ def verify(html, *, deployed, css_bytes=b'', js_bytes=b'', reviewed_css=b'', rev
     expected = [(url, 'sponsored nofollow noopener', '_blank') for _, url in OFFERS]
     expected.append((STAYS, None, None))
     assert surface.anchors == expected, 'AFFILIATE_URL_OR_SPONSORSHIP_DRIFT'
+    assert surface.article_region_count == 1, 'EXACT_WORDPRESS_ARTICLE_REGION_REQUIRED'
+    assert surface.article_links.count(LEGACY) == 0, 'OLD_BOOKING_ROUTE_REMAINS_INSIDE_ARTICLE'
+    assert surface.article_links.count(STAYS) == 4, 'THREE_OLD_BOOKING_PATHS_NOT_REPAIRED'
+    # Current public HTML has three additional first-party links to STAYS in
+    # header/footer navigation. Those do not affect the article's four routes.
     assert surface.all_links.count(LEGACY) == 1, 'ONLY_SITEWIDE_LEGACY_BANNER_MAY_REMAIN'
-    assert surface.all_links.count(STAYS) == 4, 'THREE_OLD_BOOKING_PATHS_NOT_REPAIRED'
+    assert surface.all_links.count(STAYS) >= 4, 'PUBLIC_STAYS_LINKS_MISSING'
     assert surface.styles == [CSS_VERSION] and surface.scripts == [JS_VERSION], 'CSS_OR_JS_ASSET_NOT_EXACT'
     assert css_bytes == reviewed_css and len(css_bytes) > 800, 'CSS_BYTES_NOT_REVIEWED'
     assert js_bytes == reviewed_js and len(js_bytes) > 3000, 'JS_BYTES_NOT_REVIEWED'
