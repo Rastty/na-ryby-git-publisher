@@ -32,7 +32,7 @@ jobs:
         run: |
           python3 -m py_compile scripts/verify-home-buyer-entry-public-v1.py
           python3 tests/test-home-buyer-entry-public-v1.py
-      - name: Existing five or candidate six buyer routes preflight (PR only)
+      - name: Existing six or candidate eight buyer routes preflight (PR only)
         if: github.event_name == 'pull_request'
         run: python3 scripts/verify-home-buyer-entry-public-v1.py --preflight
       - name: Independent post-deploy byte readback
