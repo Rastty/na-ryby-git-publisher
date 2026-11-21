@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Anonymous GET-only archive readback, no merchant requests or synthetic clicks."""
 import sys
+import json
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.request import Request
@@ -23,6 +24,7 @@ class Archive(HTMLParser):
   super().__init__(convert_charrefs=True)
   self.sections=0;self.in_section=False;self.links=[];self.styles=[];self.h1=0
   self.section_position=None;self.first_result_position=None;self.heading=None
+  self.heading_log=[]
  def handle_starttag(self,tag,attrs):
   d=dict(attrs)
   if tag=='h1':self.h1+=1
@@ -37,7 +39,8 @@ class Archive(HTMLParser):
   if self.heading is not None:self.heading[2].append(data)
  def handle_endtag(self,tag):
   if self.heading is not None and tag==self.heading[0]:
-   text=''.join(self.heading[2])
+   text=' '.join(''.join(self.heading[2]).split())
+   if len(self.heading_log)<14:self.heading_log.append({'tag':tag,'text':text[:100],'position':self.heading[1]})
    if 'Sportovní rybolov Rašelina' in text and self.first_result_position is None:
     self.first_result_position=self.heading[1]
    self.heading=None
@@ -52,6 +55,12 @@ def check(html,deployed):
   assert len(p.styles)==1 and CSS in p.styles[0],'ARCHIVE_CSS_NOT_ONCE'
   # The raw first occurrence may be an earlier <title>/JSON-LD string. Compare
   # only real HTML heading nodes in DOM order, not a textual substring.
+  if not (p.section_position is not None and p.first_result_position is not None and p.section_position<p.first_result_position):
+   print('ARCHIVE_DOM_ORDER_DIAGNOSTIC '+json.dumps({
+    'section_position':p.section_position,'result_heading_position':p.first_result_position,
+    'heading_nodes_first_14':p.heading_log, 'publicGET':True, 'wordPressWrites':0,
+    'merchantRequests':0,'syntheticClicks':0
+   },ensure_ascii=False))
   assert p.section_position is not None and p.first_result_position is not None and p.section_position<p.first_result_position,'ARCHIVE_ENTRY_NOT_BEFORE_RESULTS'
  else:
   assert p.sections in (0,1),'ARCHIVE_UNEXPECTED_DUPLICATE'
