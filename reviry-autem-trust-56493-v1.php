@@ -12,7 +12,7 @@ final class NRY_Reviry_Autem_Trust_56493_V1 {
     const MODIFIED_GMT = '2023-06-28 11:29:01';
     // Disarmed until exact authenticated get_post()->post_content source SHA
     // is measured by the independent GET-only /poradce-vybavy/ proof.
-    const RAW_SHA256 = '0000000000000000000000000000000000000000000000000000000000000000';
+    const RAW_SHA256 = '71372809934bc056f73f3e918be4e4c45d238c360d1e5155252c508cc9cd2491';
     const MARKER = 'data-nry-reviry-autem-trust="v1"';
     const ORIGINAL_H2 = 'Kam se dostanete autem';
     const BAD_ORLIK = 'Orlická přehrada se nachází východně od Hradce Králové a je dalším skvělým místem pro rybolov.';
