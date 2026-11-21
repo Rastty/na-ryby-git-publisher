@@ -24,3 +24,29 @@ for bad_data, bad_html in (([], html), ([{**post, "status": "draft"}], html),
         continue
     raise AssertionError("UNSAFE_SOURCE_ACCEPTED")
 print("REVIRY_AUTEM_SOURCE_PARSER_OK")
+
+
+verify_raw = module["verify_raw"]
+proof = {
+    "schema": 1, "state": "SOURCE_SHA_AVAILABLE_NO_PUBLICATION",
+    "postId": 57421, "slug": slug, "canonical": page,
+    "modifiedGmt": "2023-06-28 10:00:00",
+    "sourceSha256": "a" * 64, "sourceBytes": 3001,
+    "literalCounts": {"wrongGeo": 1, "podyji": 1, "sumava": 1, "lipno": 2},
+    "wordpressWrites": 0, "merchantRequests": 0, "syntheticClicks": 0,
+}
+assert verify_raw(proof, result)["sourceSha256"] == "a" * 64
+for bad in (
+    {**proof, "sourceSha256": "not-a-hash"},
+    {**proof, "postId": 0},
+    {**proof, "state": "BLOCKED_SOURCE_DRIFT"},
+    {**proof, "modifiedGmt": "2025-01-01 00:00:00"},
+    {**proof, "literalCounts": {"wrongGeo": -1}},
+    {**proof, "wordpressWrites": 1},
+):
+    try:
+        verify_raw(bad, result)
+    except ValueError:
+        continue
+    raise AssertionError("UNSAFE_RAW_PROOF_ACCEPTED")
+print("REVIRY_AUTEM_RAW_SOURCE_PARSER_OK")
