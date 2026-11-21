@@ -69,6 +69,7 @@ require_once __DIR__ . '/stays-main-navigation-bridge-v1.php';
 require_once __DIR__ . '/legacy-stays-archive-entry-v1.php';
 require_once __DIR__ . '/revir-main-menu-discovery-v1.php';
 require_once __DIR__ . '/revir-archive-decision-entry-v1.php';
+require_once __DIR__ . '/private-waters-concrete-choice-v1.php';
 require_once __DIR__ . '/legacy-map-discovery-bridge-v1.php';
 require_once __DIR__ . '/gsc-revir-stays-seo-20261120-v1.php';
 require_once __DIR__ . '/nry-privacy-contact-cleanup-v1.php';
