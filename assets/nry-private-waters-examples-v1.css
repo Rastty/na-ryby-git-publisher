@@ -1,0 +1,16 @@
+/* Scoped to four independent first-party examples on one exact editorial guide. */
+.nry-water-examples{clear:both;margin:22px 0 26px;padding:22px;border-radius:12px;border:1px solid #d2e1d7;background:#f6faf7;color:#193e2b}
+.nry-water-examples *{box-sizing:border-box}
+.nry-water-examples .nry-water-examples__eyebrow{text-transform:uppercase;letter-spacing:.08em;font-size:12px;font-weight:700;margin:0 0 6px;color:#346d4c}
+.nry-water-examples h2{margin:0 0 8px;font-size:clamp(21px,2.4vw,27px);line-height:1.28}
+.nry-water-examples p{line-height:1.55;margin:0 0 14px}
+.nry-water-examples__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin:16px 0}
+.nry-water-examples__grid article{padding:16px;border:1px solid #d7e1da;border-radius:9px;background:#fff;display:flex;flex-direction:column;gap:6px}
+.nry-water-examples__grid article span{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#4b6c57}
+.nry-water-examples__grid article h3{font-size:18px;line-height:1.35;margin:0}
+.nry-water-examples__grid article p{font-size:14px;margin:0 0 10px}
+.nry-water-examples__grid article a{margin-top:auto;font-size:14px;font-weight:700;color:#146342;text-decoration:underline;text-underline-offset:3px}
+.nry-water-examples__grid article a:focus-visible,.nry-water-examples__more a:focus-visible{outline:2px solid #146342;outline-offset:3px}
+.nry-water-examples .nry-water-examples__more{font-weight:600}
+.nry-water-examples .nry-water-examples__note{font-size:13px;color:#536659;margin:0}
+@media(max-width:480px){.nry-water-examples{padding:15px}.nry-water-examples__grid{grid-template-columns:1fr}}
