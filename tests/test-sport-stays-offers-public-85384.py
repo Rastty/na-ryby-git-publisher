@@ -17,8 +17,10 @@ ctas = ''.join('<article data-nry-sport-offer="' + offer + '"><a href="' + link.
                '" rel="sponsored nofollow noopener" target="_blank">Pobyt</a></article>'
                for offer, link in m['OFFERS'])
 block = '<section data-nry-sport-stays="v1">' + ctas + '<a href="' + m['STAYS'] + '">Další</a></section>'
-ready = (src.replace('</head>', style + script + '</head>') + block +
-         ('<p><a href="' + m['STAYS'] + '">Nová cesta</a></p>') * 3 + banner + '</body></html>').encode()
+ready = (src.replace('</head>', style + script + '</head>') +
+         '<div class="td-post-content">' + block +
+         ('<p><a href="' + m['STAYS'] + '">Nová cesta</a></p>') * 3 +
+         '</div>' + banner + '</body></html>').encode()
 css = (root / 'assets/nry-sport-stays-85384-v1.css').read_bytes()
 js = (root / 'assets/nry-buyer-clicks-v1.js').read_bytes()
 def deployed(doc, *, css_content=css, js_content=js):
@@ -30,6 +32,15 @@ assert counts['status'] == 'SPORT_STAYS_LINK_DISTRIBUTION_OBSERVED_NOT_VERIFIED'
 assert counts['publicPageNewStayLinks'] == 4
 assert counts['publicPageOldBookingLinks'] == 1
 assert counts['panelInternalStayLinks'] == 1 and counts['offerCardCount'] == 3
+assert counts['postContentRegionCount'] == 1
+assert counts['articleNewStayLinks'] == 4 and counts['articleOldBookingLinks'] == 0
+# Additional unrelated internal navigation must not change the article proof.
+extra = ('<nav>' + '<a href="' + m['STAYS'] + '">Region</a>' * 3 + '</nav>').encode()
+ready_with_nav = ready.replace(b'</body>', extra + b'</body>')
+nav_counts = m['diagnostic_counts'](ready_with_nav)
+assert nav_counts['publicPageNewStayLinks'] == 7
+assert nav_counts['articleNewStayLinks'] == 4
+assert nav_counts['articleOldBookingLinks'] == 0
 assert counts['merchantRequests'] == counts['wordpressWrites'] == counts['syntheticClicks'] == 0
 assert all('https://' not in str(val) for val in counts.values())
 assert m['verify_current'](ready, css_bytes=css, js_bytes=js,
