@@ -1,0 +1,14 @@
+.nry-ris-choices{margin:20px 0 26px;padding:18px 22px;border:1px solid #c7ded5;border-radius:14px;background:#f5fbf8;color:#153a2d;line-height:1.58;font-size:16px}
+.nry-ris-choices__eyebrow{margin:0 0 6px;text-transform:uppercase;font-weight:750;letter-spacing:.055em;color:#1d7055;font-size:12px}
+.nry-ris-choices h2{margin:0 0 10px;color:#123d30;font-size:clamp(20px,2.4vw,25px);line-height:1.28}
+.nry-ris-choices ol{padding-left:1.35em;margin:12px 0}
+.nry-ris-choices li{padding:7px 0}
+.nry-ris-choices p{margin:10px 0}
+.nry-ris-choices a{text-decoration:underline;text-underline-offset:3px;color:#075b47}
+.nry-ris-choices a:hover,.nry-ris-choices a:focus-visible{color:#064536;text-decoration-thickness:2px}
+.nry-ris-choices a:focus-visible{outline:2px solid #075b47;outline-offset:3px}
+.nry-ris-choices__note{font-size:14px;color:#35564b}
+.nry-ris-choices--archive{background:#fffaf0;border-color:#e9d8af;color:#4b351b}
+.nry-ris-choices--archive h2{color:#51320a}
+.nry-ris-choices--archive .nry-ris-choices__eyebrow{color:#956105}
+@media(max-width:600px){.nry-ris-choices{padding:15px 16px;margin:16px 0}.nry-ris-choices li{padding:9px 0}.nry-ris-choices a{display:inline-block;min-height:28px}}
