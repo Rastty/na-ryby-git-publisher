@@ -62,6 +62,8 @@ require_once __DIR__ . '/home-trust-cleanup-118641-v1.php';
 require_once __DIR__ . '/home-advisor-entry-118641-v1.php';
 require_once __DIR__ . '/home-buyer-entry-measurement-v1.php';
 require_once __DIR__ . '/home-advisor-seo-snippets-v1.php';
+require_once __DIR__ . '/romantic-stay-meta-57013-v1.php';
+require_once __DIR__ . '/romantic-stay-offers-57013-v1.php';
 require_once __DIR__ . '/home-revir-stay-paths-118641-v1.php';
 require_once __DIR__ . '/stays-main-navigation-bridge-v1.php';
 require_once __DIR__ . '/revir-main-menu-discovery-v1.php';

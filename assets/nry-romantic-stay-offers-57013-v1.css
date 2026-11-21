@@ -1,0 +1,34 @@
+.nry-romantic-offers {
+  margin: 26px 0 30px;
+  padding: clamp(17px, 3vw, 28px);
+  border: 1px solid #b7d8c5;
+  border-left: 5px solid #176b4e;
+  border-radius: 15px;
+  background: #f0faf4;
+  color: #173b2f;
+  line-height: 1.55;
+}
+.nry-romantic-offers__eyebrow { margin: 0 0 7px; color: #176446; font-size: .84em; font-weight: 800; letter-spacing: .025em; text-transform: uppercase; }
+.nry-romantic-offers h2 { margin: 0 0 12px; font-size: clamp(1.35rem, 2.4vw, 1.75rem); line-height: 1.22; }
+.nry-romantic-offers__grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 15px; margin: 19px 0; }
+.nry-romantic-offers__grid article { display: flex; flex-direction: column; min-width: 0; background: #fff; border: 1px solid #c0dacb; border-radius: 11px; padding: 18px; box-shadow: 0 4px 12px rgb(22 75 49 / 8%); }
+.nry-romantic-offers__featured { border-top: 4px solid #176b4e !important; }
+.nry-romantic-offers__tag { margin: 0 0 7px; color: #176b4e; font-size: .88em; font-weight: 750; }
+.nry-romantic-offers__grid h3 { margin: 0 0 9px; font-size: 1.17em; line-height: 1.3; }
+.nry-romantic-offers__action { margin: auto 0 0; padding-top: 14px; }
+.nry-romantic-offers a.nry-romantic-offers__cta,
+.nry-romantic-offers a.nry-romantic-offers__cta:visited { display: block; padding: 14px 15px; border-radius: 9px; background: #116b4b; color: #fff !important; font-weight: 800; text-align: center; line-height: 1.35; text-decoration: none !important; }
+.nry-romantic-offers a.nry-romantic-offers__cta--secondary,
+.nry-romantic-offers a.nry-romantic-offers__cta--secondary:visited { background: #184f69; }
+.nry-romantic-offers a.nry-romantic-offers__cta:hover,
+.nry-romantic-offers a.nry-romantic-offers__cta:focus-visible { background: #075032; color: #fff !important; outline: 3px solid #e3b64e; outline-offset: 3px; }
+.nry-romantic-offers a.nry-romantic-offers__cta--secondary:hover,
+.nry-romantic-offers a.nry-romantic-offers__cta--secondary:focus-visible { background: #0c394e; }
+.nry-romantic-offers__more { margin: 0 0 10px; }
+.nry-romantic-offers__more a { color: #09593f; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.nry-romantic-offers__note { margin: 0; color: #49665a; }
+@media (max-width: 640px) {
+  .nry-romantic-offers__grid { grid-template-columns: minmax(0,1fr); }
+  .nry-romantic-offers__grid article { padding: 16px; }
+  .nry-romantic-offers a.nry-romantic-offers__cta { padding: 16px 13px; }
+}
