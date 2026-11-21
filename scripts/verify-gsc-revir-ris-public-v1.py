@@ -91,9 +91,7 @@ def verify(html,route,preflight=False):
         if count or d.sections or d.css:
             raise ValueError('ALREADY_DEPLOYED_OR_DUPLICATE_BEFORE_RELEASE')
         return {'status':'NRY_GSC_REVIR_RIS_PREFLIGHT_VERIFIED','route':route}
-    if count!=1 or d.sections!=[(route,d.sections[0][1])] if d.sections else True:
-        raise ValueError('NEW_SOURCE_MARKER_SCOPE_NOT_EXACT')
-    if len(d.sections)!=1 or d.sections[0][0]!=route:
+    if count!=1 or len(d.sections)!=1 or d.sections[0][0]!=route:
         raise ValueError('NEW_SOURCE_SECTION_NOT_EXACT')
     if len(d.css)!=1 or 'ver=1.0.0' not in d.css[0]:
         raise ValueError('CSS_NOT_VERSIONED_OR_DUPLICATE')
