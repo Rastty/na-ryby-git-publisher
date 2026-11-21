@@ -55,24 +55,44 @@ class PilotTests(unittest.TestCase):
         self.assertEqual([x[0] for x in changes], ["create"])
         self.assertEqual(report["duplicate_feed"], 1)
 
-    def test_owned_update_preserves_content(self):
+    def test_even_owned_published_product_never_updated(self):
         existing = [{"id": 77, "sku": "nry-cj-12345", "type": "external",
-                     "name": ROW["title"], "status": "publish", "meta_data": [
+                     "name": ROW["title"], "status": "publish",
+                     "catalog_visibility": "visible", "meta_data": [
                         {"key": "_nry_cj_source", "value": sync.SOURCE}]}]
-        changes, _ = sync.decide([ROW], existing)
-        self.assertEqual(changes[0][0], "update")
+        changes, report = sync.decide([ROW], existing)
+        self.assertEqual(changes, [])
+        self.assertEqual(report["blocked_existing"], 1)
+        self.assertEqual(report["update_managed"], 0)
+        data, _ = sync.normalize(ROW)
         calls = []
         old = sync.wc_request
         try:
             sync.wc_request = lambda path, method, payload: calls.append((path, method, payload))
-            sync.apply_changes(changes)
+            with self.assertRaisesRegex(ValueError, "pilot_forbids_existing_product_writes"):
+                sync.apply_changes([("update", 77, data)])
         finally:
             sync.wc_request = old
-        self.assertEqual(calls[0][0:2], ("/77", "PUT"))
-        self.assertNotIn("description", calls[0][2])
-        self.assertNotIn("status", calls[0][2])
-        self.assertNotIn("meta_data", calls[0][2])
-        self.assertNotIn("images", calls[0][2])
+        self.assertEqual(calls, [])
+
+    def test_even_owned_hidden_draft_not_mutated_in_pilot(self):
+        existing = [{"id": 78, "sku": "nry-cj-12345", "type": "external",
+                     "name": ROW["title"], "status": "draft",
+                     "catalog_visibility": "hidden", "meta_data": [
+                        {"key": "_nry_cj_source", "value": sync.SOURCE}]}]
+        changes, report = sync.decide([ROW], existing)
+        self.assertEqual(changes, [])
+        self.assertEqual(report["blocked_existing"], 1)
+
+    def test_unverified_currency_rejected_without_guessing(self):
+        explicit = dict(ROW)
+        explicit.pop("currency")
+        explicit["price"] = "19990"
+        self.assertEqual(sync.normalize(explicit)[1], "unverified_currency")
+        explicit["price"] = "19990 CZK"
+        self.assertEqual(sync.normalize(explicit)[0]["regular_price"], "19990.00")
+        explicit["price"] = "19990 EUR"
+        self.assertIsNotNone(sync.normalize(explicit)[1])
 
     def test_new_product_is_hidden_draft(self):
         changes, _ = sync.decide([ROW], [])
