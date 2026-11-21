@@ -60,6 +60,9 @@ on:
       - 'scripts/verify-romantic-stay-meta-public.py'
       - 'tests/test-romantic-stay-meta-public.py'
       - '.github/workflows/nry-romantic-stay-meta-public.yml'
+      - 'scripts/verify-romantic-57013-loop-source.py'
+      - 'tests/test-romantic-57013-loop-source.py'
+      - '.github/workflows/nry-romantic-57013-loop-probe.yml'
       - 'nry-privacy-contact-cleanup-v1.php'
       - 'tests/test-home-advisor-entry-118641-v1.php'
       - 'tests/test-privacy-contact-cleanup-v1.php'
@@ -660,6 +663,8 @@ jobs:
           php tests/test-romantic-stay-meta-57013-v1.php
           php -l romantic-stay-offers-57013-v1.php
           php tests/test-romantic-stay-offers-57013-v1.php
+          python3 -m py_compile scripts/verify-romantic-57013-loop-source.py
+          python3 tests/test-romantic-57013-loop-source.py
           python3 -m py_compile scripts/verify-romantic-stay-meta-public.py
           python3 tests/test-romantic-stay-meta-public.py
           php -l nry-privacy-contact-cleanup-v1.php

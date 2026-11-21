@@ -44,6 +44,18 @@ def rejects(html, preflight=False):
 
 assert romantic.verify(document(romantic.OLD, offers=False), preflight=True) == 'BASELINE_PUBLIC_VERIFIED'
 assert romantic.verify(document(romantic.NEW)) == 'UPDATED_META_PUBLIC_VERIFIED'
+assert romantic.verify_current_source(document(romantic.NEW, offers=False)) == 'UPDATED_META_WITHOUT_OFFERS_PUBLIC_BLOCKER'
+assert romantic.verify_current_source(document(romantic.NEW)) == 'UPDATED_META_PUBLIC_VERIFIED'
+for invalid in (document(romantic.OLD, offers=False),
+                document(romantic.NEW, offers=False).replace('Mrknout na doporučené ubytování', ''),
+                document(romantic.NEW, offers=False).replace('rel="canonical"', 'rel="alternate"'),
+                document(romantic.NEW, offers=False).replace(romantic.NEW, romantic.OLD),
+                document(romantic.NEW, offers=False).replace('index, follow', 'noindex,nofollow')):
+    try:
+        romantic.verify_current_source(invalid)
+    except AssertionError:
+        continue
+    raise AssertionError('unsafe staged SEO state accepted')
 rejects(document(romantic.OLD, offers=False))
 rejects(document(romantic.NEW), preflight=True)
 rejects(document(romantic.OLD, offers=True), preflight=True)

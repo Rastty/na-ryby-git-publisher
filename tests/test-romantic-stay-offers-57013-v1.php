@@ -28,6 +28,7 @@ require dirname(__DIR__).'/romantic-stay-offers-57013-v1.php';
 $class='NRY_Romantic_Stay_Offers_57013_V1';
 offer_check($GLOBALS['hooks']['the_content']===array($class.'::render',PHP_INT_MAX), 'late render hook');
 offer_check($GLOBALS['hooks']['wp_enqueue_scripts']===array($class.'::enqueue',28), 'css hook');
+offer_check($GLOBALS['hooks']['wp_footer']===array($class.'::probe_footer',PHP_INT_MAX), 'GET-only source hook');
 foreach (array('HAUZI_SRUB'=>'https://www.hauzi.cz/rybarsky-srub',
     'HAUZI_MORE'=>'https://www.hauzi.cz/cz/pro-dva/pro-rybare/wellness') as $constant=>$expected) {
     $url=constant($class.'::'.$constant);
@@ -68,4 +69,31 @@ offer_check(count($GLOBALS['styles'])===1
     && $GLOBALS['styles'][0]['ver']==='1.0.0'
     && strpos($GLOBALS['styles'][0]['url'],'nry-romantic-stay-offers-57013-v1.css')!==false,
     'scoped CSS enqueue');
+// Explicit opt-in test uses only fake WordPress post content, no networking or writes.
+$GLOBALS['ctx']['raw'] = str_repeat('Romantický pobyt pro dva s rybařením. ', 110);
+$_SERVER['REQUEST_METHOD'] = 'GET';
+$_GET['nry_romantic_guard_probe'] = 'source_v1';
+$class::render($source);
+ob_start();
+$class::probe_footer();
+$out = ob_get_clean();
+offer_check(substr_count($out, 'NRY_ROMANTIC57013_PROBE_V1')===1, 'one opted-in source footer');
+offer_check(preg_match('/NRY_ROMANTIC57013_PROBE_V1 (\{.*\}) -->/', $out, $matches)===1,
+    'bounded JSON proof');
+$proof = json_decode($matches[1], true);
+offer_check($proof['postId'] === 57013 && $proof['renderCalls']===1,
+    'exact post render called once only on GET');
+offer_check($proof['rawSourceSha256']===hash('sha256',$GLOBALS['ctx']['raw'])
+    && $proof['rawSourceBytes']===strlen($GLOBALS['ctx']['raw']),
+    'source lock hashes raw post_content, not REST rendered');
+offer_check($proof['best']['prefixSha256']===hash('sha256',substr($source,0,512))
+    && $proof['best']['oldButtonCount']===1 && $proof['best']['headingCount']===1
+    && $proof['best']['categoryLinkCount']===1, 'source input anchors count');
+offer_check($proof['wordpressWrites']===0 && $proof['merchantRequests']===0
+    && $proof['syntheticClicks']===0, 'GET-only no mutation or tracking');
+unset($_GET['nry_romantic_guard_probe']);
+ob_start();
+$class::probe_footer();
+offer_check(ob_get_clean()==='', 'ordinary anonymous page emits no probe');
+
 echo "PASS exact post offer insertion, 2 approved Hauzi links, no content writes, drift blocked\n";

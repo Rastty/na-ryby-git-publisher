@@ -105,8 +105,24 @@ def verify(html, preflight=False):
     return ('BASELINE_PUBLIC_VERIFIED' if preflight else 'UPDATED_META_PUBLIC_VERIFIED')
 
 
+def verify_current_source(html):
+    """PR preflight: exact current SEO state; partial state is NOT a pass to publish offers."""
+    head = Head()
+    head.feed(html)
+    head.close()
+    if head.offer_blocks == 1:
+        return verify(html, preflight=False)
+    assert head.offer_blocks == 0 and not head.offer_links, 'PARTIAL_OR_DUPLICATE_OFFERS'
+    assert head.title.strip() == TITLE and head.canonical == [URL], 'EXACT_PAGE_DRIFT'
+    assert head.meta.get('description') == [NEW] and head.meta.get('og:description') == [NEW], 'EXACT_POST_META_DRIFT'
+    assert not any('noindex' in r.lower() for r in head.meta.get('robots', [])), 'NOT_INDEXABLE'
+    assert 'Mrknout na doporučené ubytování' in html, 'OLD_CTA_NOT_PRESENT'
+    assert head.styles in ([], [CSS_URL]), 'UNEXPECTED_OFFER_CSS'
+    return 'UPDATED_META_WITHOUT_OFFERS_PUBLIC_BLOCKER'
+
+
 def main():
-    assert sys.argv[1:] in ([], ['--preflight']), 'UNSUPPORTED_ARG'
+    assert sys.argv[1:] in ([], ['--preflight'], ['--current']), 'UNSUPPORTED_ARG'
     def get(url, maximum):
         assert url in (URL, CSS_URL), 'UNAPPROVED_PUBLIC_GET'
         request = Request(url, method='GET', headers={
@@ -120,8 +136,8 @@ def main():
         return payload
     preflight = '--preflight' in sys.argv
     html = get(URL, 1600000).decode('utf-8', 'replace')
-    state = verify(html, preflight)
-    if not preflight:
+    state = verify_current_source(html) if '--current' in sys.argv else verify(html, preflight)
+    if not preflight and '--current' not in sys.argv:
         reviewed = (Path(__file__).resolve().parents[1] / 'assets/nry-romantic-stay-offers-57013-v1.css').read_bytes()
         assert len(reviewed) > 500 and get(CSS_URL, 40000) == reviewed, 'PUBLIC_CSS_BYTES_DRIFT'
     print(state)

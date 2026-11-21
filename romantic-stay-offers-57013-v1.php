@@ -29,6 +29,8 @@ final class NRY_Romantic_Stay_Offers_57013_V1 {
         }
         if (function_exists('is_single') && function_exists('add_action')) {
             add_action('wp_enqueue_scripts', __CLASS__.'::enqueue', 28);
+            // Exact URL GET-only diagnostic, disabled unless ?nry_romantic_guard_probe=source_v1.
+            add_action('wp_footer', __CLASS__.'::probe_footer', PHP_INT_MAX);
         }
     }
 
@@ -125,7 +127,78 @@ final class NRY_Romantic_Stay_Offers_57013_V1 {
             ? $updated : $html;
     }
 
+    private static $probe_seen = 0;
+    private static $probe_first = null;
+    private static $probe_best = null;
+    private static $probe_best_score = -1;
+
+    private static function probe_requested() {
+        return ($_SERVER['REQUEST_METHOD'] ?? '') === 'GET'
+            && isset($_GET['nry_romantic_guard_probe'])
+            && $_GET['nry_romantic_guard_probe'] === 'source_v1';
+    }
+
+    private static function probe_snapshot($html) {
+        if (!self::probe_requested()) return;
+        self::$probe_seen++;
+        if (!is_string($html)) return;
+        $oldButtonCount = substr_count($html, self::OLD_BUTTON);
+        $h2Count = substr_count($html, '<h2>Co si pod tím lidé obvykle představují</h2>');
+        $categoryCount = 0;
+        $links = self::hrefs($html);
+        if (is_array($links)) {
+            foreach ($links as $href) {
+                if ($href === self::CATEGORY) $categoryCount++;
+            }
+        }
+        $eligible = self::eligible();
+        $row = array(
+            'bytes' => strlen($html),
+            'prefixSha256' => hash('sha256', substr($html, 0, self::RENDERED_PREFIX_BYTES)),
+            'matchesHistoricalRestPrefix' => hash_equals(
+                self::RENDERED_PREFIX_SHA256,
+                hash('sha256', substr($html, 0, self::RENDERED_PREFIX_BYTES))),
+            'oldButtonCount' => $oldButtonCount,
+            'headingCount' => $h2Count,
+            'categoryLinkCount' => $categoryCount,
+            'mainQuery' => function_exists('is_main_query') && is_main_query(),
+            'inLoop' => function_exists('in_the_loop') && in_the_loop(),
+            'eligible' => $eligible,
+            'newSectionPresent' => strpos($html, self::MARKER) !== false,
+        );
+        if (self::$probe_first === null) self::$probe_first = $row;
+        $score = ($eligible ? 1 : 0) + ($row['mainQuery'] ? 1 : 0)
+            + ($row['inLoop'] ? 1 : 0) + min(1, $oldButtonCount)
+            + min(1, $h2Count) + min(1, $categoryCount);
+        if ($score > self::$probe_best_score) {
+            self::$probe_best_score = $score;
+            self::$probe_best = $row;
+        }
+    }
+
+    public static function probe_footer() {
+        if (!self::probe_requested() || !self::eligible()) return;
+        $p = get_post(self::ID);
+        $raw = is_object($p) && is_string($p->post_content ?? null)
+            ? $p->post_content : '';
+        $result = array(
+            'status' => 'NRY_ROMANTIC57013_GUARD_PROBE_V1',
+            'postId' => self::ID,
+            'modifiedGmt' => self::MODIFIED_GMT,
+            'rawSourceSha256' => hash('sha256', $raw),
+            'rawSourceBytes' => strlen($raw),
+            'renderCalls' => self::$probe_seen,
+            'first' => self::$probe_first,
+            'best' => self::$probe_best,
+            'wordpressWrites' => 0, 'merchantRequests' => 0, 'syntheticClicks' => 0,
+        );
+        echo "\n<!-- NRY_ROMANTIC57013_PROBE_V1 "
+            .json_encode($result, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)
+            ." -->\n";
+    }
+
     public static function render($html) {
+        self::probe_snapshot($html);
         return self::eligible() ? self::transform($html) : $html;
     }
 }

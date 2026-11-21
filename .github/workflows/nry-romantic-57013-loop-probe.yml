@@ -1,0 +1,33 @@
+name: NRY Romantic 57013 Exact WordPress Loop Probe (GET only)
+on:
+  pull_request:
+    paths:
+      - 'romantic-stay-offers-57013-v1.php'
+      - 'tests/test-romantic-stay-offers-57013-v1.php'
+      - 'scripts/verify-romantic-57013-loop-source.py'
+      - 'tests/test-romantic-57013-loop-source.py'
+      - '.github/workflows/nry-romantic-57013-loop-probe.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  source:
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+      - name: Offline probe and publisher regression (no live requests)
+        run: |
+          php -l romantic-stay-offers-57013-v1.php
+          php tests/test-romantic-stay-offers-57013-v1.php
+          python3 -m py_compile scripts/verify-romantic-57013-loop-source.py
+          python3 tests/test-romantic-57013-loop-source.py
+      - name: Anonymous production WordPress actual the_content input (GET only)
+        if: github.event_name == 'workflow_run'
+        run: python3 scripts/verify-romantic-57013-loop-source.py --verify

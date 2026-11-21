@@ -36,9 +36,9 @@ jobs:
         run: |
           python3 -m py_compile scripts/verify-romantic-stay-meta-public.py
           python3 tests/test-romantic-stay-meta-public.py
-      - name: Anonymous baseline identity and SEO preflight
+      - name: Anonymous exact SEO and offers current state (no false full-release claim)
         if: github.event_name == 'pull_request'
-        run: python3 scripts/verify-romantic-stay-meta-public.py --preflight
+        run: python3 scripts/verify-romantic-stay-meta-public.py --current
       - name: Anonymous proof after authorized guarded deploy
         if: github.event_name != 'pull_request'
         run: python3 scripts/verify-romantic-stay-meta-public.py
