@@ -131,6 +131,9 @@ def verify(html, *, deployed, css_bytes=b'', js_bytes=b'', reviewed_css=b'', rev
     assert js_bytes == reviewed_js and len(js_bytes) > 3000, 'JS_BYTES_NOT_REVIEWED'
     return {'status': 'SPORT_STAYS_OFFERS_PUBLIC_VERIFIED', 'postId': 85384,
             'exactSponsoredOffers': len(OFFERS), 'oldBookingLinksRepaired': 3,
+            'articleNewStayLinks': surface.article_links.count(STAYS),
+            'articleOldBookingLinks': surface.article_links.count(LEGACY),
+            'otherFirstPartyStayLinks': surface.all_links.count(STAYS) - 4,
             'sitewideLegacyBannerLinksUnchanged': 1,
             'cssByteIdentical': True, 'clickScriptByteIdentical': True,
             'clickObservationEnabled': True, 'ga4DeliveryProven': False,
