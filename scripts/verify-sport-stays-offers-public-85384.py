@@ -114,6 +114,24 @@ def verify(html, *, deployed, css_bytes=b'', js_bytes=b'', reviewed_css=b'', rev
             'realClicks': None, 'fulfilledReservations': None, 'paidCommissions': None}
 
 
+def diagnostic_counts(html):
+    """GET-only metadata: never print commercial URLs, visitor IDs or HTML."""
+    surface = Surface()
+    surface.feed(html.decode('utf-8', 'replace'))
+    surface.close()
+    return {
+        "status": "SPORT_STAYS_LINK_DISTRIBUTION_OBSERVED_NOT_VERIFIED",
+        "canonicalMatched": surface.canonicals == [ORIGIN + PAGE],
+        "postIdentityMatched": "postid-85384" in surface.body_classes,
+        "offerSectionCount": surface.sections,
+        "offerCardCount": len(surface.offers),
+        "panelInternalStayLinks": sum(1 for href, _, _ in surface.anchors if href == STAYS),
+        "publicPageOldBookingLinks": surface.all_links.count(LEGACY),
+        "publicPageNewStayLinks": surface.all_links.count(STAYS),
+        "wordpressWrites": 0, "merchantRequests": 0, "syntheticClicks": 0,
+    }
+
+
 def has_deployed_marker(html):
     """Detect the candidate without treating its presence as publication proof."""
     surface = Surface()
@@ -145,7 +163,10 @@ def get(url, limit):
 
 
 def main():
-    assert sys.argv[1:] in (['--preflight'], ['--verify'], ['--current']), 'PHASE_REQUIRED'
+    assert sys.argv[1:] in (['--preflight'], ['--verify'], ['--current'], ['--diagnose']), 'PHASE_REQUIRED'
+    if sys.argv[1:] == ['--diagnose']:
+        print(json.dumps(diagnostic_counts(get(ORIGIN + PAGE, 2_000_000)), sort_keys=True))
+        return
     mode = sys.argv[1]
     proof = json.loads(get(PROOF, 12000))
     assert proof['state'] == 'SOURCE_SHA_AVAILABLE_NO_PUBLICATION' \
