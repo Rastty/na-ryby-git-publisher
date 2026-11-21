@@ -27,6 +27,7 @@ $new = $C::render($html);
 check_map($new !== $html, 'map page has actionable editorial links');
 check_map(substr_count($new, $embed) === 1, 'migrated map embed is preserved byte for byte');
 check_map(substr_count($new, $C::MARKER) === 1, 'single visible section');
+check_map(substr_count($new, $C::REVIR_GUIDE) === 1, 'verified root private-water archive route');
 check_map(substr_count($new, $C::RULES_GUIDE) === 1, 'official rules orientation route');
 check_map(substr_count($new, $C::STAYS_GUIDE) === 1, 'current stay choices route');
 check_map(strpos($new, $C::MARKER) < strpos($new, $embed), 'first-party decision precedes large map');
