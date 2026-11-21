@@ -196,6 +196,12 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except (ValueError, KeyError, TypeError, OSError):
-        print(json.dumps({"status": "NRY_REVIRY_AUTEM_SOURCE_BLOCKED"}))
+    except (ValueError, KeyError, TypeError, OSError) as exc:
+        # Never log a request URL, URL query, response content, or credentials.
+        # HTTP status/error type separate network denial from content drift.
+        import urllib.error
+        status_code = exc.code if isinstance(exc, urllib.error.HTTPError) else None
+        print(json.dumps({"status": "NRY_REVIRY_AUTEM_SOURCE_BLOCKED",
+                          "errorType": type(exc).__name__,
+                          "httpStatus": status_code}))
         raise SystemExit(1)
