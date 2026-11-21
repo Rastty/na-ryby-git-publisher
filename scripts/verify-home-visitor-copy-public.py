@@ -66,9 +66,10 @@ def verify(html, preflight=False):
     tree.feed(html)
     if tree.canonicals != [HOME]:
         raise ValueError("HOME_CANONICAL_MISMATCH")
-    if tree.source_markers != 1:
+    if tree.source_markers != 1 or html.count(SOURCE) != 1:
         raise ValueError("SOURCE_PROOF_MISSING_OR_DUPLICATE")
-    if tree.copy_markers != (0 if preflight else 1):
+    if (tree.copy_markers != (0 if preflight else 1) or
+            html.count(MARKER) != (0 if preflight else 1)):
         raise ValueError("HOME_COPY_MARKER_NOT_IN_EXPECTED_STATE")
     plain = tree.text()
     expected = [pair[0 if preflight else 1] for pair in SENTENCES]
