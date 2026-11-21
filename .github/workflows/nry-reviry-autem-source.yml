@@ -6,6 +6,10 @@ on:
       - 'tests/test-reviry-autem-source.py'
       - '.github/workflows/nry-reviry-autem-source.yml'
       - 'reviry-autem-source-proof-56493-v1.php'
+      - 'reviry-autem-trust-56493-v1.php'
+      - 'assets/nry-reviry-autem-trust-56493-v1.css'
+      - 'tests/test-reviry-autem-trust-56493.php'
+      - 'tests/test-reviry-autem-trust-public.py'
       - 'tests/test-reviry-autem-source-proof-56493.php'
       - 'na-ryby-git-publisher.php'
   workflow_run:
@@ -30,8 +34,15 @@ jobs:
           python3 tests/test-reviry-autem-source.py
           php -l reviry-autem-source-proof-56493-v1.php
           php tests/test-reviry-autem-source-proof-56493.php
+          php -l reviry-autem-trust-56493-v1.php
+          php tests/test-reviry-autem-trust-56493.php
+          python3 -m py_compile scripts/verify-reviry-autem-source.py
+          python3 tests/test-reviry-autem-trust-public.py
       - name: Public WordPress REST + canonical HTML (GET only)
         run: python3 scripts/verify-reviry-autem-source.py --verify
       - name: Raw WP source SHA after authorized release (GET only)
         if: github.event_name == 'workflow_run'
         run: python3 scripts/verify-reviry-autem-source.py --raw
+      - name: Exact scoped public article correction and CSS readback
+        if: github.event_name == 'workflow_run'
+        run: python3 scripts/verify-reviry-autem-source.py --public

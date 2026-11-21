@@ -111,6 +111,8 @@ on:
       - 'sport-stays-offers-85384-v1.php'
       - 'kruzberk-source-proof-12877-v1.php'
       - 'reviry-autem-source-proof-56493-v1.php'
+      - 'reviry-autem-trust-56493-v1.php'
+      - 'assets/nry-reviry-autem-trust-56493-v1.css'
       - 'brno-reservoir-source-proof-17591-v1.php'
       - 'brno-reservoir-trust-stays-17591-v1.php'
       - 'assets/nry-brno-reservoir-stays-17591-v1.css'
@@ -130,6 +132,8 @@ on:
       - '.github/workflows/kruzberk-fishing-trust-12877.yml'
       - 'scripts/verify-kruzberk-source-proof-12877.py'
       - 'tests/test-reviry-autem-source-proof-56493.php'
+      - 'tests/test-reviry-autem-trust-56493.php'
+      - 'tests/test-reviry-autem-trust-public.py'
       - 'tests/test-kruzberk-source-proof-12877-v1.php'
       - 'tests/test-kruzberk-source-proof-12877.py'
       - '.github/workflows/kruzberk-source-proof-12877.yml'
@@ -370,6 +374,8 @@ on:
       - 'sport-stays-offers-85384-v1.php'
       - 'kruzberk-source-proof-12877-v1.php'
       - 'reviry-autem-source-proof-56493-v1.php'
+      - 'reviry-autem-trust-56493-v1.php'
+      - 'assets/nry-reviry-autem-trust-56493-v1.css'
       - 'brno-reservoir-source-proof-17591-v1.php'
       - 'brno-reservoir-trust-stays-17591-v1.php'
       - 'kruzberk-fishing-trust-12877-v1.php'
@@ -498,6 +504,9 @@ jobs:
           php -l jizni-morava-stays-12166-v1.php
           php -l reviry-autem-source-proof-56493-v1.php
           php tests/test-reviry-autem-source-proof-56493.php
+          php -l reviry-autem-trust-56493-v1.php
+          php tests/test-reviry-autem-trust-56493.php
+          python3 tests/test-reviry-autem-trust-public.py
           php -l brno-reservoir-source-proof-17591-v1.php
           php -l brno-reservoir-trust-stays-17591-v1.php
           php tests/test-brno-reservoir-trust-stays-17591-v1.php
