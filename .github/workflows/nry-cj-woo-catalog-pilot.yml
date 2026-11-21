@@ -4,6 +4,7 @@ on:
     paths:
       - 'scripts/cj_woo_catalog_sync.py'
       - 'tests/test_cj_woo_catalog_sync.py'
+      - 'tests/test-cj-woo-scheduled-preview-contract.py'
       - '.github/workflows/nry-cj-woo-catalog-pilot.yml'
   schedule:
     # Read-only only. No runs unless repository variable explicitly arms it.
