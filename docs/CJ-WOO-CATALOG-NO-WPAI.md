@@ -31,11 +31,11 @@ python3 -m unittest discover -s tests -p 'test_cj_woo_catalog_sync.py' -v
 ```
 
 ## Non-destructive ownership contract
-- Existing WooCommerce products from WP All Import, editorial content, and unmapped SKUs are **never** changed automatically.
-- A product with an exact managed SKU can be refreshed only if it has exact meta `_nry_cj_source=cj-chytapust-4597444-pid8287231` and type `external`. Existing editorial descriptions, categories, images, SEO fields and publication status are preserved.
+- Existing WooCommerce products from WP All Import, editorial content, and **all** existing SKUs (including our earlier managed drafts) are **never** changed in the pilot.
+- **CREATE-ONLY in the pilot:** no WooCommerce PUT/DELETE at all. An exact managed SKU found in inventory is skipped, even when it is still a hidden draft. Refreshing existing products requires a later separately reviewed release and source/receipt checks.
 - A matching existing title under an unrelated SKU is a collision and is skipped. Ambiguous variants are not silently merged. Hidden drafts are included in the inventory check.
-- Missing or unverified price, CZK currency, stock or correct PID tracking URL means skip.
-- No automatic deletion or archival of vanished items; no blind update of existing imported products.
+- Missing or unverified price, explicit CZK currency (feed field or price suffix), stock or correct PID tracking URL means skip; never assume an unspecified currency is CZK.
+- No automatic deletion, archival, or update of vanished or existing imported products.
 - Media are intentionally not copied until feed image permissions, attribution and WordPress media/storage behavior are reviewed. Product snippets without images remain drafts.
 - No automatic scheduled writes yet. After one read-only report and first approved pilot, review mapping and receipts; only then decide whether to enable a cron.
 
