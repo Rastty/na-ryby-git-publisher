@@ -47,10 +47,10 @@ def conclude(run, jobs):
         "DEPLOYER" if steps.get(DEPLOYER_STAGE) == "success" else None)
     if conclusions["verify"] != "success":
         code = "VERIFICATION_BLOCKED"
-    elif conclusions["deploy"] == "skipped":
-        code = "DEPLOY_SKIPPED"
     elif conclusions["ftps_inspect"] not in ("success", "skipped"):
         code = "FTPS_INSPECTION_BLOCKED"
+    elif conclusions["deploy"] == "skipped":
+        code = "DEPLOY_SKIPPED"
     elif conclusions["deploy"] == "failure":
         code = "DEPLOY_FAILED"
     elif conclusions["deploy"] == "success" and transport and run.get("conclusion") == "success":
