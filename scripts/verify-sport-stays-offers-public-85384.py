@@ -47,9 +47,22 @@ class Surface(HTMLParser):
         self.anchors = []
         self.all_links = []
         self.body_classes = []
+        # TagDiv's genuine post body is distinct from the header/banner/footer.
+        # Track only DIV ancestry, not generic (possibly void) element depth.
+        self.div_depth = 0
+        self.article_div_depth = None
+        self.article_region_count = 0
+        self.article_links = []
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
+        if tag == 'div':
+            self.div_depth += 1
+            if 'td-post-content' in (a.get('class') or '').split():
+                if self.article_div_depth is not None:
+                    raise ValueError('NESTED_WORDPRESS_ARTICLE_WRAPPER')
+                self.article_div_depth = self.div_depth
+                self.article_region_count += 1
         if tag == 'body':
             self.body_classes = (a.get('class') or '').split()
         if tag == 'link' and 'canonical' in (a.get('rel') or '').split():
@@ -69,12 +82,20 @@ class Surface(HTMLParser):
             self.offers.append(a.get('data-nry-sport-offer'))
         if tag == 'a':
             self.all_links.append(a.get('href'))
+            if self.article_div_depth is not None:
+                self.article_links.append(a.get('href'))
             if self.inside:
                 self.anchors.append((a.get('href'), a.get('rel'), a.get('target')))
 
     def handle_endtag(self, tag):
         if tag == 'section' and self.inside:
             self.inside = False
+        if tag == 'div':
+            if self.article_div_depth == self.div_depth:
+                self.article_div_depth = None
+            self.div_depth -= 1
+            if self.div_depth < 0:
+                raise ValueError('UNBALANCED_WORDPRESS_DIVS')
 
 
 def verify(html, *, deployed, css_bytes=b'', js_bytes=b'', reviewed_css=b'', reviewed_js=b''):
@@ -126,6 +147,9 @@ def diagnostic_counts(html):
         "offerSectionCount": surface.sections,
         "offerCardCount": len(surface.offers),
         "panelInternalStayLinks": sum(1 for href, _, _ in surface.anchors if href == STAYS),
+        "postContentRegionCount": surface.article_region_count,
+        "articleNewStayLinks": surface.article_links.count(STAYS),
+        "articleOldBookingLinks": surface.article_links.count(LEGACY),
         "publicPageOldBookingLinks": surface.all_links.count(LEGACY),
         "publicPageNewStayLinks": surface.all_links.count(STAYS),
         "wordpressWrites": 0, "merchantRequests": 0, "syntheticClicks": 0,
