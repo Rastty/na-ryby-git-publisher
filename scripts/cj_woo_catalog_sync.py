@@ -50,6 +50,37 @@ def affiliate_ok(value):
         return False
 
 
+def merchant_key(value):
+    """Compare an exact Chyť a pusť destination, without clicking CJ links.
+
+    Keep variant-defining query params; discard only advertising tags.
+    """
+    try:
+        u = urllib.parse.urlsplit(str(value))
+        if u.scheme != "https" or not u.hostname or u.username or u.password:
+            return ""
+        host = u.hostname.lower().removeprefix("www.")
+        if host in CJ_HOSTS:
+            params = urllib.parse.parse_qs(u.query, max_num_fields=30)
+            targets = params.get("url", [])
+            if len(targets) != 1:
+                return ""
+            u = urllib.parse.urlsplit(targets[0])
+            host = (u.hostname or "").lower().removeprefix("www.")
+        if u.scheme != "https" or host != "chytapust.cz" or u.username or u.password:
+            return ""
+        if u.port not in (None, 443) or not u.path or u.path == "/":
+            return ""
+        query = sorted((k, v) for k, v in urllib.parse.parse_qsl(
+            u.query, keep_blank_values=True, max_num_fields=30)
+            if not k.lower().startswith("utm_") and k.lower() not in
+            {"fbclid", "gclid"})
+        tail = "?" + urllib.parse.urlencode(query) if query else ""
+        return "chytapust.cz" + u.path.rstrip("/").casefold() + tail
+    except (TypeError, ValueError):
+        return ""
+
+
 def normalize(row):
     ident = pick(row, "id", "sku", "product_id", "productid", "merchant_sku", "catalog_id")
     title = pick(row, "title", "name", "product_name", "productname")
@@ -63,6 +94,9 @@ def normalize(row):
         return None, "invalid_title"
     if not affiliate_ok(link):
         return None, "missing_verified_site_pid_click_url"
+    target = merchant_key(link)
+    if not target:
+        return None, "unverified_chytapust_destination"
     # A numeric price alone does not establish CZK; the feed may be in EUR.
     if currency:
         if currency.upper() != "CZK":
@@ -85,6 +119,7 @@ def normalize(row):
     if len(sku) > 110:
         return None, "invalid_sku"
     return {"sku": sku, "title": title, "external_url": link,
+            "merchant_key": target,
             "regular_price": str(price.quantize(Decimal("0.01"))),
             "description": pick(row, "description", "long_description")[:2500]}, None
 
@@ -193,7 +228,10 @@ def inventory():
 def decide(feed_rows, products, limit=20):
     by_sku = {str(p.get("sku", "")): p for p in products if p.get("sku")}
     titles = {str(p.get("name", "")).casefold().strip() for p in products}
+    destinations = {key for p in products
+                    if (key := merchant_key(p.get("product_url", "")))}
     seen = set()
+    seen_targets = set()
     changes = []
     counts = {"feed_rows": 0, "eligible": 0, "duplicate_feed": 0,
               "blocked_existing": 0, "create_draft": 0, "update_managed": 0, "rejected": {}}
@@ -204,21 +242,23 @@ def decide(feed_rows, products, limit=20):
             counts["rejected"][reason] = counts["rejected"].get(reason, 0) + 1
             continue
         counts["eligible"] += 1
-        if item["sku"] in seen:
+        if item["sku"] in seen or item["merchant_key"] in seen_targets:
             counts["duplicate_feed"] += 1
             continue
         seen.add(item["sku"])
+        seen_targets.add(item["merchant_key"])
         existing = by_sku.get(item["sku"])
         if existing:
             # Pilot is CREATE-ONLY, even for a source-tagged draft. It may have
             # been published since inventory GET; never mutate its affiliate URL.
             counts["blocked_existing"] += 1
-        elif item["title"].casefold().strip() in titles:
+        elif item["title"].casefold().strip() in titles or item["merchant_key"] in destinations:
             counts["blocked_existing"] += 1
         elif len(changes) < limit:
             changes.append(("create", None, item))
             counts["create_draft"] += 1
             titles.add(item["title"].casefold().strip())
+            destinations.add(item["merchant_key"])
     return changes, counts
 
 
