@@ -2,7 +2,7 @@
 """CJ -> Na-Ryby WooCommerce affiliate catalog pilot; never promotes to Merchant Center.
 
 Default: READ ONLY. --apply creates at most 20 hidden draft EXTERNAL products.
-Existing unmanaged Woo products are never updated, deleted, published or adopted.
+Existing Woo products (managed or unmanaged) are never updated, deleted or published.
 Requires a real publisher-specific CJ ZIP/XML/CSV export and Woo REST credentials.
 """
 import argparse
@@ -55,7 +55,7 @@ def normalize(row):
     title = pick(row, "title", "name", "product_name", "productname")
     link = pick(row, "buyurl", "clickurl", "click_url", "affiliate_url", "link", "producturl")
     availability = pick(row, "availability", "in_stock", "stock_status", "stock")
-    currency = pick(row, "currency", "currency_code") or "CZK"
+    currency = pick(row, "currency", "currency_code")
     price_raw = pick(row, "price", "sale_price", "retailprice")
     if not ident or len(ident) > 100 or not re.fullmatch(r"[\w.:-]+", ident, re.UNICODE):
         return None, "missing_or_invalid_id"
@@ -63,8 +63,13 @@ def normalize(row):
         return None, "invalid_title"
     if not affiliate_ok(link):
         return None, "missing_verified_site_pid_click_url"
-    if currency.upper() != "CZK":
-        return None, "non_czk"
+    # A numeric price alone does not establish CZK; the feed may be in EUR.
+    if currency:
+        if currency.upper() != "CZK":
+            return None, "non_czk"
+    elif not re.search(r"(?:CZK|Kč|Kc)\s*$", price_raw, flags=re.I):
+        return None, "unverified_currency"
+
     if availability.lower() in {"out of stock", "out_of_stock", "outofstock", "false", "0", "no", "unavailable"}:
         return None, "unavailable"
     if availability.lower() not in {"in stock", "in_stock", "instock", "true", "1", "yes", "available"}:
@@ -205,14 +210,9 @@ def decide(feed_rows, products, limit=20):
         seen.add(item["sku"])
         existing = by_sku.get(item["sku"])
         if existing:
-            owned = any(m.get("key") == "_nry_cj_source" and m.get("value") == SOURCE
-                        for m in existing.get("meta_data", []))
-            if not owned or existing.get("type") != "external":
-                counts["blocked_existing"] += 1
-                continue
-            if len(changes) < limit:
-                changes.append(("update", existing["id"], item))
-                counts["update_managed"] += 1
+            # Pilot is CREATE-ONLY, even for a source-tagged draft. It may have
+            # been published since inventory GET; never mutate its affiliate URL.
+            counts["blocked_existing"] += 1
         elif item["title"].casefold().strip() in titles:
             counts["blocked_existing"] += 1
         elif len(changes) < limit:
@@ -224,22 +224,19 @@ def decide(feed_rows, products, limit=20):
 
 def apply_changes(changes):
     for operation, product_id, item in changes:
+        if operation != "create" or product_id is not None:
+            raise ValueError("pilot_forbids_existing_product_writes")
         body = {"type": "external", "name": item["title"], "sku": item["sku"],
                 "product_url": item["external_url"], "button_text": "Zobrazit v obchodě",
-                "regular_price": item["regular_price"]}
-        if operation == "create":
-            body.update({"status": "draft", "catalog_visibility": "hidden",
-                         "description": item["description"],
-                         "meta_data": [{"key": "_nry_cj_source", "value": SOURCE}]})
-            wc_request("", "POST", body)
-        else:
-            # Preserve existing editorial text, media, taxonomy and publication status.
-            wc_request("/" + str(product_id), "PUT", body)
+                "regular_price": item["regular_price"], "status": "draft",
+                "catalog_visibility": "hidden", "description": item["description"],
+                "meta_data": [{"key": "_nry_cj_source", "value": SOURCE}]}
+        wc_request("", "POST", body)
 
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--apply", action="store_true", help="Write only hidden drafts and previously managed products")
+    p.add_argument("--apply", action="store_true", help="Create only new hidden drafts; never update existing products")
     p.add_argument("--limit", type=int, default=20)
     p.add_argument("--feed-file", help="Offline fixture; only allowed without --apply")
     p.add_argument("--inventory-file", help="Offline fixture; only allowed without --apply")
