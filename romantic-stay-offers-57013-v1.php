@@ -11,6 +11,10 @@ final class NRY_Romantic_Stay_Offers_57013_V1 {
     const SLUG = 'romanticky-pobyt-pro-dva-s-rybarenim-nezapomenutelne-chvile-plne-lasky-a-rybolovu';
     const URL = 'https://na-ryby.eu/romanticky-pobyt-pro-dva-s-rybarenim-nezapomenutelne-chvile-plne-lasky-a-rybolovu/';
     const MODIFIED_GMT = '2026-04-19 12:01:55';
+    // Authenticated by anonymous GET-only live WordPress in-loop proof #44887021892.
+    // Raw post_content 14225 bytes, full SHA256, independently paired to exact ID/modified.
+    const RAW_SHA256 = '17e8cc812393057c20343c3812c059291e3102421a2fbad94190ad73abada185';
+    const RAW_BYTES = 14225;
     // First 512 *bytes* of the exact public REST rendered source, verified
     // 2026-11-19; this is intentionally NOT described as a raw WP SHA.
     const RENDERED_PREFIX_SHA256 = '13781a6c347e3bbb2b3382e958b4349c2648ba0e601603ea34aa853b11452d69';
@@ -51,6 +55,8 @@ final class NRY_Romantic_Stay_Offers_57013_V1 {
             && ($p->post_name ?? '') === self::SLUG
             && ($p->post_modified_gmt ?? '') === self::MODIFIED_GMT
             && is_string($p->post_content ?? null)
+            && strlen($p->post_content) === self::RAW_BYTES
+            && hash_equals(self::RAW_SHA256, hash('sha256', $p->post_content))
             && strpos($p->post_content, 'Romantický pobyt pro dva s rybařením') !== false;
     }
 
@@ -109,9 +115,12 @@ final class NRY_Romantic_Stay_Offers_57013_V1 {
             || strpos($html, self::HAUZI_SRUB) !== false
             || strpos($html, self::HAUZI_MORE) !== false) return $html;
         $before = self::hrefs($html);
+        // Live in-loop proof #44887021892 verified exactly 2 historical
+        // first-party /booking-cesko anchors, one inside the pink CTA and
+        // one separately in the author's original body. Keep both unchanged.
         if ($before === null || count(array_filter($before, function($href) {
             return $href === self::CATEGORY;
-        })) !== 1) return $html;
+        })) !== 2) return $html;
         $updated = str_replace(self::OLD_BUTTON, self::block(), $html);
         $after = self::hrefs($updated);
         $added = array(self::HAUZI_SRUB, self::HAUZI_MORE);
