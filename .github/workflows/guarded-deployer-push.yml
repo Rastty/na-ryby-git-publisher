@@ -44,6 +44,9 @@ on:
       - 'scripts/verify-home-buyer-entry-public-v1.py'
       - '.github/workflows/home-buyer-entry-public-v1.yml'
       - 'home-advisor-seo-snippets-v1.php'
+      - 'romantic-stay-meta-57013-v1.php'
+      - 'romantic-stay-offers-57013-v1.php'
+      - 'assets/nry-romantic-stay-offers-57013-v1.css'
       - 'home-revir-stay-paths-118641-v1.php'
       - 'stays-main-navigation-bridge-v1.php'
       - 'revir-main-menu-discovery-v1.php'
@@ -52,6 +55,11 @@ on:
       - 'tests/test-home-advisor-seo-snippets-v1.php'
       - 'scripts/verify-home-advisor-seo-public.py'
       - 'tests/test-home-advisor-seo-public.py'
+      - 'tests/test-romantic-stay-meta-57013-v1.php'
+      - 'tests/test-romantic-stay-offers-57013-v1.php'
+      - 'scripts/verify-romantic-stay-meta-public.py'
+      - 'tests/test-romantic-stay-meta-public.py'
+      - '.github/workflows/nry-romantic-stay-meta-public.yml'
       - 'nry-privacy-contact-cleanup-v1.php'
       - 'tests/test-home-advisor-entry-118641-v1.php'
       - 'tests/test-privacy-contact-cleanup-v1.php'
@@ -355,6 +363,9 @@ on:
       - 'home-buyer-entry-measurement-v1.php'
       - 'assets/nry-home-buyer-entry-v1.js'
       - 'home-advisor-seo-snippets-v1.php'
+      - 'romantic-stay-meta-57013-v1.php'
+      - 'romantic-stay-offers-57013-v1.php'
+      - 'assets/nry-romantic-stay-offers-57013-v1.css'
       - 'home-revir-stay-paths-118641-v1.php'
       - 'stays-main-navigation-bridge-v1.php'
       - 'revir-main-menu-discovery-v1.php'
@@ -645,6 +656,12 @@ jobs:
           php tests/test-home-advisor-seo-snippets-v1.php
           python3 -m py_compile scripts/verify-home-advisor-seo-public.py
           python3 tests/test-home-advisor-seo-public.py
+          php -l romantic-stay-meta-57013-v1.php
+          php tests/test-romantic-stay-meta-57013-v1.php
+          php -l romantic-stay-offers-57013-v1.php
+          php tests/test-romantic-stay-offers-57013-v1.php
+          python3 -m py_compile scripts/verify-romantic-stay-meta-public.py
+          python3 tests/test-romantic-stay-meta-public.py
           php -l nry-privacy-contact-cleanup-v1.php
           php tests/test-privacy-contact-cleanup-v1.php
           python3 -m py_compile scripts/verify-privacy-contact-public-v1.py
