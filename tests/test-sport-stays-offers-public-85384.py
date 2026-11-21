@@ -35,7 +35,7 @@ assert counts['panelInternalStayLinks'] == 1 and counts['offerCardCount'] == 3
 assert counts['postContentRegionCount'] == 1
 assert counts['articleNewStayLinks'] == 4 and counts['articleOldBookingLinks'] == 0
 # Additional unrelated internal navigation must not change the article proof.
-extra = ('<nav>' + '<a href="' + m['STAYS'] + '">Region</a>' * 3 + '</nav>').encode()
+extra = ('<nav>' + ('<a href="' + m['STAYS'] + '">Region</a>') * 3 + '</nav>').encode()
 ready_with_nav = ready.replace(b'</body>', extra + b'</body>')
 nav_counts = m['diagnostic_counts'](ready_with_nav)
 assert nav_counts['publicPageNewStayLinks'] == 7
