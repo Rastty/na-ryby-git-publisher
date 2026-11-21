@@ -12,8 +12,9 @@ final class NRY_Sterkac_Rules_12040_V1 {
     const SLUG = 'soukromy-revir-sterkac-zajeci';
     const CANONICAL = 'https://na-ryby.eu/soukromy-revir-sterkac-zajeci/';
     const MODIFIED_GMT = '2026-04-14 10:33:15';
-    // Intentionally EMPTY: no production activation without raw WP source SHA.
-    const VERIFIED_RAW_SHA256 = '';
+    // Anonymous GET-only WP raw-source proof: Actions #44882948563, 21 Nov 2026.
+    // Post #12040, modified GMT 2026-04-14 10:33:15, 13706 original bytes.
+    const VERIFIED_RAW_SHA256 = '12871a357e56edbfdd9dca38b4fac1ea14eca0d3fefcc1e4b44b4bd30752142b';
     const MARKER = 'data-nry-sterkac-rules="v1"';
     const HEADING = '<h1>Soukromý revír Štěrkáč Zaječí</h1>';
     const FOOTER = '<div style="border-top:1px solid #e5e5e5;margin-top:28px;padding-top:12px;color:#666;font-size:14px;">';
