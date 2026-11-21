@@ -19,6 +19,31 @@ Store ONLY in GitHub repository/environment secrets, never issues, commits, chat
 
 The code refuses to download from arbitrary hosts, follow redirects, or use embedded URL credentials. It rejects oversized ZIPs and archives containing more than one feed. It supports CSV and XML with common feed field names; **real feed schema must be checked before applying**.
 
+## No-click scheduled READ-ONLY preview (21 Nov 2026)
+
+The existing workflow also supports **Tuesday and Friday 05:23 UTC** scheduled
+feed/inventory collision previews without manually selecting `Run workflow`.
+This is **NOT active by default**: it executes only if repository variable
+`NRY_CJ_WOO_READONLY_ENABLED=YES` is explicitly set by the owner. Without
+that opt-in, both scheduled jobs skip without requesting CJ/Woo credentials.
+
+Before arming, configure the **five exact secrets listed above** and first
+confirm the official CJ export belongs to Na-Ryby property PID `8287231`.
+Scheduled preview performs the same bounded `python3 scripts/cj_woo_catalog_sync.py
+--limit 20` **without `--apply`**, reads inventory through Woo REST GET,
+and prints sanitized counts and up to five SKU identifiers. It cannot create,
+change, delete, publish, promote, or submit products or send merchant clicks.
+Existing manual `dry-run` remains available; `draft-pilot` remains
+**workflow_dispatch-only**, protected by `na-ryby-production` and the separate
+`NRY_CJ_WOO_APPLY=YES` variable. The new schedule is not permission for
+a first production catalog write.
+
+If a scheduled run blocks on credentials, malformed current feed, transient
+Woo HTTP 401 or schema drift, leave catalog unpublished and fix evidence
+instead of loosening identity, stock, or API protections. Turning the variable
+off returns to no scheduled CJ/Woo requests; no FTPS or WP publisher updates
+are needed to disable the scan.
+
 ## Running
 Workflow `NRY CJ WooCommerce catalog pilot (no WP All Import)`:
 1. On PR, only syntax and offline tests run. No secrets, CJ requests or site writes.
