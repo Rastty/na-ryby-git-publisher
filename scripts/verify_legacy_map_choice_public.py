@@ -12,6 +12,7 @@ URL = 'https://na-ryby.eu/dovolena-u-vody/'
 MARKER = 'data-nry-map-discovery="v1"'
 MAP_TOKEN = 'mapsengine.google.com/map/embed?mid=z3EK_WPx5q6o.ksrmQWY0S3AE'
 LINKS = (
+    'https://na-ryby.eu/category/soukrome-rybarske-reviry/',
     'https://na-ryby.eu/jak-cist-soupis-reviru-a-ris-cislo-reviru-podrevir-a-podminky/',
     'https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/',
 )
