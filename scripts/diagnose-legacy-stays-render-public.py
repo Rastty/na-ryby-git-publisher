@@ -51,7 +51,10 @@ def analyze(html):
     r = Reader()
     r.feed(html)
     r.close()
+    h1 = re.findall(r'<h1\\b[^>]*>([\\s\\S]{0,1500}?)</h1>', html, re.I)
+    title_tags = re.findall(r'</?\\s*([a-z][a-z0-9]*)\\b', h1[0], re.I) if h1 else []
     return {
+        "title_inner_tag_names": sorted(set(tag.lower() for tag in title_tags))[:10],
         "html_bytes": len(html.encode("utf-8")),
         "marker_count": html.count(MARKER),
         "marker_dom": r.marker,
