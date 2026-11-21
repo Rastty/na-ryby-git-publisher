@@ -13,6 +13,7 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 HOME = "https://na-ryby.eu/"
 SOURCE = 'data-nry-home-trust="source-bound-118641-20261109-v1"'
+SOURCE_TAG = '<span hidden ' + SOURCE + '></span>'
 MARKER = 'data-nry-home-visitor-copy="v1"'
 SENTENCES = (
     ("Místo slabého archivního výpisu dostane návštěvník přehledný rozcestník podle záměru: výběr vybavení, nejlepší srovnání, praktické návody, začátky s rybařením i prostor pro budoucí revíry a pobyty.",
@@ -68,6 +69,8 @@ def verify(html, preflight=False):
         raise ValueError("HOME_CANONICAL_MISMATCH")
     if tree.source_markers != 1 or html.count(SOURCE) != 1:
         raise ValueError("SOURCE_PROOF_MISSING_OR_DUPLICATE")
+    if html.count(SOURCE_TAG) != 1:
+        raise ValueError("SOURCE_TAG_EXACT_SHAPE_UNVERIFIED")
     if (tree.copy_markers != (0 if preflight else 1) or
             html.count(MARKER) != (0 if preflight else 1)):
         raise ValueError("HOME_COPY_MARKER_NOT_IN_EXPECTED_STATE")
