@@ -104,7 +104,10 @@ final class NRY_Private_Waters_Concrete_Choice_V1 {
     }
 
     public static function boot() {
-        if (function_exists('add_filter') && function_exists('add_action')) {
+        // Only register runtime hooks inside WordPress. Some offline publisher
+        // tests stub add_filter() but intentionally have no is_single/get_post.
+        if (function_exists('is_single') && function_exists('get_post')
+            && function_exists('add_filter') && function_exists('add_action')) {
             add_filter('the_content', array(__CLASS__, 'render'), 92);
             add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue'), 25);
         }
