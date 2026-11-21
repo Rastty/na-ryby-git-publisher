@@ -30,7 +30,7 @@ function wp_enqueue_style($handle,$url,$deps,$ver) {
 function chk($x,$s) {if (!$x) throw new RuntimeException($s);}
 require dirname(__DIR__).'/reviry-autem-trust-56493-v1.php';
 $c='NRY_Reviry_Autem_Trust_56493_V1';
-chk($GLOBALS['hooks']['the_content']===array(array($c,'render'),PHP_INT_MAX),'source render hook');
+chk($GLOBALS['hooks']['the_content']===array($c.'::render',PHP_INT_MAX),'source render hook');
 chk($GLOBALS['hooks']['wp_enqueue_scripts']===array(array($c,'enqueue'),28),'css source hook');
 $before='<h1>Nejlepší rybářské revíry v Česku</h1>'
     .'<h2>Kam se dostanete autem</h2><p>'.str_repeat('Rybářské výlety. ', 140).'</p>'
