@@ -64,10 +64,18 @@ final class NRY_Legacy_Stays_Archive_Entry_V1 {
     public static function place_after_title($html) {
         if (!is_string($html) || strlen($html) < 5000
             || strpos($html, self::MARKER) !== false) return $html;
-        $pattern = '~<h1\\b[^>]*>\\s*Ubytování v ČR\\s*</h1>~u';
+        // Live WordPress title is visually correct but the raw H1 text is
+        // entity/spacing encoded. Compare the *exact* decoded title, never a
+        // fuzzy title fragment or an arbitrary H1 containing nested markup.
+        $pattern = '~<h1\\b[^>]{0,500}>([\\s\\S]{0,2000}?)</h1>~iu';
         $matches = array();
         if (preg_match_all($pattern, $html, $matches, PREG_OFFSET_CAPTURE) !== 1
-            || !isset($matches[0][0][0], $matches[0][0][1])) return $html;
+            || !isset($matches[0][0][0], $matches[0][0][1], $matches[1][0][0])) return $html;
+        $rawTitle = $matches[1][0][0];
+        if (strpos($rawTitle, '<') !== false || strpos($rawTitle, '>') !== false) return $html;
+        $decodedTitle = html_entity_decode($rawTitle, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $normalTitle = preg_replace('~[\\s\\x{00A0}\\x{202F}]+~u', ' ', $decodedTitle);
+        if (!is_string($normalTitle) || trim($normalTitle) !== self::H1) return $html;
         $heading = $matches[0][0][0];
         $titleEnd = $matches[0][0][1] + strlen($heading);
         $firstResult = strpos($html, self::FIRST_RESULT, $titleEnd);

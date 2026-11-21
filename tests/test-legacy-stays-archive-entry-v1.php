@@ -46,6 +46,23 @@ ok_stays($c::place_after_title($after)===$after,'no duplicate second insertion')
 ok_stays($c::place_after_title(str_replace('Ubytování v ČR</h1>','Jiný archiv</h1>',$html))===str_replace('Ubytování v ČR</h1>','Jiný archiv</h1>',$html),'H1 drift no-op');
 ok_stays($c::place_after_title(str_replace('Rekreační dům Harvánek','Jiná nabídka',$html))===str_replace('Rekreační dům Harvánek','Jiná nabídka',$html),'listing drift no-op');
 ok_stays($c::place_after_title($html.$html)===$html.$html,'two H1 no-op');
+// Public 21 Nov source: visible H1 stays exactly the same even if raw
+// entities or nonbreaking-space encoding differ from the source string.
+$encoded = str_replace('Ubytování v ČR</h1>', 'Ubytov&aacute;n&iacute; v &#268;R</h1>', $html);
+$encoded = str_replace('Ubytov&amp;aacute;n&amp;iacute; v &amp;#268;R', 'Ubytov&aacute;n&iacute; v &#268;R', $encoded);
+$encodedAfter = $c::place_after_title($encoded);
+ok_stays($encodedAfter !== $encoded && strpos($encodedAfter, '</h1>'.$block) !== false, 'entity-encoded H1 exact insertion');
+ok_stays(str_replace($block, '', $encodedAfter) === $encoded, 'entity-encoded original HTML byte preserving');
+$nbsp = str_replace('Ubytování v ČR</h1>', 'Ubytování&nbsp;v&nbsp;ČR</h1>', $html);
+ok_stays($c::place_after_title($nbsp) !== $nbsp, 'nonbreaking-space H1 insertion');
+$nested = str_replace('Ubytování v ČR</h1>', '<span>Ubytování v ČR</span></h1>', $html);
+ok_stays($c::place_after_title($nested) === $nested, 'unexpected nested H1 markup remains fail-closed');
+$script = str_replace('Ubytování v ČR</h1>', '<script>Ubytování v ČR</script></h1>', $html);
+ok_stays($c::place_after_title($script) === $script, 'script in H1 rejected');
+$other = str_replace('Ubytování v ČR</h1>', 'Ubytování v Čechách</h1>', $html);
+ok_stays($c::place_after_title($other) === $other, 'different title no-op');
+$twice = str_replace('</body>', '<h1>Ubytování v ČR</h1></body>', $html);
+ok_stays($c::place_after_title($twice) === $twice, 'two H1 still no-op');
 $c::css();
 ok_stays(count($GLOBALS['styles'])===1 && strpos($GLOBALS['styles'][0][1],'nry-legacy-stays-entry-v1.css')!==false,'CSS for only target page');
 foreach(array('page','admin','preview','feed','paged','ajax','custom','host','permalink','post') as $key) {

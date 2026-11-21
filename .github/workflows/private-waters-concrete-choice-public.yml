@@ -7,6 +7,10 @@ on:
       - 'tests/test-private-waters-concrete-choice-v1.php'
       - 'tests/test-private-waters-concrete-choice-public.py'
       - 'scripts/verify-private-waters-concrete-choice-public.py'
+      - 'scripts/diagnose-private-waters-render-public.py'
+      - 'scripts/diagnose-legacy-stays-render-public.py'
+      - 'tests/test-legacy-stays-render-diagnostic.py'
+      - 'tests/test-private-waters-render-diagnostic.py'
       - '.github/workflows/private-waters-concrete-choice-public.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
@@ -29,6 +33,24 @@ jobs:
           php tests/test-private-waters-concrete-choice-v1.php
           python3 -m py_compile scripts/verify-private-waters-concrete-choice-public.py
           python3 tests/test-private-waters-concrete-choice-public.py
+          python3 -m py_compile scripts/diagnose-private-waters-render-public.py
+          python3 tests/test-private-waters-render-diagnostic.py
+          python3 -m py_compile scripts/diagnose-legacy-stays-render-public.py
+          python3 tests/test-legacy-stays-render-diagnostic.py
+      - name: Diagnose exact live public render without writes or credential input
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/diagnose-private-waters-render-public.py --readonly
+      - name: Optional PR-only HTTP proof (transport 401 is not content failure)
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: python3 scripts/verify-private-waters-concrete-choice-public.py --verify
+      - name: Read-only old accommodation archive guard diagnostics
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/diagnose-legacy-stays-render-public.py --readonly
+      - name: Read-only cross-check of pending old accommodation archive proof
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: python3 scripts/verify-legacy-stays-archive-entry-public.py --verify
       - name: Independent visitor-facing anonymous same-site proof
         if: github.event_name == 'workflow_run'
         run: python3 scripts/verify-private-waters-concrete-choice-public.py --verify
