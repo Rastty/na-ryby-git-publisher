@@ -6,6 +6,15 @@ on:
       - 'assets/nry-revir-archive-entry-v1.css'
       - 'tests/test-revir-archive-decision-entry-v1.php'
       - 'scripts/verify-revir-archive-entry-public.py'
+      - 'tests/test-revir-archive-dom-order-public.py'
+      - '.github/workflows/revir-archive-decision-entry-v1.yml'
+  # Verification-only changes never need to trigger a new FTPS code deploy.
+  # Re-run a single anonymous GET once the corrected verifier is on main.
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/verify-revir-archive-entry-public.py'
+      - 'tests/test-revir-archive-dom-order-public.py'
       - '.github/workflows/revir-archive-decision-entry-v1.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
@@ -15,7 +24,7 @@ permissions:
   contents: read
 jobs:
   contract:
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    if: github.event_name == 'pull_request' || github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -27,6 +36,7 @@ jobs:
           php -l revir-archive-decision-entry-v1.php
           php tests/test-revir-archive-decision-entry-v1.php
           python3 -m py_compile scripts/verify-revir-archive-entry-public.py
+          python3 tests/test-revir-archive-dom-order-public.py
       - name: Independent anonymous archive output, after protected WEDOS FTPS
-        if: github.event_name == 'workflow_run'
+        if: github.event_name == 'workflow_run' || github.event_name == 'push'
         run: python3 scripts/verify-revir-archive-entry-public.py --verify
