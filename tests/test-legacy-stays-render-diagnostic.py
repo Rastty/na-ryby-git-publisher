@@ -12,6 +12,7 @@ assert a["first_result_present"] and a["marker_count"] == 0
 b = m.analyze(html.replace("<h1>Ubytování v ČR</h1>",
     "<h1><span>Ubytování v ČR</span></h1>"))
 assert b["exact_h1_count"] == 0 and b["title_headings"] == ["Ubytování v ČR"]
+assert b["title_inner_tag_names"] == ["span"], "actual 21 Nov live wrapper must be visible in diagnostic flags"
 c = m.analyze(html.replace("Rekreační dům Harvánek","Nová nabídka"))
 assert not c["first_result_present"]
 print("NRY_LEGACY_STAYS_DIAGNOSTIC_OFFLINE_VERIFIED")

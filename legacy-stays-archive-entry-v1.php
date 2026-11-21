@@ -71,7 +71,14 @@ final class NRY_Legacy_Stays_Archive_Entry_V1 {
         $matches = array();
         if (preg_match_all($pattern, $html, $matches, PREG_OFFSET_CAPTURE) !== 1
             || !isset($matches[0][0][0], $matches[0][0][1], $matches[1][0][0])) return $html;
-        $rawTitle = $matches[1][0][0];
+        $rawTitle = trim($matches[1][0][0]);
+        // Exact live TagDiv page title on 21 Nov: a *single bare span* around
+        // the approved heading. Permit this observed wrapper only; arbitrary
+        // nested markup, attributes, links and script tags still fail closed.
+        $spanTitle = array();
+        if (preg_match('~\\A<span>([^<>]{1,500})</span>\\z~u', $rawTitle, $spanTitle) === 1) {
+            $rawTitle = $spanTitle[1];
+        }
         if (strpos($rawTitle, '<') !== false || strpos($rawTitle, '>') !== false) return $html;
         $decodedTitle = html_entity_decode($rawTitle, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $normalTitle = preg_replace('~[\\s\\x{00A0}\\x{202F}]+~u', ' ', $decodedTitle);
