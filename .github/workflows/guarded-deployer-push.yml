@@ -110,6 +110,7 @@ on:
       - 'sport-stays-source-proof-85384-v1.php'
       - 'sport-stays-offers-85384-v1.php'
       - 'kruzberk-source-proof-12877-v1.php'
+      - 'reviry-autem-source-proof-56493-v1.php'
       - 'brno-reservoir-source-proof-17591-v1.php'
       - 'brno-reservoir-trust-stays-17591-v1.php'
       - 'assets/nry-brno-reservoir-stays-17591-v1.css'
@@ -128,6 +129,7 @@ on:
       - 'scripts/verify-kruzberk-fishing-trust-public-12877.py'
       - '.github/workflows/kruzberk-fishing-trust-12877.yml'
       - 'scripts/verify-kruzberk-source-proof-12877.py'
+      - 'tests/test-reviry-autem-source-proof-56493.php'
       - 'tests/test-kruzberk-source-proof-12877-v1.php'
       - 'tests/test-kruzberk-source-proof-12877.py'
       - '.github/workflows/kruzberk-source-proof-12877.yml'
@@ -367,6 +369,7 @@ on:
       - 'sport-stays-source-proof-85384-v1.php'
       - 'sport-stays-offers-85384-v1.php'
       - 'kruzberk-source-proof-12877-v1.php'
+      - 'reviry-autem-source-proof-56493-v1.php'
       - 'brno-reservoir-source-proof-17591-v1.php'
       - 'brno-reservoir-trust-stays-17591-v1.php'
       - 'kruzberk-fishing-trust-12877-v1.php'
@@ -493,6 +496,8 @@ jobs:
           php tests/test-dyje6-stay-trust-14517-v1.php
           python3 -m unittest discover -s tests -p test_dyje6_stay_public.py -v
           php -l jizni-morava-stays-12166-v1.php
+          php -l reviry-autem-source-proof-56493-v1.php
+          php tests/test-reviry-autem-source-proof-56493.php
           php -l brno-reservoir-source-proof-17591-v1.php
           php -l brno-reservoir-trust-stays-17591-v1.php
           php tests/test-brno-reservoir-trust-stays-17591-v1.php
