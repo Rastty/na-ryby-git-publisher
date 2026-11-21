@@ -58,6 +58,12 @@ on:
       - 'legacy-map-discovery-bridge-v1.php'
       - 'legacy-stays-archive-entry-v1.php'
       - 'private-waters-concrete-choice-v1.php'
+      - 'gsc-revir-ris-source-paths-v1.php'
+      - 'assets/nry-gsc-revir-ris-paths-v1.css'
+      - 'tests/test-gsc-revir-ris-source-paths-v1.php'
+      - 'scripts/verify-gsc-revir-ris-public-v1.py'
+      - 'tests/test-gsc-revir-ris-public-v1.py'
+      - '.github/workflows/gsc-revir-ris-public-v1.yml'
       - 'assets/nry-private-waters-examples-v1.css'
       - 'assets/nry-legacy-stays-entry-v1.css'
       - 'gsc-revir-stays-seo-20261120-v1.php'
@@ -386,6 +392,12 @@ on:
       - 'legacy-map-discovery-bridge-v1.php'
       - 'legacy-stays-archive-entry-v1.php'
       - 'private-waters-concrete-choice-v1.php'
+      - 'gsc-revir-ris-source-paths-v1.php'
+      - 'assets/nry-gsc-revir-ris-paths-v1.css'
+      - 'tests/test-gsc-revir-ris-source-paths-v1.php'
+      - 'scripts/verify-gsc-revir-ris-public-v1.py'
+      - 'tests/test-gsc-revir-ris-public-v1.py'
+      - '.github/workflows/gsc-revir-ris-public-v1.yml'
       - 'assets/nry-private-waters-examples-v1.css'
       - 'assets/nry-legacy-stays-entry-v1.css'
       - 'gsc-revir-stays-seo-20261120-v1.php'
@@ -503,6 +515,10 @@ jobs:
           php tests/test-legacy-stays-archive-entry-v1.php
           php -l private-waters-concrete-choice-v1.php
           php tests/test-private-waters-concrete-choice-v1.php
+          php -l gsc-revir-ris-source-paths-v1.php
+          php tests/test-gsc-revir-ris-source-paths-v1.php
+          python3 -m py_compile scripts/verify-gsc-revir-ris-public-v1.py
+          python3 tests/test-gsc-revir-ris-public-v1.py
           python3 tests/test-private-waters-concrete-choice-public.py
           python3 tests/test-legacy-stays-archive-public.py
           php -l legacy-map-discovery-bridge-v1.php
@@ -552,6 +568,10 @@ jobs:
           php tests/test-legacy-stays-archive-entry-v1.php
           php -l private-waters-concrete-choice-v1.php
           php tests/test-private-waters-concrete-choice-v1.php
+          php -l gsc-revir-ris-source-paths-v1.php
+          php tests/test-gsc-revir-ris-source-paths-v1.php
+          python3 -m py_compile scripts/verify-gsc-revir-ris-public-v1.py
+          python3 tests/test-gsc-revir-ris-public-v1.py
           python3 tests/test-private-waters-concrete-choice-public.py
           python3 tests/test-legacy-stays-archive-public.py
           php -l legacy-map-discovery-bridge-v1.php
