@@ -93,7 +93,7 @@ final class NRY_Reviry_Autem_Trust_56493_V1 {
             if (strpos($html, $url) !== false) return $html;
         }
         $matches = array();
-        if (preg_match_all('~<h2\b[^>]*>\s*'.preg_quote(self::ORIGINAL_H2, '~').'\s*</h2>~u',
+        if (preg_match_all('~<h2\b[^>]*>(?:\s|<(?:strong|span|em|b)(?:\s[^>]*)?>){0,3}'.preg_quote(self::ORIGINAL_H2, '~').'(?:\s|</(?:strong|span|em|b)>){0,3}</h2>~u',
             $html, $matches, PREG_OFFSET_CAPTURE) !== 1) return $html;
         $h = $matches[0][0];
         $at = $h[1] + strlen($h[0]);
