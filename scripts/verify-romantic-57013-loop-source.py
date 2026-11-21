@@ -6,6 +6,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.request import Request
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from readonly_urlopen_retry import guarded_urlopen
 
 BASE = "https://na-ryby.eu"
