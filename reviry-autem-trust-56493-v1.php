@@ -31,7 +31,7 @@ final class NRY_Reviry_Autem_Trust_56493_V1 {
             add_filter('the_content', __CLASS__.'::render', PHP_INT_MAX);
         }
         if (function_exists('add_action')) {
-            add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue'), 28);
+            add_action('wp_enqueue_scripts', __CLASS__.'::enqueue', 28);
         }
     }
 
