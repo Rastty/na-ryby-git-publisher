@@ -1,0 +1,61 @@
+name: Na-Ryby GSC Candat + 2018 Trout RIS Source Public Proof
+on:
+  pull_request:
+    paths:
+      - 'gsc-revir-ris-source-paths-v1.php'
+      - 'assets/nry-gsc-revir-ris-paths-v1.css'
+      - 'tests/test-gsc-revir-ris-source-paths-v1.php'
+      - 'scripts/verify-gsc-revir-ris-public-v1.py'
+      - 'tests/test-gsc-revir-ris-public-v1.py'
+      - '.github/workflows/gsc-revir-ris-public-v1.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+      - name: Source-locked 3-URL PHP and independent public-parser contracts
+        run: |
+          set -euo pipefail
+          php -l gsc-revir-ris-source-paths-v1.php
+          php tests/test-gsc-revir-ris-source-paths-v1.php
+          python3 -m py_compile scripts/verify-gsc-revir-ris-public-v1.py
+          python3 tests/test-gsc-revir-ris-public-v1.py
+      - name: Three original publicly indexed article sources, preflight only
+        run: |
+          set -euo pipefail
+          python3 scripts/verify-gsc-revir-ris-public-v1.py --preflight
+
+  public:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      # Only checkout exact trusted main-push source after protected deploy.
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: Check source PHP and immutable no-click fixture before public
+        run: |
+          set -euo pipefail
+          php -l gsc-revir-ris-source-paths-v1.php
+          php tests/test-gsc-revir-ris-source-paths-v1.php
+          python3 tests/test-gsc-revir-ris-public-v1.py
+      - name: Independent anonymous public GET proof on all 3 indexed pages
+        run: |
+          set -euo pipefail
+          python3 scripts/verify-gsc-revir-ris-public-v1.py --verify
