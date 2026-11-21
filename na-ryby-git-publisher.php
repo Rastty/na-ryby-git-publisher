@@ -40,6 +40,7 @@ require_once __DIR__ . '/kruzberk-source-proof-12877-v1.php';
 require_once __DIR__ . '/reviry-autem-source-proof-56493-v1.php';
 require_once __DIR__ . '/reviry-autem-trust-56493-v1.php';
 require_once __DIR__ . '/brno-reservoir-source-proof-17591-v1.php';
+require_once __DIR__ . '/sterkac-source-proof-12040-v1.php';
 require_once __DIR__ . '/brno-reservoir-trust-stays-17591-v1.php';
 require_once __DIR__ . '/kruzberk-fishing-trust-12877-v1.php';
 require_once __DIR__ . '/legacy-net-buyer-guides-v1.php';

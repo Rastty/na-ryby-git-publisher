@@ -1,0 +1,41 @@
+name: Na-Ryby Sterkac 12040 Source Proof (GET only)
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'sterkac-source-proof-12040-v1.php'
+      - 'scripts/verify-sterkac-source-proof-12040.py'
+      - 'tests/test-sterkac-source-proof-12040-v1.php'
+      - 'tests/test-sterkac-source-proof-12040.py'
+      - '.github/workflows/sterkac-source-proof-12040.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with: {persist-credentials: false}
+      - name: Exact read-only source identity contract
+        run: |
+          php -l na-ryby-git-publisher.php
+          php -l sterkac-source-proof-12040-v1.php
+          php tests/test-sterkac-source-proof-12040-v1.php
+          python3 tests/test-sterkac-source-proof-12040.py
+          python3 -m py_compile scripts/verify-sterkac-source-proof-12040.py
+  public:
+    needs: contract
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with: {persist-credentials: false}
+      - name: Anonymous GET-only source proof after real protected deploy
+        run: python3 scripts/verify-sterkac-source-proof-12040.py --verify
