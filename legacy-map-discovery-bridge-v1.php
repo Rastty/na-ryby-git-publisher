@@ -51,15 +51,15 @@ final class NRY_Legacy_Map_Discovery_Bridge_V1 {
         if ($openAt === false || $tagEnd === false || $closeAt === false
             || $openAt >= $urlAt || $urlAt >= $tagEnd
             || $tagEnd - $openAt > 1500 || $closeAt - $tagEnd > 1500) return $html;
-        // Historical map remains untouched. The two current editorial links
-        // are useful even when the migrated My Maps embed still renders.
+        // Put the decision before the large map so useful first-party paths
+        // remain visible above the fold; the historical embed stays byte-identical.
         $block = '<section class="nry-map-discovery" '.self::MARKER.'>'
             .'<h2>Jak ověřit revír a naplánovat pobyt u vody</h2>'
             .'<p>Mapa slouží k orientaci. Před výpravou ověřte aktuální hranice revíru, povolenku, místní pravidla a dostupnost ubytování.</p>'
             .'<ul><li><a href="'.self::RULES_GUIDE.'">Jak najít a ověřit revír v RIS a soupisu</a></li>'
             .'<li><a href="'.self::STAYS_GUIDE.'">Rybářské pobyty a konkrétní možnosti ubytování</a></li></ul>'
             .'</section>';
-        $insertAt = $closeAt + strlen('</iframe>');
+        $insertAt = $openAt;
         $changed = substr($html, 0, $insertAt).$block.substr($html, $insertAt);
         return substr_count($changed, self::MARKER) === 1 ? $changed : $html;
     }
