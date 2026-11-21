@@ -1,0 +1,33 @@
+name: Na-Ryby Legacy Map First Choice Public Proof
+on:
+  pull_request:
+    paths:
+      - 'legacy-map-discovery-bridge-v1.php'
+      - 'tests/test-legacy-map-discovery-bridge-v1.php'
+      - 'scripts/verify_legacy_map_choice_public.py'
+      - 'tests/test-legacy-map-public-order.py'
+      - '.github/workflows/legacy-map-public-proof.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  contract:
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Fail-closed offline map contract
+        run: |
+          php -l legacy-map-discovery-bridge-v1.php
+          php tests/test-legacy-map-discovery-bridge-v1.php
+          python3 -m py_compile scripts/verify_legacy_map_choice_public.py
+          python3 tests/test-legacy-map-public-order.py
+      - name: Independent first-party public map readback after protected FTPS
+        if: github.event_name == 'workflow_run'
+        run: python3 scripts/verify_legacy_map_choice_public.py --verify
