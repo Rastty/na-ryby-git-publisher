@@ -29,7 +29,7 @@ check_map(substr_count($new, $embed) === 1, 'migrated map embed is preserved byt
 check_map(substr_count($new, $C::MARKER) === 1, 'single visible section');
 check_map(substr_count($new, $C::RULES_GUIDE) === 1, 'official rules orientation route');
 check_map(substr_count($new, $C::STAYS_GUIDE) === 1, 'current stay choices route');
-check_map(strpos($new, $embed) < strpos($new, $C::MARKER), 'links follow old map');
+check_map(strpos($new, $C::MARKER) < strpos($new, $embed), 'first-party decision precedes large map');
 check_map($C::render($new) === $new, 'idempotent');
 $drift = str_replace($C::MAP_URL_TOKEN, 'maps.example.com/other', $html);
 check_map($C::render($drift) === $drift, 'edited map URL wins');
