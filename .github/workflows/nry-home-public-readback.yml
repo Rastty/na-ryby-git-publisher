@@ -8,6 +8,10 @@ on:
       - 'tests/test-home-advisor-entry-118641-v1.php'
       - 'scripts/verify-home-advisor-entry-public.py'
       - 'tests/test-home-advisor-entry-public.py'
+      - 'home-revir-stay-paths-118641-v1.php'
+      - 'tests/test-home-revir-stay-paths-118641-v1.php'
+      - 'scripts/verify-home-visitor-copy-public.py'
+      - 'tests/test-home-visitor-copy-public.py'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]
@@ -26,12 +30,22 @@ jobs:
           python3 -m py_compile scripts/verify-home-118641-public.py
           python3 -m py_compile scripts/verify-home-advisor-entry-public.py
           python3 tests/test-home-advisor-entry-public.py
+          php -l home-revir-stay-paths-118641-v1.php
+          php tests/test-home-revir-stay-paths-118641-v1.php
+          python3 -m py_compile scripts/verify-home-visitor-copy-public.py
+          python3 tests/test-home-visitor-copy-public.py
       - name: Verify all eight destination URLs before merge (GET only)
         if: github.event_name == 'pull_request'
         run: python3 scripts/verify-home-advisor-entry-public.py --targets-only
+      - name: Source-bound original homepage copy preflight (PR only)
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-home-visitor-copy-public.py --preflight
       - name: Public HTTP GET-only verification
         if: github.event_name != 'pull_request'
         run: python3 scripts/verify-home-118641-public.py
       - name: Public homepage entry evidence (GET only, no merchant calls)
         if: github.event_name != 'pull_request'
         run: python3 scripts/verify-home-advisor-entry-public.py
+      - name: Independent public buyer-first homepage wording proof
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/verify-home-visitor-copy-public.py

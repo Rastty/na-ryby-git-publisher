@@ -10,7 +10,7 @@ $GLOBALS['home_url'] = 'https://na-ryby.eu/';
 $GLOBALS['home_post'] = (object)array(
     'ID'=>118641,'post_type'=>'page','post_status'=>'publish',
     'post_name'=>'na-ryby-eu-vse-pro-rybare','post_content'=>'source-drift');
-function add_filter($name,$cb,$priority) { $GLOBALS['home_hooks'][$name]=$priority; }
+function add_filter($name,$cb,$priority) { $GLOBALS['home_hooks'][$name][]=$priority; }
 function is_front_page() { return true; }
 function is_page($id) { return $id===$GLOBALS['home_query_id']; }
 function is_main_query() { return true; }
@@ -24,7 +24,7 @@ function get_post($id) { return $GLOBALS['home_post']; }
 function check_home($ok,$reason) { if (!$ok) throw new RuntimeException($reason); }
 require dirname(__DIR__).'/home-revir-stay-paths-118641-v1.php';
 $C='NRY_Home_Revir_Stay_Paths_118641_V1';
-check_home(($GLOBALS['home_hooks']['the_content'] ?? null)===90,'after existing homepage modules');
+check_home(($GLOBALS['home_hooks']['the_content'] ?? null)===array(90,96),'two scoped homepage filters');
 $markup='<span hidden '.$C::SOURCE_MARKER.'></span>'
     .'<section><h3>Kam na ryby</h3><p>Hledáte vodu?</p><ul>'.$C::REVIR_ANCHOR.'</ul></section>'
     .'<section><h3>Výprava na více dní</h3><p>'.$C::STAY_INTRO.'</p><ul>'.$C::STAY_ANCHOR.'</ul></section>';
@@ -51,5 +51,36 @@ check_home($C::render($markup)===$markup,'admin blocked');
 $GLOBALS['home_admin']=false;
 $GLOBALS['home_preview']=true;
 check_home($C::render($markup)===$markup,'preview blocked');
+$GLOBALS['home_preview']=false;
+$copySource='<span hidden '.$C::SOURCE_MARKER.'></span>';
+$copySource.=str_repeat('<p>Původní homepage a odkazy zůstávají beze změny.</p>',60);
+foreach($C::visitorCopyPairs() as $pair) {
+    $copySource.='<p>'.$pair[0].'</p>';
+}
+$oldMerchant='<a href="https://www.chytapust.cz/old-product/?old=1&amp;src=2">Historický odkaz</a>';
+$copySource.=$oldMerchant;
+check_home(strlen($copySource)>2500,'realistic visitor copy fixture');
+$better=$C::transformVisitorCopy($copySource);
+check_home($better!==$copySource,'six actual visitor copy fixes');
+check_home(substr_count($better,$C::COPY_MARKER)===1,'one public copy proof marker');
+check_home(substr_count($better,$C::SOURCE_MARKER)===1,'source marker unchanged');
+check_home(substr_count($better,$oldMerchant)===1,'old merchant URL byte-for-byte unchanged');
+foreach($C::visitorCopyPairs() as $pair) {
+    check_home(strpos($better,$pair[0])===false,'old internal text gone');
+    check_home(substr_count($better,$pair[1])===1,'exact visitor copy present');
+}
+check_home($C::transformVisitorCopy($better)===$better,'idempotent home visitor copy');
+$edited=str_replace($C::visitorCopyPairs()[0][0],'Editor owns this paragraph',$copySource);
+check_home($C::transformVisitorCopy($edited)===$edited,'changed copy fails closed, no partial edits');
+$duped=$copySource.'<p>'.$C::visitorCopyPairs()[0][0].'</p>';
+check_home($C::transformVisitorCopy($duped)===$duped,'duplicate homepage note fails closed');
+$noProof=str_replace($C::SOURCE_MARKER,'untrusted',''.$copySource);
+check_home($C::transformVisitorCopy($noProof)===$noProof,'missing source proof fails closed');
+check_home($C::renderVisitorCopy($copySource)===$copySource,'raw WP source hash drift blocks copy render');
+$GLOBALS['home_admin']=true;
+check_home($C::renderVisitorCopy($copySource)===$copySource,'admin never transformed');
+$GLOBALS['home_admin']=false;
+$GLOBALS['home_preview']=true;
+check_home($C::renderVisitorCopy($copySource)===$copySource,'preview never transformed');
 $GLOBALS['home_preview']=false;
 echo "PASS: homepage revír and stay discovery, exact anchors, no raw-source bypass\n";
