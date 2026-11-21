@@ -49,4 +49,22 @@ check_revir(count($GLOBALS['styles'])===1 && strpos($GLOBALS['styles'][0][1],'nr
 ob_start();$class::render_on_main_loop($main);$first=ob_get_clean();
 ob_start();$class::render_on_main_loop($main);$second=ob_get_clean();
 check_revir($first===$markup && $second==='','only once in the main loop');
+// Buffered source placement: exact response preserving all original markup.
+check_revir(isset($GLOBALS['actions']['template_redirect']),'scoped archive buffer hook');
+$body='<html><head><title>Sportovní rybolov Rašelina - přehled</title></head>'
+    .'<body><h1 class="td-page-title">Soukromé rybářské revíry</h1>'
+    .'<h2>Sportovní rybolov Rašelina</h2>'
+    .str_repeat('<p>Original archive post summary preserved.</p>',160)
+    .$markup.'</body></html>';
+$placed=$class::place_after_archive_title($body);
+check_revir(strlen($placed)===strlen($body),'response length invariant');
+check_revir(substr_count($placed,$class::MARKER)===1,'no duplicate entry');
+check_revir(strpos($placed,$markup)<strpos($placed,'<h2>Sportovní rybolov Rašelina</h2>'),'before first actual listing');
+check_revir(strpos($placed,'</h1>'.$markup)!==false,'placed immediately after exact H1');
+check_revir(str_replace($markup,'',$placed)===str_replace($markup,'',$body),'non-entry HTML unchanged');
+check_revir($class::place_after_archive_title($placed)===$placed,'idempotent');
+$badTitle=str_replace('Soukromé rybářské revíry</h1>','Jiný název</h1>',$body);
+check_revir($class::place_after_archive_title($badTitle)===$badTitle,'changed archive identity fails closed');
+$duplicated=$body.$markup;
+check_revir($class::place_after_archive_title($duplicated)===$duplicated,'duplicate section fails closed');
 echo "REVIEW_ARCHIVE_OFFLINE_VERIFIED\n";
