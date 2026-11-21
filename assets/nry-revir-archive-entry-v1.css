@@ -1,0 +1,14 @@
+/* Scoped category-archive decision entry; no global theme overrides. */
+.nry-revir-archive-entry{box-sizing:border-box;display:block;clear:both;width:100%;margin:0 0 25px;padding:22px;border:1px solid #d8e4dc;border-radius:12px;background:#f7faf8;color:#172d22;font:inherit}
+.nry-revir-archive-entry *{box-sizing:border-box}
+.nry-revir-archive-entry__eyebrow{margin:0 0 5px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#286647}
+.nry-revir-archive-entry h2{margin:0 0 9px;color:#172d22;font-size:clamp(21px,2.4vw,27px);line-height:1.2;font-weight:750}
+.nry-revir-archive-entry p{margin:0 0 14px;line-height:1.55}
+.nry-revir-archive-entry__choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(172px,1fr));gap:10px;margin:14px 0}
+.nry-revir-archive-entry__choices a{display:flex;flex-direction:column;gap:6px;min-height:94px;padding:14px;background:#fff;border:1px solid #cbded2;border-radius:9px;text-decoration:none!important;color:#173b2a;line-height:1.35;transition:border-color .15s,box-shadow .15s}
+.nry-revir-archive-entry__choices a:hover,.nry-revir-archive-entry__choices a:focus-visible{border-color:#28734c;box-shadow:0 0 0 2px #cee9d7;outline:none}
+.nry-revir-archive-entry__choices strong{font-size:15px;font-weight:700}
+.nry-revir-archive-entry__choices span{font-size:13px;color:#42574b}
+.nry-revir-archive-entry__rules{margin:4px 0 0!important;font-size:13px}
+.nry-revir-archive-entry__rules a{color:#17683c;text-decoration:underline}
+@media(max-width:580px){.nry-revir-archive-entry{padding:16px}.nry-revir-archive-entry__choices{grid-template-columns:1fr}.nry-revir-archive-entry__choices a{min-height:0}}
