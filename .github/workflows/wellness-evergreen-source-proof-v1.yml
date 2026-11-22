@@ -1,0 +1,43 @@
+name: Na-Ryby Wellness Evergreen Two-Page Source Proof (GET only)
+on:
+  pull_request:
+    paths:
+      - 'wellness-evergreen-source-proof-v1.php'
+      - 'tests/test-wellness-evergreen-source-proof-v1.php'
+      - 'scripts/verify-wellness-evergreen-source-proof-v1.py'
+      - '.github/workflows/wellness-evergreen-source-proof-v1.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  offline:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: |
+          set -euo pipefail
+          php -l wellness-evergreen-source-proof-v1.php
+          php tests/test-wellness-evergreen-source-proof-v1.php
+          python3 -m py_compile scripts/verify-wellness-evergreen-source-proof-v1.py
+  read_only_proof:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == 'Rastty/na-ryby-git-publisher'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: main
+      - run: |
+          set -euo pipefail
+          python3 scripts/verify-wellness-evergreen-source-proof-v1.py

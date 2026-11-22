@@ -153,6 +153,7 @@ on:
       - 'brno-reservoir-source-proof-17591-v1.php'
       - 'cyklochata-source-proof-11983-v1.php'
       - 'wellness-srub-source-proof-17536-v1.php'
+      - 'wellness-evergreen-source-proof-v1.php'
       - 'wellness-srub-hauzi-offer-17536-v1.php'
       - 'assets/nry-wellness-srub-hauzi-17536-v1.css'
       - 'scripts/verify-wellness-srub-hauzi-public-17536.py'
@@ -466,6 +467,7 @@ on:
       - 'brno-reservoir-source-proof-17591-v1.php'
       - 'cyklochata-source-proof-11983-v1.php'
       - 'wellness-srub-source-proof-17536-v1.php'
+      - 'wellness-evergreen-source-proof-v1.php'
       - 'wellness-srub-hauzi-offer-17536-v1.php'
       - 'assets/nry-wellness-srub-hauzi-17536-v1.css'
       - 'cyklochata-hauzi-offer-11983-v1.php'
@@ -553,6 +555,8 @@ jobs:
           php -l revir-archive-decision-entry-v1.php
           php tests/test-revir-archive-decision-entry-v1.php
           php -l legacy-stays-archive-entry-v1.php
+          php -l wellness-evergreen-source-proof-v1.php
+          php tests/test-wellness-evergreen-source-proof-v1.php
           php tests/test-legacy-stays-archive-entry-v1.php
           php -l stays-vranov-discovery-59891-v1.php
           php tests/test-stays-vranov-discovery-59891-v1.php
@@ -616,6 +620,8 @@ jobs:
           php -l revir-archive-decision-entry-v1.php
           php tests/test-revir-archive-decision-entry-v1.php
           php -l legacy-stays-archive-entry-v1.php
+          php -l wellness-evergreen-source-proof-v1.php
+          php tests/test-wellness-evergreen-source-proof-v1.php
           php tests/test-legacy-stays-archive-entry-v1.php
           php -l stays-vranov-discovery-59891-v1.php
           php tests/test-stays-vranov-discovery-59891-v1.php
