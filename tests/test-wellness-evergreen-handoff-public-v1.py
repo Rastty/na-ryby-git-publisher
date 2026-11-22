@@ -30,7 +30,8 @@ def rejected(idx,doc):
     raise AssertionError('Rejected fixture was accepted')
 
 valid(0,fixture(0))
-valid(1,fixture(1,contextual=v.ORIGIN+'/rybareni/'))
+valid(1,fixture(1,contextual=v.ORIGIN+'/'))
+rejected(1,fixture(1,contextual=v.ORIGIN+'/rybareni/'))
 rejected(0,fixture(0,contextual=v.ORIGIN+'/rybareni/'))
 rejected(1,fixture(1,contextual='https://tracking.affiliateport.eu/click'))
 rejected(1,fixture(1,contextual=v.ORIGIN+'/rybareni/?preview=1'))
