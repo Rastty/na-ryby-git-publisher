@@ -70,6 +70,7 @@ require_once __DIR__ . '/romantic-stay-meta-57013-v1.php';
 require_once __DIR__ . '/romantic-stay-offers-57013-v1.php';
 require_once __DIR__ . '/home-revir-stay-paths-118641-v1.php';
 require_once __DIR__ . '/stays-main-navigation-bridge-v1.php';
+require_once __DIR__ . '/stays-vranov-discovery-59891-v1.php';
 require_once __DIR__ . '/legacy-stays-archive-entry-v1.php';
 require_once __DIR__ . '/revir-main-menu-discovery-v1.php';
 require_once __DIR__ . '/revir-archive-decision-entry-v1.php';
