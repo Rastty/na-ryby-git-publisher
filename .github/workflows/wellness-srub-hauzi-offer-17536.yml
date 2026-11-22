@@ -1,0 +1,48 @@
+name: Na-Ryby Wellness Srub 17536 Exact Hauzi Public Proof
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'wellness-srub-hauzi-offer-17536-v1.php'
+      - 'assets/nry-wellness-srub-hauzi-17536-v1.css'
+      - 'scripts/verify-wellness-srub-hauzi-public-17536.py'
+      - 'tests/test-wellness-srub-hauzi-public-17536.py'
+      - 'tests/test-wellness-srub-hauzi-offer-17536-v1.php'
+      - '.github/workflows/wellness-srub-hauzi-offer-17536.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  contract:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+      - name: Source-locked PHP and public fail-closed contract
+        run: |
+          set -euo pipefail
+          php -l wellness-srub-hauzi-offer-17536-v1.php
+          php tests/test-wellness-srub-hauzi-offer-17536-v1.php
+          python3 -m py_compile scripts/verify-wellness-srub-hauzi-public-17536.py
+          python3 tests/test-wellness-srub-hauzi-public-17536.py
+  public:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: Exact published same-object affiliate two-CTA anonymous readback
+        run: python3 scripts/verify-wellness-srub-hauzi-public-17536.py --verify
