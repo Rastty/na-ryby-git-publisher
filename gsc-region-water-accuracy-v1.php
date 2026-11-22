@@ -61,7 +61,7 @@ final class NRY_GSC_Regional_Accuracy_V1 {
         foreach (array('is_single','is_admin','is_preview','home_url',
             'get_queried_object_id','get_permalink','get_post') as $fn)
             if (!function_exists($fn)) return null;
-        if ($_SERVER['REQUEST_METHOD'] ?? 'GET' !== 'GET') return null;
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') return null;
         if (is_admin() || is_preview() ||
             (function_exists('is_feed') && is_feed()) ||
             (function_exists('is_customize_preview') && is_customize_preview()) ||
