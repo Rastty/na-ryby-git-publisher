@@ -145,6 +145,12 @@ on:
       - 'reviry-autem-trust-56493-v1.php'
       - 'assets/nry-reviry-autem-trust-56493-v1.css'
       - 'brno-reservoir-source-proof-17591-v1.php'
+      - 'cyklochata-source-proof-11983-v1.php'
+      - 'cyklochata-source-proof-11983-v1.php'
+      - 'scripts/verify-cyklochata-source-proof-11983.py'
+      - 'tests/test-cyklochata-source-proof-11983-v1.php'
+      - 'tests/test-cyklochata-source-proof-11983.py'
+      - '.github/workflows/cyklochata-source-proof-11983.yml'
       - 'sterkac-source-proof-12040-v1.php'
       - 'sterkac-rules-repair-12040-v1.php'
       - 'assets/nry-sterkac-rules-12040-v1.css'
@@ -605,6 +611,10 @@ jobs:
           php tests/test-reviry-autem-trust-56493.php
           python3 tests/test-reviry-autem-trust-public.py
           php -l brno-reservoir-source-proof-17591-v1.php
+          php -l cyklochata-source-proof-11983-v1.php
+          php tests/test-cyklochata-source-proof-11983-v1.php
+          python3 tests/test-cyklochata-source-proof-11983.py
+          python3 -m py_compile scripts/verify-cyklochata-source-proof-11983.py
           php -l sterkac-source-proof-12040-v1.php
           php tests/test-sterkac-source-proof-12040-v1.php
           php -l sterkac-rules-repair-12040-v1.php
