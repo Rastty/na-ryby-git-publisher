@@ -525,7 +525,6 @@ on:
       - 'baitboat-choice-entry-61257-v1.php'
       - 'powerbank-solar-fishing-guide-v1.php'
       - 'holdcarp-solar-decision-bridge-v1.php'
-      - 'tests/test-holdcarp-solar-decision-bridge-v1.php'
       - 'baitboat-compromise-recovery-v1.php'
       - 'assets/**'
       - 'seo-pipaky-beginner-35755-v1.php'
