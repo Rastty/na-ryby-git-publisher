@@ -2,6 +2,9 @@
 // Offline fail-closed review bridge; source article and old hrefs must remain identical.
 define('ABSPATH','/');
 $GLOBALS['handlers'] = array();
+function is_single($id = null) { return false; }
+function is_singular($type = null) { return false; }
+function get_post($id = null) { return null; }
 function add_filter($hook,$callback,$priority) { $GLOBALS['handlers'][] = array($hook,$callback,$priority); }
 require_once __DIR__.'/../holdcarp-solar-decision-bridge-v1.php';
 function check($pass,$name) { if (!$pass) { fwrite(STDERR,"FAIL $name\n"); exit(1); } echo "PASS $name\n"; }
