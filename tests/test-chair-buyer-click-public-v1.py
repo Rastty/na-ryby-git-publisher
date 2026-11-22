@@ -23,8 +23,8 @@ evergreen_links = [
 hub = page(m['HUB'], hub_links)
 evergreen = page(m['EVERGREEN'], evergreen_links)
 assert m['inspect'](hub, evergreen, after=False)['state'] == 'PUBLIC_CHAIR_BUYER_CLICK_PREFLIGHT'
-hub_v = page(m['HUB'], hub_links, '1.11.6')
-evergreen_v = page(m['EVERGREEN'], evergreen_links, '1.11.6')
+hub_v = page(m['HUB'], hub_links, '1.11.7')
+evergreen_v = page(m['EVERGREEN'], evergreen_links, '1.11.7')
 result = m['inspect'](hub_v, evergreen_v, after=True,
                       installed_js=script, reviewed_js=script)
 assert result['state'] == 'PUBLIC_CHAIR_BUYER_CLICK_ASSET_VERIFIED'
@@ -51,8 +51,8 @@ blocked(h=hub_v.replace((origin+m['EVERGREEN']).encode(),(origin+'/other').encod
 blocked(e=evergreen_v.replace(b'www.dpbolvw.net',b'www.fake-merchant.example'))
 blocked(e=evergreen_v.replace(b'click-7777777-12347575-1234567890123',b'click-7777777-12347575'))
 blocked(e=evergreen_v.replace((origin+m['ADVISOR']).encode(),(origin+'/other').encode()))
-blocked(h=hub_v.replace(b'ver=1.11.6',b'ver=1.10.0'))
-blocked(e=evergreen_v.replace(b'ver=1.11.6',b'ver=1.10.0'))
-blocked(h=hub_v.replace(b'</head>',b'<script src="'+(origin+m['ASSET']+'?ver=1.11.6').encode()+b'"></script></head>'))
+blocked(h=hub_v.replace(b'ver=1.11.7',b'ver=1.10.0'))
+blocked(e=evergreen_v.replace(b'ver=1.11.7',b'ver=1.10.0'))
+blocked(h=hub_v.replace(b'</head>',b'<script src="'+(origin+m['ASSET']+'?ver=1.11.7').encode()+b'"></script></head>'))
 assert m['inspect'](hub,evergreen,after=False)['state']=='PUBLIC_CHAIR_BUYER_CLICK_PREFLIGHT'
 print('PASS: exact chair guide and CJ handoffs, JS bytes, no synthetic clicks')

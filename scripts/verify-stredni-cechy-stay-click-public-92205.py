@@ -18,8 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = 'https://na-ryby.eu'
 PAGE = '/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/'
 ASSET = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js'
-VERSION = 'ver=1.11.5'
-BASELINE_VERSION = 'ver=1.11.4'
+VERSION = 'ver=1.11.7'
+BASELINE_VERSION = 'ver=1.11.6'
 PARTNER = 'https://go.dognet.com/?chid=5QoXiSqx&url=https%3A%2F%2Fhportal.cz%2Fcs%2Frabyne%2Fpenzion-janata%2F'
 HAUZI = 'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fchata-slapy-skalice'
 

@@ -25,10 +25,11 @@ PAGES = {
     "stredni_cechy_stays_92205": "/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/",
     "sport_stays_85384": "/nejlepsi-mista-pro-sportovni-rybolov-s-ubytovanim-v-ceske-republice/",
     "cyklochata_11983": "/rybarska-chata-cyklochata-vranovska-prehrada/",
+    "wellness_srub_17536": "/chata-rybarsky-wellness-srub/",
     "unscoped_control": "/nejlepsi-rybarske-hlasice-a-signalizatory/",
 }
 ASSET = "/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js"
-VERSION = "1.11.6"
+VERSION = "1.11.7"
 # The reviewed JS expanded beyond the old 20 KiB probe ceiling as new
 # source-pinned stay placements were added. Keep a fixed, bounded 64 KiB GET;
 # exact byte identity is still required before claiming asset readiness.

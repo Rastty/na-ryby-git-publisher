@@ -36,6 +36,7 @@ assert result['pages']['family_stays_59271']['state']=='DIRECT_SCRIPT_ENQUEUED'
 assert result['pages']['stredni_cechy_stays_92205']['state']=='DIRECT_SCRIPT_ENQUEUED'
 assert result['pages']['sport_stays_85384']['state']=='DIRECT_SCRIPT_ENQUEUED'
 assert result['pages']['cyklochata_11983']['state']=='DIRECT_SCRIPT_ENQUEUED'
+assert result['pages']['wellness_srub_17536']['state']=='DIRECT_SCRIPT_ENQUEUED'
 assert result['pages']['unscoped_control']['state']=='DIRECT_SCRIPT_NOT_OBSERVABLE'
 assert result['assetIntegrity']=='BYTE_IDENTICAL_TO_REVIEWED_JS'
 assert result['ga4DeliveryProven'] is False and result['paidCommissionProven'] is False

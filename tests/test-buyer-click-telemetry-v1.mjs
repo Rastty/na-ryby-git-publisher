@@ -29,6 +29,7 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
     sourcePinnedJMBlock=false,sourcePinnedFamilyBlock=false,
     sourcePinnedSCBlock=false,sourcePinnedSportBlock=false,
     sourcePinnedCykloHero=false,sourcePinnedCykloFooter=false,
+    sourcePinnedWellnessHero=false,sourcePinnedWellnessFooter=false,
     stayOfferId=null,familyOfferId=null,scOfferId=null,sportOfferId=null}={})=>{
     const link={href,closest:selector=>{
       if(selector==='aside[data-nry-baitboat-choice-link="v1"]' &&
@@ -49,6 +50,10 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
          sourcePinnedCykloHero) return {};
       if(selector==='aside.nry-cyklochata__bottom' &&
          sourcePinnedCykloFooter) return {};
+      if(selector==='section[data-nry-wellness-srub-offer="v1"]' &&
+         sourcePinnedWellnessHero) return {};
+      if(selector==='aside.nry-wellness__bottom' &&
+         sourcePinnedWellnessFooter) return {};
       if(selector==='article[data-nry-offer-id]' && stayOfferId)
         return {getAttribute:name=>name==='data-nry-offer-id'?stayOfferId:null};
       if(selector==='article[data-nry-family-offer]' && familyOfferId)
@@ -813,3 +818,47 @@ assert.equal(cykloNoGtag.calls.length,0,'existing consent is never bypassed');
 const unrelatedCyklo=browser({page:'/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/'});
 unrelatedCyklo.click(cykloOffer,{sourcePinnedCykloHero:true});
 assert.equal(unrelatedCyklo.calls.length,0,'Cyklochata CTA cannot be counted on unrelated pages');
+
+const wellnessPage='/chata-rybarsky-wellness-srub/';
+const wellnessOffer='https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Frybarsky-srub';
+const wellness=browser({page:wellnessPage});
+assert.equal(wellness.callbacks.length,1,'one shared consent-aware click listener');
+wellness.click(wellnessOffer,{sourcePinnedWellnessHero:true});
+wellness.click(wellnessOffer,{sourcePinnedWellnessFooter:true});
+assert.equal(wellness.calls.length,2,'two genuine source-locked wellness CTAs observed');
+for(const call of wellness.calls) {
+  assert.equal(call[0],'event');
+  assert.equal(call[1],'nry_buyer_offer_click');
+  assert.deepEqual(Object.keys(call[2]).sort(),[
+    'buyer_page','buyer_cta_type','source_post_id','placement_id',
+    'stay_offer_id','stay_partner','transport_type'
+  ].sort(),'no URL, visitor ID or cookie');
+  assert.equal(call[2].buyer_page,'wellness_srub_17536');
+  assert.equal(call[2].buyer_cta_type,'fishing_stay_outbound');
+  assert.equal(call[2].source_post_id,'17536');
+  assert.equal(call[2].placement_id,'wellness-srub-hauzi-offer-17536-v1');
+  assert.equal(call[2].stay_offer_id,'rybarsky-srub');
+  assert.equal(call[2].stay_partner,'hauzi_affiliateport_cz');
+  assert.equal(call[2].transport_type,'beacon');
+  assert.ok(!JSON.stringify(call).includes('https://'));
+}
+wellness.click(wellnessOffer);
+wellness.click(wellnessOffer,{sourcePinnedWellnessHero:true,trusted:false});
+wellness.click('https://www.hauzi.cz/rybarsky-srub',{sourcePinnedWellnessHero:true});
+wellness.click(wellnessOffer.replace('a=1736','a=wrong'),{sourcePinnedWellnessHero:true});
+wellness.click(wellnessOffer+'#fake',{sourcePinnedWellnessHero:true});
+wellness.click(wellnessOffer.replace('https://','http://'),{sourcePinnedWellnessHero:true});
+wellness.click(wellnessOffer,{sourcePinnedCykloHero:true});
+wellness.click('https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fcyklochata',{sourcePinnedWellnessHero:true});
+assert.equal(wellness.calls.length,2,'only two exact real wellness links recorded');
+const wellnessNoConsent=browser({page:wellnessPage,gtagEnabled:false});
+wellnessNoConsent.click(wellnessOffer,{sourcePinnedWellnessHero:true});
+assert.equal(wellnessNoConsent.calls.length,0,'no gtag consent bypass');
+const wellnessWrongPage=browser({page:cykloPage});
+wellnessWrongPage.click(wellnessOffer,{sourcePinnedWellnessHero:true});
+assert.equal(wellnessWrongPage.calls.length,0,'no bleed into Cyklochata');
+const wellnessSource=readFileSync('wellness-srub-hauzi-offer-17536-v1.php','utf8');
+assert.ok(wellnessSource.includes('data-nry-wellness-srub-offer="v1"'));
+assert.ok(wellnessSource.includes('aside class="nry-wellness__bottom"'));
+assert.ok(wellnessSource.includes(wellnessOffer),'GA4 expected URL must match source-verified PHP');
+console.log('PASS: wellness srub 17536 two exact visitor click events only');
