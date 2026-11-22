@@ -49,6 +49,7 @@ on:
       - 'assets/nry-romantic-stay-offers-57013-v1.css'
       - 'home-revir-stay-paths-118641-v1.php'
       - 'stays-main-navigation-bridge-v1.php'
+      - 'stays-vranov-discovery-59891-v1.php'
       - 'revir-main-menu-discovery-v1.php'
       - 'revir-archive-decision-entry-v1.php'
       - 'assets/nry-revir-archive-entry-v1.css'
@@ -421,6 +422,7 @@ on:
       - 'assets/nry-romantic-stay-offers-57013-v1.css'
       - 'home-revir-stay-paths-118641-v1.php'
       - 'stays-main-navigation-bridge-v1.php'
+      - 'stays-vranov-discovery-59891-v1.php'
       - 'revir-main-menu-discovery-v1.php'
       - 'revir-archive-decision-entry-v1.php'
       - 'assets/nry-revir-archive-entry-v1.css'
@@ -552,6 +554,8 @@ jobs:
           php tests/test-revir-archive-decision-entry-v1.php
           php -l legacy-stays-archive-entry-v1.php
           php tests/test-legacy-stays-archive-entry-v1.php
+          php -l stays-vranov-discovery-59891-v1.php
+          php tests/test-stays-vranov-discovery-59891-v1.php
           php -l private-waters-concrete-choice-v1.php
           php tests/test-private-waters-concrete-choice-v1.php
           php -l gsc-revir-ris-source-paths-v1.php
@@ -613,6 +617,8 @@ jobs:
           php tests/test-revir-archive-decision-entry-v1.php
           php -l legacy-stays-archive-entry-v1.php
           php tests/test-legacy-stays-archive-entry-v1.php
+          php -l stays-vranov-discovery-59891-v1.php
+          php tests/test-stays-vranov-discovery-59891-v1.php
           php -l private-waters-concrete-choice-v1.php
           php tests/test-private-waters-concrete-choice-v1.php
           php -l gsc-revir-ris-source-paths-v1.php
