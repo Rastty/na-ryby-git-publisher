@@ -81,7 +81,9 @@ final class NRY_Holdcarp_Solar_Decision_Bridge_V1 {
     }
 
     public static function boot() {
-        if (function_exists('add_filter')) add_filter('the_content', array(__CLASS__,'render'), 94);
+        if (function_exists('add_filter') && function_exists('is_single')
+            && function_exists('is_singular') && function_exists('get_post'))
+            add_filter('the_content', array(__CLASS__,'render'), 94);
     }
 }
 NRY_Holdcarp_Solar_Decision_Bridge_V1::boot();
