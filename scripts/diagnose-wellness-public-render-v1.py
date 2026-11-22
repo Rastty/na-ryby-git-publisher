@@ -68,6 +68,14 @@ def inspect(idx,slug):
             'literal_marker_count':html.count(MARKER),
             'panel_link_count':len(parser.panel_links),
             'panel_links_exact':parser.panel_links==expected,
+            'link_roles':[
+                {'role':label if label in ('srub','stays') else 'missing_or_unexpected',
+                 'destination':'srub' if dest==LINKS[0]
+                    else ('stays' if dest==LINKS[1]
+                          else ('other_first_party' if isinstance(dest,str) and dest.startswith(BASE+'/')
+                                else ('external_or_missing' if dest else 'missing')))}
+                for label,dest in parser.panel_links
+            ],
             'source_anchor_present':source>=0,
             'marker_precedes_source_anchor':mark>=0 and source>=0 and mark<source,
             'style_present':bool(parser.styles),
