@@ -12,6 +12,7 @@ on:
     branches: [main]
 permissions:
   contents: read
+  actions: read
 jobs:
   offline:
     runs-on: ubuntu-24.04
@@ -40,7 +41,28 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Bind public proof to exact successful protected deploy job and main SHA
+        id: upstream
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NRY_UPSTREAM_RUN_ID: ${{ github.event.workflow_run.id }}
+          NRY_UPSTREAM_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          if [ "$NRY_UPSTREAM_HEAD_SHA" != "$GITHUB_SHA" ]; then
+            echo 'BLOCKED: upstream head not equal to current main'
+            exit 1
+          fi
+          result="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${NRY_UPSTREAM_RUN_ID}/jobs?per_page=100" --jq '.jobs[] | select(.name=="deploy") | .conclusion')"
+          if [ "$result" != 'success' ]; then
+            echo 'SKIP: guarded release did not deploy; public status cannot be claimed'
+            echo 'deployed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo 'deployed=true' >> "$GITHUB_OUTPUT"
+          echo 'PASS: protected deploy job is success for current main SHA'
       - name: Independent anonymous GET of two exact review URLs; never click affiliate URLs
+        if: steps.upstream.outputs.deployed == 'true'
         run: |
           python3 - <<'PY'
           from html.parser import HTMLParser
