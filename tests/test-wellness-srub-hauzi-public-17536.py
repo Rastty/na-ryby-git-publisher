@@ -4,7 +4,7 @@ from pathlib import Path
 mod=SourceFileLoader('nry_wellness_public',str(Path(__file__).resolve().parents[1]/'scripts/verify-wellness-srub-hauzi-public-17536.py')).load_module()
 hero='<section data-nry-wellness-srub-offer="v1"><p>nižší hladina Vranovské přehrady povolenku</p><a href="'+mod.AFFILIATE+'" rel="sponsored nofollow noopener">Zjistit termín Wellness srubu na Hauzi</a><a href="'+mod.OWNER+'">Provozovatel</a></section>'
 footer='<aside><p>jejich aktuální dostupnost ale není ověřena</p><a href="'+mod.AFFILIATE+'" rel="sponsored nofollow noopener">Ověřit konkrétní srub na Hauzi</a></aside>'
-src='<!doctype html><html><head><link rel="canonical" href="'+mod.URL+'"><link rel="stylesheet" href="https://na-ryby.eu/wp-content/plugins/na-ryby-git-publisher/assets/'+mod.CSS+'?ver=1.0.0"></head><body>'+hero+footer+'<p>Historický popis ubytování.</p>'*250+'</body></html>'
+src='<!doctype html><html><head><link rel="canonical" href="'+mod.URL+'"><link rel="stylesheet" href="https://na-ryby.eu/wp-content/plugins/na-ryby-git-publisher/assets/'+mod.CSS+'?ver=1.0.0"></head><body>'+hero+footer+'<p>Historický popis ubytování.</p>'*380+'</body></html>'
 assert mod.verify(src)['status']=='WELLNESS_SRUB_HAUZI_OFFER_PUBLIC_VERIFIED'
 def reject(html):
     try:mod.verify(html)
