@@ -59,6 +59,11 @@ on:
       - 'legacy-stays-archive-entry-v1.php'
       - 'private-waters-concrete-choice-v1.php'
       - 'gsc-revir-ris-source-paths-v1.php'
+      - 'gsc-region-water-accuracy-v1.php'
+      - 'tests/test-gsc-region-water-accuracy-v1.php'
+      - 'scripts/verify-gsc-region-accuracy-public-v1.py'
+      - 'tests/test-gsc-region-accuracy-public-v1.py'
+      - '.github/workflows/gsc-region-accuracy-public-v1.yml'
       - 'assets/nry-gsc-revir-ris-paths-v1.css'
       - 'tests/test-gsc-revir-ris-source-paths-v1.php'
       - 'scripts/verify-gsc-revir-ris-public-v1.py'
@@ -393,6 +398,7 @@ on:
       - 'legacy-stays-archive-entry-v1.php'
       - 'private-waters-concrete-choice-v1.php'
       - 'gsc-revir-ris-source-paths-v1.php'
+      - 'gsc-region-water-accuracy-v1.php'
       - 'assets/nry-gsc-revir-ris-paths-v1.css'
       - 'assets/nry-private-waters-examples-v1.css'
       - 'assets/nry-legacy-stays-entry-v1.css'
@@ -513,6 +519,10 @@ jobs:
           php tests/test-private-waters-concrete-choice-v1.php
           php -l gsc-revir-ris-source-paths-v1.php
           php tests/test-gsc-revir-ris-source-paths-v1.php
+          php -l gsc-region-water-accuracy-v1.php
+          php tests/test-gsc-region-water-accuracy-v1.php
+          python3 -m py_compile scripts/verify-gsc-region-accuracy-public-v1.py
+          python3 tests/test-gsc-region-accuracy-public-v1.py
           python3 -m py_compile scripts/verify-gsc-revir-ris-public-v1.py
           python3 tests/test-gsc-revir-ris-public-v1.py
           python3 tests/test-private-waters-concrete-choice-public.py
@@ -566,6 +576,10 @@ jobs:
           php tests/test-private-waters-concrete-choice-v1.php
           php -l gsc-revir-ris-source-paths-v1.php
           php tests/test-gsc-revir-ris-source-paths-v1.php
+          php -l gsc-region-water-accuracy-v1.php
+          php tests/test-gsc-region-water-accuracy-v1.php
+          python3 -m py_compile scripts/verify-gsc-region-accuracy-public-v1.py
+          python3 tests/test-gsc-region-accuracy-public-v1.py
           python3 -m py_compile scripts/verify-gsc-revir-ris-public-v1.py
           python3 tests/test-gsc-revir-ris-public-v1.py
           python3 tests/test-private-waters-concrete-choice-public.py
