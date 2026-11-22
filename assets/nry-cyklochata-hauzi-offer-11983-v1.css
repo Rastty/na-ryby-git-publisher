@@ -1,0 +1,14 @@
+/* Source-locked offer for the exact Cyklochata property, post #11983 only. */
+.nry-cyklochata{margin:22px 0 30px;padding:clamp(20px,3vw,32px);background:linear-gradient(130deg,#ecfdf5 0%,#f0fdfa 100%);border:2px solid #059669;border-radius:18px;box-shadow:0 12px 28px rgba(6,78,59,.12);color:#123b33}
+.nry-cyklochata__eyebrow{font-size:13px;font-weight:800;letter-spacing:.055em;text-transform:uppercase;color:#047857}
+.nry-cyklochata h2{margin:8px 0 14px;color:#064e3b;font-size:clamp(24px,3vw,32px);line-height:1.2}
+.nry-cyklochata p,.nry-cyklochata__bottom p{line-height:1.6}
+.nry-cyklochata__actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:20px 0 12px}
+.nry-cyklochata__cta{display:inline-block;padding:15px 22px!important;min-height:50px;background:#047857!important;color:#fff!important;font-weight:800!important;text-decoration:none!important;border-radius:10px!important;box-shadow:0 7px 16px rgba(4,120,87,.23)}
+.nry-cyklochata__cta:hover,.nry-cyklochata__cta:focus{background:#065f46!important;color:#fff!important}
+.nry-cyklochata__secondary{display:inline-block;padding:13px 17px;border:2px solid #0f766e;border-radius:10px;color:#115e59!important;font-weight:700;text-decoration:none!important}
+.nry-cyklochata__fine{font-size:12px;color:#365a54;margin:8px 0 0}
+.nry-cyklochata__bottom{margin:25px 0;padding:22px;border:1px solid #0f766e;border-radius:14px;background:#f0fdfa;color:#123b33}
+.nry-cyklochata__bottom h3{margin:0 0 8px;color:#115e59}
+.nry-cyklochata__bottom .nry-cyklochata__cta{margin:7px 0}
+@media(max-width:600px){.nry-cyklochata{margin:12px 0 24px;padding:18px;border-radius:14px}.nry-cyklochata__actions{display:block}.nry-cyklochata__cta,.nry-cyklochata__secondary{display:block;text-align:center;width:100%;box-sizing:border-box;margin:10px 0}.nry-cyklochata__bottom{padding:16px}}
