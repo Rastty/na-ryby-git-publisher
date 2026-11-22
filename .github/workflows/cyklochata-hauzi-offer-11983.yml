@@ -1,0 +1,46 @@
+name: Na-Ryby Cyklochata 11983 Exact Hauzi Offer
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'cyklochata-hauzi-offer-11983-v1.php'
+      - 'assets/nry-cyklochata-hauzi-offer-11983-v1.css'
+      - 'scripts/verify-cyklochata-hauzi-offer-public-11983.py'
+      - 'tests/test-cyklochata-hauzi-offer-11983-v1.php'
+      - 'tests/test-cyklochata-hauzi-offer-public-11983.py'
+      - '.github/workflows/cyklochata-hauzi-offer-11983.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  contract:
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+      - name: Armed exact-source affiliate and source-guard contract
+        run: |
+          php -l na-ryby-git-publisher.php
+          php -l cyklochata-hauzi-offer-11983-v1.php
+          php tests/test-cyklochata-hauzi-offer-11983-v1.php
+          python3 tests/test-cyklochata-hauzi-offer-public-11983.py
+          python3 -m py_compile scripts/verify-cyklochata-hauzi-offer-public-11983.py
+  public:
+    needs: contract
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: GET-only live specific property offer after authorized deploy
+        run: python3 scripts/verify-cyklochata-hauzi-offer-public-11983.py --verify
