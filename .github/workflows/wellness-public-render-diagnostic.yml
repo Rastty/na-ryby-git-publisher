@@ -1,0 +1,22 @@
+name: Na-Ryby Wellness Two Public Render Diagnostic (GET only)
+on:
+  pull_request:
+    paths:
+      - 'scripts/diagnose-wellness-public-render-v1.py'
+      - '.github/workflows/wellness-public-render-diagnostic.yml'
+permissions:
+  contents: read
+jobs:
+  bounded_public_diagnostic:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Two exact anonymous HTML GETs, no URL follows or WP writes
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/diagnose-wellness-public-render-v1.py
+          python3 scripts/diagnose-wellness-public-render-v1.py
