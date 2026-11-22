@@ -1,0 +1,52 @@
+name: Na-Ryby 2023 Catfish and Archived Rules Public Proof
+on:
+  pull_request:
+    paths:
+      - 'legacy-2023-sumec-rules-decisions-v1.php'
+      - 'tests/test-legacy-2023-sumec-rules-decisions-v1.php'
+      - 'scripts/verify-legacy-2023-sumec-rules-public-v1.py'
+      - 'tests/test-legacy-2023-sumec-rules-public-v1.py'
+      - '.github/workflows/legacy-2023-sumec-rules-public-v1.yml'
+      - 'na-ryby-git-publisher.php'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  offline:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+      - name: Source-bound article no-write and public DOM contracts
+        run: |
+          set -euo pipefail
+          php -l legacy-2023-sumec-rules-decisions-v1.php
+          php tests/test-legacy-2023-sumec-rules-decisions-v1.php
+          python3 -m py_compile scripts/verify-legacy-2023-sumec-rules-public-v1.py
+          python3 tests/test-legacy-2023-sumec-rules-public-v1.py
+  public:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: Immutable positive and negative local fixture gates
+        run: |
+          set -euo pipefail
+          php tests/test-legacy-2023-sumec-rules-decisions-v1.php
+          python3 tests/test-legacy-2023-sumec-rules-public-v1.py
+      - name: Independent GET-only two public article corrections
+        run: python3 scripts/verify-legacy-2023-sumec-rules-public-v1.py --verify
