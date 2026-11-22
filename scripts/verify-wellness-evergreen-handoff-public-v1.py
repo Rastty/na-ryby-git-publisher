@@ -9,7 +9,6 @@ No customer data, merchant GETs, cookies, clicks or WordPress writes.
 import json
 import sys
 from html.parser import HTMLParser
-from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
 ORIGIN='https://na-ryby.eu'
@@ -50,11 +49,10 @@ class Doc(HTMLParser):
 def safe_unmanaged(href):
     if not isinstance(href,str):
         return False
-    parts=urlsplit(href)
-    return (parts.scheme=='https' and parts.netloc=='na-ryby.eu'
-            and parts.path.startswith('/') and parts.path!='/' and
-            not parts.query and not parts.fragment and
-            not parts.username and not parts.password and parts.port is None)
+    # The only additional live contextual link is the site's homepage.
+    # This is not an authored CTA and never an affiliate destination.
+    # Do not generalize to arbitrary same-origin URLs or query parameters.
+    return href==ORIGIN+'/'
 
 def verify_html(body,idx,url):
     parser=Doc()
