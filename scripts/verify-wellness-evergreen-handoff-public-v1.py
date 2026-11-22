@@ -8,6 +8,8 @@ No customer data, merchant GETs, cookies, clicks or WordPress writes.
 """
 import json
 import sys
+import hashlib
+from pathlib import Path
 from html.parser import HTMLParser
 from urllib.request import Request, urlopen
 
@@ -21,6 +23,7 @@ HUB=ORIGIN+'/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/'
 ANCHORS=('Když se řekne rybářský pobyt s wellness',
          'Chcete si odpočinout, ale nechcete jen ležet u bazénu?')
 MARKER='data-nry-wellness-evergreen-handoff="v1"'
+JS_URL=ORIGIN+'/wp-content/plugins/na-ryby-git-publisher/assets/nry-wellness-evergreen-choice-v1.js?ver=1.0.0'
 
 class Doc(HTMLParser):
     def __init__(self):
@@ -29,11 +32,14 @@ class Doc(HTMLParser):
         self.panels=0
         self.managed=[]
         self.unmanaged=[]
+        self.scripts=[]
         self.inside=False
     def handle_starttag(self,tag,attrs):
         a=dict(attrs)
         if tag=='link' and 'canonical' in (a.get('rel') or '').split():
             self.canonical.append(a.get('href'))
+        if tag=='script' and 'nry-wellness-evergreen-choice-v1.js' in (a.get('src') or ''):
+            self.scripts.append(a.get('src'))
         if tag=='section' and a.get('data-nry-wellness-evergreen-handoff')=='v1':
             self.panels+=1
             self.inside=True
@@ -59,6 +65,7 @@ def verify_html(body,idx,url):
     parser.feed(body)
     assert parser.canonical==[url], 'CANONICAL_DRIFT'
     assert parser.panels==1, 'PANEL_COUNT_DRIFT'
+    assert parser.scripts==[JS_URL], 'JS_ASSET_DRIFT'
     expected=[('srub',SRUB),('stays',HUB)]
     if idx==1:
         expected.reverse()
@@ -85,6 +92,12 @@ def check(slug,idx):
 if __name__=='__main__':
     try:
         reports=[check(slug,i) for i,slug in enumerate(SLUGS)]
+        with urlopen(Request(JS_URL,headers={'User-Agent':'NaRyby-Wellness-Handoff-Proof/1.0'}),timeout=25) as response:
+            assert response.status==200 and response.url==JS_URL, 'JS_HTTP_DRIFT'
+            served=response.read(50001)
+        assert len(served)<50001, 'JS_OVERSIZE'
+        local=(Path(__file__).resolve().parents[1]/'assets/nry-wellness-evergreen-choice-v1.js').read_bytes()
+        assert hashlib.sha256(served).digest()==hashlib.sha256(local).digest(), 'JS_SHA_DRIFT'
         print(json.dumps({'status':'WELLNESS_EVERGREEN_TWO_PUBLIC_VERIFIED',
                           'articles':reports,'firstPartyOfferRouteLinks':4,
                           'wordpressWrites':0,'merchantRequests':0,
@@ -97,6 +110,7 @@ if __name__=='__main__':
                                        'CANONICAL_DRIFT','PANEL_COUNT_DRIFT',
                                        'CTA_ROLE_OR_HREF_DRIFT','UNEXPECTED_CONTEXTUAL_LINK_COUNT',
                                        'UNSAFE_CONTEXTUAL_LINK','MARKER_DUPLICATED',
-                                       'PANEL_POSITION_DRIFT','HTTP_REDIRECT_OR_STATUS','DOCUMENT_TOO_LARGE'
+                                       'PANEL_POSITION_DRIFT','HTTP_REDIRECT_OR_STATUS','DOCUMENT_TOO_LARGE',
+                                       'JS_ASSET_DRIFT','JS_HTTP_DRIFT','JS_OVERSIZE','JS_SHA_DRIFT'
                                    } else 'GET_OR_PARSER_BLOCKED'}))
         sys.exit(1)

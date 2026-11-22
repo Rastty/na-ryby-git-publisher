@@ -16,7 +16,8 @@ def fixture(idx,contextual=None,extras='',roles=None,source=None):
                   for role,href in own)
     if contextual is not None:
         links='<a href="'+contextual+'">Context</a>'+links
-    return ('<html><head><link rel="canonical" href="'+url+'"></head><body>'
+    return ('<html><head><link rel="canonical" href="'+url+'">'
+            '<script src="'+v.JS_URL+'"></script></head><body>'
             '<section '+v.MARKER+'>'+links+extras+'</section>'
             '<p>'+ (v.ANCHORS[idx] if source is None else source)
             +'</p></body></html>')
@@ -43,4 +44,7 @@ rejected(0,fixture(0,roles=[('srub',v.SRUB),('stays',v.HUB),('other',v.HUB)]))
 rejected(0,fixture(0,extras='<a href="https://example.net/">External</a>'))
 rejected(0,fixture(0,source='Changed by editor'))
 rejected(0,fixture(0).replace(v.MARKER,v.MARKER+v.MARKER))
+rejected(0,fixture(0).replace('<script src="'+v.JS_URL+'"></script>',''))
+rejected(1,fixture(1,contextual=v.ORIGIN+'/').replace(v.JS_URL,v.JS_URL.replace('1.0.0','0.9.0')))
+rejected(0,fixture(0).replace('<script src="'+v.JS_URL+'"></script>','<script src="'+v.JS_URL+'"></script><script src="'+v.JS_URL+'"></script>'))
 print('WELLNESS_EVERGREEN_PUBLIC_DOM_NEGATIVE_CONTRACT_PASS')

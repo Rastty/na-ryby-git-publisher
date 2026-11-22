@@ -156,6 +156,7 @@ on:
       - 'wellness-evergreen-source-proof-v1.php'
       - 'wellness-evergreen-handoff-v1.php'
       - 'assets/nry-wellness-evergreen-handoff-v1.css'
+      - 'assets/nry-wellness-evergreen-choice-v1.js'
       - 'wellness-srub-hauzi-offer-17536-v1.php'
       - 'assets/nry-wellness-srub-hauzi-17536-v1.css'
       - 'scripts/verify-wellness-srub-hauzi-public-17536.py'
@@ -472,6 +473,7 @@ on:
       - 'wellness-evergreen-source-proof-v1.php'
       - 'wellness-evergreen-handoff-v1.php'
       - 'assets/nry-wellness-evergreen-handoff-v1.css'
+      - 'assets/nry-wellness-evergreen-choice-v1.js'
       - 'wellness-srub-hauzi-offer-17536-v1.php'
       - 'assets/nry-wellness-srub-hauzi-17536-v1.css'
       - 'cyklochata-hauzi-offer-11983-v1.php'
@@ -563,6 +565,8 @@ jobs:
           php tests/test-wellness-evergreen-source-proof-v1.php
           php -l wellness-evergreen-handoff-v1.php
           php tests/test-wellness-evergreen-handoff-v1.php
+          node tests/test-wellness-evergreen-choice-v1.mjs
+          python3 tests/test-wellness-evergreen-handoff-public-v1.py
           php tests/test-legacy-stays-archive-entry-v1.php
           php -l stays-vranov-discovery-59891-v1.php
           php tests/test-stays-vranov-discovery-59891-v1.php
@@ -630,6 +634,8 @@ jobs:
           php tests/test-wellness-evergreen-source-proof-v1.php
           php -l wellness-evergreen-handoff-v1.php
           php tests/test-wellness-evergreen-handoff-v1.php
+          node tests/test-wellness-evergreen-choice-v1.mjs
+          python3 tests/test-wellness-evergreen-handoff-public-v1.py
           php tests/test-legacy-stays-archive-entry-v1.php
           php -l stays-vranov-discovery-59891-v1.php
           php tests/test-stays-vranov-discovery-59891-v1.php
