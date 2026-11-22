@@ -28,6 +28,7 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
     sourcePinnedStayBlock=false,sourcePinnedDyje6Block=false,
     sourcePinnedJMBlock=false,sourcePinnedFamilyBlock=false,
     sourcePinnedSCBlock=false,sourcePinnedSportBlock=false,
+    sourcePinnedCykloHero=false,sourcePinnedCykloFooter=false,
     stayOfferId=null,familyOfferId=null,scOfferId=null,sportOfferId=null}={})=>{
     const link={href,closest:selector=>{
       if(selector==='aside[data-nry-baitboat-choice-link="v1"]' &&
@@ -44,6 +45,10 @@ function browser({page='/jednoduchy-navod-jak-vyuzivat-pipaky-na-ryby-vetsinou-u
          sourcePinnedSCBlock) return {};
       if(selector==='section[data-nry-sport-stays="v1"]' &&
          sourcePinnedSportBlock) return {};
+      if(selector==='section[data-nry-cyklochata-offer="v1"]' &&
+         sourcePinnedCykloHero) return {};
+      if(selector==='aside.nry-cyklochata__bottom' &&
+         sourcePinnedCykloFooter) return {};
       if(selector==='article[data-nry-offer-id]' && stayOfferId)
         return {getAttribute:name=>name==='data-nry-offer-id'?stayOfferId:null};
       if(selector==='article[data-nry-family-offer]' && familyOfferId)
@@ -775,3 +780,36 @@ const offSourceSport=browser({page:'/jine-rybarske-ubytovani/'});
 offSourceSport.click(sportOffers[0].href,{sourcePinnedSportBlock:true,sportOfferId:'statek-jih-cech'});
 assert.equal(offSourceSport.callbacks.length,0,'no sitewide affiliate-host tracking');
 console.log('PASS: sport-fishing stays 85384 exact three real click events only');
+
+
+const cykloPage='/rybarska-chata-cyklochata-vranovska-prehrada/';
+const cykloOffer='https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fcyklochata';
+const cyklo=browser({page:cykloPage});
+assert.equal(cyklo.callbacks.length,1);
+cyklo.click(cykloOffer,{sourcePinnedCykloHero:true});
+cyklo.click(cykloOffer,{sourcePinnedCykloFooter:true});
+assert.equal(cyklo.calls.length,2,'only genuine two source-pinned stay CTAs measured');
+for(const call of cyklo.calls){
+  assert.equal(call[0],'event');
+  assert.equal(call[1],'nry_buyer_offer_click');
+  assert.equal(call[2].buyer_page,'cyklochata_11983');
+  assert.equal(call[2].buyer_cta_type,'fishing_stay_outbound');
+  assert.equal(call[2].source_post_id,'11983');
+  assert.equal(call[2].placement_id,'cyklochata-hauzi-offer-11983-v1');
+  assert.equal(call[2].stay_offer_id,'cyklochata');
+  assert.equal(call[2].stay_partner,'hauzi_affiliateport_cz');
+  assert.ok(!JSON.stringify(call).includes('tracking.affiliateport.eu'),'never send URL or affiliate query');
+}
+cyklo.click(cykloOffer);
+cyklo.click(cykloOffer,{sourcePinnedCykloHero:true,trusted:false});
+cyklo.click('https://www.hauzi.cz/cyklochata',{sourcePinnedCykloHero:true});
+cyklo.click(cykloOffer.replace('a=1736','a=9999'),{sourcePinnedCykloHero:true});
+cyklo.click('http://tracking.affiliateport.eu/click?o=1990&a=1736',{sourcePinnedCykloHero:true});
+cyklo.click(cykloOffer,{sourcePinnedSportBlock:true});
+assert.equal(cyklo.calls.length,2,'no untrusted, wrong-campaign, out-of-placement or merchant event');
+const cykloNoGtag=browser({page:cykloPage,gtagEnabled:false});
+cykloNoGtag.click(cykloOffer,{sourcePinnedCykloHero:true});
+assert.equal(cykloNoGtag.calls.length,0,'existing consent is never bypassed');
+const unrelatedCyklo=browser({page:'/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/'});
+unrelatedCyklo.click(cykloOffer,{sourcePinnedCykloHero:true});
+assert.equal(unrelatedCyklo.calls.length,0,'Cyklochata CTA cannot be counted on unrelated pages');
