@@ -78,8 +78,8 @@ final class NRY_Stays_Vranov_Discovery_59891_V1 {
         }
     }
     public static function boot() {
-        if (function_exists('add_filter')) add_filter('the_content', array(__CLASS__, 'render'), PHP_INT_MAX);
-        if (function_exists('add_action')) add_action('template_redirect', array(__CLASS__, 'buffer'), 26);
+        if (function_exists('add_filter')) add_filter('the_content', __CLASS__.'::render', PHP_INT_MAX);
+        if (function_exists('add_action')) add_action('template_redirect', __CLASS__.'::buffer', 26);
     }
 }
 NRY_Stays_Vranov_Discovery_59891_V1::boot();
