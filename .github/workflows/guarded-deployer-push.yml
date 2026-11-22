@@ -390,6 +390,8 @@ on:
       - 'tests/test-baitboat-stock-guard-v1.cjs'
       - 'baitboat-choice-entry-61257-v1.php'
       - 'powerbank-solar-fishing-guide-v1.php'
+      - 'holdcarp-solar-decision-bridge-v1.php'
+      - 'tests/test-holdcarp-solar-decision-bridge-v1.php'
       - 'tests/test-powerbank-solar-fishing-guide-v1.php'
       - 'tests/test-powerbank-solar-fishing-guide-v1.cjs'
       - 'scripts/verify-powerbank-solar-fishing-public-v1.py'
@@ -522,6 +524,8 @@ on:
       - 'baitboat-stock-guard-v1.php'
       - 'baitboat-choice-entry-61257-v1.php'
       - 'powerbank-solar-fishing-guide-v1.php'
+      - 'holdcarp-solar-decision-bridge-v1.php'
+      - 'tests/test-holdcarp-solar-decision-bridge-v1.php'
       - 'baitboat-compromise-recovery-v1.php'
       - 'assets/**'
       - 'seo-pipaky-beginner-35755-v1.php'
@@ -593,6 +597,8 @@ jobs:
           php -l advisor-existing-page-release-v1.php
           php tests/test-native-kses-write-contract.php
           php -l powerbank-solar-fishing-guide-v1.php
+          php -l holdcarp-solar-decision-bridge-v1.php
+          php tests/test-holdcarp-solar-decision-bridge-v1.php
           php tests/test-powerbank-solar-fishing-guide-v1.php
           node tests/test-powerbank-solar-fishing-guide-v1.cjs
           python3 -m py_compile scripts/verify-powerbank-solar-fishing-public-v1.py
@@ -880,6 +886,8 @@ jobs:
           php -l baitboat-affiliate-release-v1.php
           php tests/test-baitboat-affiliate-release-v1.php
           php -l powerbank-solar-fishing-guide-v1.php
+          php -l holdcarp-solar-decision-bridge-v1.php
+          php tests/test-holdcarp-solar-decision-bridge-v1.php
           php tests/test-powerbank-solar-fishing-guide-v1.php
           node tests/test-powerbank-solar-fishing-guide-v1.cjs
           python3 -m py_compile scripts/verify-powerbank-solar-fishing-public-v1.py
