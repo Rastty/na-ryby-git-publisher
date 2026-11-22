@@ -1,0 +1,44 @@
+name: Na-Ryby Cyklochata 11983 Source Proof (GET only)
+on:
+  pull_request:
+    paths:
+      - 'na-ryby-git-publisher.php'
+      - 'cyklochata-source-proof-11983-v1.php'
+      - 'scripts/verify-cyklochata-source-proof-11983.py'
+      - 'tests/test-cyklochata-source-proof-11983-v1.php'
+      - 'tests/test-cyklochata-source-proof-11983.py'
+      - '.github/workflows/cyklochata-source-proof-11983.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Exact GET-only raw source identity contract
+        run: |
+          php -l na-ryby-git-publisher.php
+          php -l cyklochata-source-proof-11983-v1.php
+          php tests/test-cyklochata-source-proof-11983-v1.php
+          python3 tests/test-cyklochata-source-proof-11983.py
+          python3 -m py_compile scripts/verify-cyklochata-source-proof-11983.py
+  public:
+    needs: contract
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+      - name: Anonymous GET-only original WordPress source SHA
+        run: python3 scripts/verify-cyklochata-source-proof-11983.py --verify
