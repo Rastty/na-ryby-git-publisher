@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = 'https://na-ryby.eu'
 PAGE = '/nejlepsi-mista-pro-sportovni-rybolov-s-ubytovanim-v-ceske-republice/'
 JS = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js'
-JS_VERSION = 'ver=1.11.6'
+JS_VERSION = 'ver=1.11.7'
 JS_BASELINE = 'ver=1.11.6'
 CSS = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-sport-stays-85384-v1.css'
 CSS_VERSION = 'ver=1.0.0'

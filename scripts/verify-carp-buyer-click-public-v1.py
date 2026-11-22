@@ -19,8 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = 'https://na-ryby.eu'
 PAGE = '/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/'
 ASSET = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js'
-VERSION = 'ver=1.11.6'
-BASELINE_VERSION = 'ver=1.11.5'
+VERSION = 'ver=1.11.7'
+BASELINE_VERSION = 'ver=1.11.6'
 MARKER = 'data-nry-carp-choice-before-shop="v1"'
 
 

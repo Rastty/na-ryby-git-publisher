@@ -36,7 +36,8 @@ function nry_buyer_click_approved_scope($post_id, $public_path) {
         59271 => '/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/',
         92205 => '/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/',
         85384 => '/nejlepsi-mista-pro-sportovni-rybolov-s-ubytovanim-v-ceske-republice/',
-        11983 => '/rybarska-chata-cyklochata-vranovska-prehrada/'
+        11983 => '/rybarska-chata-cyklochata-vranovska-prehrada/',
+        17536 => '/chata-rybarsky-wellness-srub/'
     );
     return is_int($post_id) && isset($allowed[$post_id])
         && is_string($public_path) && $public_path === $allowed[$post_id];
@@ -60,7 +61,7 @@ function nry_buyer_click_enqueue() {
         'nry-buyer-offer-click-v1',
         plugins_url('assets/nry-buyer-clicks-v1.js', __FILE__),
         array(),
-        '1.11.6',
+        '1.11.7',
         true
     );
 }

@@ -20,8 +20,8 @@ ORIGIN = 'https://na-ryby.eu'
 POST = '/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/'
 MARKER = 'fishing-stays-cz-59891-20261118-v1'
 ASSET = '/wp-content/plugins/na-ryby-git-publisher/assets/nry-buyer-clicks-v1.js'
-VERSION = 'ver=1.11.6'
-PREVIOUS_VERSION = 'ver=1.11.5'
+VERSION = 'ver=1.11.7'
+PREVIOUS_VERSION = 'ver=1.11.6'
 IDS = frozenset({
     '2462030', 'hportal-pension-u-vlcku', 'hportal-penzion-janata',
     'hportal-penzion-u-kohoutu', 'hportal-pension-rybarska-basta',

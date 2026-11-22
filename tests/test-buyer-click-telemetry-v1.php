@@ -51,7 +51,8 @@ $more=array(
   59271 => '/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/',
   92205 => '/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/',
   85384 => '/nejlepsi-mista-pro-sportovni-rybolov-s-ubytovanim-v-ceske-republice/',
-  11983 => '/rybarska-chata-cyklochata-vranovska-prehrada/'
+  11983 => '/rybarska-chata-cyklochata-vranovska-prehrada/',
+  17536 => '/chata-rybarsky-wellness-srub/'
 );
 foreach($more as $id=>$route) {
   $GLOBALS['queue']=array();
@@ -61,7 +62,7 @@ foreach($more as $id=>$route) {
   must(count($GLOBALS['queue'])===1,'exact released buyer must have script');
   must(nry_buyer_click_approved_scope($id,$route),'whitelisted ID/path binding');
   must($GLOBALS['queue'][0]['handle']==='nry-buyer-offer-click-v1','same local JS');
-  must($GLOBALS['queue'][0]['version']==='1.11.6','new script version');
+  must($GLOBALS['queue'][0]['version']==='1.11.7','new script version');
 }
 must(!nry_buyer_click_approved_scope(59891,'/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/'),
     'stay measurement cannot be bound to a different article');
@@ -76,6 +77,7 @@ must(!nry_buyer_click_approved_scope(92205,'/rodinna-dovolena-u-vody-kam-na-ryby
 must(!nry_buyer_click_approved_scope(85384,'/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/'),
     'nationwide stays click source cannot impersonate Stredni Cechy');
 must(!nry_buyer_click_approved_scope(11983,'/chata-rybarsky-wellness-srub/'),'Cyklochata ID cannot impersonate Wellness srub');
+must(!nry_buyer_click_approved_scope(17536,'/rybarska-chata-cyklochata-vranovska-prehrada/'),'Wellness ID cannot impersonate Cyklochata');
 must(!nry_buyer_click_approved_scope(60341,'/jak-vybrat-rybarske-kreslo/'),'never bind hub id to evergreen');
 must(!nry_buyer_click_approved_scope(11901,'/nejlepsi-rybarske-kreslo-vybirame-zidlicku-na-ryby/'),'never bind evergreen id to hub');
 must(!nry_buyer_click_approved_scope(118388,'/nejlepsi-rybarske-bivaky-do-10-000-kc/'),'bivak post ID cannot be swapped');

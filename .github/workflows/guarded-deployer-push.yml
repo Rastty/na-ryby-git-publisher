@@ -155,6 +155,9 @@ on:
       - 'wellness-srub-hauzi-offer-17536-v1.php'
       - 'assets/nry-wellness-srub-hauzi-17536-v1.css'
       - 'scripts/verify-wellness-srub-hauzi-public-17536.py'
+      - 'scripts/verify-wellness-srub-click-public-17536.py'
+      - 'tests/test-wellness-srub-click-public-17536.py'
+      - '.github/workflows/wellness-srub-click-public-17536.yml'
       - 'tests/test-wellness-srub-hauzi-offer-17536-v1.php'
       - 'tests/test-wellness-srub-hauzi-public-17536.py'
       - '.github/workflows/wellness-srub-hauzi-offer-17536.yml'
@@ -827,6 +830,7 @@ jobs:
           node tests/test-advisor-scenarios-v1.mjs
           node --check assets/nry-buyer-clicks-v1.js
           node tests/test-buyer-click-telemetry-v1.mjs
+          python3 tests/test-wellness-srub-click-public-17536.py
           php tests/test-three-chair-guides-v8.php
           php tests/test-evergreen-chair-v8.php
           php -l guarded-auto-publisher.php
