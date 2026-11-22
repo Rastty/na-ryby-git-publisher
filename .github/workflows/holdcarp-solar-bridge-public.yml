@@ -1,0 +1,109 @@
+name: Na-Ryby Holdcarp Solar Review Buyer Bridge Proof
+on:
+  pull_request:
+    paths:
+      - 'holdcarp-solar-decision-bridge-v1.php'
+      - 'tests/test-holdcarp-solar-decision-bridge-v1.php'
+      - '.github/workflows/holdcarp-solar-bridge-public.yml'
+      - 'na-ryby-git-publisher.php'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: PHP syntax and source-bound variant contracts
+        run: |
+          set -euo pipefail
+          php -l holdcarp-solar-decision-bridge-v1.php
+          php -l na-ryby-git-publisher.php
+          php tests/test-holdcarp-solar-decision-bridge-v1.php
+  public:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == 'Rastty/na-ryby-git-publisher'
+    needs: offline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Bind public proof to exact successful protected deploy job and main SHA
+        id: upstream
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NRY_UPSTREAM_RUN_ID: ${{ github.event.workflow_run.id }}
+          NRY_UPSTREAM_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          if [ "$NRY_UPSTREAM_HEAD_SHA" != "$GITHUB_SHA" ]; then
+            echo 'BLOCKED: upstream head not equal to current main'
+            exit 1
+          fi
+          result="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${NRY_UPSTREAM_RUN_ID}/jobs?per_page=100" --jq '.jobs[] | select(.name=="deploy") | .conclusion')"
+          if [ "$result" != 'success' ]; then
+            echo 'SKIP: guarded release did not deploy; public status cannot be claimed'
+            echo 'deployed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo 'deployed=true' >> "$GITHUB_OUTPUT"
+          echo 'PASS: protected deploy job is success for current main SHA'
+      - name: Independent anonymous GET of two exact review URLs; never click affiliate URLs
+        if: steps.upstream.outputs.deployed == 'true'
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from urllib.request import Request
+          from scripts.readonly_urlopen_retry import guarded_urlopen
+          import time
+          class Page(HTMLParser):
+              def __init__(self):
+                  super().__init__();self.canonical=[];self.panel=[];self.anchors=[]
+              def handle_starttag(self,tag,attrs):
+                  a=dict(attrs)
+                  if tag=='link' and 'canonical' in (a.get('rel') or '').split():
+                      self.canonical.append(a.get('href'))
+                  if tag=='aside' and a.get('data-nry-holdcarp-energy-bridge')=='v1':
+                      self.panel.append(a.get('data-nry-holdcarp-model'))
+                  if tag=='a':self.anchors.append(a.get('href'))
+          prefix='https://na-ryby.eu/'
+          slug='holdcarp-solarni-panel-foldable-solar-system-{}-recenze/'
+          guide=prefix+'powerbanka-nebo-solarni-panel-na-ryby/'
+          for model in ('20w','40w'):
+              url=prefix+slug.format(model);last=None
+              for attempt in range(3):
+                  try:
+                      req=Request(url,method='GET',headers={'User-Agent':'NaRybyHoldcarpPublicProof/1.0','Cache-Control':'no-cache'})
+                      with guarded_urlopen(req,timeout=25) as resp:
+                          if resp.status!=200 or resp.geturl()!=url:raise ValueError('EXACT_PUBLIC_URL_NOT_200')
+                          body=resp.read(600001)
+                      if len(body)>600000:raise ValueError('HTML_EXCEEDS_BOUND')
+                      html=body.decode('utf-8','replace')
+                      parser=Page();parser.feed(html);parser.close()
+                      if parser.canonical!=[url]:raise ValueError('CANONICAL_DRIFT')
+                      if parser.panel!=[model.upper()]:raise ValueError('ONE_MODEL_PANEL_REQUIRED')
+                      if parser.anchors.count(guide)!=1:raise ValueError('EXACT_FIRST_PARTY_HANDOFF_REQUIRED')
+                      if 'HODNOCENÍ' not in html or 'www.tkqlhce.com' not in html:
+                          raise ValueError('ORIGINAL_REVIEW_MISSING')
+                      print('HOLDCARP_SOLAR_REVIEW_PUBLIC_VERIFIED',model,'one panel; original review retained; no external clicks')
+                      last=None;break
+                  except (OSError,ValueError) as exc:
+                      last=type(exc).__name__
+                      print('PUBLIC_PROOF_UNVERIFIED',model,last,'attempt',attempt+1)
+                      if attempt<2:time.sleep(5)
+              if last is not None:raise SystemExit('BLOCKED: independent public proof not complete')
+          print('HOLDCARP_SOLAR_TWO_PUBLIC_VERIFIED; realClicks=UNKNOWN; paidCommissions=UNKNOWN')
+          PY
