@@ -43,6 +43,7 @@ require_once __DIR__ . '/brno-reservoir-source-proof-17591-v1.php';
 require_once __DIR__ . '/cyklochata-source-proof-11983-v1.php';
 require_once __DIR__ . '/wellness-srub-source-proof-17536-v1.php';
 require_once __DIR__ . '/wellness-evergreen-source-proof-v1.php';
+require_once __DIR__ . '/wellness-evergreen-handoff-v1.php';
 require_once __DIR__ . '/wellness-srub-hauzi-offer-17536-v1.php';
 require_once __DIR__ . '/cyklochata-hauzi-offer-11983-v1.php';
 require_once __DIR__ . '/sterkac-source-proof-12040-v1.php';

@@ -1,0 +1,42 @@
+name: Na-Ryby Wellness Evergreen Buyer Handoff Public Proof
+on:
+  pull_request:
+    paths:
+      - 'wellness-evergreen-handoff-v1.php'
+      - 'assets/nry-wellness-evergreen-handoff-v1.css'
+      - 'tests/test-wellness-evergreen-handoff-v1.php'
+      - 'scripts/verify-wellness-evergreen-handoff-public-v1.py'
+      - '.github/workflows/wellness-evergreen-handoff-public-v1.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  offline:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: |
+          set -euo pipefail
+          php -l wellness-evergreen-handoff-v1.php
+          php tests/test-wellness-evergreen-handoff-v1.php
+          python3 -m py_compile scripts/verify-wellness-evergreen-handoff-public-v1.py
+  public:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == 'Rastty/na-ryby-git-publisher'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: main
+      - run: python3 scripts/verify-wellness-evergreen-handoff-public-v1.py
