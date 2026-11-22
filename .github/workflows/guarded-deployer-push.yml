@@ -563,6 +563,7 @@ jobs:
           php tests/test-wellness-evergreen-source-proof-v1.php
           php -l wellness-evergreen-handoff-v1.php
           php tests/test-wellness-evergreen-handoff-v1.php
+          node tests/test-wellness-evergreen-choice-v1.mjs
           php tests/test-legacy-stays-archive-entry-v1.php
           php -l stays-vranov-discovery-59891-v1.php
           php tests/test-stays-vranov-discovery-59891-v1.php
@@ -630,6 +631,7 @@ jobs:
           php tests/test-wellness-evergreen-source-proof-v1.php
           php -l wellness-evergreen-handoff-v1.php
           php tests/test-wellness-evergreen-handoff-v1.php
+          node tests/test-wellness-evergreen-choice-v1.mjs
           php tests/test-legacy-stays-archive-entry-v1.php
           php -l stays-vranov-discovery-59891-v1.php
           php tests/test-stays-vranov-discovery-59891-v1.php

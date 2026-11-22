@@ -4,6 +4,8 @@ on:
     paths:
       - 'wellness-evergreen-handoff-v1.php'
       - 'assets/nry-wellness-evergreen-handoff-v1.css'
+      - 'assets/nry-wellness-evergreen-choice-v1.js'
+      - 'tests/test-wellness-evergreen-choice-v1.mjs'
       - 'tests/test-wellness-evergreen-handoff-v1.php'
       - 'scripts/verify-wellness-evergreen-handoff-public-v1.py'
       - '.github/workflows/wellness-evergreen-handoff-public-v1.yml'
@@ -25,6 +27,7 @@ jobs:
           set -euo pipefail
           php -l wellness-evergreen-handoff-v1.php
           php tests/test-wellness-evergreen-handoff-v1.php
+          node tests/test-wellness-evergreen-choice-v1.mjs
           python3 -m py_compile scripts/verify-wellness-evergreen-handoff-public-v1.py
   public:
     if: >-

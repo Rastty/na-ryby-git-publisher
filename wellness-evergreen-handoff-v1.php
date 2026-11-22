@@ -108,11 +108,19 @@ final class NRY_Wellness_Evergreen_Handoff_V1 {
         return $set ? self::transform($html,$set) : $html;
     }
     public static function enqueue() {
-        if (!self::eligible() || !function_exists('wp_enqueue_style')
-            || !function_exists('plugins_url')) return;
-        wp_enqueue_style('nry-wellness-evergreen-handoff-v1',
-            plugins_url('assets/nry-wellness-evergreen-handoff-v1.css',__FILE__),
-            array(),'1.0.0');
+        // Shared verified source gate for design and real first-party click
+        // observation. No new tracker: gtag handles existing site consent.
+        if (!self::eligible() || !function_exists('plugins_url')) return;
+        if (function_exists('wp_enqueue_style')) {
+            wp_enqueue_style('nry-wellness-evergreen-handoff-v1',
+                plugins_url('assets/nry-wellness-evergreen-handoff-v1.css',__FILE__),
+                array(),'1.0.0');
+        }
+        if (function_exists('wp_enqueue_script')) {
+            wp_enqueue_script('nry-wellness-evergreen-choice-v1',
+                plugins_url('assets/nry-wellness-evergreen-choice-v1.js',__FILE__),
+                array(),'1.0.0',true);
+        }
     }
     public static function boot() {
         if (function_exists('add_filter') && function_exists('is_single')
