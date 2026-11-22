@@ -6,6 +6,7 @@ content, raw HTML, headers, query values, cookies or affiliate destinations.
 HTTP denials are BLOCKED, not an implied success or evidence of missing content.
 """
 from html.parser import HTMLParser
+from urllib.parse import urlsplit
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 import json
@@ -70,6 +71,11 @@ def inspect(idx,slug):
             'panel_links_exact':parser.panel_links==expected,
             'link_roles':[
                 {'role':label if label in ('srub','stays') else 'missing_or_unexpected',
+                 'has_query':bool(urlsplit(dest).query) if isinstance(dest,str) else None,
+                 'has_fragment':bool(urlsplit(dest).fragment) if isinstance(dest,str) else None,
+                 'is_https':urlsplit(dest).scheme=='https' if isinstance(dest,str) else None,
+                 'same_host':urlsplit(dest).hostname=='na-ryby.eu' if isinstance(dest,str) else None,
+                 'has_userinfo':bool(urlsplit(dest).username or urlsplit(dest).password) if isinstance(dest,str) else None,
                  'destination':'srub' if dest==LINKS[0]
                     else ('stays' if dest==LINKS[1]
                           else ('other_first_party' if isinstance(dest,str) and dest.startswith(BASE+'/')
