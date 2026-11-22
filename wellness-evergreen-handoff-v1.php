@@ -2,8 +2,8 @@
 /**
  * Exact-source-locked, editorial first-party buyer handoffs from two indexed
  * wellness fishing guides. No new merchant offers or WP writes are introduced.
- * PENDING values must be replaced with separately verified raw WP fingerprints
- * before the module is eligible to render on a real post.
+ * Source IDs, modified GMT and SHA-256 fingerprints independently verified
+ * in GitHub public GET run 45013057853; never use rendered REST HTML as source.
  */
 if (!defined('ABSPATH')) { exit; }
 final class NRY_Wellness_Evergreen_Handoff_V1 {
@@ -13,11 +13,11 @@ final class NRY_Wellness_Evergreen_Handoff_V1 {
     const STAYS = 'https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/';
     const ROUTES = array(
         'wellness-a-rybolov-v-jednom-luxusni-ubytovani-pro-narocne-rybare' => array(
-            'id'=>0, 'modified'=>'PENDING', 'sha'=>'PENDING', 'role'=>'wellness',
+            'id'=>61382, 'modified'=>'2026-04-12 11:03:12', 'sha'=>'99948a7a555de0ff91d6caa55ef66992fcef90d7e88dc6a15b73710598dfc1ae', 'role'=>'wellness',
             'sourceAnchor'=>'Když se řekne rybářský pobyt s wellness',
         ),
         'wellness-pobyt-s-moznosti-soukromeho-rybareni-a-ubytovani-v-ceske-republice' => array(
-            'id'=>0, 'modified'=>'PENDING', 'sha'=>'PENDING', 'role'=>'private',
+            'id'=>69482, 'modified'=>'2026-04-17 07:34:03', 'sha'=>'c1384208bd584bb72326fbd4684133ffb3252b626c4e08087eb45de8c052f495', 'role'=>'private',
             'sourceAnchor'=>'Chcete si odpočinout, ale nechcete jen ležet u bazénu?',
         ),
     );
