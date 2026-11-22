@@ -29,7 +29,8 @@
     '/rybarska-dovolena-jizni-morava/':'jizni_morava_12166',
     '/rodinna-dovolena-u-vody-kam-na-ryby-s-detmi/':'family_stays_59271',
     '/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/':'stredni_cechy_stays_92205',
-    '/nejlepsi-mista-pro-sportovni-rybolov-s-ubytovanim-v-ceske-republice/':'sport_stays_85384'
+    '/nejlepsi-mista-pro-sportovni-rybolov-s-ubytovanim-v-ceske-republice/':'sport_stays_85384',
+    '/rybarska-chata-cyklochata-vranovska-prehrada/':'cyklochata_11983'
   });
   if (location.origin !== 'https://na-ryby.eu' ||
       !Object.prototype.hasOwnProperty.call(allowedPages, location.pathname)) return;
@@ -94,6 +95,27 @@
        /^\/click-[0-9]{6,12}-[0-9]{6,16}-[0-9]{9,18}$/.test(url.pathname));
     if ((url.protocol !== 'https:' && !chairHttpCJ) ||
         url.username || url.password || url.port) return;
+    if (page === 'cyklochata_11983') {
+      // Only two exact source-verified Hauzi links on post #11983.
+      // Reuse existing consent-aware gtag and never send href or click ID.
+      const expected = 'https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2Fcyklochata';
+      const originalHero = link.closest('section[data-nry-cyklochata-offer="v1"]');
+      const originalFooter = link.closest('aside.nry-cyklochata__bottom');
+      if (Object.is(url.toString(),expected) && (originalHero || originalFooter)) {
+        try {
+          window.gtag('event','nry_buyer_offer_click',{
+            buyer_page:page,
+            buyer_cta_type:'fishing_stay_outbound',
+            source_post_id:'11983',
+            placement_id:'cyklochata-hauzi-offer-11983-v1',
+            stay_offer_id:'cyklochata',
+            stay_partner:'hauzi_affiliateport_cz',
+            transport_type:'beacon'
+          });
+        } catch { /* Never interrupt the user's genuine booking navigation. */ }
+      }
+      return;
+    }
     if (page === 'fishing_stays_59891') {
       // Match an exact live CTA, its containing offer and the released block.
       // A different Dognet/Slevomat link on the page is not this placement.
