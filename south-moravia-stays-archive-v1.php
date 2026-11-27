@@ -173,6 +173,15 @@ final class NRY_South_Moravia_Stays_Archive_V1 {
             ." -->\n";
     }
 
+    public static function click_js() {
+        if (self::eligible() && function_exists('wp_enqueue_script')
+            && function_exists('plugins_url')) {
+            wp_enqueue_script('nry-archive-stay-click-v1',
+                plugins_url('assets/nry-archive-stay-click-v1.js', __FILE__),
+                array(), '1.0.0', true);
+        }
+    }
+
     public static function boot() {
         // Do not load site hooks in partial WordPress offline test harnesses.
         if (function_exists('is_single') && function_exists('get_post')
@@ -180,6 +189,7 @@ final class NRY_South_Moravia_Stays_Archive_V1 {
             add_filter('the_content', array(__CLASS__, 'render'), 98);
             add_action('template_redirect', array(__CLASS__, 'buffer'), 20);
             add_action('wp_footer', array(__CLASS__, 'probe_footer'), 99);
+            add_action('wp_enqueue_scripts', array(__CLASS__, 'click_js'), 29);
         }
     }
 }

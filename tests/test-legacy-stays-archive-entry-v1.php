@@ -22,6 +22,8 @@ function get_post($id){return $GLOBALS['mode']['post'];}
 function get_permalink($id){return $GLOBALS['mode']['permalink'];}
 function plugins_url($path,$file){return 'https://na-ryby.eu/wp-content/plugins/na-ryby-git-publisher/'.$path;}
 function wp_enqueue_style($handle,$url,$deps,$version){$GLOBALS['styles'][]=array($handle,$url);}
+$GLOBALS['scripts']=array();
+function wp_enqueue_script($handle,$url,$deps,$version,$footer){$GLOBALS['scripts'][]=compact('handle','url','deps','version','footer');}
 function ok_stays($condition,$why){if(!$condition){fwrite(STDERR,'FAIL '.$why."\n");exit(1);}}
 require dirname(__DIR__).'/legacy-stays-archive-entry-v1.php';
 $c='NRY_Legacy_Stays_Archive_Entry_V1';
@@ -74,6 +76,12 @@ $twice = str_replace('</body>', '<h1>Ubytování v ČR</h1></body>', $html);
 ok_stays($c::place_after_title($twice) === $twice, 'two H1 still no-op');
 $c::css();
 ok_stays(count($GLOBALS['styles'])===1 && strpos($GLOBALS['styles'][0][1],'nry-legacy-stays-entry-v1.css')!==false,'CSS for only target page');
+ok_stays(count($GLOBALS['scripts'])===1
+    && $GLOBALS['scripts'][0]['handle']==='nry-archive-stay-click-v1'
+    && str_ends_with($GLOBALS['scripts'][0]['url'],'/assets/nry-archive-stay-click-v1.js')
+    && $GLOBALS['scripts'][0]['version']==='1.0.0'
+    && $GLOBALS['scripts'][0]['footer']===true,
+    'only exact public archive enqueues existing-consent local click observer');
 foreach(array('page','admin','preview','feed','paged','ajax','custom','host','permalink','post') as $key) {
     $saved=$GLOBALS['mode'][$key];
     if($key==='page')$GLOBALS['mode'][$key]=false;

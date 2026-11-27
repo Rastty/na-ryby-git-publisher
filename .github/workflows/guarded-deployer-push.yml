@@ -51,6 +51,12 @@ on:
       - 'stays-main-navigation-bridge-v1.php'
       - 'stays-vranov-discovery-59891-v1.php'
       - 'south-moravia-stays-archive-v1.php'
+      - 'assets/nry-archive-stay-click-v1.js'
+      - 'tests/test-archive-stay-click-v1.mjs'
+      - 'tests/test-south-moravia-archive-stay-click-v1.php'
+      - 'scripts/verify-archive-stay-click-public-v1.py'
+      - 'tests/test-archive-stay-click-public-v1.py'
+      - '.github/workflows/archive-stay-click-public-v1.yml'
       - 'revir-main-menu-discovery-v1.php'
       - 'revir-archive-decision-entry-v1.php'
       - 'assets/nry-revir-archive-entry-v1.css'
@@ -433,6 +439,7 @@ on:
       - 'stays-main-navigation-bridge-v1.php'
       - 'stays-vranov-discovery-59891-v1.php'
       - 'south-moravia-stays-archive-v1.php'
+      - 'assets/nry-archive-stay-click-v1.js'
       - 'revir-main-menu-discovery-v1.php'
       - 'revir-archive-decision-entry-v1.php'
       - 'assets/nry-revir-archive-entry-v1.css'
@@ -579,6 +586,11 @@ jobs:
           php -l stays-vranov-discovery-59891-v1.php
           php -l south-moravia-stays-archive-v1.php
           php tests/test-south-moravia-stays-archive-v1.php
+          php tests/test-south-moravia-archive-stay-click-v1.php
+          node --check assets/nry-archive-stay-click-v1.js
+          node tests/test-archive-stay-click-v1.mjs
+          python3 -m py_compile scripts/verify-archive-stay-click-public-v1.py
+          python3 tests/test-archive-stay-click-public-v1.py
           python3 -m py_compile scripts/verify-south-moravia-stays-archive-public.py
           python3 tests/test-south-moravia-stays-archive-public.py
           php tests/test-stays-vranov-discovery-59891-v1.php
@@ -656,6 +668,11 @@ jobs:
           php -l stays-vranov-discovery-59891-v1.php
           php -l south-moravia-stays-archive-v1.php
           php tests/test-south-moravia-stays-archive-v1.php
+          php tests/test-south-moravia-archive-stay-click-v1.php
+          node --check assets/nry-archive-stay-click-v1.js
+          node tests/test-archive-stay-click-v1.mjs
+          python3 -m py_compile scripts/verify-archive-stay-click-public-v1.py
+          python3 tests/test-archive-stay-click-public-v1.py
           python3 -m py_compile scripts/verify-south-moravia-stays-archive-public.py
           python3 tests/test-south-moravia-stays-archive-public.py
           php tests/test-stays-vranov-discovery-59891-v1.php
