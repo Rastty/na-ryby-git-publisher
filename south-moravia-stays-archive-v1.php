@@ -148,7 +148,7 @@ final class NRY_South_Moravia_Stays_Archive_V1 {
             || ($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET'
             || !function_exists('get_queried_object_id') || !function_exists('get_post')
             || !function_exists('get_permalink') || !function_exists('is_single')
-            || !function_exists('home_url') || rtrim(home_url('/'), '/') !== 'https://na-ryby.eu')
+            || !function_exists('home_url') || rtrim(home_url('/'), '/') !== 'https://na-ryby.eu'
             || !is_single(self::SLUG)) return;
         $id = (int)get_queried_object_id();
         $p = $id > 0 ? get_post($id) : null;
