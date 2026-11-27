@@ -11,7 +11,13 @@ from readonly_urlopen_retry import guarded_urlopen
 URL = 'https://na-ryby.eu/dovolena-u-vody/'
 MARKER = 'data-nry-map-discovery="v1"'
 MAP_TOKEN = 'mapsengine.google.com/map/embed?mid=z3EK_WPx5q6o.ksrmQWY0S3AE'
+STAY_MARKER = 'data-nry-map-stay-picks="v1"'
+CYCLO = 'https://na-ryby.eu/rybarska-chata-cyklochata-vranovska-prehrada/'
+WELLNESS = 'https://na-ryby.eu/chata-rybarsky-wellness-srub/'
+STAY_LINKS = (('cyklochata', CYCLO), ('wellness', WELLNESS))
 LINKS = (
+    CYCLO,
+    WELLNESS,
     'https://na-ryby.eu/category/soukrome-rybarske-reviry/',
     'https://na-ryby.eu/jak-cist-soupis-reviru-a-ris-cislo-reviru-podrevir-a-podminky/',
     'https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/',
@@ -27,6 +33,7 @@ class MapPage(HTMLParser):
         self.iframes = []
         self.section_depth = 0
         self.links = []
+        self.stay_links = []
 
     def handle_starttag(self, tag, attrs):
         self.order += 1
@@ -43,6 +50,8 @@ class MapPage(HTMLParser):
                 self.iframe_order = self.order
         if self.section_depth and tag == 'a':
             self.links.append(props.get('href'))
+            if 'data-nry-map-stay' in props:
+                self.stay_links.append((props.get('data-nry-map-stay'), props.get('href')))
 
     def handle_endtag(self, tag):
         if tag == 'section' and self.section_depth:
@@ -56,6 +65,9 @@ def check(html):
     assert html.count(MARKER) == 1 and parsed.sections == 1, 'MAP_CHOICE_NOT_EXACTLY_ONCE'
     assert len(parsed.iframes) == 1 and MAP_TOKEN in parsed.iframes[0], 'ORIGINAL_MAP_NOT_PRESERVED'
     assert parsed.links == list(LINKS), 'MAP_CHOICE_LINKS_CHANGED'
+    assert html.count(STAY_MARKER) == 1, 'STAY_CARDS_COUNT_DRIFT'
+    assert parsed.stay_links == list(STAY_LINKS), 'TWO_STAY_CTA_ROLES_DRIFT'
+    assert html.index(STAY_MARKER) < html.index(MAP_TOKEN), 'STAY_CARDS_MUST_PRECEDE_MAP'
     assert parsed.section_order is not None and parsed.iframe_order is not None and parsed.section_order < parsed.iframe_order, 'MAP_CHOICE_NOT_BEFORE_IFRAME'
     return 'NRY_LEGACY_MAP_CHOICE_PUBLIC_VERIFIED'
 

@@ -30,6 +30,18 @@ check_map(substr_count($new, $C::MARKER) === 1, 'single visible section');
 check_map(substr_count($new, $C::REVIR_GUIDE) === 1, 'verified root private-water archive route');
 check_map(substr_count($new, $C::RULES_GUIDE) === 1, 'official rules orientation route');
 check_map(substr_count($new, $C::STAYS_GUIDE) === 1, 'current stay choices route');
+check_map(substr_count($new, $C::STAY_MARKER) === 1, 'one prominent stay-card wrapper');
+check_map(substr_count($new, 'data-nry-map-stay="cyklochata"')===1
+    && substr_count($new,'data-nry-map-stay="wellness"')===1, 'two distinct stay cards');
+check_map(substr_count($new,'href="'.$C::CYCLO.'"')===1
+    && substr_count($new,'href="'.$C::WELLNESS.'"')===1, 'only existing sourced Vranov choices');
+check_map(strpos($new, $C::STAY_MARKER)<strpos($new, $embed),'commercial cards before iframe');
+// The only allowed mutation is the owned block ahead of the historical iframe.
+$insertedFrom=strlen('<p>Stará mapa revírů</p>');
+$insertedTo=strpos($new,$embed);
+$added=substr($new,$insertedFrom,$insertedTo-$insertedFrom);
+check_map($added!=='' && substr_count($added,$C::MARKER)===1,'source-owned block inserted');
+check_map(str_replace($added,'',$new)===$html,'full original HTML preserved byte-for-byte');
 check_map(strpos($new, $C::MARKER) < strpos($new, $embed), 'first-party decision precedes large map');
 check_map($C::render($new) === $new, 'idempotent');
 $drift = str_replace($C::MAP_URL_TOKEN, 'maps.example.com/other', $html);
