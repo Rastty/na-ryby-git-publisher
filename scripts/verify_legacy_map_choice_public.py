@@ -15,6 +15,7 @@ STAY_MARKER = 'data-nry-map-stay-picks="v1"'
 CYCLO = 'https://na-ryby.eu/rybarska-chata-cyklochata-vranovska-prehrada/'
 WELLNESS = 'https://na-ryby.eu/chata-rybarsky-wellness-srub/'
 STAY_LINKS = (('cyklochata', CYCLO), ('wellness', WELLNESS))
+HOMEPAGE = 'https://na-ryby.eu/'
 LINKS = (
     CYCLO,
     WELLNESS,
@@ -64,7 +65,10 @@ def check(html):
     parsed.close()
     assert html.count(MARKER) == 1 and parsed.sections == 1, 'MAP_CHOICE_NOT_EXACTLY_ONCE'
     assert len(parsed.iframes) == 1 and MAP_TOKEN in parsed.iframes[0], 'ORIGINAL_MAP_NOT_PRESERVED'
-    assert parsed.links == list(LINKS), 'MAP_CHOICE_LINKS_CHANGED'
+    # Exact live TagDiv insertion on 27 Nov 2026: one homepage context link
+    # immediately before the five authored links. No other variant or query.
+    allowed=[list(LINKS), [HOMEPAGE]+list(LINKS)]
+    assert parsed.links in allowed, 'MAP_CHOICE_LINKS_CHANGED'
     assert html.count(STAY_MARKER) == 1, 'STAY_CARDS_COUNT_DRIFT'
     assert parsed.stay_links == list(STAY_LINKS), 'TWO_STAY_CTA_ROLES_DRIFT'
     assert html.index(STAY_MARKER) < html.index(MAP_TOKEN), 'STAY_CARDS_MUST_PRECEDE_MAP'
