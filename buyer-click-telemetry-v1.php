@@ -43,6 +43,42 @@ function nry_buyer_click_approved_scope($post_id, $public_path) {
         && is_string($public_path) && $public_path === $allowed[$post_id];
 }
 
+// Separate local observer for the four source-guarded review panels already
+// published by #373/#374. Keep the existing shared asset byte-for-byte intact.
+function nry_legacy_buyer_handoff_scope($post_id, $path) {
+    $routes = array(
+        '/recenze-a-zkusenosti-lowrance-echolot-hds-live-7-se-sondou-active-imaging-3v1-baterie-nabijecka-zdarma/' =>
+            array('Lowrance Echolot HDS LIVE 7', 'HDS LIVE 7', 'ZDARMA'),
+        '/lowrance-echolot-hook-4-chirp-gps/' =>
+            array('Lowrance Echolot Hook-4', 'Hook-4', 'CHIRP'),
+        '/holdcarp-solarni-panel-foldable-solar-system-20w-recenze/' =>
+            array('Holdcarp', 'Foldable Solar System 20W', 'HODNOCENÍ'),
+        '/holdcarp-solarni-panel-foldable-solar-system-40w-recenze/' =>
+            array('Holdcarp', 'Foldable Solar System 40W', 'HODNOCENÍ'),
+    );
+    if (!is_int($post_id) || $post_id<=0 || in_array($post_id,array(38064,42671),true)
+        || !is_string($path) || !isset($routes[$path])
+        || !function_exists('get_post') || !function_exists('home_url')
+        || !function_exists('is_admin') || !function_exists('is_preview')
+        || !function_exists('is_single')
+        || ($_SERVER['REQUEST_METHOD'] ?? 'GET')!=='GET'
+        || is_admin() || is_preview() || !is_single($post_id)
+        || (function_exists('is_feed') && is_feed())
+        || (function_exists('is_customize_preview') && is_customize_preview())
+        || rtrim(home_url('/'),'/')!=='https://na-ryby.eu') return false;
+    $post=get_post($post_id);
+    if (!is_object($post) || (int)($post->ID ?? 0)!==$post_id
+        || ($post->post_type ?? '')!=='post' || ($post->post_status ?? '')!=='publish'
+        || ($post->post_name ?? '')!==trim($path,'/')
+        || !is_string($post->post_content ?? null)) return false;
+    $needles=$routes[$path];
+    if (stripos((string)($post->post_title ?? ''),$needles[0])===false) return false;
+    foreach (array_slice($needles,1) as $needle) {
+        if (stripos($post->post_content,$needle)===false) return false;
+    }
+    return true;
+}
+
 function nry_buyer_click_enqueue() {
     if (!function_exists('is_singular') || !is_singular('post')
         || !function_exists('get_queried_object_id')
@@ -56,7 +92,14 @@ function nry_buyer_click_enqueue() {
     if (!is_array($url) || ($url['scheme'] ?? '') !== 'https'
         || ($url['host'] ?? '') !== 'na-ryby.eu'
         || !empty($url['query']) || !empty($url['fragment'])
-        || !nry_buyer_click_approved_scope($post_id, $url['path'] ?? '')) return;
+        || isset($url['user']) || isset($url['pass']) || isset($url['port'])) return;
+    if (nry_legacy_buyer_handoff_scope($post_id,$url['path'] ?? '')) {
+        wp_enqueue_script('nry-legacy-buyer-handoff-v1',
+            plugins_url('assets/nry-legacy-buyer-handoff-v1.js',__FILE__),
+            array(),'1.0.0',true);
+        return;
+    }
+    if (!nry_buyer_click_approved_scope($post_id, $url['path'] ?? '')) return;
     wp_enqueue_script(
         'nry-buyer-offer-click-v1',
         plugins_url('assets/nry-buyer-clicks-v1.js', __FILE__),
