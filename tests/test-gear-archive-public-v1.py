@@ -9,8 +9,8 @@ m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 def fixture(slug='navijaky',links=None,heading=None,role=None,css=None,js=None):
     cfg=m.ROUTES[slug]
     use=cfg['links'] if links is None else links
-    anchors=''.join('<a data-nry-gear-guide="'+(role if role is not None else (kind or ''))+
-        '" href="'+href+'">Průvodce</a>' for kind,href in use)
+    anchors=''.join('<a'+(' data-nry-gear-guide="'+(role if role is not None else kind)+'"' if (role is not None or kind is not None) else '')+
+        ' href="'+href+'">Průvodce</a>' for kind,href in use)
     h1=cfg['title'] if heading is None else heading
     intro='Vybírejte prakticky a nenechte se zmást starymi recenzemi. '
     if slug=='zavazeci-lodky': intro+='Dálkově ovládaná zakrmovací loďka, nikoli nafukovací člun pro lidi.'
@@ -45,7 +45,6 @@ for slug,cfg in m.ROUTES.items():
     reject(fixture(slug).replace('data-nry-gear-category="'+slug+'"','data-nry-gear-category="other"'),slug)
     reject(fixture(slug)+fixture(slug),slug)
     reject(fixture(slug).replace('</section>','</section><h1>Another</h1>'),slug)
-    reject(fixture(slug).replace('</section>','</section><a href="'+m.ORIGIN+'/">Loose link</a>'),slug) if False else None
 reject('<a href="'+m.ROUTES['navijaky']['links'][0][1]+'">Koupit</a>','navijaky')
 assert sum(len(v['links']) for v in m.ROUTES.values())==10
 print('GEAR_ARCHIVE_FOUR_PUBLIC_NEGATIVE_CONTRACTS_VERIFIED')
