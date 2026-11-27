@@ -55,7 +55,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$RELEASE_SHA" = "$GITHUB_SHA"
-          conclusion="$(gh api "repos/${{GITHUB_REPOSITORY}/actions/runs/${{RELEASE_RUN}/jobs?per_page=100" --jq '.jobs[] | select(.name=="deploy") | .conclusion')"
+          conclusion="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RELEASE_RUN}/jobs?per_page=100" --jq '.jobs[] | select(.name=="deploy") | .conclusion')"
           test "$conclusion" = success
           echo 'PASS: actual reviewed FTPS deployment succeeded'
       - name: Exact six historic posts, 18 guide cards and served JS/CSS
