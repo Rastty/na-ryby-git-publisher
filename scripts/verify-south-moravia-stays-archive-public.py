@@ -112,8 +112,11 @@ def audit_only(html):
             roles.append('missing_href')
         else:
             url=urlsplit(href)
-            roles.append('other_first_party' if url.hostname=='na-ryby.eu'
-                else 'unexpected_other')
+            if url.scheme == 'https' and url.hostname == 'na-ryby.eu':
+                # Internal path only: never print query, fragment or raw href.
+                roles.append('other_first_party_path:'+url.path if not url.query and not url.fragment else 'other_first_party_with_query')
+            else:
+                roles.append('unexpected_other')
     report={
         'state':'JM_READONLY_HREF_AUDIT',
         'canonicalExact':p.canonicals==[URL],
