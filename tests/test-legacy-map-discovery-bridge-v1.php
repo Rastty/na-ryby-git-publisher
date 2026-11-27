@@ -36,7 +36,12 @@ check_map(substr_count($new, 'data-nry-map-stay="cyklochata"')===1
 check_map(substr_count($new,'href="'.$C::CYCLO.'"')===1
     && substr_count($new,'href="'.$C::WELLNESS.'"')===1, 'only existing sourced Vranov choices');
 check_map(strpos($new, $C::STAY_MARKER)<strpos($new, $embed),'commercial cards before iframe');
-check_map(str_replace(substr($new,0,strpos($new,$embed)), '',$new)!==$html,'map changed only by inserted section');
+// The only allowed mutation is the owned block ahead of the historical iframe.
+$insertedFrom=strlen('<p>Stará mapa revírů</p>');
+$insertedTo=strpos($new,$embed);
+$added=substr($new,$insertedFrom,$insertedTo-$insertedFrom);
+check_map($added!=='' && substr_count($added,$C::MARKER)===1,'source-owned block inserted');
+check_map(str_replace($added,'',$new)===$html,'full original HTML preserved byte-for-byte');
 check_map(strpos($new, $C::MARKER) < strpos($new, $embed), 'first-party decision precedes large map');
 check_map($C::render($new) === $new, 'idempotent');
 $drift = str_replace($C::MAP_URL_TOKEN, 'maps.example.com/other', $html);
