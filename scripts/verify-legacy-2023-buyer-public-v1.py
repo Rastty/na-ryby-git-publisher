@@ -73,7 +73,12 @@ def validate(body,slug):
         for role,href in p.links[:10]:
             u=urlsplit(href or '')
             kind='OWN_PATH' if u.scheme=='https' and u.netloc=='na-ryby.eu' and not u.query and not u.fragment else 'OTHER_OR_QUERY'
-            safe.append({'role':role,'kind':kind,'path':u.path[:120] if kind=='OWN_PATH' else None})
+            safe.append({'role':role,'kind':kind,
+                         'missingHref':href is None,'emptyHref':href=='',
+                         'relativePath':u.path[:120] if not u.scheme and not u.netloc else None,
+                         'ownHost':u.netloc=='na-ryby.eu',
+                         'hasQuery':bool(u.query),'hasFragment':bool(u.fragment),
+                         'path':u.path[:120] if kind=='OWN_PATH' else None})
         print(json.dumps({'diagnostic':'EXACT_LEGACY_PANEL_ANCHOR_SHAPE','slug':slug,
                           'count':len(p.links),'anchors':safe},ensure_ascii=False))
         raise AssertionError('THREE_FIRST_PARTY_GUIDES_REQUIRED')
