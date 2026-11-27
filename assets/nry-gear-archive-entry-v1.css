@@ -1,0 +1,14 @@
+/* Four source-verified equipment categories only. No global WordPress styles. */
+.nry-gear-archive-entry{box-sizing:border-box;display:block;clear:both;width:100%;margin:16px 0 25px;padding:24px;border:1px solid #c7dacc;border-radius:14px;background:#f2f8f4;color:#163627;box-shadow:0 6px 24px rgba(20,80,40,.07);font:inherit}
+.nry-gear-archive-entry *{box-sizing:border-box}
+.nry-gear-archive-entry__eyebrow{margin:0 0 6px!important;font-size:12px!important;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#1b6c42}
+.nry-gear-archive-entry h2{margin:0 0 10px;color:#143d27;font-size:clamp(22px,2.4vw,29px);line-height:1.24;font-weight:750}
+.nry-gear-archive-entry p{margin:0 0 13px!important;line-height:1.55}
+.nry-gear-archive-entry nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:17px 0 12px}
+.nry-gear-archive-entry__choice{display:flex;flex-direction:column;justify-content:center;gap:6px;min-height:110px;padding:18px;background:#fff;border:1px solid #a9cdb5;border-radius:10px;color:#143a26!important;text-decoration:none!important;box-shadow:0 1px 3px rgba(0,0,0,.03);transition:box-shadow .15s,border-color .15s}
+.nry-gear-archive-entry__choice:hover,.nry-gear-archive-entry__choice:focus-visible{border-color:#21764b;box-shadow:0 0 0 3px #d1ead9;outline:none}
+.nry-gear-archive-entry__choice strong{font-size:16px;font-weight:800}
+.nry-gear-archive-entry__choice span{font-size:13px;color:#42594b;line-height:1.4}
+.nry-gear-archive-entry__note{font-size:12px;color:#4e6255;margin:0!important}
+@media(max-width:600px){.nry-gear-archive-entry{padding:16px;margin:12px 0 19px}.nry-gear-archive-entry nav{grid-template-columns:1fr;gap:10px}.nry-gear-archive-entry__choice{min-height:78px;padding:14px}}
+@media(prefers-reduced-motion:reduce){.nry-gear-archive-entry__choice{transition:none}}
