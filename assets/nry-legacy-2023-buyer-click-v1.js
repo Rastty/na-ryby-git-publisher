@@ -2,6 +2,14 @@
 (() => {
   'use strict';
   const ORIGIN='https://na-ryby.eu';
+  const COHORTS=Object.freeze({
+    'nejlepsi-rybarske-lehatko-jak-vybrat-nejlepsi-lehatko-pro-rybare':'legacy_bedchair_choice_2023',
+    'vysoce-hodnocena-rybarska-lehatka-podrobna-recenze-a-porovnani-popularnich-modelu':'legacy_bedchair_reviews_2023',
+    'nejlepsi-rybarske-pruty-s-navijakem-podle-zkusenych-rybaru':'legacy_rod_reel_set_2023',
+    'nejlepsi-rybarske-hlasice-a-signalizatory':'legacy_alarm_choice_2023',
+    'recenze-nejlevnejsich-rybarskych-prutu-pro-zacatecniky-i-pokrocile':'legacy_budget_rods_2023',
+    'detske-rybarske-pruty-s-nejlepsi-cenu-a-kvalitou':'legacy_junior_rods_2023'
+  });
   const ROUTES=Object.freeze({
     'nejlepsi-rybarske-lehatko-jak-vybrat-nejlepsi-lehatko-pro-rybare':Object.freeze([
       ['bedchair_guide','/rybarska-lehatka-kompletni-pruvodce-vyberem-pro-rybare/'],
@@ -62,7 +70,7 @@
     if(url.origin!==ORIGIN || url.search || url.hash || url.port ||
       url.username || url.password || url.href!==link.getAttribute('href'))return;
     try{window.gtag('event','nry_buyer_guide_click',{
-      buyer_page:'legacy_2023_'+slug.slice(0,30),
+      buyer_page:COHORTS[slug],
       guide_type:link.getAttribute('data-nry-legacy-guide'),
       transport_type:'beacon'
     })}catch{ /* Navigation must never depend on analytics. */ }
