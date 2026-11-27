@@ -13,7 +13,14 @@ def doc(links=m.EXPECTED,canonical=m.URL,old=True,marker=True):
     return '<html><head><link rel="canonical" href="'+canonical+'"/></head><body>' + piece + suffix + 'x'*9000+'</body></html>'
 
 assert m.verify(doc())['exactFirstPartyLinks']==3
+assert m.verify(doc(links=(m.HOME,)+m.EXPECTED))['exactContextHomeLink'] is True
+assert m.verify(doc())['exactContextHomeLink'] is False
 for b in (doc(links=(m.CYCLO,m.SRUB)),
+          doc(links=(m.HOME,m.HOME)+m.EXPECTED),
+          doc(links=m.EXPECTED+(m.HOME,)),
+          doc(links=(m.HOME+'?utm_source=abc',)+m.EXPECTED),
+          doc(links=('https://na-ryby.eu/jiny-clanek/',)+m.EXPECTED),
+          doc(links=('https://evil.example/',)+m.EXPECTED),
           doc(links=(m.CYCLO,'https://evil.example/x',m.HUB)),
           doc(canonical='https://na-ryby.eu/random/'),
           doc(old=False),
