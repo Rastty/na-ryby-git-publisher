@@ -1,0 +1,78 @@
+name: Na-Ryby South Moravia Stays Archive Live Choices
+on:
+  pull_request:
+    paths:
+      - 'south-moravia-stays-archive-v1.php'
+      - 'tests/test-south-moravia-stays-archive-v1.php'
+      - 'scripts/verify-south-moravia-stays-archive-public.py'
+      - 'tests/test-south-moravia-stays-archive-public.py'
+      - '.github/workflows/south-moravia-stays-archive.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: nry-jm-archive-proof-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: PHP output-preservation, fail-closed routing, public-parser negatives
+        run: |
+          set -euo pipefail
+          php -l south-moravia-stays-archive-v1.php
+          php tests/test-south-moravia-stays-archive-v1.php
+          python3 -m py_compile scripts/verify-south-moravia-stays-archive-public.py
+          python3 tests/test-south-moravia-stays-archive-public.py
+  public:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == 'Rastty/na-ryby-git-publisher'
+    needs: offline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Require actual protected deploy-job success bound to exact main SHA
+        id: upstream
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NRY_UPSTREAM_RUN_ID: ${{ github.event.workflow_run.id }}
+          NRY_UPSTREAM_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          test "$NRY_UPSTREAM_HEAD_SHA" = "$GITHUB_SHA" || {
+            echo 'BLOCKED: upstream SHA differs from current main'
+            exit 1
+          }
+          result="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${NRY_UPSTREAM_RUN_ID}/jobs?per_page=100" --jq '.jobs[] | select(.name=="deploy") | .conclusion')"
+          if [ "$result" != success ]; then
+            echo 'SKIP: successful protected production deployment not observed'
+            echo 'deployed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo 'deployed=true' >> "$GITHUB_OUTPUT"
+          echo 'PASS: exact-main protected deploy succeeded'
+      - name: Verify public 2017 archive + three exact first-party actions
+        if: steps.upstream.outputs.deployed == 'true'
+        run: |
+          for attempt in 1 2 3; do
+            if python3 scripts/verify-south-moravia-stays-archive-public.py --verify; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then sleep 7; fi
+          done
+          exit 1

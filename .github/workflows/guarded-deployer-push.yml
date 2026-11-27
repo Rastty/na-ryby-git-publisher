@@ -50,6 +50,7 @@ on:
       - 'home-revir-stay-paths-118641-v1.php'
       - 'stays-main-navigation-bridge-v1.php'
       - 'stays-vranov-discovery-59891-v1.php'
+      - 'south-moravia-stays-archive-v1.php'
       - 'revir-main-menu-discovery-v1.php'
       - 'revir-archive-decision-entry-v1.php'
       - 'assets/nry-revir-archive-entry-v1.css'
@@ -431,6 +432,7 @@ on:
       - 'home-revir-stay-paths-118641-v1.php'
       - 'stays-main-navigation-bridge-v1.php'
       - 'stays-vranov-discovery-59891-v1.php'
+      - 'south-moravia-stays-archive-v1.php'
       - 'revir-main-menu-discovery-v1.php'
       - 'revir-archive-decision-entry-v1.php'
       - 'assets/nry-revir-archive-entry-v1.css'
@@ -575,6 +577,10 @@ jobs:
           python3 tests/test-wellness-evergreen-handoff-public-v1.py
           php tests/test-legacy-stays-archive-entry-v1.php
           php -l stays-vranov-discovery-59891-v1.php
+          php -l south-moravia-stays-archive-v1.php
+          php tests/test-south-moravia-stays-archive-v1.php
+          python3 -m py_compile scripts/verify-south-moravia-stays-archive-public.py
+          python3 tests/test-south-moravia-stays-archive-public.py
           php tests/test-stays-vranov-discovery-59891-v1.php
           php -l private-waters-concrete-choice-v1.php
           php tests/test-private-waters-concrete-choice-v1.php
@@ -648,6 +654,10 @@ jobs:
           python3 tests/test-wellness-evergreen-handoff-public-v1.py
           php tests/test-legacy-stays-archive-entry-v1.php
           php -l stays-vranov-discovery-59891-v1.php
+          php -l south-moravia-stays-archive-v1.php
+          php tests/test-south-moravia-stays-archive-v1.php
+          python3 -m py_compile scripts/verify-south-moravia-stays-archive-public.py
+          python3 tests/test-south-moravia-stays-archive-public.py
           php tests/test-stays-vranov-discovery-59891-v1.php
           php -l private-waters-concrete-choice-v1.php
           php tests/test-private-waters-concrete-choice-v1.php
