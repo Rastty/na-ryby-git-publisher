@@ -98,8 +98,44 @@ def safe_diagnostic():
     except (OSError,ValueError,URLError):
         print('ELIGIBILITY_PROBE_UNAVAILABLE')
 
+def audit_only(html):
+    """Classify exact public anchor types without releasing raw href or queries."""
+    from urllib.parse import urlsplit
+    p=Parse();p.feed(html);p.close()
+    approved={'cyklochata':CYCLO,'wellness':SRUB,'stays':HUB}
+    roles=[]
+    for href in p.links[:30]:
+        match=next((k for k,v in approved.items() if href==v),None)
+        if match:
+            roles.append(match)
+        elif not isinstance(href,str):
+            roles.append('missing_href')
+        else:
+            url=urlsplit(href)
+            roles.append('other_first_party' if url.hostname=='na-ryby.eu'
+                else 'unexpected_other')
+    report={
+        'state':'JM_READONLY_HREF_AUDIT',
+        'canonicalExact':p.canonicals==[URL],
+        'markerCount':html.count(MARKER),
+        'parsedPanelCount':len(p.markers),
+        'panelAnchorCount':len(p.links),
+        'panelRoles':roles,
+        'rawApprovedHrefCounts':{k:html.count('href="'+v+'"')
+            for k,v in approved.items()},
+        'originalRetained':all(k in html for k in ('Zukal','Popůvky','Havelka ORCA','Rybník Božice')),
+        'wordPressWrites':0,
+        'merchantCalls':0,
+        'syntheticClicks':0,
+    }
+    print(json.dumps(report,ensure_ascii=False))
+    return report
+
 if __name__=='__main__':
-    if sys.argv[1:]!=['--verify']:raise SystemExit('use --verify')
+    if sys.argv[1:]==['--audit']:
+        audit_only(get())
+        raise SystemExit(0)
+    if sys.argv[1:]!=['--verify']:raise SystemExit('use --audit or --verify')
     try:
         print(json.dumps(verify(get()),ensure_ascii=False))
     except ValueError:
