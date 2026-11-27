@@ -1,4 +1,4 @@
-/* Measured genuine first-party guide handoffs from four exact equipment archives.
+/* Measured genuine first-party guide handoffs from six exact equipment archives.
  * Uses existing consent-controlled gtag; no merchant hrefs, cookies, user IDs,
  * query strings, new endpoints or synthetic events.
  */
@@ -7,6 +7,16 @@
   const ORIGIN='https://na-ryby.eu';
   const PREFIX='/category/vybaveni-pro-rybare/';
   const ROUTES=Object.freeze({
+    'pruty':Object.freeze([
+      ['carp_rod_guide','/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/'],
+      ['carp_rod_budget','/nejlepsi-kaprove-pruty-do-3-000-kc-srovnani-a-vyber/'],
+      ['carp_rod_youth','/kaprove-pruty-pro-deti-a-mladez-jak-vybrat-spravne/']
+    ]),
+    'signalizatory':Object.freeze([
+      ['signal_guide','/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/'],
+      ['signal_budget','/kompletni-sada-31-s-priposlechem-do-3-000-kc-co-opravdu-koupit/'],
+      ['signal_range','/jak-vybrat-signalizator-pro-lov-na-velkych-prehradach-a-rekach/']
+    ]),
     'navijaky':Object.freeze([
       ['reel_guide','/jak-vybrat-rybarsky-navijak-velikost-prevod-brzda-a-typy-navijaku/'],
       ['feeder_reel','/nejlepsi-feederove-navijaky-srovnani/'],
