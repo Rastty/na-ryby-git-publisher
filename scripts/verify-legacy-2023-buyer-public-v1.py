@@ -47,19 +47,24 @@ class Parsed(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.panels=0;self.slug=None;self.links=[];self.depth=0
-        self.css=[];self.js=[]
+        self.css=[];self.js=[];self.nav_depth=0;self.owned_nav_count=0
     def handle_starttag(self,tag,attrs):
         a=dict(attrs)
         if tag=='section' and a.get('data-nry-legacy-2023')=='v1':
             self.panels+=1;self.depth=1;self.slug=a.get('data-nry-legacy-slug')
         elif tag=='section' and self.depth:self.depth+=1
-        if tag=='a' and self.depth:
+        if tag=='nav' and self.depth and a.get('aria-label')=='Pokračovat podle potřeby':
+            self.nav_depth+=1;self.owned_nav_count+=1
+        elif tag=='nav' and self.nav_depth:
+            self.nav_depth+=1
+        if tag=='a' and self.nav_depth:
             self.links.append((a.get('data-nry-legacy-guide'),a.get('href')))
         if tag=='link' and 'nry-gear-archive-entry-v1.css' in (a.get('href') or ''):
             self.css.append(a.get('href'))
         if tag=='script' and 'nry-legacy-2023-buyer-click-v1.js' in (a.get('src') or ''):
             self.js.append(a.get('src'))
     def handle_endtag(self,tag):
+        if tag=='nav' and self.nav_depth:self.nav_depth-=1
         if tag=='section' and self.depth:self.depth-=1
 
 def validate(body,slug):
@@ -68,7 +73,7 @@ def validate(body,slug):
     if body.count(MARKER)!=1 or p.panels!=1 or p.slug!=slug:
         raise AssertionError('EXACT_PANEL_REQUIRED')
     # Newspaper can prepend exactly one home context link in selected panels.
-    if p.links not in (expected,[(None,ORIGIN+'/')]+expected):
+    if p.owned_nav_count!=1 or p.links not in (expected,[(None,ORIGIN+'/')]+expected):
         safe=[]
         for role,href in p.links[:10]:
             u=urlsplit(href or '')
