@@ -1,0 +1,22 @@
+name: Na-Ryby Exact Map Source Cache Diagnostic (GET only)
+on:
+  pull_request:
+    paths:
+      - 'scripts/diagnose-map-source-cache-v1.py'
+      - '.github/workflows/map-source-cache-diagnostic-v1.yml'
+permissions:
+  contents: read
+jobs:
+  exact-get-diagnostic:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Two first-party anonymous GETs only; safe role summary
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/diagnose-map-source-cache-v1.py
+          python3 scripts/diagnose-map-source-cache-v1.py
