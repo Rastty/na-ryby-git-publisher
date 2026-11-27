@@ -31,5 +31,5 @@ check(NRY_South_Moravia_Stays_Archive_V1::transform_document(str_replace('Jihomo
 check(NRY_South_Moravia_Stays_Archive_V1::title_allowed('Rybaření s ubytováním - Jihomoravský kraj'),'exact 2017 plain-hyphen title');
 check(NRY_South_Moravia_Stays_Archive_V1::title_allowed('Rybaření s ubytováním – Jihomoravský kraj'),'exact public en-dash title');
 check(!NRY_South_Moravia_Stays_Archive_V1::title_allowed('Rybaření s ubytováním – Jihočeský kraj'),'other region rejected');
-check(count($GLOBALS['filters'])===3,'WordPress hooks registered only when runtime is present');
+check(count($GLOBALS['filters'])===4,'WordPress hooks registered only when runtime is present');
 echo "SOUTH_MORAVIA_STAYS_ARCHIVE_OFFLINE_PASS\n";
