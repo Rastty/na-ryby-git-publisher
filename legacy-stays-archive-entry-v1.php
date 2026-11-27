@@ -109,6 +109,14 @@ final class NRY_Legacy_Stays_Archive_Entry_V1 {
                 plugins_url('assets/nry-legacy-stays-entry-v1.css', __FILE__),
                 array(), '1.0.0');
         }
+        // Existing exact-page eligibility also guards the independent read-only
+        // click observer. The JS itself requires the unique live panel + 3 URLs.
+        if (self::eligible() && function_exists('wp_enqueue_script')
+            && function_exists('plugins_url')) {
+            wp_enqueue_script('nry-archive-stay-click-v1',
+                plugins_url('assets/nry-archive-stay-click-v1.js', __FILE__),
+                array(), '1.0.0', true);
+        }
     }
 
     public static function boot() {
