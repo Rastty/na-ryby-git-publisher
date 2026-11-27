@@ -26,7 +26,9 @@ def rejected(body):
     raise AssertionError('unsafe/missing public nav accepted')
 
 assert m.verify_html(doc())['menuInstances']==1
-assert m.verify_html(doc()+doc())['menuInstances']==2
+single=doc()
+menu_markup='<nav>'+single.split('<nav>',1)[1].split('</nav>',1)[0]+'</nav>'
+assert m.verify_html(single.replace('</nav>', '</nav>'+menu_markup,1))['menuInstances']==2
 rejected(doc(nested=False))
 rejected(doc(marker=False))
 rejected(doc(routes=m.ROUTES[:1]))
