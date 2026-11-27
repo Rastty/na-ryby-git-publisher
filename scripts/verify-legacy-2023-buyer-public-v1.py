@@ -6,6 +6,7 @@ import sys
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.request import Request
+from urllib.parse import urlsplit
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from readonly_urlopen_retry import guarded_urlopen
@@ -46,19 +47,24 @@ class Parsed(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.panels=0;self.slug=None;self.links=[];self.depth=0
-        self.css=[];self.js=[]
+        self.css=[];self.js=[];self.nav_depth=0;self.owned_nav_count=0
     def handle_starttag(self,tag,attrs):
         a=dict(attrs)
         if tag=='section' and a.get('data-nry-legacy-2023')=='v1':
             self.panels+=1;self.depth=1;self.slug=a.get('data-nry-legacy-slug')
         elif tag=='section' and self.depth:self.depth+=1
-        if tag=='a' and self.depth:
+        if tag=='nav' and self.depth and a.get('aria-label')=='Pokračovat podle potřeby':
+            self.nav_depth+=1;self.owned_nav_count+=1
+        elif tag=='nav' and self.nav_depth:
+            self.nav_depth+=1
+        if tag=='a' and self.nav_depth:
             self.links.append((a.get('data-nry-legacy-guide'),a.get('href')))
         if tag=='link' and 'nry-gear-archive-entry-v1.css' in (a.get('href') or ''):
             self.css.append(a.get('href'))
         if tag=='script' and 'nry-legacy-2023-buyer-click-v1.js' in (a.get('src') or ''):
             self.js.append(a.get('src'))
     def handle_endtag(self,tag):
+        if tag=='nav' and self.nav_depth:self.nav_depth-=1
         if tag=='section' and self.depth:self.depth-=1
 
 def validate(body,slug):
@@ -67,7 +73,19 @@ def validate(body,slug):
     if body.count(MARKER)!=1 or p.panels!=1 or p.slug!=slug:
         raise AssertionError('EXACT_PANEL_REQUIRED')
     # Newspaper can prepend exactly one home context link in selected panels.
-    if p.links not in (expected,[(None,ORIGIN+'/')]+expected):
+    if p.owned_nav_count!=1 or p.links not in (expected,[(None,ORIGIN+'/')]+expected):
+        safe=[]
+        for role,href in p.links[:10]:
+            u=urlsplit(href or '')
+            kind='OWN_PATH' if u.scheme=='https' and u.netloc=='na-ryby.eu' and not u.query and not u.fragment else 'OTHER_OR_QUERY'
+            safe.append({'role':role,'kind':kind,
+                         'missingHref':href is None,'emptyHref':href=='',
+                         'relativePath':u.path[:120] if not u.scheme and not u.netloc else None,
+                         'ownHost':u.netloc=='na-ryby.eu',
+                         'hasQuery':bool(u.query),'hasFragment':bool(u.fragment),
+                         'path':u.path[:120] if kind=='OWN_PATH' else None})
+        print(json.dumps({'diagnostic':'EXACT_LEGACY_PANEL_ANCHOR_SHAPE','slug':slug,
+                          'count':len(p.links),'anchors':safe},ensure_ascii=False))
         raise AssertionError('THREE_FIRST_PARTY_GUIDES_REQUIRED')
     if p.css!=[CSS] or p.js!=[JS]:
         raise AssertionError('EXPECTED_ASSETS_MISSING')
@@ -103,6 +121,14 @@ def live():
         'realClicks':'UNKNOWN','approvedOrPaidCommissions':'UNKNOWN'}
 
 if __name__=='__main__':
+    if sys.argv[1:]==['--diagnose']:
+        slug=next(iter(ROUTES))
+        try:
+            validate(get(ORIGIN+'/'+slug+'/',1500000).decode('utf-8','replace'),slug)
+            print('DIAGNOSE_FIRST_PANEL_EXACT')
+        except AssertionError as e:
+            print('DIAGNOSE_FIRST_PANEL_REASON: '+str(e))
+        raise SystemExit(0)
     if sys.argv[1:]!=['--verify']:raise SystemExit('USE_VERIFY_ONLY')
     try:print(json.dumps(live(),ensure_ascii=False,sort_keys=True))
     except Exception as e:
