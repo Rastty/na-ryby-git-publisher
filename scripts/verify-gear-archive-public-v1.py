@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Anonymous public proof of four equipment-category buyer entry sections.
+"""Anonymous public proof of six equipment-category buyer entry sections.
 
 GET only current first-party pages and the two exact local assets. Never
 follow anchor/merchant URLs, synthesize clicks, write WP or fabricate economics.
@@ -21,8 +21,22 @@ ROOT=ORIGIN+'/category/vybaveni-pro-rybare/'
 MARKER='data-nry-gear-archive="v1"'
 ASSET_PREFIX=ORIGIN+'/wp-content/plugins/na-ryby-git-publisher/assets/'
 CSS=ASSET_PREFIX+'nry-gear-archive-entry-v1.css?ver=1.0.0'
-JS=ASSET_PREFIX+'nry-gear-archive-click-v1.js?ver=1.0.0'
+JS=ASSET_PREFIX+'nry-gear-archive-click-v1.js?ver=1.1.0'
 ROUTES={
+ 'pruty':{
+    'title':'Kaprové pruty',
+    'links':[
+      ('carp_rod_guide',ORIGIN+'/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/'),
+      ('carp_rod_budget',ORIGIN+'/nejlepsi-kaprove-pruty-do-3-000-kc-srovnani-a-vyber/'),
+      ('carp_rod_youth',ORIGIN+'/kaprove-pruty-pro-deti-a-mladez-jak-vybrat-spravne/')
+    ]},
+ 'signalizatory':{
+    'title':'Signalizátory',
+    'links':[
+      ('signal_guide',ORIGIN+'/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/'),
+      ('signal_budget',ORIGIN+'/kompletni-sada-31-s-priposlechem-do-3-000-kc-co-opravdu-koupit/'),
+      ('signal_range',ORIGIN+'/jak-vybrat-signalizator-pro-lov-na-velkych-prehradach-a-rekach/')
+    ]},
  'navijaky':{
     'title':'Navijáky',
     'links':[
@@ -129,8 +143,8 @@ def live():
         if hashlib.sha256(served).digest()!=hashlib.sha256(approved).digest():
             raise AssertionError('LIVE_ASSET_SHA_MISMATCH')
         digests[name]=hashlib.sha256(served).hexdigest()
-    return {'status':'GEAR_ARCHIVE_FOUR_BUYER_ENTRIES_PUBLIC_VERIFIED',
-      'pages':pages,'publishedPaths':4,'exactFirstPartyCTA':sum(x['exactFirstPartyCTA'] for x in pages),
+    return {'status':'GEAR_ARCHIVE_SIX_BUYER_ENTRIES_PUBLIC_VERIFIED',
+      'pages':pages,'publishedPaths':6,'exactFirstPartyCTA':sum(x['exactFirstPartyCTA'] for x in pages),
       'servedAssetSha256':digests,'wpWrites':0,'merchantGETs':0,
       'syntheticClicks':0,'realClicks':'UNKNOWN','GA4Delivery':'UNKNOWN',
       'approvedOrPaidCommissions':'UNKNOWN'}
