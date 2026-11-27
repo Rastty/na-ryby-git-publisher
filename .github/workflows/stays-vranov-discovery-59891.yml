@@ -1,9 +1,16 @@
 name: Na-Ryby Vranov Stays Hub Public Readback
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/verify-stays-vranov-public-59891.py'
+      - 'tests/test-stays-vranov-public-59891.py'
+      - '.github/workflows/stays-vranov-discovery-59891.yml'
   pull_request:
     paths:
       - 'stays-vranov-discovery-59891-v1.php'
       - 'tests/test-stays-vranov-discovery-59891-v1.php'
+      - 'tests/test-stays-vranov-public-59891.py'
       - 'scripts/verify-stays-vranov-public-59891.py'
       - '.github/workflows/stays-vranov-discovery-59891.yml'
       - 'na-ryby-git-publisher.php'
@@ -27,9 +34,11 @@ jobs:
           php -l stays-vranov-discovery-59891-v1.php
           php tests/test-stays-vranov-discovery-59891-v1.php
           python3 -m py_compile scripts/verify-stays-vranov-public-59891.py
+          python3 tests/test-stays-vranov-public-59891.py
   public:
     if: >-
       github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.event == 'push' &&
