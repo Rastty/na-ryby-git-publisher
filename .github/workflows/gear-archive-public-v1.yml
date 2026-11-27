@@ -1,0 +1,81 @@
+name: Na-Ryby Four Equipment Archive Buyer Entries Public Proof
+on:
+  pull_request:
+    paths:
+      - 'gear-archive-buyer-entry-v1.php'
+      - 'assets/nry-gear-archive-entry-v1.css'
+      - 'assets/nry-gear-archive-click-v1.js'
+      - 'tests/test-gear-archive-buyer-entry-v1.php'
+      - 'tests/test-gear-archive-click-v1.mjs'
+      - 'scripts/verify-gear-archive-public-v1.py'
+      - 'tests/test-gear-archive-public-v1.py'
+      - 'na-ryby-git-publisher.php'
+      - '.github/workflows/gear-archive-public-v1.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: nry-gear-archive-proof-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: PHP, ten exact trusted guide roles and four public negative cases
+        run: |
+          set -euo pipefail
+          php -l gear-archive-buyer-entry-v1.php
+          php tests/test-gear-archive-buyer-entry-v1.php
+          node --check assets/nry-gear-archive-click-v1.js
+          node tests/test-gear-archive-click-v1.mjs
+          python3 -m py_compile scripts/verify-gear-archive-public-v1.py
+          python3 tests/test-gear-archive-public-v1.py
+  public:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == 'Rastty/na-ryby-git-publisher'
+    needs: offline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Require actual protected FTPS deploy SUCCESS of this exact main SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_RUN: ${{ github.event.workflow_run.id }}
+          RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          test "$RELEASE_SHA" = "$GITHUB_SHA" || {
+            echo 'BLOCKED: protected release SHA differs from this main checkout'
+            exit 1
+          }
+          result="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RELEASE_RUN}/jobs?per_page=100" --jq '.jobs[] | select(.name=="deploy") | .conclusion')"
+          test "$result" = success || {
+            echo 'BLOCKED: actual production deploy job did not succeed'
+            exit 1
+          }
+          echo 'PASS: protected FTPS succeeded at exact main SHA'
+      - name: Four canonical archives, ten first-party links, exact served JS/CSS
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if python3 scripts/verify-gear-archive-public-v1.py --verify; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then sleep 7; fi
+          done
+          exit 1

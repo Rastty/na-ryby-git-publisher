@@ -65,6 +65,14 @@ on:
       - '.github/workflows/archive-stay-click-public-v1.yml'
       - 'revir-main-menu-discovery-v1.php'
       - 'revir-archive-decision-entry-v1.php'
+      - 'gear-archive-buyer-entry-v1.php'
+      - 'assets/nry-gear-archive-entry-v1.css'
+      - 'assets/nry-gear-archive-click-v1.js'
+      - 'tests/test-gear-archive-buyer-entry-v1.php'
+      - 'tests/test-gear-archive-click-v1.mjs'
+      - 'scripts/verify-gear-archive-public-v1.py'
+      - 'tests/test-gear-archive-public-v1.py'
+      - '.github/workflows/gear-archive-public-v1.yml'
       - 'assets/nry-revir-archive-entry-v1.css'
       - 'tests/test-revir-archive-decision-entry-v1.php'
       - 'scripts/verify-revir-archive-entry-public.py'
@@ -449,6 +457,9 @@ on:
       - 'assets/nry-archive-stay-click-v1.js'
       - 'revir-main-menu-discovery-v1.php'
       - 'revir-archive-decision-entry-v1.php'
+      - 'gear-archive-buyer-entry-v1.php'
+      - 'assets/nry-gear-archive-entry-v1.css'
+      - 'assets/nry-gear-archive-click-v1.js'
       - 'assets/nry-revir-archive-entry-v1.css'
       - 'legacy-map-discovery-bridge-v1.php'
       - 'legacy-stays-archive-entry-v1.php'
@@ -582,6 +593,12 @@ jobs:
           php -l guarded-auto-publisher.php
           php -l revir-archive-decision-entry-v1.php
           php tests/test-revir-archive-decision-entry-v1.php
+          php -l gear-archive-buyer-entry-v1.php
+          php tests/test-gear-archive-buyer-entry-v1.php
+          node --check assets/nry-gear-archive-click-v1.js
+          node tests/test-gear-archive-click-v1.mjs
+          python3 -m py_compile scripts/verify-gear-archive-public-v1.py
+          python3 tests/test-gear-archive-public-v1.py
           php -l legacy-stays-archive-entry-v1.php
           php -l wellness-evergreen-source-proof-v1.php
           php tests/test-wellness-evergreen-source-proof-v1.php
@@ -664,6 +681,12 @@ jobs:
           python3 tests/test-wedos-ftps-transport.py
           php -l revir-archive-decision-entry-v1.php
           php tests/test-revir-archive-decision-entry-v1.php
+          php -l gear-archive-buyer-entry-v1.php
+          php tests/test-gear-archive-buyer-entry-v1.php
+          node --check assets/nry-gear-archive-click-v1.js
+          node tests/test-gear-archive-click-v1.mjs
+          python3 -m py_compile scripts/verify-gear-archive-public-v1.py
+          python3 tests/test-gear-archive-public-v1.py
           php -l legacy-stays-archive-entry-v1.php
           php -l wellness-evergreen-source-proof-v1.php
           php tests/test-wellness-evergreen-source-proof-v1.php
