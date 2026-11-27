@@ -1,5 +1,5 @@
 <?php
-/** Four existing WP archives, fail-closed scoped frontend contracts. No network. */
+/** Six existing WP archives, fail-closed scoped frontend contracts. No network. */
 define('ABSPATH', __DIR__);
 $_SERVER['REQUEST_METHOD']='GET';
 $GLOBALS['gear'] = array('slug'=>'navijaky','parent'=>22,'url'=>
@@ -30,7 +30,7 @@ function check_gear($ok,$label){if(!$ok)throw new RuntimeException($label);}
 require dirname(__DIR__).'/gear-archive-buyer-entry-v1.php';
 $C='NRY_Gear_Archive_Buyer_Entry_V1';
 $routes=$C::routes();
-check_gear(count($routes)===4,'exact four eligible categories');
+check_gear(count($routes)===6,'exact six eligible categories');
 check_gear(isset($GLOBALS['gear_actions']['template_redirect'],$GLOBALS['gear_actions']['loop_start'],$GLOBALS['gear_actions']['wp_enqueue_scripts']),'three guarded WP hooks');
 $total=0;
 foreach($routes as $slug=>$cfg){
@@ -69,7 +69,7 @@ foreach($routes as $slug=>$cfg){
  $bad=str_replace($h1,'<h1><a href="https://merchant.example/">'.$cfg['title'].'</a></h1>',$original);
  check_gear($C::place_after_archive_h1($bad)===$bad,'nested unreviewed title fails closed');
 }
-check_gear($total===10,'ten relevant first-party paths');
+check_gear($total===16,'sixteen relevant first-party paths');
 $GLOBALS['gear']['slug']='navijaky';$GLOBALS['gear']['url']=$routes['navijaky']['url'];
 $C::enqueue();
 check_gear(count($GLOBALS['gear_assets'])===2
@@ -98,4 +98,4 @@ foreach($flags as $key=>$value){
  check_gear($C::place_after_archive_h1($GLOBALS['navijaky_original'])===$GLOBALS['navijaky_original'],'no transform under '.$key);
  $GLOBALS['gear'][$key]=$was;
 }
-echo "GEAR_ARCHIVE_FOUR_BUYER_PATHS_OFFLINE_VERIFIED\n";
+echo "GEAR_ARCHIVE_SIX_BUYER_PATHS_OFFLINE_VERIFIED\n";
