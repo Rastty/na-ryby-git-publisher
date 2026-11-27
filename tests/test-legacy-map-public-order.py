@@ -17,10 +17,19 @@ section = ('<section class="nry-map-discovery" data-nry-map-discovery="v1">'
 iframe = '<iframe src="https://' + MAP_TOKEN + '" width="800"></iframe>'
 preamble = '<!doctype html><html><body><h1>Rybářská dovolená</h1>'
 assert check(preamble + section + iframe + '</body></html>') == 'NRY_LEGACY_MAP_CHOICE_PUBLIC_VERIFIED'
+with_home=section.replace('<h2>Ověřit revír</h2>',
+    '<h2>Ověřit revír</h2><a href="https://na-ryby.eu/">Zpět</a>')
+assert check(preamble + with_home + iframe + '</body></html>') == 'NRY_LEGACY_MAP_CHOICE_PUBLIC_VERIFIED'
 for invalid in (
     preamble + iframe + section,
     preamble + section + section + iframe,
     preamble + section.replace(LINKS[1], 'https://invalid.example/') + iframe,
+    preamble + with_home.replace('https://na-ryby.eu/">Zpět',
+        'https://na-ryby.eu/?utm=bad">Zpět') + iframe,
+    preamble + with_home.replace('https://na-ryby.eu/">Zpět',
+        'https://na-ryby.eu/other/">Zpět') + iframe,
+    preamble + with_home.replace('<ul>', '<a href="https://na-ryby.eu/">Zpět</a><ul>') + iframe,
+    preamble + section.replace('</ul>','</ul><a href="https://na-ryby.eu/">Home</a>') + iframe,
     preamble + section.replace('data-nry-map-stay-picks="v1"', 'data-nry-map-stay-picks="v2"') + iframe,
     preamble + section.replace('data-nry-map-stay="wellness"', 'data-nry-map-stay="not-approved"') + iframe,
     preamble + section.replace('data-nry-map-stay="cyklochata"', 'data-nry-map-stay="wellness"') + iframe,
