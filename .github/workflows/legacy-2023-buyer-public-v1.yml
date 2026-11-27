@@ -33,6 +33,9 @@ jobs:
           php tests/test-legacy-2023-buyer-rescue-v1.php
           node --check assets/nry-legacy-2023-buyer-click-v1.js
           python3 -m py_compile scripts/verify-legacy-2023-buyer-public-v1.py
+      - name: First public panel anonymous GET shape (no merchant requests)
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-legacy-2023-buyer-public-v1.py --diagnose
   public:
     if: >-
       github.event_name == 'workflow_run' &&
