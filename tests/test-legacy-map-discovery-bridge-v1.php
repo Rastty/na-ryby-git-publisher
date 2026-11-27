@@ -30,6 +30,13 @@ check_map(substr_count($new, $C::MARKER) === 1, 'single visible section');
 check_map(substr_count($new, $C::REVIR_GUIDE) === 1, 'verified root private-water archive route');
 check_map(substr_count($new, $C::RULES_GUIDE) === 1, 'official rules orientation route');
 check_map(substr_count($new, $C::STAYS_GUIDE) === 1, 'current stay choices route');
+check_map(substr_count($new, $C::STAY_MARKER) === 1, 'one prominent stay-card wrapper');
+check_map(substr_count($new, 'data-nry-map-stay="cyklochata"')===1
+    && substr_count($new,'data-nry-map-stay="wellness"')===1, 'two distinct stay cards');
+check_map(substr_count($new,'href="'.$C::CYCLO.'"')===1
+    && substr_count($new,'href="'.$C::WELLNESS.'"')===1, 'only existing sourced Vranov choices');
+check_map(strpos($new, $C::STAY_MARKER)<strpos($new, $embed),'commercial cards before iframe');
+check_map(str_replace(substr($new,0,strpos($new,$embed)), '',$new)!==$html,'map changed only by inserted section');
 check_map(strpos($new, $C::MARKER) < strpos($new, $embed), 'first-party decision precedes large map');
 check_map($C::render($new) === $new, 'idempotent');
 $drift = str_replace($C::MAP_URL_TOKEN, 'maps.example.com/other', $html);
