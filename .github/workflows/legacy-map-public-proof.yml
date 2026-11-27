@@ -7,6 +7,11 @@ on:
       - 'scripts/verify_legacy_map_choice_public.py'
       - 'tests/test-legacy-map-public-order.py'
       - '.github/workflows/legacy-map-public-proof.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/verify_legacy_map_choice_public.py'
+      - '.github/workflows/legacy-map-public-proof.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]
@@ -16,7 +21,7 @@ permissions:
   actions: read
 jobs:
   contract:
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
+    if: github.event_name == 'pull_request' || github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -50,5 +55,5 @@ jobs:
           }
           echo 'PASS: exact-main protected deploy succeeded'
       - name: Independent first-party public map + two offer paths readback
-        if: github.event_name == 'workflow_run'
+        if: github.event_name == 'workflow_run' || github.event_name == 'push'
         run: python3 scripts/verify_legacy_map_choice_public.py --verify
