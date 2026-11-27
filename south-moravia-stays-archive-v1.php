@@ -15,6 +15,14 @@ final class NRY_South_Moravia_Stays_Archive_V1 {
     const SRUB = 'https://na-ryby.eu/chata-rybarsky-wellness-srub/';
     const HUB = 'https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/';
 
+    /** WP may store a plain hyphen while wptexturize renders the observed en dash. */
+    public static function title_allowed($value) {
+        if (!is_string($value)) return false;
+        $text = trim(html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        return $text === self::TITLE
+            || $text === 'Rybaření s ubytováním - Jihomoravský kraj';
+    }
+
     private static function eligible() {
         foreach (array('is_single','is_singular','get_queried_object_id',
             'is_admin','is_preview','home_url','get_permalink','get_post') as $f) {
@@ -37,8 +45,7 @@ final class NRY_South_Moravia_Stays_Archive_V1 {
             && substr($p->post_date_gmt, 0, 10) === '2017-07-04'
             && is_string($p->post_content ?? null)
             && strlen($p->post_content) >= 80
-            && is_string($p->post_title ?? null)
-            && trim(html_entity_decode($p->post_title, ENT_QUOTES | ENT_HTML5, 'UTF-8')) === self::TITLE;
+            && self::title_allowed($p->post_title ?? null);
     }
 
     public static function block() {
@@ -135,12 +142,44 @@ final class NRY_South_Moravia_Stays_Archive_V1 {
             ob_start(array(__CLASS__, 'transform_document'));
     }
 
+    /** Safe diagnostic: booleans only, only on owner-requested GET. No raw WP content. */
+    public static function probe_footer() {
+        if (($_GET['nry_jm_archive_probe'] ?? '') !== 'source_v1'
+            || ($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET'
+            || !function_exists('get_queried_object_id') || !function_exists('get_post')
+            || !function_exists('get_permalink') || !function_exists('is_single')
+            || !function_exists('home_url') || rtrim(home_url('/'), '/') !== 'https://na-ryby.eu')
+            || !is_single(self::SLUG)) return;
+        $id = (int)get_queried_object_id();
+        $p = $id > 0 ? get_post($id) : null;
+        $status = array(
+            'status' => 'NRY_JM_ARCHIVE_ELIGIBILITY_V1',
+            'singleSlug' => is_single(self::SLUG),
+            'permalink' => $id > 0 && get_permalink($id) === self::URL,
+            'post' => is_object($p),
+            'published' => is_object($p) && ($p->post_status ?? '') === 'publish',
+            'typePost' => is_object($p) && ($p->post_type ?? '') === 'post',
+            'slugMatches' => is_object($p) && ($p->post_name ?? '') === self::SLUG,
+            'date20170704' => is_object($p) && substr((string)($p->post_date_gmt ?? ''),0,10) === '2017-07-04',
+            'titleAllowed' => is_object($p) && self::title_allowed($p->post_title ?? null),
+            'rawSourceNonempty' => is_object($p) && is_string($p->post_content ?? null)
+                && strlen($p->post_content) >= 80,
+            'eligible' => self::eligible(),
+            'wordpressWrites' => 0,
+            'syntheticClicks' => 0,
+        );
+        echo "\n<!-- NRY_JM_ARCHIVE_PROBE_V1 "
+            .json_encode($status, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)
+            ." -->\n";
+    }
+
     public static function boot() {
         // Do not load site hooks in partial WordPress offline test harnesses.
         if (function_exists('is_single') && function_exists('get_post')
             && function_exists('add_filter') && function_exists('add_action')) {
             add_filter('the_content', array(__CLASS__, 'render'), 98);
             add_action('template_redirect', array(__CLASS__, 'buffer'), 20);
+            add_action('wp_footer', array(__CLASS__, 'probe_footer'), 99);
         }
     }
 }
