@@ -8,6 +8,11 @@ on:
       - 'scripts/verify-legacy-2023-buyer-public-v1.py'
       - 'na-ryby-git-publisher.php'
       - '.github/workflows/legacy-2023-buyer-public-v1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/verify-legacy-2023-buyer-public-v1.py'
+      - '.github/workflows/legacy-2023-buyer-public-v1.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]
@@ -33,16 +38,17 @@ jobs:
           php tests/test-legacy-2023-buyer-rescue-v1.php
           node --check assets/nry-legacy-2023-buyer-click-v1.js
           python3 -m py_compile scripts/verify-legacy-2023-buyer-public-v1.py
-      - name: First public panel anonymous GET shape (no merchant requests)
+      - name: Six publicly deployed legacy article cards (GET only; no clicks)
         if: github.event_name == 'pull_request'
-        run: python3 scripts/verify-legacy-2023-buyer-public-v1.py --diagnose
+        run: python3 scripts/verify-legacy-2023-buyer-public-v1.py --verify
   public:
     if: >-
-      github.event_name == 'workflow_run' &&
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_run' &&
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_branch == 'main' &&
-      github.event.workflow_run.head_repository.full_name == 'Rastty/na-ryby-git-publisher'
+      github.event.workflow_run.head_repository.full_name == 'Rastty/na-ryby-git-publisher')
     needs: contracts
     runs-on: ubuntu-24.04
     timeout-minutes: 7
@@ -57,7 +63,16 @@ jobs:
           RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
-          test "$RELEASE_SHA" = "$GITHUB_SHA"
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            # This main push changes only verifier files. Runtime is still
+            # the already-proven FTPS release from PR #389.
+            for f in legacy-2023-buyer-rescue-v1.php assets/nry-legacy-2023-buyer-click-v1.js na-ryby-git-publisher.php; do
+              git show "4b052dc8ad0a1d82158dfba1e615d250ea21665d:$f" | cmp - "$f"
+            done
+            RELEASE_RUN=46055687313
+          else
+            test "$RELEASE_SHA" = "$GITHUB_SHA"
+          fi
           conclusion="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RELEASE_RUN}/jobs?per_page=100" --jq '.jobs[] | select(.name=="deploy") | .conclusion')"
           test "$conclusion" = success
           echo 'PASS: actual reviewed FTPS deployment succeeded'
