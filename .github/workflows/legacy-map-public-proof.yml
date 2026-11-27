@@ -13,6 +13,7 @@ on:
     branches: [main]
 permissions:
   contents: read
+  actions: read
 jobs:
   contract:
     if: github.event_name == 'pull_request' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
@@ -28,6 +29,26 @@ jobs:
           php tests/test-legacy-map-discovery-bridge-v1.php
           python3 -m py_compile scripts/verify_legacy_map_choice_public.py
           python3 tests/test-legacy-map-public-order.py
-      - name: Independent first-party public map readback after protected FTPS
+      - name: Require exact current main SHA and actual protected deploy SUCCESS
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NRY_RELEASE_RUN_ID: ${{ github.event.workflow_run.id }}
+          NRY_RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
+          NRY_RELEASE_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+          NRY_RELEASE_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          set -euo pipefail
+          test "$NRY_RELEASE_REPO" = "$GITHUB_REPOSITORY"
+          test "$NRY_RELEASE_BRANCH" = main
+          test "$NRY_RELEASE_SHA" = "$GITHUB_SHA"
+          test "${{ github.event.workflow_run.event }}" = push
+          result="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${NRY_RELEASE_RUN_ID}/jobs?per_page=100" --jq '.jobs[] | select(.name=="deploy") | .conclusion')"
+          test "$result" = success || {
+            echo 'BLOCKED: protected production deploy did not finish SUCCESS'
+            exit 1
+          }
+          echo 'PASS: exact-main protected deploy succeeded'
+      - name: Independent first-party public map + two offer paths readback
         if: github.event_name == 'workflow_run'
         run: python3 scripts/verify_legacy_map_choice_public.py --verify
