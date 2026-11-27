@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Independent anonymous readback of two first-party stay routes; no merchant requests."""
 from __future__ import annotations
+import re
 import sys
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
@@ -14,14 +15,22 @@ MARKER = 'data-nry-vranov-stays-59891="v1"'
 PREV = 'Statek Jedraž'
 NEXT = 'Další možnosti ubytování v rybářských lokalitách'
 
+# Sitewide header/mobile menus now legitimately repeat the same two target links.
+# Check exact link identity/count/order inside the single source-pinned stay navigation.
+BLOCK = re.compile(r'<nav\b[^>]*\b' + re.escape(MARKER) + r'[^>]*>.*?</nav>', re.S)
+HREF = re.compile(r'\bhref="[^"]*"')
+
 def verify(html: str) -> None:
     if html.count(MARKER) != 1:
-        raise ValueError("expected exactly one Vranov navigation")
-    if any(html.count('href="' + link + '"') != 1 for link in LINKS):
-        raise ValueError("missing or duplicate first-party stay href")
-    start, first, second, end = (html.find(x) for x in
-        (PREV, 'href="' + LINKS[0] + '"', 'href="' + LINKS[1] + '"', NEXT))
-    if not (-1 not in (start, first, second, end) and start < first < second < end):
+        raise ValueError("expected exactly one Vranov navigation marker")
+    found = BLOCK.search(html)
+    if found is None:
+        raise ValueError("Vranov marker must be on a nav element")
+    expected = ['href="' + link + '"' for link in LINKS]
+    if HREF.findall(found.group(0)) != expected:
+        raise ValueError("missing, extra, duplicate or reordered Vranov stay href")
+    start, end = html.find(PREV), html.find(NEXT)
+    if not (0 <= start < found.start() < found.end() < end):
         raise ValueError("wrong public placement or missing original editorial section")
     if 'www.slevomat.cz/akce/2462030-' not in html:
         raise ValueError("original Slevomat offer missing")
