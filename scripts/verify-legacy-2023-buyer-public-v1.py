@@ -6,6 +6,7 @@ import sys
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.request import Request
+from urllib.parse import urlsplit
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from readonly_urlopen_retry import guarded_urlopen
@@ -68,6 +69,13 @@ def validate(body,slug):
         raise AssertionError('EXACT_PANEL_REQUIRED')
     # Newspaper can prepend exactly one home context link in selected panels.
     if p.links not in (expected,[(None,ORIGIN+'/')]+expected):
+        safe=[]
+        for role,href in p.links[:10]:
+            u=urlsplit(href or '')
+            kind='OWN_PATH' if u.scheme=='https' and u.netloc=='na-ryby.eu' and not u.query and not u.fragment else 'OTHER_OR_QUERY'
+            safe.append({'role':role,'kind':kind,'path':u.path[:120] if kind=='OWN_PATH' else None})
+        print(json.dumps({'diagnostic':'EXACT_LEGACY_PANEL_ANCHOR_SHAPE','slug':slug,
+                          'count':len(p.links),'anchors':safe},ensure_ascii=False))
         raise AssertionError('THREE_FIRST_PARTY_GUIDES_REQUIRED')
     if p.css!=[CSS] or p.js!=[JS]:
         raise AssertionError('EXPECTED_ASSETS_MISSING')
@@ -103,6 +111,14 @@ def live():
         'realClicks':'UNKNOWN','approvedOrPaidCommissions':'UNKNOWN'}
 
 if __name__=='__main__':
+    if sys.argv[1:]==['--diagnose']:
+        slug=next(iter(ROUTES))
+        try:
+            validate(get(ORIGIN+'/'+slug+'/',1500000).decode('utf-8','replace'),slug)
+            print('DIAGNOSE_FIRST_PANEL_EXACT')
+        except AssertionError as e:
+            print('DIAGNOSE_FIRST_PANEL_REASON: '+str(e))
+        raise SystemExit(0)
     if sys.argv[1:]!=['--verify']:raise SystemExit('USE_VERIFY_ONLY')
     try:print(json.dumps(live(),ensure_ascii=False,sort_keys=True))
     except Exception as e:
