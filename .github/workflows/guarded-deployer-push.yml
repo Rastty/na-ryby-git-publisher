@@ -268,6 +268,11 @@ on:
       - '.github/workflows/tipy-stay-trust-public-v1.yml'
       - 'legacy-net-buyer-guides-v1.php'
       - 'legacy-2023-buyer-rescue-v1.php'
+      - 'six-real-stay-offers-v1.php'
+      - 'assets/nry-six-real-stay-click-v1.js'
+      - 'tests/test-six-real-stay-offers-v1.php'
+      - 'scripts/verify-six-real-stay-offers-public-v1.py'
+      - '.github/workflows/six-real-stays-public-v1.yml'
       - 'assets/nry-legacy-2023-buyer-click-v1.js'
       - 'tests/test-legacy-2023-buyer-rescue-v1.php'
       - 'scripts/verify-legacy-2023-buyer-public-v1.py'
@@ -521,6 +526,8 @@ on:
       - 'kruzberk-fishing-trust-12877-v1.php'
       - 'legacy-net-buyer-guides-v1.php'
       - 'legacy-2023-buyer-rescue-v1.php'
+      - 'six-real-stay-offers-v1.php'
+      - 'assets/nry-six-real-stay-click-v1.js'
       - 'assets/nry-legacy-2023-buyer-click-v1.js'
       - 'carp-mat-buyer-trust-v1.php'
       - 'barrow-buyer-trust-v1.php'
@@ -801,6 +808,9 @@ jobs:
           php -l legacy-baitboat-trust-61251-v1.php
           php -l legacy-net-buyer-guides-v1.php
           php tests/test-legacy-net-buyer-guides-v1.php
+          php -l six-real-stay-offers-v1.php
+          php tests/test-six-real-stay-offers-v1.php
+          node --check assets/nry-six-real-stay-click-v1.js
           python3 -m py_compile scripts/verify-legacy-net-buyer-guides-public.py
           php -l carp-mat-buyer-trust-v1.php
           php tests/test-carp-mat-buyer-trust-v1.php
