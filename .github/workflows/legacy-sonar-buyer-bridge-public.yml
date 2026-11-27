@@ -1,0 +1,114 @@
+name: Na-Ryby Legacy Sonar Two Buyer Bridges Proof
+on:
+  pull_request:
+    paths:
+      - 'legacy-sonar-buyer-bridge-v1.php'
+      - 'na-ryby-git-publisher.php'
+      - 'tests/test-legacy-sonar-buyer-bridge-v1.php'
+      - '.github/workflows/legacy-sonar-buyer-bridge-public.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Syntax, exact identity and merchant-preservation tests
+        run: |
+          set -euo pipefail
+          php -l legacy-sonar-buyer-bridge-v1.php
+          php -l na-ryby-git-publisher.php
+          php tests/test-legacy-sonar-buyer-bridge-v1.php
+  public:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == 'Rastty/na-ryby-git-publisher'
+    needs: offline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Require actual guarded production deploy at exact main SHA
+        id: deployed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NRY_UPSTREAM_RUN_ID: ${{ github.event.workflow_run.id }}
+          NRY_UPSTREAM_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          if [ "$NRY_UPSTREAM_HEAD_SHA" != "$GITHUB_SHA" ]; then
+            echo 'BLOCKED: upstream release is not exact current main'
+            exit 1
+          fi
+          result="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${NRY_UPSTREAM_RUN_ID}/jobs?per_page=100" --jq '.jobs[] | select(.name=="deploy") | .conclusion')"
+          if [ "$result" != 'success' ]; then
+            echo 'SKIP: guarded transport was not successful'
+            echo 'live=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo 'live=true' >> "$GITHUB_OUTPUT"
+          echo 'PASS: exact-main protected deploy succeeded'
+      - name: Independent anonymous public semantic proof, zero merchant clicks
+        if: steps.deployed.outputs.live == 'true'
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from urllib.request import Request
+          from scripts.readonly_urlopen_retry import guarded_urlopen
+          import time
+          class Page(HTMLParser):
+              def __init__(self):
+                  super().__init__();self.canonical=[];self.panels=[];self.links=[]
+              def handle_starttag(self,tag,attrs):
+                  a=dict(attrs)
+                  if tag=='link' and 'canonical' in (a.get('rel') or '').split():
+                      self.canonical.append(a.get('href'))
+                  if tag=='aside' and a.get('data-nry-legacy-sonar-bridge')=='v1':
+                      self.panels.append(a.get('data-nry-legacy-sonar-kind'))
+                  if tag=='a':self.links.append(a.get('href'))
+          base='https://na-ryby.eu/'
+          guide=base+'jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/'
+          cases=(
+            ('hds_live_7','recenze-a-zkusenosti-lowrance-echolot-hds-live-7-se-sondou-active-imaging-3v1-baterie-nabijecka-zdarma/','HDS LIVE 7','www.tkqlhce.com'),
+            ('hook_4','lowrance-echolot-hook-4-chirp-gps/','Hook-4','www.anrdoezrs.net'),
+          )
+          for kind,path,needle,legacy_href_host in cases:
+              url=base+path
+              last=None
+              for attempt in range(3):
+                  try:
+                      req=Request(url,method='GET',headers={'User-Agent':'NaRybySonarBuyerPublicProof/1.0','Cache-Control':'no-cache'})
+                      with guarded_urlopen(req,timeout=25) as resp:
+                          if resp.status!=200 or resp.geturl()!=url:raise ValueError('EXACT_URL_NOT_200')
+                          data=resp.read(700001)
+                      if len(data)>700000:raise ValueError('OVERSIZED_PUBLIC_HTML')
+                      html=data.decode('utf-8','replace')
+                      p=Page();p.feed(html);p.close()
+                      if p.canonical!=[url]:raise ValueError('CANONICAL_MISMATCH')
+                      if p.panels!=[kind]:raise ValueError('ONE_EXACT_PANEL_REQUIRED')
+                      if p.links.count(guide)!=1:raise ValueError('ONE_INTERNAL_GUIDE_REQUIRED')
+                      if needle not in html or legacy_href_host not in html:
+                          raise ValueError('ORIGINAL_POST_OR_AFFILIATE_LINK_MISSING')
+                      print('LEGACY_SONAR_PUBLIC_VERIFIED',kind,'original source retained','externalClicks=0')
+                      last=None
+                      break
+                  except (OSError,ValueError) as err:
+                      last=type(err).__name__
+                      print('SONAR_PUBLIC_UNVERIFIED',kind,last,'attempt',attempt+1)
+                      if attempt<2:time.sleep(5)
+              if last is not None:raise SystemExit('BLOCKED: both page proofs must pass')
+          print('LEGACY_SONAR_TWO_PUBLIC_VERIFIED; orders=UNKNOWN; paidCommissions=UNKNOWN')
+          PY
