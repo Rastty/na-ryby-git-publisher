@@ -66,6 +66,9 @@ jobs:
           if [ "$GITHUB_EVENT_NAME" = "push" ]; then
             # This main push changes only verifier files. Runtime is still
             # the already-proven FTPS release from PR #389.
+            # checkout defaults to depth=1; fetch the explicitly attested
+            # runtime SHA before comparing its immutable plugin bytes.
+            git fetch --no-tags --depth=1 origin 4b052dc8ad0a1d82158dfba1e615d250ea21665d
             for f in legacy-2023-buyer-rescue-v1.php assets/nry-legacy-2023-buyer-click-v1.js na-ryby-git-publisher.php; do
               git show "4b052dc8ad0a1d82158dfba1e615d250ea21665d:$f" | cmp - "$f"
             done
