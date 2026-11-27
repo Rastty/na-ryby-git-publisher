@@ -4,6 +4,16 @@ import vm from 'node:vm';
 const source=fs.readFileSync(new URL('../assets/nry-gear-archive-click-v1.js',import.meta.url),'utf8');
 const ORIGIN='https://na-ryby.eu';
 const data={
+  'pruty':[
+    ['carp_rod_guide','/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/'],
+    ['carp_rod_budget','/nejlepsi-kaprove-pruty-do-3-000-kc-srovnani-a-vyber/'],
+    ['carp_rod_youth','/kaprove-pruty-pro-deti-a-mladez-jak-vybrat-spravne/']
+  ],
+  'signalizatory':[
+    ['signal_guide','/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/'],
+    ['signal_budget','/kompletni-sada-31-s-priposlechem-do-3-000-kc-co-opravdu-koupit/'],
+    ['signal_range','/jak-vybrat-signalizator-pro-lov-na-velkych-prehradach-a-rekach/']
+  ],
   navijaky:[
     ['reel_guide','/jak-vybrat-rybarsky-navijak-velikost-prevod-brzda-a-typy-navijaku/'],
     ['feeder_reel','/nejlepsi-feederove-navijaky-srovnani/'],
@@ -102,5 +112,5 @@ for(const [slug,routes] of Object.entries(data)) {
       'exact first homepage context only');
   }
 }
-assert.equal(positive,10);
-console.log('GEAR_ARCHIVE_TEN_TRUSTED_GUIDE_ROLES_OFFLINE_VERIFIED');
+assert.equal(positive,16);
+console.log('GEAR_ARCHIVE_SIXTEEN_TRUSTED_GUIDE_ROLES_OFFLINE_VERIFIED');

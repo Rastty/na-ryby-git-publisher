@@ -1,6 +1,6 @@
 <?php
 /**
- * Four existing high-intent equipment archives -> owned buyer decision guides.
+ * Six existing high-intent equipment archives -> owned buyer decision guides.
  * Render-only, exact current category and canonical URL on first archive page.
  * Reuses the source-guarded H1/loop_start pattern of revir-archive-decision-entry.
  * No WordPress DB/term writes, redirects, merchant URLs or affiliate rewrites.
@@ -13,6 +13,28 @@ final class NRY_Gear_Archive_Buyer_Entry_V1 {
 
     public static function routes() {
         return array(
+                        'pruty' => array(
+                'title' => 'Kaprové pruty',
+                'url' => 'https://na-ryby.eu/category/vybaveni-pro-rybare/pruty/',
+                'headline' => 'Kaprový prut vybírejte podle vody, délky a rozpočtu',
+                'intro' => 'Nejdřív si ujasněte způsob lovu a transport, potom délku, testovací křivku a rozpočet. Dřívější pořadí modelů a ceny nejsou dnešní skladová nabídka.',
+                'links' => array(
+                    array('carp_rod_guide', 'Jak vybrat kaprový prut', 'Od prvního prutu po delší odhozy', 'https://na-ryby.eu/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/'),
+                    array('carp_rod_budget', 'Kaprový prut do 3 000 Kč', 'Srovnání kompromisů v běžném rozpočtu', 'https://na-ryby.eu/nejlepsi-kaprove-pruty-do-3-000-kc-srovnani-a-vyber/'),
+                    array('carp_rod_youth', 'Prut pro dítě nebo juniora', 'Délka, hmotnost a pohodlné ovládání', 'https://na-ryby.eu/kaprove-pruty-pro-deti-a-mladez-jak-vybrat-spravne/'),
+                ),
+            ),
+            'signalizatory' => array(
+                'title' => 'Signalizátory',
+                'url' => 'https://na-ryby.eu/category/vybaveni-pro-rybare/signalizatory/',
+                'headline' => 'Signalizátor vybírejte podle lovu a příposlechu',
+                'intro' => 'Jinou sadu potřebujete na krátkou položenou a jinou na velkou přehradu. Zvažte dosah v terénu, falešné záběry, napájení a ovládání; historické nabídky nemusí platit.',
+                'links' => array(
+                    array('signal_guide', 'Jak vybrat hlásiče záběru', 'Základní funkce a sady podle použití', 'https://na-ryby.eu/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/'),
+                    array('signal_budget', 'Sada 3+1 do 3 000 Kč', 'Co kontrolovat u cenově dostupného příposlechu', 'https://na-ryby.eu/kompletni-sada-31-s-priposlechem-do-3-000-kc-co-opravdu-koupit/'),
+                    array('signal_range', 'Signalizátory na velké vody', 'Dosah příposlechu, překážky a spolehlivost', 'https://na-ryby.eu/jak-vybrat-signalizator-pro-lov-na-velkych-prehradach-a-rekach/'),
+                ),
+            ),
             'navijaky' => array(
                 'title' => 'Navijáky',
                 'url' => 'https://na-ryby.eu/category/vybaveni-pro-rybare/navijaky/',
@@ -161,7 +183,7 @@ final class NRY_Gear_Archive_Buyer_Entry_V1 {
         if (function_exists('wp_enqueue_script')) {
             wp_enqueue_script('nry-gear-archive-click-v1',
                 plugins_url('assets/nry-gear-archive-click-v1.js', __FILE__),
-                array(), '1.0.0', true);
+                array(), '1.1.0', true);
         }
     }
 
