@@ -74,6 +74,34 @@ def get():
     if len(body)>1500000:raise ValueError('PUBLIC_HTML_TOO_LARGE')
     return body.decode('utf-8','replace')
 
+def safe_diagnostic():
+    """When a panel is absent, obtain only boolean guard facts from one site-local GET."""
+    from urllib.error import URLError
+    url=URL+'?nry_jm_archive_probe=source_v1'
+    try:
+        req=Request(url,method='GET',headers={'User-Agent':'NaRybySouthMoraviaProbeReadOnly/1.0'})
+        with guarded_urlopen(req,timeout=25) as resp:
+            if resp.status!=200 or resp.geturl()!=url:
+                raise ValueError('EXACT_DIAGNOSTIC_URL_REQUIRED')
+            body=resp.read(1500001).decode('utf-8','replace')
+        prefix='<!-- NRY_JM_ARCHIVE_PROBE_V1 '
+        start=body.find(prefix)
+        end=body.find(' -->',start+len(prefix)) if start>=0 else -1
+        if start<0 or end<0 or end-start>3200:
+            print('ELIGIBILITY_PROBE_NOT_PRESENT');return
+        payload=body[start+len(prefix):end]
+        proof=json.loads(payload)
+        allowed=('status','singleSlug','permalink','post','published','typePost',
+            'slugMatches','date20170704','titleAllowed','rawSourceNonempty','eligible',
+            'wordpressWrites','syntheticClicks')
+        print('SAFE_ELIGIBILITY_PROBE',json.dumps({k:proof.get(k) for k in allowed},sort_keys=True))
+    except (OSError,ValueError,URLError):
+        print('ELIGIBILITY_PROBE_UNAVAILABLE')
+
 if __name__=='__main__':
     if sys.argv[1:]!=['--verify']:raise SystemExit('use --verify')
-    print(json.dumps(verify(get()),ensure_ascii=False))
+    try:
+        print(json.dumps(verify(get()),ensure_ascii=False))
+    except ValueError:
+        safe_diagnostic()
+        raise
