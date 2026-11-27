@@ -14,6 +14,7 @@ CYCLO='https://na-ryby.eu/rybarska-chata-cyklochata-vranovska-prehrada/'
 SRUB='https://na-ryby.eu/chata-rybarsky-wellness-srub/'
 HUB='https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/'
 MARKER='data-nry-jm-archive-stays="v1"'
+HOME='https://na-ryby.eu/'
 EXPECTED=(CYCLO,SRUB,HUB)
 
 class Parse(HTMLParser):
@@ -51,7 +52,12 @@ def verify(html):
     if p.canonicals!=[URL]:raise ValueError('CANONICAL_DRIFT')
     if html.count(MARKER)!=1 or len(p.markers)!=1:
         raise ValueError('ONE_OWNED_PANEL_REQUIRED')
-    if p.links!=list(EXPECTED):
+    # TagDiv may add one exact homepage contextual anchor before the
+    # authored three CTA links. Only this public-source-observed variant is valid.
+    # No extra internal URL, query, duplicate, reordered or external link.
+    authored=list(EXPECTED)
+    with_context=[HOME]+authored
+    if p.links not in (authored,with_context):
         raise ValueError('EXACT_THREE_FIRST_PARTY_ROUTES_REQUIRED')
     old=' '.join(' '.join(p.after_parts).split())
     if not all(x in old for x in ('Zukal','Popůvky','Havelka ORCA','Rybník Božice')):
@@ -61,7 +67,8 @@ def verify(html):
     if any('tracking.affiliateport.eu' in (href or '') for href in p.links):
         raise ValueError('UNAUTHORIZED_EXTERNAL_HREF')
     return {'state':'SOUTH_MORAVIA_STAYS_ARCHIVE_PUBLIC_VERIFIED',
-        'exactFirstPartyLinks':3,'historicalIndexPreserved':True,
+        'exactFirstPartyLinks':3,
+        'exactContextHomeLink':p.links==with_context,'historicalIndexPreserved':True,
         'wordpressWrites':0,'merchantRequests':0,'syntheticClicks':0,
         'actualClicks':'UNKNOWN','approvedOrPaidCommissions':'UNKNOWN'}
 

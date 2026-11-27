@@ -95,3 +95,5 @@ jobs:
           python3 -m py_compile scripts/verify-south-moravia-stays-archive-public.py
           python3 tests/test-south-moravia-stays-archive-public.py
           python3 scripts/verify-south-moravia-stays-archive-public.py --audit
+          # Script-only push reads already deployed public HTML; does not release runtime.
+          python3 scripts/verify-south-moravia-stays-archive-public.py --verify
