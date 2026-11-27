@@ -54,6 +54,7 @@ foreach($routes as $slug=>$cfg){
     .$h1.'<p>Historical category description must remain unchanged</p>'
     .str_repeat('<article><h2>Historical WordPress result</h2></article>',100)
     .$block.'</body></html>';
+ if($slug==='navijaky')$GLOBALS['navijaky_original']=$original;
  $changed=$C::place_after_archive_h1($original);
  check_gear($changed!==$original,'selected canonical archive transformed');
  check_gear(strpos($changed,$h1.$block)!==false,'block immediately after exact H1');
@@ -94,7 +95,7 @@ foreach($flags as $key=>$value){
  $was=$GLOBALS['gear'][$key];$GLOBALS['gear'][$key]=$value;
  $GLOBALS['gear_assets']=array();$C::enqueue();
  check_gear(count($GLOBALS['gear_assets'])===0,'assets blocked on '.$key);
- check_gear($C::place_after_archive_h1($original)===$original,'no transform under '.$key);
+ check_gear($C::place_after_archive_h1($GLOBALS['navijaky_original'])===$GLOBALS['navijaky_original'],'no transform under '.$key);
  $GLOBALS['gear'][$key]=$was;
 }
 echo "GEAR_ARCHIVE_FOUR_BUYER_PATHS_OFFLINE_VERIFIED\n";
