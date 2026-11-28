@@ -86,9 +86,35 @@ def cabin_public():
         print('CABIN_PUBLIC_OK',slug,'2/2',flush=True)
     print('CABIN_RELAX_PUBLIC_VERIFIED 2/2 4/4')
 
+
+PREMIUM_SLUG='odpocinte-si-na-soukromem-rybarskem-reviru-s-luxusnim-ubytovanim'
+def premium_source():
+    data=json.loads(get(BASE+'wp-json/wp/v2/posts?slug='+PREMIUM_SLUG+'&_fields=id,slug,date,modified_gmt,title,link,content,status'))
+    assert len(data)==1
+    p=data[0]
+    print('PREMIUM_SOURCE_ID',p['id'],p['modified_gmt'],repr(html.unescape(p['title']['rendered'])),flush=True)
+    assert p['slug']==PREMIUM_SLUG and p['status']=='publish' and p['date'][:10]=='2023-08-05' and p['link']==BASE+PREMIUM_SLUG+'/'
+    with TemporaryDirectory() as temp:
+        path=Path(temp)/'body.html';path.write_text(p['content']['rendered'],encoding='utf-8')
+        code=PHP+'$id=(int)$argv[2];$gmt=$argv[3];if(NRY_Premium_Stay_Decision_V1::ID>0&&($id!==NRY_Premium_Stay_Decision_V1::ID||$gmt!==NRY_Premium_Stay_Decision_V1::MODIFIED))exit(2);$old=file_get_contents($argv[1]);$new=NRY_Premium_Stay_Decision_V1::transform($old);if($new===$old||substr_count($new,NRY_Premium_Stay_Decision_V1::MARKER)!==1)exit(3);'
+        subprocess.run(['php','-r',code,str(path),str(p['id']),p['modified_gmt'].replace('T',' ')],check=True)
+    print('PREMIUM_STAY_SOURCE_READY',p['id'],flush=True)
+class PremiumP(P):
+    def handle_starttag(self,t,attrs):
+        super().handle_starttag(t,attrs)
+        a=dict(attrs)
+        if t=='section' and 'data-nry-premium-stay-guide' in a:self.mark.append(a['data-nry-premium-stay-guide'])
+def premium_public():
+    url=BASE+PREMIUM_SLUG+'/'
+    p=PremiumP();p.feed(get(url+'?nry_release_readback=20261128'))
+    assert p.canon==[url] and p.mark==['v1'] and p.h1==1,(p.mark,p.h1)
+    assert p.links==[(o,URLS[o],'sponsored nofollow noopener') for o in ('srub','lipno')]
+    print('PREMIUM_STAY_PUBLIC_VERIFIED 1/1 2/2',flush=True)
+
+
 if __name__=='__main__':
     assert len(sys.argv)==2 and sys.argv[1] in ('--source','--public')
     if sys.argv[1]=='--source':
-        source();cabin_source()
+        source();cabin_source();premium_source()
     else:
-        public();cabin_public()
+        public();cabin_public();premium_public()

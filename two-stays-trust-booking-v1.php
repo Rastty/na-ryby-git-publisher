@@ -247,3 +247,89 @@ HTML;
     public static function boot(){if(function_exists('is_single')&&function_exists('is_singular')&&function_exists('add_filter')&&function_exists('add_action')){add_filter('the_content',array(__CLASS__,'render'),80);add_action('wp_enqueue_scripts',array(__CLASS__,'enqueue'),27);}}
 }
 NRY_Cabin_Relax_Stays_V1::boot();
+
+
+/** Premium-stay decision guide: only one existing editorial URL, no DB writes.
+ * Existing approved booking destinations are explicitly NOT private fishing rights.
+ */
+final class NRY_Premium_Stay_Decision_V1 {
+    const SLUG='odpocinte-si-na-soukromem-rybarskem-reviru-s-luxusnim-ubytovanim';
+    const TITLE='Odpočiňte si na soukromém rybářském revíru s luxusním ubytováním';
+    const DATE='2023-08-05';
+    const ID=58657;
+    const MODIFIED='2026-04-13 07:33:07';
+    const MARKER='data-nry-premium-stay-guide="v1"';
+    const SOURCE='Pokud berete rybařinu jako dovolenou';
+    const BAD=array('Naše rybářské středisko','našem rybářském revíru','www.rybarskyrevirluxusniubytovani.cz');
+    public static function row(){
+        return array('slug'=>self::SLUG,
+            'eyebrow'=>'Pohodlí u vody · dvě alternativy',
+            'headline'=>'Porovnejte konkrétní pobyt s wellness nebo penzion u přehrady',
+            'intro'=>'Tato ubytování nejsou potvrzené soukromé revíry. Pokud vyžadujete vyhrazené lovné místo, zvolte nejdřív provozovatele vody a teprve poté ubytování.',
+            'offers'=>array(array('srub','Wellness srub u Vranova','Sauna a koupací káď; ověřte hladinu, termín a přístup k lovu.'),array('lipno','Pension U Kohoutů – Horní Planá','Pokojové zázemí u Lipna; potvrďte termín, cenu a cestu k povolenému lovišti.')));
+    }
+    private static function plain($s){return trim(preg_replace('~[\s\x{00a0}\x{202f}]+~u',' ',html_entity_decode(strip_tags($s),ENT_QUOTES|ENT_HTML5,'UTF-8')));}
+    public static function sourceOk($html){
+        if(!is_string($html)||strlen($html)<1400||strlen($html)>200000||strpos($html,self::MARKER)!==false||strpos($html,NRY_Six_Real_Stay_Offers_V1::MARKER)!==false)return false;
+        if(strpos(self::plain($html),self::SOURCE)===false)return false;
+        foreach(self::BAD as $bad)if(stripos($html,$bad)!==false)return false;
+        return true;
+    }
+    private static function eligible($loop=false){
+        if(!is_singular('post')||is_admin()||is_preview()||is_feed()||($_SERVER['REQUEST_METHOD']??'GET')!=='GET'
+            ||(function_exists('is_customize_preview')&&is_customize_preview())||rtrim(home_url('/'),'/')!=='https://na-ryby.eu'
+            ||($loop&&(!in_the_loop()||!is_main_query()))||self::ID<=0||self::MODIFIED==='')return false;
+        $id=(int)get_queried_object_id();$p=get_post($id);
+        return is_object($p)&&$id===self::ID&&(int)$p->ID===$id&&is_single($id)&&$p->post_type==='post'
+            &&$p->post_status==='publish'&&$p->post_name===self::SLUG&&get_permalink($id)==='https://na-ryby.eu/'.self::SLUG.'/'
+            &&substr($p->post_date,0,10)===self::DATE&&self::plain($p->post_title)===self::TITLE
+            &&$p->post_modified_gmt===self::MODIFIED&&self::sourceOk($p->post_content);
+    }
+    public static function guide(){return <<<'HTML'
+<section data-nry-premium-stay-guide="v1" aria-label="Rozhodnutí před rezervací pohodlného rybářského pobytu">
+<h2>Soukromý revír s ubytováním, nebo wellness chata u veřejné vody?</h2>
+<p>Pokud je vaším hlavním cílem lov z vyhrazeného místa, hledejte nejprve skutečného provozovatele revíru. Jestli je pro vás stejně důležité pohodlí partnera, vlastní koupelna a odpočinek, může lépe vyhovovat samostatné ubytování poblíž přehrady. Samotná sauna ani terasa nad vodou neznamená právo lovit. Srovnejte celou výpravu, nikoli jen fotografie interiéru.</p>
+<div style="overflow-x:auto"><table><caption>Tři rozdílné typy pohodlných pobytů u vody</caption><thead><tr><th scope="col">Priorita</th><th scope="col">Vhodné řešení</th><th scope="col">Co potvrdit písemně</th></tr></thead><tbody><tr><td>Lov u chatky bez přesunů</td><td>Ubytování přímo u provozovatele soukromé vody</td><td>Číslo nebo umístění lovného místa, pravidla, poplatek za lov</td></tr><tr><td>Wellness a rybaření v jednom víkendu</td><td>Samostatný srub nebo apartmán u přehrady</td><td>Provoz wellness, příjezd, aktuální hladina, samostatná povolenka</td></tr><tr><td>Pohodlí bez vaření</td><td>Penzion s dostupným lovištěm</td><td>Stravování, parkování, uložení výbavy, skutečná cesta k břehu</td></tr></tbody></table></div>
+<p>Pro první variantu začněte v našem <a href="https://na-ryby.eu/nejlepsi-soukrome-reviry-s-ubytovanim-v-ceske-republice-zazitek-ktery-stoji-za-to/">průvodci konkrétními soukromými revíry s ubytováním</a>, kde najdete příklady provozovatelů a podmínky, které je nutné ověřit. Pro samostatné ubytování využijte nabídky výše.</p>
+<h2>Kolik zaplatíte za pohodlný rybářský víkend ve dvou?</h2>
+<p>Modelový víkend: pokoj za 2 000 Kč na noc po dvě noci, 800 Kč doprava, 1 200 Kč společná strava a 1 000 Kč poplatky za lov pro jednoho rybáře znamenají dohromady 7 000 Kč. Alternativní celý objekt za 3 400 Kč na noc by při stejných ostatních nákladech vyšel na 9 800 Kč. Pokud má sauna samostatný poplatek, připočtěte jej. Jde pouze o ilustrační rozpočet, ne ceník uvedených ubytování ani revírů.</p>
+<h3>Co znamená komfort během skutečné výpravy</h3>
+<p>Ulovit rybu je jedna věc, bezpečně vysušit mokrou výbavu a nepřenášet celý tábor každý den druhá. Pokud vás doprovází nerybář, domluvte se na vlastním programu a společném jídle. Před platbou zjistěte, zda jsou v objektu bezpečné zásuvky pro běžné nabíjení, prostor pro pruty, vlastní hygienické zázemí a možnost parkování. Velké baterie nabíjejte výhradně podle pokynů výrobce a ubytovatele.</p>
+<h3>Proč se vyplatí počítat i čas u vody</h3>
+<p>Pokud je od ubytování na lovné místo 15 minut chůze a během dne se dvakrát vracíte, čtyři cesty znamenají hodinu. U dvoudenní výpravy počítejte i s časem na přípravu výbavy, úklid a přesun. Má-li někdo z doprovodu omezenou pohyblivost, ověřte povrch cesty, schody, toaletu a možnost dopravy až k objektu. Vzdálenost na mapě sama o sobě o přístupnosti nevypovídá.</p>
+<h3>Co když rybářská část pobytu nevyjde?</h3>
+<p>Podmínky na přehradě se mění s hladinou a počasím. Zjistěte, zda lze termín přesunout, jestli je poblíž jiný legálně dostupný úsek a zda máte plán pro den bez rybaření. U nabídky s wellness ověřte, zda jde o soukromé užívání, zda je služba v ceně a zda se objednává zvlášť. Nechte si poslat konkrétní odpověď, nikoli jen obecné potvrzení, že v okolí je možné rybařit.</p>
+<h3>Dotaz, který pošlete před zaplacením zálohy</h3>
+<p>„Máme zájem o pobyt pro dvě osoby v termínu …, jeden z nás bude rybařit. Prosím potvrďte konkrétní vodu a vzdálenost k povolenému lovnému místu, požadované doklady a poplatky, dostupnost wellness a celkovou cenu včetně všech povinných poplatků. Je místo u vody vyhrazené jen pro hosty, nebo veřejně přístupné?“</p>
+<p>Pro svazové vody hledejte aktuální podmínky v <a href="https://ris.rybsvaz.cz/">oficiálním informačním systému ČRS</a>; u soukromé vody přímo u provozovatele. Pokud vám poskytovatel nedokáže potvrdit oprávnění k lovu, nepovažujte pobyt za rybářský balíček.</p>
+</section>
+HTML;
+    }
+    public static function transform($html){
+        if(!self::sourceOk($html)||!class_exists('NRY_Six_Real_Stay_Offers_V1'))return $html;
+        $panel=NRY_Six_Real_Stay_Offers_V1::panel(self::row());
+        if(substr_count($panel,'data-nry-real-stay-offer=')!==2)return $html;
+        $pattern='~<h1\b([^>]*)>((?:(?!</?h1\b)[\s\S])*?)</h1\s*>~iu';
+        $n=0;
+        $out=preg_replace_callback($pattern,function($m)use(&$n){
+            if(self::plain($m[2])!==self::TITLE||preg_match('~<(?!/?(?:span|strong|em)\b)[^>]+>~i',$m[2]))return $m[0];
+            $n++;return '<h2'.$m[1].'>'.$m[2].'</h2>';
+        },$html);
+        if($n!==1||!is_string($out))return $html;
+        preg_match_all('~(?:href|src)\s*=\s*(["\x27])([^"\x27]*)\1~i',$html,$before);
+        preg_match_all('~(?:href|src)\s*=\s*(["\x27])([^"\x27]*)\1~i',$out,$after);
+        if($before[0]!==$after[0])return $html;
+        return $panel."\n".self::guide()."\n".$out;
+    }
+    public static function render($html){return self::eligible(true)?self::transform($html):$html;}
+    public static function enqueue(){
+        if(!self::eligible()||!function_exists('wp_enqueue_style')||!function_exists('plugins_url'))return;
+        wp_enqueue_style('nry-gear-archive-entry-v1',plugins_url('assets/nry-gear-archive-entry-v1.css',__FILE__),array(),'1.0.0');
+    }
+    public static function boot(){
+        if(!function_exists('is_single')||!function_exists('is_singular')||!function_exists('add_filter')||!function_exists('add_action'))return;
+        add_filter('the_content',array(__CLASS__,'render'),80);
+        add_action('wp_enqueue_scripts',array(__CLASS__,'enqueue'),27);
+    }
+}
+NRY_Premium_Stay_Decision_V1::boot();
