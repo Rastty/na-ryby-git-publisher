@@ -82,6 +82,7 @@ require_once __DIR__ . '/legacy-stays-archive-entry-v1.php';
 require_once __DIR__ . '/revir-main-menu-discovery-v1.php';
 require_once __DIR__ . '/revir-archive-decision-entry-v1.php';
 require_once __DIR__ . '/gear-archive-buyer-entry-v1.php';
+require_once __DIR__ . '/equipment-hub-decision-entry-v1.php';
 require_once __DIR__ . '/private-waters-concrete-choice-v1.php';
 require_once __DIR__ . '/gsc-revir-ris-source-paths-v1.php';
 require_once __DIR__ . '/gsc-region-water-accuracy-v1.php';
