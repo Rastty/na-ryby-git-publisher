@@ -40,4 +40,10 @@ jobs:
         run: |
           set -euo pipefail
           test "$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RELEASE_RUN}/jobs?per_page=100" --jq '.jobs[] | select(.name=="deploy") | .conclusion')" = success
-      - run: python3 scripts/verify-two-stays-trust-booking-v1.py --public
+      - name: Scope to relevant successful production deployment
+        id: scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/scope-legacy-source-proof.py 'two-stays-trust-booking-v1.php' 'six-real-stay-offers-v1.php' 'editorial/stay-destinations-practical-20261128.html' 'editorial/stay-private-booking-practical-20261128.html' 'scripts/verify-two-stays-trust-booking-v1.py' '.github/workflows/two-stays-trust-booking-v1.yml'
+      - if: steps.scope.outputs.run == 'true'
+        run: python3 scripts/verify-two-stays-trust-booking-v1.py --public
