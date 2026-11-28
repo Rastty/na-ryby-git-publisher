@@ -68,6 +68,8 @@ final class NRY_Kayak_Buyer_Trust_119602_V1 {
         if (self::eligible()) wp_enqueue_style('nry-gear-archive-entry-v1',plugins_url('assets/nry-gear-archive-entry-v1.css',__FILE__),array(),'1.0.0');
     }
     public static function boot() {
+        if (!function_exists('add_filter') || !function_exists('add_action')
+            || !function_exists('is_singular') || !function_exists('is_single')) return;
         add_filter('the_content',array(__CLASS__,'render'),80);
         add_action('wp_enqueue_scripts',array(__CLASS__,'enqueue'),27);
     }
