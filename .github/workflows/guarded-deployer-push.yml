@@ -272,6 +272,8 @@ on:
       - 'legacy-net-buyer-guides-v1.php'
       - 'legacy-2023-buyer-rescue-v1.php'
       - 'kayak-buyer-trust-119602-v1.php'
+      - 'lipno-five-reservation-paths-v1.php'
+      - 'assets/nry-lipno-reservation-click-v1.js'
       - 'six-real-stay-offers-v1.php'
       - 'assets/nry-six-real-stay-click-v1.js'
       - 'tests/test-six-real-stay-offers-v1.php'
@@ -534,6 +536,8 @@ on:
       - 'legacy-net-buyer-guides-v1.php'
       - 'legacy-2023-buyer-rescue-v1.php'
       - 'kayak-buyer-trust-119602-v1.php'
+      - 'lipno-five-reservation-paths-v1.php'
+      - 'assets/nry-lipno-reservation-click-v1.js'
       - 'six-real-stay-offers-v1.php'
       - 'assets/nry-six-real-stay-click-v1.js'
       - 'assets/nry-legacy-2023-buyer-click-v1.js'
@@ -617,6 +621,8 @@ jobs:
           php tests/test-revir-archive-decision-entry-v1.php
           php -l gear-archive-buyer-entry-v1.php
           php tests/test-gear-archive-buyer-entry-v1.php
+          php -l lipno-five-reservation-paths-v1.php
+          node --check assets/nry-lipno-reservation-click-v1.js
           php -l kayak-buyer-trust-119602-v1.php
           php tests/test-kayak-buyer-trust-119602-v1.php
           php -l equipment-hub-decision-entry-v1.php
@@ -711,6 +717,8 @@ jobs:
           php tests/test-revir-archive-decision-entry-v1.php
           php -l gear-archive-buyer-entry-v1.php
           php tests/test-gear-archive-buyer-entry-v1.php
+          php -l lipno-five-reservation-paths-v1.php
+          node --check assets/nry-lipno-reservation-click-v1.js
           php -l kayak-buyer-trust-119602-v1.php
           php tests/test-kayak-buyer-trust-119602-v1.php
           php -l equipment-hub-decision-entry-v1.php
