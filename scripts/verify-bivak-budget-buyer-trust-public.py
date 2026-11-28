@@ -93,7 +93,9 @@ def public(old_cj):
     note = html[note_start:note_end]
     if (note.count('href="' + GUIDE + '"') != 1
             or 'Změřte lehátko' not in note
-            or 'ne vítězové doloženého nezávislého testu' not in note):
+            or 'ne vítězové doloženého nezávislého testu' not in note
+            or 'Modelové rozpočty' not in note
+            or 'Otevřít kalkulačku rozměrů bivaku a lehátka' not in note):
         raise RuntimeError('BUYER_NOTE_NOT_USEFUL')
     after_cj = [href for href in links.hrefs if href and CJ in href]
     if after_cj != old_cj:

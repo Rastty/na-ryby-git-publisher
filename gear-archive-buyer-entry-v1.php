@@ -1,6 +1,6 @@
 <?php
 /**
- * Six existing high-intent equipment archives -> owned buyer decision guides.
+ * Seven existing high-intent equipment archives -> owned buyer decision guides.
  * Render-only, exact current category and canonical URL on first archive page.
  * Reuses the source-guarded H1/loop_start pattern of revir-archive-decision-entry.
  * No WordPress DB/term writes, redirects, merchant URLs or affiliate rewrites.
@@ -60,11 +60,23 @@ final class NRY_Gear_Archive_Buyer_Entry_V1 {
             'bivaky' => array(
                 'title' => 'Bivaky',
                 'url' => 'https://na-ryby.eu/category/vybaveni-pro-rybare/bivaky/',
-                'headline' => 'Vyberte bivak podle výpravy a počtu lidí',
-                'intro' => 'Na jednu noc, víkend nebo delší pobyt potřebujete rozdílný prostor, konstrukci a ochranu proti počasí. V recenzích mohou být historické ceny a nabídky.',
+                'headline' => 'Vyberte bivak podle výpravy, rozměrů a celkového rozpočtu',
+                'intro' => 'Změřte lehátka, průchod a prostor pro výbavu. Pomocí kalkulačky v průvodci ověřte rozměry a teprve poté porovnejte bivaky v požadovaném rozpočtu. V recenzích mohou být historické ceny a nabídky.',
                 'links' => array(
-                    array('bivak_guide', 'Jak vybrat rybářský bivak', 'Materiály, velikost, stavba a odolnost', 'https://na-ryby.eu/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/'),
+                    array('bivak_guide', 'Kalkulačka velikosti bivaku', 'Ověřte prostor pro jedno nebo dvě lehátka', 'https://na-ryby.eu/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/'),
+                    array('bivak_budget', 'Bivaky do 10 000 Kč', 'Porovnejte modely a celkové náklady včetně příslušenství', 'https://na-ryby.eu/nejlepsi-rybarske-bivaky-do-10-000-kc/'),
                     array('fishing_stays', 'Raději chatu u vody?', 'Ubytování, odkud můžete plánovat rybaření', 'https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/'),
+                ),
+            ),
+            'lehatka' => array(
+                'title' => 'Lehátka',
+                'url' => 'https://na-ryby.eu/category/vybaveni-pro-rybare/lehatka/',
+                'headline' => 'Rybářské lehátko podle postavy, prostoru a rozpočtu',
+                'intro' => 'Nejdřív si ověřte rozměry s rámem a spacákem, deklarovanou nosnost a přepravní hmotnost. Kalkulačka pomůže vyloučit modely, které se do vašeho bivaku nevejdou. Potom porovnejte konkrétní varianty; starší ceny a pořadí nejsou aktuální tržní test.',
+                'links' => array(
+                    array('bedchair_fit', 'Výběr lehátka a kalkulačka rozměrů', 'Nosnost, matrace, kompatibilita s bivakem', 'https://na-ryby.eu/rybarska-lehatka-kompletni-pruvodce-vyberem-pro-rybare/'),
+                    array('bedchair_budget', 'Lehátka do 5 000 Kč', 'Sedm modelů k porovnání, aktuální cenu ověřte u prodejce', 'https://na-ryby.eu/nejlepsi-rybarska-lehatka-do-5000-kc/'),
+                    array('bedchair_load', 'Lehátko pro těžší rybáře', 'Rozložení hmotnosti, stabilita a ověřená nosnost', 'https://na-ryby.eu/jake-rybarske-lehatko-pro-tezsi-rybare-jak-vybrat-spravne/'),
                 ),
             ),
             'zavazeci-lodky' => array(
@@ -183,7 +195,7 @@ final class NRY_Gear_Archive_Buyer_Entry_V1 {
         if (function_exists('wp_enqueue_script')) {
             wp_enqueue_script('nry-gear-archive-click-v1',
                 plugins_url('assets/nry-gear-archive-click-v1.js', __FILE__),
-                array(), '1.1.0', true);
+                array(), '1.2.0', true);
         }
     }
 

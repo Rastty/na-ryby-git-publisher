@@ -1,4 +1,4 @@
-/* Measured genuine first-party guide handoffs from six exact equipment archives.
+/* Measured genuine first-party guide handoffs from seven exact equipment archives.
  * Uses existing consent-controlled gtag; no merchant hrefs, cookies, user IDs,
  * query strings, new endpoints or synthetic events.
  */
@@ -29,7 +29,13 @@
     ]),
     'bivaky':Object.freeze([
       ['bivak_guide','/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/'],
+      ['bivak_budget','/nejlepsi-rybarske-bivaky-do-10-000-kc/'],
       ['fishing_stays','/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/']
+    ]),
+    'lehatka':Object.freeze([
+      ['bedchair_fit','/rybarska-lehatka-kompletni-pruvodce-vyberem-pro-rybare/'],
+      ['bedchair_budget','/nejlepsi-rybarska-lehatka-do-5000-kc/'],
+      ['bedchair_load','/jake-rybarske-lehatko-pro-tezsi-rybare-jak-vybrat-spravne/']
     ]),
     'zavazeci-lodky':Object.freeze([
       ['baitboat_choice','/zavazeci-lodky-pro-rybare/'],

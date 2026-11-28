@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline negative fixtures for six canonical gear archive paths."""
+"""Offline negative fixtures for seven canonical gear archive paths."""
 import importlib.util
 from pathlib import Path
 src=Path(__file__).resolve().parents[1]/'scripts/verify-gear-archive-public-v1.py'
@@ -46,5 +46,5 @@ for slug,cfg in m.ROUTES.items():
     reject(fixture(slug)+fixture(slug),slug)
     reject(fixture(slug).replace('</section>','</section><h1>Another</h1>'),slug)
 reject('<a href="'+m.ROUTES['navijaky']['links'][0][1]+'">Koupit</a>','navijaky')
-assert sum(len(v['links']) for v in m.ROUTES.values())==16
-print('GEAR_ARCHIVE_SIX_PUBLIC_NEGATIVE_CONTRACTS_VERIFIED')
+assert sum(len(v['links']) for v in m.ROUTES.values())==20
+print('GEAR_ARCHIVE_SEVEN_PUBLIC_NEGATIVE_CONTRACTS_VERIFIED')

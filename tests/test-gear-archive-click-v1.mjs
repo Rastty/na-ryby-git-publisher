@@ -26,7 +26,13 @@ const data={
   ],
   bivaky:[
     ['bivak_guide','/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/'],
+    ['bivak_budget','/nejlepsi-rybarske-bivaky-do-10-000-kc/'],
     ['fishing_stays','/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/']
+  ],
+  lehatka:[
+    ['bedchair_fit','/rybarska-lehatka-kompletni-pruvodce-vyberem-pro-rybare/'],
+    ['bedchair_budget','/nejlepsi-rybarska-lehatka-do-5000-kc/'],
+    ['bedchair_load','/jake-rybarske-lehatko-pro-tezsi-rybare-jak-vybrat-spravne/']
   ],
   'zavazeci-lodky':[
     ['baitboat_choice','/zavazeci-lodky-pro-rybare/'],
@@ -112,5 +118,5 @@ for(const [slug,routes] of Object.entries(data)) {
       'exact first homepage context only');
   }
 }
-assert.equal(positive,16);
-console.log('GEAR_ARCHIVE_SIXTEEN_TRUSTED_GUIDE_ROLES_OFFLINE_VERIFIED');
+assert.equal(positive,20);
+console.log('GEAR_ARCHIVE_TWENTY_TRUSTED_GUIDE_ROLES_OFFLINE_VERIFIED');
