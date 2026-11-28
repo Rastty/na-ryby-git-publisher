@@ -60,6 +60,7 @@ require_once __DIR__ . '/six-real-stay-offers-v1.php';
 require_once __DIR__ . '/stay-editorial-rescue-v1.php';
 require_once __DIR__ . '/private-stays-operator-guide-v1.php';
 require_once __DIR__ . '/two-stays-trust-booking-v1.php';
+require_once __DIR__ . '/bivak-bedchair-fit-v1.php';
 require_once __DIR__ . '/carp-mat-buyer-trust-v1.php';
 require_once __DIR__ . '/barrow-buyer-trust-v1.php';
 require_once __DIR__ . '/bivak-budget-buyer-trust-119575-v1.php';
