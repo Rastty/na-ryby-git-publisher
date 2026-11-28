@@ -15,6 +15,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   contract:
     runs-on: ubuntu-latest
@@ -37,5 +38,12 @@ jobs:
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         with: {persist-credentials: false}
+      - name: Scope legacy raw-source diagnostic to actual changed release files
+        id: source_scope
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/scope-legacy-source-proof.py 'sterkac-source-proof-12040-v1.php' 'scripts/verify-sterkac-source-proof-12040.py' 'tests/test-sterkac-source-proof-12040-v1.php' 'tests/test-sterkac-source-proof-12040.py'
       - name: Anonymous GET-only source proof after real protected deploy
+        if: steps.source_scope.outputs.run == 'true'
         run: python3 scripts/verify-sterkac-source-proof-12040.py --verify

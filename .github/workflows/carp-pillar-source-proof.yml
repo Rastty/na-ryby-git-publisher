@@ -12,6 +12,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   proof:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success')
@@ -24,6 +25,12 @@ jobs:
           php -l carp-pillar-source-proof-118541-v1.php
           php tests/test-carp-pillar-source-proof-118541.php
           python3 -m py_compile scripts/probe-carp-pillar-source.py
-      - name: Exact published post source digest (anonymous read only)
+      - name: Scope legacy raw-source diagnostic to actual changed release files
+        id: source_scope
         if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/scope-legacy-source-proof.py 'carp-pillar-source-proof-118541-v1.php' 'tests/test-carp-pillar-source-proof-118541.php' 'scripts/probe-carp-pillar-source.py'
+      - name: Exact published post source digest (anonymous read only)
+        if: steps.source_scope.outputs.run == 'true'
         run: python3 scripts/probe-carp-pillar-source.py

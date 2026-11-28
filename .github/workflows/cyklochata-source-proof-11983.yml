@@ -15,6 +15,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   contract:
     runs-on: ubuntu-latest
@@ -40,5 +41,12 @@ jobs:
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           persist-credentials: false
+      - name: Scope legacy raw-source diagnostic to actual changed release files
+        id: source_scope
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/scope-legacy-source-proof.py 'cyklochata-source-proof-11983-v1.php' 'scripts/verify-cyklochata-source-proof-11983.py' 'tests/test-cyklochata-source-proof-11983-v1.php' 'tests/test-cyklochata-source-proof-11983.py'
       - name: Anonymous GET-only original WordPress source SHA
+        if: steps.source_scope.outputs.run == 'true'
         run: python3 scripts/verify-cyklochata-source-proof-11983.py --verify
