@@ -33,7 +33,7 @@ def source():
         with TemporaryDirectory() as temp:
             path=Path(temp)/'body.html'
             path.write_text(p['content']['rendered'],encoding='utf-8')
-            code='define("ABSPATH",__DIR__);require "six-real-stay-offers-v1.php";require "two-stays-trust-booking-v1.php";$slug=$argv[1];$r=["slug"=>$slug]+NRY_Two_Stays_Trust_20261128_V1::routes()[$slug];$old=file_get_contents($argv[2]);$new=NRY_Two_Stays_Trust_20261128_V1::transform($old,$r);if($new===$old||substr_count($new,NRY_Two_Stays_Trust_20261128_V1::MARKER)!==1){fwrite(STDERR,"SOURCE_TRANSFORM_GUARD_BLOCKED");exit(1);}'
+            code='define("ABSPATH",__DIR__);define("NRY_TWO_STAYS_PREFLIGHT",true);require "six-real-stay-offers-v1.php";require "two-stays-trust-booking-v1.php";$slug=$argv[1];$r=["slug"=>$slug]+NRY_Two_Stays_Trust_20261128_V1::routes()[$slug];$old=file_get_contents($argv[2]);$new=NRY_Two_Stays_Trust_20261128_V1::transform($old,$r);if($new===$old||substr_count($new,NRY_Two_Stays_Trust_20261128_V1::MARKER)!==1){fwrite(STDERR,"SOURCE_TRANSFORM_GUARD_BLOCKED");exit(1);}'
             subprocess.run(['php','-r',code,slug,str(path)],check=True)
         print('TWO_STAYS_SOURCE_READY',p['id'],slug,flush=True)
 class P(HTMLParser):
