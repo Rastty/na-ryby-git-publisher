@@ -55,6 +55,40 @@ def public():
         for old in bad:assert old.lower() not in h.lower(),(slug,old)
         print('TWO_STAYS_PUBLIC_OK',slug,'2/2',flush=True)
     print('TWO_STAYS_PUBLIC_VERIFIED 2/2 4/4')
+PHP='define("ABSPATH",__DIR__);define("NRY_TWO_STAYS_PREFLIGHT",true);require "six-real-stay-offers-v1.php";require "two-stays-trust-booking-v1.php";'
+CABIN_ROUTES=json.loads(subprocess.check_output(['php','-r',PHP+'echo json_encode(NRY_Cabin_Relax_Stays_V1::routes());']))
+def cabin_source():
+    for slug,r in CABIN_ROUTES.items():
+        data=json.loads(get(BASE+'wp-json/wp/v2/posts?slug='+slug+'&_fields=id,slug,date,modified_gmt,title,link,content,status'))
+        assert len(data)==1
+        p=data[0]
+        print('CABIN_SOURCE_ID',p['id'],p['modified_gmt'],repr(html.unescape(p['title']['rendered'])),flush=True)
+        assert p['id']==r['id'] and p['slug']==slug and p['status']=='publish' and p['date'][:10]==r['date'] and p['link']==BASE+slug+'/' and html.unescape(p['title']['rendered'])==r['title']
+        assert not r['modified'] or p['modified_gmt'].replace('T',' ')==r['modified']
+        with TemporaryDirectory() as temp:
+            path=Path(temp)/'body.html';path.write_text(p['content']['rendered'],encoding='utf-8')
+            code=PHP+'$r=["slug"=>$argv[1]]+NRY_Cabin_Relax_Stays_V1::routes()[$argv[1]];$old=file_get_contents($argv[2]);$new=NRY_Cabin_Relax_Stays_V1::transform($old,$r);if($new===$old||substr_count($new,NRY_Cabin_Relax_Stays_V1::MARKER)!==1){fwrite(STDERR,"CABIN_SOURCE_TRANSFORM_BLOCKED");exit(1);}'
+            subprocess.run(['php','-r',code,slug,str(path)],check=True)
+        print('CABIN_SOURCE_READY',p['id'],flush=True)
+class CabinP(P):
+    def handle_starttag(self,t,attrs):
+        super().handle_starttag(t,attrs)
+        a=dict(attrs)
+        if t=='section' and 'data-nry-cabin-relax-guide' in a:self.mark.append(a['data-nry-cabin-relax-guide'])
+def cabin_public():
+    for slug,r in CABIN_ROUTES.items():
+        url=BASE+slug+'/'
+        h=get(url+'?nry_release_readback=20261128');p=CabinP();p.feed(h)
+        assert p.canon==[url] and p.mark==[r['role']] and p.h1==1,(slug,p.mark,p.h1)
+        assert p.links==[(o[0],URLS[o[0]],'sponsored nofollow noopener') for o in r['offers']]
+        for old in (('na naší rybářské chatě','na naší soukromé rybníku') if r['role']=='cabin' else ('Naše zařízení s ubytováním u vody','Nabízíme moderní a pohodlné ubytování')):
+            assert old not in h
+        print('CABIN_PUBLIC_OK',slug,'2/2',flush=True)
+    print('CABIN_RELAX_PUBLIC_VERIFIED 2/2 4/4')
+
 if __name__=='__main__':
     assert len(sys.argv)==2 and sys.argv[1] in ('--source','--public')
-    source() if sys.argv[1]=='--source' else public()
+    if sys.argv[1]=='--source':
+        source();cabin_source()
+    else:
+        public();cabin_public()
