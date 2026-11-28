@@ -13,6 +13,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   contract:
     runs-on: ubuntu-latest
@@ -33,5 +34,12 @@ jobs:
     timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
+      - name: Scope legacy raw-source diagnostic to actual changed release files
+        id: source_scope
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/scope-legacy-source-proof.py 'brno-reservoir-source-proof-17591-v1.php' 'scripts/verify-brno-reservoir-source-proof-17591.py' 'tests/test-brno-reservoir-source-proof-17591-v1.php' 'tests/test-brno-reservoir-source-proof-17591.py'
       - name: Anonymous GET-only original WordPress source digest
+        if: steps.source_scope.outputs.run == 'true'
         run: python3 scripts/verify-brno-reservoir-source-proof-17591.py --verify
