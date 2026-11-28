@@ -1,0 +1,43 @@
+name: Na-Ryby Bivak Bedchair Fit Source and Public Proof
+on:
+  pull_request:
+    paths:
+      - 'bivak-bedchair-fit-v1.php'
+      - 'assets/nry-bivak-bedchair-fit-v1.js'
+      - 'assets/nry-bivak-bedchair-fit-v1.css'
+      - 'scripts/verify-bivak-bedchair-fit-v1.py'
+      - '.github/workflows/bivak-bedchair-fit-v1.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: python3 scripts/verify-bivak-bedchair-fit-v1.py --source
+  public:
+    if: github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == 'Rastty/na-ryby-git-publisher'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: Confirm guarded deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          test "$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RELEASE_RUN}/jobs?per_page=100" --jq '.jobs[] | select(.name=="deploy") | .conclusion')" = success
+      - run: python3 scripts/verify-bivak-bedchair-fit-v1.py --public

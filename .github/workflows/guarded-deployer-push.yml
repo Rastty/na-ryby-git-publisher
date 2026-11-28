@@ -276,6 +276,9 @@ on:
       - 'stay-editorial-rescue-v1.php'
       - 'private-stays-operator-guide-v1.php'
       - 'two-stays-trust-booking-v1.php'
+      - 'bivak-bedchair-fit-v1.php'
+      - 'assets/nry-bivak-bedchair-fit-v1.js'
+      - 'assets/nry-bivak-bedchair-fit-v1.css'
       - 'editorial/stay-destinations-practical-20261128.html'
       - 'editorial/stay-private-booking-practical-20261128.html'
       - 'editorial/private-stays-operator-guide-20261128.html'
@@ -546,6 +549,9 @@ on:
       - 'stay-editorial-rescue-v1.php'
       - 'private-stays-operator-guide-v1.php'
       - 'two-stays-trust-booking-v1.php'
+      - 'bivak-bedchair-fit-v1.php'
+      - 'assets/nry-bivak-bedchair-fit-v1.js'
+      - 'assets/nry-bivak-bedchair-fit-v1.css'
       - 'editorial/stay-destinations-practical-20261128.html'
       - 'editorial/stay-private-booking-practical-20261128.html'
       - 'editorial/private-stays-operator-guide-20261128.html'
@@ -636,6 +642,8 @@ jobs:
           php -l stay-editorial-rescue-v1.php
           php -l private-stays-operator-guide-v1.php
           php -l two-stays-trust-booking-v1.php
+          php -l bivak-bedchair-fit-v1.php
+          node --check assets/nry-bivak-bedchair-fit-v1.js
           php -l lipno-five-reservation-paths-v1.php
           node --check assets/nry-lipno-reservation-click-v1.js
           php -l kayak-buyer-trust-119602-v1.php
@@ -735,6 +743,8 @@ jobs:
           php -l stay-editorial-rescue-v1.php
           php -l private-stays-operator-guide-v1.php
           php -l two-stays-trust-booking-v1.php
+          php -l bivak-bedchair-fit-v1.php
+          node --check assets/nry-bivak-bedchair-fit-v1.js
           php -l lipno-five-reservation-paths-v1.php
           node --check assets/nry-lipno-reservation-click-v1.js
           php -l kayak-buyer-trust-119602-v1.php
