@@ -122,7 +122,7 @@ final class NRY_Bedchair_Load_Decision_V1 {
     public static function routes(){return array(
         self::SCENARIO=>array('id'=>118779,'modified'=>'2026-04-25 14:37:52','date'=>'2026-03-24','title'=>'Jaké rybářské lehátko pro těžší rybáře | Jak vybrat správně','h1'=>'Jaké rybářské lehátko pro těžší rybáře','anchor'=>'Co je v této situaci opravdu důležité','role'=>'scenario'),
         self::LIST=>array('id'=>118569,'modified'=>'2026-03-21 17:37:33','date'=>'2026-03-21','title'=>'Nejlepší rybářská lehátka pro těžší postavy | Jak vybrat správně','h1'=>'Nejlepší rybářská lehátka pro těžší postavy','anchor'=>'Podle čeho jsem vybíral lehátka pro těžší postavy','role'=>'shortlist'),
-        self::TRIP=>array('id'=>0,'modified'=>'','date'=>'2026-03-21','title'=>'Nejlepší rybářská lehátka pro delší výpravy: top výběr a srovnání','h1'=>'Nejlepší rybářská lehátka pro delší výpravy','anchor'=>'Podle čeho jsem vybíral','role'=>'trip'),
+        self::TRIP=>array('id'=>118571,'modified'=>'2026-03-21 17:39:11','date'=>'2026-03-21','title'=>'Nejlepší rybářská lehátka pro delší výpravy: top výběr a srovnání','h1'=>'Nejlepší rybářská lehátka pro delší výpravy','anchor'=>'Podle čeho jsem vybíral','role'=>'trip'),
     );}
     private static function plain($s){return trim(preg_replace('~[\s\x{00a0}\x{202f}]+~u',' ',html_entity_decode(strip_tags($s),ENT_QUOTES|ENT_HTML5,'UTF-8')));}
     private static function headings($html,$tag,$text){
