@@ -56,7 +56,13 @@ final class NRY_Bivak_Budget_Buyer_Trust_119575_V1 {
             .' Do rozpočtu počítejte také případný přehoz, podlážku a dopravu.</p>'
             .'<p>Modely níže jsou kandidáti k porovnání, ne vítězové doloženého nezávislého testu.'
             .' Cenu a skladovost konkrétní varianty ověřte v obchodě.'
-            .' <a href="'.self::LINK.'">Jak zvolit velikost a konstrukci bivaku</a>.</p></aside>';
+            .'</p><h2>Jak sestavit rozpočet bivaku do 10 000 Kč</h2>'
+            .'<p>Nejdříve oddělte cenu samotného přístřešku od ceny kompletní sestavy. Dva stejně drahé bivaky mohou mít různý obsah balení. U konkrétní varianty ověřte, zda jsou v ceně podlážka, kotvicí kolíky, napínací prvky, přední panel a přepravní obal. Přehoz má smysl podle podmínek, není automaticky nutný pro každého rybáře.</p>'
+            .'<div style="overflow-x:auto"><table><caption>Modelové rozpočty (nikoli aktuální nabídky prodejců)</caption><thead><tr><th scope="col">Položka</th><th scope="col">Sestava A</th><th scope="col">Sestava B</th></tr></thead><tbody>'
+            .'<tr><td>Bivak</td><td>6 500 Kč</td><td>8 500 Kč</td></tr><tr><td>Potřebné příslušenství</td><td>1 800 Kč</td><td>1 000 Kč</td></tr><tr><td>Doprava</td><td>300 Kč</td><td>300 Kč</td></tr><tr><td>Celkem</td><td>8 600 Kč</td><td>9 800 Kč</td></tr><tr><td>Zbývá do 10 000 Kč</td><td>1 400 Kč</td><td>200 Kč</td></tr></tbody></table></div>'
+            .'<p>Do tohoto příkladu není zahrnuto nové lehátko ani spacák. Jestliže je potřebujete také, počítejte celý nákup jako jednu výpravu. Změřte vnější rozměry lehátka včetně rámu a spacáku, nikoli pouze matraci. Z katalogových rozměrů bivaku nelze přímo vyvodit využitelný prostor kvůli tvaru stěn.</p>'
+            .'<p>Například lehátko 210 × 80 cm, rezerva 10 cm u každé stěny a průchod 50 cm potřebuje v zadaném rovnoběžném uspořádání alespoň 230 × 150 cm. Dvě stejná lehátka potřebují za stejných předpokladů 230 × 230 cm. Tento model neřeší šikmé stěny ani skutečný bezpečný východ. Než zaplatíte, porovnejte skutečné rozměry a ověřte kompatibilitu.</p>'
+            .'<p><strong><a href="'.self::LINK.'">Otevřít kalkulačku rozměrů bivaku a lehátka</a></strong> – zadejte vlastní sestavu a zjistěte potřebný prostor. V prodejním detailu pak ověřte cenu, konkrétní variantu a její obsah balení.</p></aside>';
     }
 
     public static function transform($html) {

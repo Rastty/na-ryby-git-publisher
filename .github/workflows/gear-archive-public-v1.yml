@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: PHP, sixteen exact trusted guide roles and six public negative cases
+      - name: PHP, twenty exact trusted guide roles and seven public negative cases
         run: |
           set -euo pipefail
           php -l gear-archive-buyer-entry-v1.php
@@ -51,6 +51,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
       - name: Require actual protected FTPS deploy SUCCESS of this exact main SHA
         env:
@@ -59,7 +60,7 @@ jobs:
           RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
-          test "$RELEASE_SHA" = "$GITHUB_SHA" || {
+          test "$RELEASE_SHA" = "$(git rev-parse HEAD)" || {
             echo 'BLOCKED: protected release SHA differs from this main checkout'
             exit 1
           }
@@ -69,7 +70,7 @@ jobs:
             exit 1
           }
           echo 'PASS: protected FTPS succeeded at exact main SHA'
-      - name: Six canonical archives, sixteen first-party links, exact served JS/CSS
+      - name: Seven canonical archives, twenty first-party links, exact served JS/CSS
         run: |
           set -euo pipefail
           for attempt in 1 2 3; do

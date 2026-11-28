@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Anonymous public proof of six equipment-category buyer entry sections.
+"""Anonymous public proof of seven equipment-category buyer entry sections.
 
 GET only current first-party pages and the two exact local assets. Never
 follow anchor/merchant URLs, synthesize clicks, write WP or fabricate economics.
@@ -21,7 +21,7 @@ ROOT=ORIGIN+'/category/vybaveni-pro-rybare/'
 MARKER='data-nry-gear-archive="v1"'
 ASSET_PREFIX=ORIGIN+'/wp-content/plugins/na-ryby-git-publisher/assets/'
 CSS=ASSET_PREFIX+'nry-gear-archive-entry-v1.css?ver=1.0.0'
-JS=ASSET_PREFIX+'nry-gear-archive-click-v1.js?ver=1.1.0'
+JS=ASSET_PREFIX+'nry-gear-archive-click-v1.js?ver=1.2.0'
 ROUTES={
  'pruty':{
     'title':'Kaprové pruty',
@@ -55,7 +55,15 @@ ROUTES={
     'title':'Bivaky',
     'links':[
       ('bivak_guide',ORIGIN+'/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/'),
+      ('bivak_budget',ORIGIN+'/nejlepsi-rybarske-bivaky-do-10-000-kc/'),
       ('fishing_stays',ORIGIN+'/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/')
+    ]},
+ 'lehatka':{
+    'title':'Lehátka',
+    'links':[
+      ('bedchair_fit',ORIGIN+'/rybarska-lehatka-kompletni-pruvodce-vyberem-pro-rybare/'),
+      ('bedchair_budget',ORIGIN+'/nejlepsi-rybarska-lehatka-do-5000-kc/'),
+      ('bedchair_load',ORIGIN+'/jake-rybarske-lehatko-pro-tezsi-rybare-jak-vybrat-spravne/')
     ]},
  'zavazeci-lodky':{
     'title':'Zavážecí loďky',
@@ -143,8 +151,8 @@ def live():
         if hashlib.sha256(served).digest()!=hashlib.sha256(approved).digest():
             raise AssertionError('LIVE_ASSET_SHA_MISMATCH')
         digests[name]=hashlib.sha256(served).hexdigest()
-    return {'status':'GEAR_ARCHIVE_SIX_BUYER_ENTRIES_PUBLIC_VERIFIED',
-      'pages':pages,'publishedPaths':6,'exactFirstPartyCTA':sum(x['exactFirstPartyCTA'] for x in pages),
+    return {'status':'GEAR_ARCHIVE_SEVEN_BUYER_ENTRIES_PUBLIC_VERIFIED',
+      'pages':pages,'publishedPaths':7,'exactFirstPartyCTA':sum(x['exactFirstPartyCTA'] for x in pages),
       'servedAssetSha256':digests,'wpWrites':0,'merchantGETs':0,
       'syntheticClicks':0,'realClicks':'UNKNOWN','GA4Delivery':'UNKNOWN',
       'approvedOrPaidCommissions':'UNKNOWN'}
