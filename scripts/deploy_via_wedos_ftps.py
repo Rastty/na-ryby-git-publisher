@@ -17,6 +17,7 @@ import secrets
 import ssl
 import subprocess
 import sys
+import time
 from ftplib import FTP, FTP_TLS, error_perm
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
@@ -221,12 +222,24 @@ def verify_vault_is_not_public(ftp: FTP_TLS, vault: str) -> None:
         verify_remote_bytes(ftp, probe_path, payload)
         req = Request("https://na-ryby.eu/wp-content/" + VAULT + "/" + marker,
                       headers={"Cache-Control": "no-cache", "User-Agent": "NaRybyFtpsVaultCheck/1.0"})
-        try:
-            with urlopen(req, timeout=20):
-                raise ValueError("Private FTPS vault is publicly served or redirected")
-        except HTTPError as exc:
-            if exc.code not in {403, 404}:
-                raise ValueError("Private FTPS vault denial was not confirmed") from exc
+        # Retry ONLY transient status on the same anonymous denial probe.
+        # Neither an outage nor a successful fetch is a proof of privacy.
+        # Do not retry uploads, authentication, integrity failure or swap.
+        for attempt in range(3):
+            try:
+                with urlopen(req, timeout=20):
+                    raise ValueError("Private FTPS vault is publicly served or redirected")
+            except HTTPError as exc:
+                code = exc.code
+                exc.close()
+                if code in {403, 404}:
+                    print("FTPS_VAULT_DENIAL_CONFIRMED")
+                    return
+                if code in {429, 500, 502, 503, 504} and attempt < 2:
+                    print("FTPS_VAULT_TRANSIENT_HTTP", code, "attempt", attempt + 1)
+                    time.sleep((10, 25)[attempt])
+                    continue
+                raise SafeFtpStageError("vault_denial", str(code)) from None
     finally:
         ftp.delete(probe_path)
 
@@ -277,15 +290,20 @@ def swap(ftp: FTP_TLS, wp_content: str, vault: str, stage_dir: str, sha: str) ->
 
 
 def deploy(ftp: FTP_TLS, wp_content: str, sha: str, files: dict[str, bytes]) -> str:
+    print("FTPS_STAGE_IDENTITY_CHECK", flush=True)
     if not confirmed_plugin_root(ftp, wp_content):
         raise ValueError("Remote plugin identity mismatch or wrong path; refusing release")
+    print("FTPS_STAGE_PRIVATE_VAULT", flush=True)
     vault = private_vault(ftp, wp_content)
     if existing_dir(ftp, remote_path(vault, ".nry-ftps-backup-" + sha[:12])):
         raise ValueError("Release backup already exists; repeat release requires operator review")
+    print("FTPS_STAGE_VAULT_DENIAL", flush=True)
     verify_vault_is_not_public(ftp, vault)
+    print("FTPS_STAGE_UPLOAD_VERIFY", flush=True)
     # No production file is moved until *every* upload has been retrieved and
     # verified byte-for-byte over encrypted FTPS.
     stage_dir = stage(ftp, vault, sha, files)
+    print("FTPS_STAGE_SWAP", flush=True)
     return swap(ftp, wp_content, vault, stage_dir, sha)
 
 
