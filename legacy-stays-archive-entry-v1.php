@@ -18,6 +18,10 @@ final class NRY_Legacy_Stays_Archive_Entry_V1 {
     const SLAPY = 'https://na-ryby.eu/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/';
     const LIPNO = 'https://na-ryby.eu/rybareni-s-ubytovanim-jihocesky-kraj/';
 
+    const VRANOV = 'https://na-ryby.eu/rybarska-chata-cyklochata-vranovska-prehrada/';
+    const WELLNESS = 'https://na-ryby.eu/chata-rybarsky-wellness-srub/';
+    const PRIVATE_WATER = 'https://na-ryby.eu/nejlepsi-soukrome-reviry-s-ubytovanim-v-ceske-republice-zazitek-ktery-stoji-za-to/';
+
     private static function eligible() {
         foreach (array('is_page','is_admin','is_preview','home_url',
             'get_queried_object_id','get_post','get_permalink') as $name) {
@@ -44,16 +48,21 @@ final class NRY_Legacy_Stays_Archive_Entry_V1 {
         return '<section class="nry-legacy-stays-entry" '.self::MARKER
             .' aria-label="Vybrat rybářský pobyt">'
             .'<p class="nry-legacy-stays-entry__eyebrow">Rybářská dovolená</p>'
-            .'<h2>Nejdřív vyberte vhodný pobyt</h2>'
-            .'<p>Seznam níže obsahuje historické články. Pro plánování výpravy '
-            .'začněte u konkrétních možností ubytování a ověřte termín i podmínky lovu.</p>'
+            .'<h2>Kam na ryby s ubytováním?</h2>'
+            .'<p>Vyberte podle oblasti nebo typu výpravy. Každá karta vás zavede na konkrétní nabídku nebo rozhodovací průvodce, kde ověříte další podmínky.</p>'
             .'<nav class="nry-legacy-stays-entry__choices" aria-label="Možnosti výběru pobytu">'
             .'<a href="'.self::GUIDE.'"><strong>Porovnat rybářské pobyty</strong>'
             .'<span>Konkrétní nabídky a na co dát pozor</span></a>'
             .'<a href="'.self::SLAPY.'"><strong>Slapy a střední Čechy</strong>'
             .'<span>Pobyt u přehrady s možností výprav k vodě</span></a>'
             .'<a href="'.self::LIPNO.'"><strong>Lipno a jižní Čechy</strong>'
-            .'<span>Dvě možnosti ubytování v rybářské lokalitě</span></a>'
+            .'<span>Porovnejte zázemí u Lipna a cestu k lovišti</span></a>'
+            .'<a href="'.self::VRANOV.'"><strong>Chata pro partu u Vranova</strong>'
+            .'<span>Štítary · konkrétní objekt; ověřte kapacitu a termín.</span></a>'
+            .'<a href="'.self::WELLNESS.'"><strong>Wellness a rybaření</strong>'
+            .'<span>Lančov · srub se saunou; ověřte stav vody a přístup.</span></a>'
+            .'<a href="'.self::PRIVATE_WATER.'"><strong>Soukromý revír s ubytováním</strong>'
+            .'<span>Nejprve vyberte provozovatele vody a ověřte lovné místo.</span></a>'
             .'</nav><p class="nry-legacy-stays-entry__note">'
             .'Ubytování samo o sobě nezahrnuje oprávnění rybařit. '
             .'Ceny, dostupnost a pravidla revíru ověřte u poskytovatele.</p>'
@@ -107,7 +116,7 @@ final class NRY_Legacy_Stays_Archive_Entry_V1 {
             && function_exists('plugins_url')) {
             wp_enqueue_style('nry-legacy-stays-entry-v1',
                 plugins_url('assets/nry-legacy-stays-entry-v1.css', __FILE__),
-                array(), '1.0.0');
+                array(), '1.1.0');
         }
         // Existing exact-page eligibility also guards the independent read-only
         // click observer. The JS itself requires the unique live panel + 3 URLs.
@@ -115,7 +124,7 @@ final class NRY_Legacy_Stays_Archive_Entry_V1 {
             && function_exists('plugins_url')) {
             wp_enqueue_script('nry-archive-stay-click-v1',
                 plugins_url('assets/nry-archive-stay-click-v1.js', __FILE__),
-                array(), '1.0.0', true);
+                array(), '1.1.0', true);
         }
     }
 

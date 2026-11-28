@@ -15,6 +15,9 @@ DESTS = (
     'https://na-ryby.eu/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/',
     'https://na-ryby.eu/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/',
     'https://na-ryby.eu/rybareni-s-ubytovanim-jihocesky-kraj/',
+    'https://na-ryby.eu/rybarska-chata-cyklochata-vranovska-prehrada/',
+    'https://na-ryby.eu/chata-rybarsky-wellness-srub/',
+    'https://na-ryby.eu/nejlepsi-soukrome-reviry-s-ubytovanim-v-ceske-republice-zazitek-ktery-stoji-za-to/',
 )
 
 class Archive(HTMLParser):
@@ -67,7 +70,7 @@ def check(html):
     p.close()
     assert html.count(MARKER) == 1 and p.sections == 1, 'STAYS_ENTRY_NOT_EXACTLY_ONCE'
     assert p.links == list(DESTS), 'STAYS_ENTRY_DESTINATION_OR_ORDER_DRIFT'
-    assert len(p.styles) == 1, 'STAYS_ENTRY_CSS_NOT_EXACTLY_ONCE'
+    assert p.styles == ['https://na-ryby.eu/wp-content/plugins/na-ryby-git-publisher/assets/nry-legacy-stays-entry-v1.css?ver=1.1.0'], 'STAYS_ENTRY_CSS_NOT_EXACTLY_ONCE'
     assert p.page_h1_position is not None, 'STAYS_ARCHIVE_H1_DRIFT'
     assert p.first_result_position is not None, 'STAYS_ARCHIVE_FIRST_LISTING_DRIFT'
     assert p.page_h1_position < p.section_position < p.first_result_position, 'STAYS_ENTRY_AFTER_HISTORICAL_RESULTS'

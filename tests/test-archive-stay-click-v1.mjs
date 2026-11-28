@@ -11,7 +11,10 @@ const cases=[
     choices:[
       ['stays_hub','/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/'],
       ['slapy_stays','/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/'],
-      ['lipno_stays','/rybareni-s-ubytovanim-jihocesky-kraj/']
+      ['lipno_stays','/rybareni-s-ubytovanim-jihocesky-kraj/'],
+        ['vranov_group','/rybarska-chata-cyklochata-vranovska-prehrada/'],
+        ['vranov_wellness','/chata-rybarsky-wellness-srub/'],
+        ['private_water_stays','/nejlepsi-soukrome-reviry-s-ubytovanim-v-ceske-republice-zazitek-ktery-stoji-za-to/']
     ]
   },{
     path:'/rybareni-s-ubytovanim-jihomoravsky-kraj/',
@@ -67,7 +70,7 @@ for(const cfg of cases) {
     assert.equal(run.options.capture,true);
     assert.equal(run.options.passive,true);
     const offset=home?1:0;
-    for(let i=0;i<3;i++) {
+    for(let i=0;i<cfg.choices.length;i++) {
       run.click(i+offset);
       assert.equal(run.events.length,i+1,'real click one event');
       const [type,name,payload]=run.events[i];

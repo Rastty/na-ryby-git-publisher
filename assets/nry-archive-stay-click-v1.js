@@ -1,5 +1,5 @@
 /* Real first-party accommodation decision clicks from TWO pre-existing, verified 2017 archives.
- * Only trusted user clicks on exact, source-bound three-link panel. Reuse existing
+ * Only trusted user clicks on exact, source-bound six- or three-link panel. Reuse existing
  * consent-aware gtag/nry_buyer_guide_click; no new identifiers, cookies, merchant
  * calls, affiliate URL rewrites, redirects, storage or synthetic events.
  */
@@ -13,7 +13,10 @@
       choices:Object.freeze([
         ['stays_hub','/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/'],
         ['slapy_stays','/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/'],
-        ['lipno_stays','/rybareni-s-ubytovanim-jihocesky-kraj/']
+        ['lipno_stays','/rybareni-s-ubytovanim-jihocesky-kraj/'],
+        ['vranov_group','/rybarska-chata-cyklochata-vranovska-prehrada/'],
+        ['vranov_wellness','/chata-rybarsky-wellness-srub/'],
+        ['private_water_stays','/nejlepsi-soukrome-reviry-s-ubytovanim-v-ceske-republice-zazitek-ktery-stoji-za-to/']
       ])
     }),
     '/rybareni-s-ubytovanim-jihomoravsky-kraj/':Object.freeze({
