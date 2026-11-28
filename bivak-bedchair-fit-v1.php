@@ -14,8 +14,8 @@ final class NRY_Bivak_Bedchair_Fit_V1 {
     public static function routes(){
         return array(
             self::BIVAK=>array('id'=>118388,'date'=>'2026-03-19','modified'=>'2026-11-15 14:03:11','title'=>'Jak vybrat rybářský bivak: průvodce materiály, konstrukcí a velikostí','h1'=>'Jak vybrat rybářský bivak: průvodce materiály, konstrukcí a velikostí (2026)','anchor'=>'Pro koho je kvalitní bivak opravdu důležitý','role'=>'bivak','label'=>'Vejde se lehátko do bivaku? Spočítejte prostor před nákupem'),
-            self::PILLAR=>array('id'=>0,'date'=>'2026-03-21','modified'=>'','title'=>'Rybářská lehátka: kompletní průvodce výběrem pro rybáře','h1'=>'Rybářská lehátka: kompletní průvodce výběrem pro kapraře i víkendové rybáře','anchor'=>'Komu tenhle článek pomůže a v jaké situaci','role'=>'bedchair','label'=>'Ověřte rozměry lehátka, než objednáte'),
-            self::SMALL=>array('id'=>0,'date'=>'2026-03-24','modified'=>'','title'=>'Jaké rybářské lehátko do malého bivaku | Praktický výběr','h1'=>'Jaké rybářské lehátko do malého bivaku','anchor'=>'Co je v malém bivaku opravdu důležité','role'=>'compact','label'=>'Kalkulačka pro malé bivaky: délka, šířka a průchod'),
+            self::PILLAR=>array('id'=>118575,'date'=>'2026-03-21','modified'=>'2026-03-21 18:18:04','title'=>'Rybářská lehátka: kompletní průvodce výběrem pro rybáře','h1'=>'Rybářská lehátka: kompletní průvodce výběrem pro kapraře i víkendové rybáře','anchor'=>'Komu tenhle článek pomůže a v jaké situaci','role'=>'bedchair','label'=>'Ověřte rozměry lehátka, než objednáte'),
+            self::SMALL=>array('id'=>118781,'date'=>'2026-03-24','modified'=>'2026-09-24 13:37:21','title'=>'Jaké rybářské lehátko do malého bivaku | Praktický výběr','h1'=>'Jaké rybářské lehátko do malého bivaku','anchor'=>'Co je v malém bivaku opravdu důležité','role'=>'compact','label'=>'Kalkulačka pro malé bivaky: délka, šířka a průchod'),
         );
     }
     private static function plain($s){
