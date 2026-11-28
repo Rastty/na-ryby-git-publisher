@@ -8,7 +8,6 @@ on:
       - 'tests/test-boat-load-check-v1.cjs'
       - 'scripts/verify-boat-load-check-public.py'
       - 'scripts/verify-boat-system-buyer-v1.py'
-      - '.github/workflows/boat-load-check-v1.yml'
   push:
     branches: [main]
     paths:
