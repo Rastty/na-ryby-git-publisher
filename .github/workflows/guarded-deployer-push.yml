@@ -274,6 +274,8 @@ on:
       - 'kayak-buyer-trust-119602-v1.php'
       - 'lipno-five-reservation-paths-v1.php'
       - 'stay-editorial-rescue-v1.php'
+      - 'private-stays-operator-guide-v1.php'
+      - 'editorial/private-stays-operator-guide-20261128.html'
       - 'assets/nry-lipno-reservation-click-v1.js'
       - 'six-real-stay-offers-v1.php'
       - 'assets/nry-six-real-stay-click-v1.js'
@@ -539,6 +541,8 @@ on:
       - 'kayak-buyer-trust-119602-v1.php'
       - 'lipno-five-reservation-paths-v1.php'
       - 'stay-editorial-rescue-v1.php'
+      - 'private-stays-operator-guide-v1.php'
+      - 'editorial/private-stays-operator-guide-20261128.html'
       - 'assets/nry-lipno-reservation-click-v1.js'
       - 'six-real-stay-offers-v1.php'
       - 'assets/nry-six-real-stay-click-v1.js'
@@ -624,6 +628,7 @@ jobs:
           php -l gear-archive-buyer-entry-v1.php
           php tests/test-gear-archive-buyer-entry-v1.php
           php -l stay-editorial-rescue-v1.php
+          php -l private-stays-operator-guide-v1.php
           php -l lipno-five-reservation-paths-v1.php
           node --check assets/nry-lipno-reservation-click-v1.js
           php -l kayak-buyer-trust-119602-v1.php
@@ -721,6 +726,7 @@ jobs:
           php -l gear-archive-buyer-entry-v1.php
           php tests/test-gear-archive-buyer-entry-v1.php
           php -l stay-editorial-rescue-v1.php
+          php -l private-stays-operator-guide-v1.php
           php -l lipno-five-reservation-paths-v1.php
           node --check assets/nry-lipno-reservation-click-v1.js
           php -l kayak-buyer-trust-119602-v1.php
