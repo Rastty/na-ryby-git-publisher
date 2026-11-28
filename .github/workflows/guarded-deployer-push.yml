@@ -271,6 +271,7 @@ on:
       - '.github/workflows/tipy-stay-trust-public-v1.yml'
       - 'legacy-net-buyer-guides-v1.php'
       - 'legacy-2023-buyer-rescue-v1.php'
+      - 'kayak-buyer-trust-119602-v1.php'
       - 'six-real-stay-offers-v1.php'
       - 'assets/nry-six-real-stay-click-v1.js'
       - 'tests/test-six-real-stay-offers-v1.php'
@@ -278,6 +279,7 @@ on:
       - '.github/workflows/six-real-stays-public-v1.yml'
       - 'assets/nry-legacy-2023-buyer-click-v1.js'
       - 'tests/test-legacy-2023-buyer-rescue-v1.php'
+      - 'tests/test-kayak-buyer-trust-119602-v1.php'
       - 'scripts/verify-legacy-2023-buyer-public-v1.py'
       - '.github/workflows/legacy-2023-buyer-public-v1.yml'
       - 'tests/test-legacy-net-buyer-guides-v1.php'
@@ -531,6 +533,7 @@ on:
       - 'kruzberk-fishing-trust-12877-v1.php'
       - 'legacy-net-buyer-guides-v1.php'
       - 'legacy-2023-buyer-rescue-v1.php'
+      - 'kayak-buyer-trust-119602-v1.php'
       - 'six-real-stay-offers-v1.php'
       - 'assets/nry-six-real-stay-click-v1.js'
       - 'assets/nry-legacy-2023-buyer-click-v1.js'
@@ -614,6 +617,8 @@ jobs:
           php tests/test-revir-archive-decision-entry-v1.php
           php -l gear-archive-buyer-entry-v1.php
           php tests/test-gear-archive-buyer-entry-v1.php
+          php -l kayak-buyer-trust-119602-v1.php
+          php tests/test-kayak-buyer-trust-119602-v1.php
           php -l equipment-hub-decision-entry-v1.php
           php tests/test-equipment-hub-entry-v1.php
           node --check assets/nry-equipment-hub-click-v1.js
@@ -706,6 +711,8 @@ jobs:
           php tests/test-revir-archive-decision-entry-v1.php
           php -l gear-archive-buyer-entry-v1.php
           php tests/test-gear-archive-buyer-entry-v1.php
+          php -l kayak-buyer-trust-119602-v1.php
+          php tests/test-kayak-buyer-trust-119602-v1.php
           php -l equipment-hub-decision-entry-v1.php
           php tests/test-equipment-hub-entry-v1.php
           node --check assets/nry-equipment-hub-click-v1.js
