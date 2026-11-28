@@ -71,7 +71,7 @@ def load_source():
             subprocess.run(['php','-r',code,slug,str(path)],check=True)
         print('LOAD_SOURCE_READY',p['id'],flush=True)
 class LoadHTML(HTMLParser):
-    def __init__(self):super().__init__();self.mark=[];self.h1=0;self.canon=[];self.paths=[];self.details=[];self.ids=[];self.historical=0
+    def __init__(self):super().__init__();self.mark=[];self.h1=0;self.canon=[];self.paths=[];self.details=[];self.ids=[];self.historical=0;self.trip_details=[];self.trip_ids=[]
     def handle_starttag(self,t,attrs):
         a=dict(attrs)
         if t=='section' and a.get('data-nry-bedchair-load-guide')=='v1':self.mark.append(a.get('data-nry-load-role'))
@@ -81,6 +81,8 @@ class LoadHTML(HTMLParser):
         if t=='a' and 'data-nry-load-detail' in a:self.details.append((a['data-nry-load-detail'],a.get('href')))
         if (a.get('id') or '').startswith('nry-load-'):self.ids.append(a['id'])
         if a.get('data-nry-load-historical')=='v1':self.historical+=1
+        if t=='a' and 'data-nry-trip-detail' in a:self.trip_details.append((a['data-nry-trip-detail'],a.get('href')))
+        if (a.get('id') or '').startswith('nry-trip-'):self.trip_ids.append(a['id'])
 def load_public():
     for slug,r in LOAD_ROUTES.items():
         url=BASE+slug+'/'
@@ -90,6 +92,11 @@ def load_public():
         if r['role']=='scenario':
             assert p.paths==[('models',BASE+'nejlepsi-rybarska-lehatka-pro-tezsi-postavy-jak-vybrat-spravne/'),('fit',BASE+'rybarska-lehatka-kompletni-pruvodce-vyberem-pro-rybare/')]
             assert 'Modelová zbývající nosnost' in h
+        elif r['role']=='trip':
+            assert p.paths==[('fit',BASE+'rybarska-lehatka-kompletni-pruvodce-vyberem-pro-rybare/'),('winter',BASE+'jake-rybarske-lehatko-na-zimu-prakticky-vyber/'),('budget',BASE+'nejlepsi-rybarska-lehatka-do-5000-kc/')]
+            assert p.trip_details==[(k,'#nry-trip-'+k) for k in ('xl6','ergo','flat6','els')]
+            assert sorted(p.trip_ids)==['nry-trip-els','nry-trip-ergo','nry-trip-flat6','nry-trip-xl6']
+            assert '19,4 kg' in h and '12,1 kg' in h and 'Kolik opravdu ponesete' in h
         else:
             assert p.paths==[('scenario',BASE+'jake-rybarske-lehatko-pro-tezsi-rybare-jak-vybrat-spravne/'),('budget',BASE+'nejlepsi-rybarska-lehatka-do-5000-kc/')]
             assert p.details==[(k,'#nry-load-'+k) for k in ('xl8','st8','air8')]
@@ -98,7 +105,7 @@ def load_public():
             assert 'Chci hlavně jistotu a rezervu: Carpers Specialist.' not in h
             assert 'Chci něco rozumného za solidní peníze: Thunder 8 leg nebo Mivardi Comfort XL8.' not in h
         print('LOAD_PUBLIC_OK',slug,r['role'],flush=True)
-    print('LOAD_PUBLIC_VERIFIED 2/2 four first-party paths, three model jumps, two historical offers flagged')
+    print('LOAD_PUBLIC_VERIFIED 3/3 seven first-party paths, seven model jumps, two historical offers flagged')
 
 if __name__=='__main__':
     assert len(sys.argv)==2 and sys.argv[1] in ('--source','--public')

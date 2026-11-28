@@ -118,9 +118,11 @@ final class NRY_Bedchair_Load_Decision_V1 {
     const BASE='https://na-ryby.eu/';
     const SCENARIO='jake-rybarske-lehatko-pro-tezsi-rybare-jak-vybrat-spravne';
     const LIST='nejlepsi-rybarska-lehatka-pro-tezsi-postavy-jak-vybrat-spravne';
+    const TRIP='nejlepsi-rybarska-lehatka-pro-delsi-vypravy-top-vyber-a-srovnani';
     public static function routes(){return array(
         self::SCENARIO=>array('id'=>118779,'modified'=>'2026-04-25 14:37:52','date'=>'2026-03-24','title'=>'Jaké rybářské lehátko pro těžší rybáře | Jak vybrat správně','h1'=>'Jaké rybářské lehátko pro těžší rybáře','anchor'=>'Co je v této situaci opravdu důležité','role'=>'scenario'),
         self::LIST=>array('id'=>118569,'modified'=>'2026-03-21 17:37:33','date'=>'2026-03-21','title'=>'Nejlepší rybářská lehátka pro těžší postavy | Jak vybrat správně','h1'=>'Nejlepší rybářská lehátka pro těžší postavy','anchor'=>'Podle čeho jsem vybíral lehátka pro těžší postavy','role'=>'shortlist'),
+        self::TRIP=>array('id'=>0,'modified'=>'','date'=>'2026-03-21','title'=>'Nejlepší rybářská lehátka pro delší výpravy: top výběr a srovnání','h1'=>'Nejlepší rybářská lehátka pro delší výpravy','anchor'=>'Podle čeho jsem vybíral','role'=>'trip'),
     );}
     private static function plain($s){return trim(preg_replace('~[\s\x{00a0}\x{202f}]+~u',' ',html_entity_decode(strip_tags($s),ENT_QUOTES|ENT_HTML5,'UTF-8')));}
     private static function headings($html,$tag,$text){
@@ -217,6 +219,30 @@ HTML;
 </section>
 HTML;
     }
+    private static function trip(){
+        return <<<'HTML'
+<section data-nry-bedchair-load-guide="v1" data-nry-load-role="trip" aria-label="Výběr lehátka na vícedenní rybářskou výpravu">
+<p><strong>Na třídenní nebo týdenní výpravu vybírejte celou spací sestavu, nejen lehátko.</strong> Rozhoduje hmotnost při přesunu, rozměr v bivaku, doložená nosnost a izolace. Pokud je auto vedle lovného místa, může být těžší integrovaný systém praktický. Jestliže jdete stovky metrů pěšky, každý kilogram se projeví i při návratu s mokrou výbavou. Následující srovnání pomůže vybrat z modelů, které jsou již podrobně představené v článku. Nejde o nový vlastní test ani o záruku skladovosti.</p>
+<h2>Lehátka na delší výpravy: porovnání samostatného rámu a kompletní sestavy</h2>
+<div style="overflow-x:auto"><table><caption>Technické parametry podle dokumentace výrobců dohledané 28. 11. 2026</caption><thead><tr><th scope="col">Model</th><th scope="col">Co porovnáváme</th><th scope="col">Hmotnost</th><th scope="col">Deklarované zatížení</th><th scope="col">Zdroj</th></tr></thead><tbody>
+<tr><td><a data-nry-trip-detail="xl6" href="#nry-trip-xl6">Mivardi Comfort XL6</a></td><td>Samostatné lehátko 210 × 86 cm</td><td>9,8 kg</td><td>140 kg</td><td><a href="https://www.mivardi.cz/lehatko-comfort-xl6">Mivardi</a></td></tr>
+<tr><td><a data-nry-trip-detail="ergo" href="#nry-trip-ergo">Delphin ErgoCARP</a></td><td>Samostatné lehátko, kód 101006080</td><td>12 kg</td><td>Přibližně 200 kg za ideálních podmínek</td><td><a href="https://eshop.moss.sk/?moss=produkt&amp;oc=101006080">MOSS.SK</a></td></tr>
+<tr><td><a data-nry-trip-detail="flat6" href="#nry-trip-flat6">Mivardi CamoCODE Flat6</a></td><td>Samostatné lehátko 205 × 80 cm</td><td>8,6 kg</td><td>140 kg</td><td><a href="https://www.mivardi.cz/bedchair-camocode-flat6">Mivardi</a></td></tr>
+<tr><td><a data-nry-trip-detail="els" href="#nry-trip-els">Trakker Levelite ELS-MF Bed System</a></td><td>Standardní systém se spacákem, cca 215 × 90 cm</td><td>cca 19,4 kg</td><td>225 kg při běžném použití dle výrobce</td><td><a href="https://www.trakkerproducts.com/uk/product/levelite-els-mf-bed-system">Trakker</a></td></tr>
+</tbody></table></div>
+<p>U ErgoCARP výrobce výslovně rozlišuje statické a dynamické zatížení; orientační hodnota 200 kg v ideálních podmínkách není garantovaná nosnost při libovolném použití. U Trakkeru nezaměňujte standardní a Wide variantu. Samotné lehátko není hmotnostně srovnatelné s kompletní sestavou, dokud nepřipočtete spacák, potřebnou izolaci a transportní obal. U zbylých modelů níže ověřte přesné parametry konkrétní varianty v dokumentaci.</p>
+<h2>Kolik opravdu ponesete od auta k vodě?</h2>
+<p>Modelový samostatný spacák o hmotnosti 3 kg a obal o hmotnosti 0,5 kg zvýší hmotnost Flat6 z 8,6 kg na 12,1 kg. U Comfort XL6 by stejný příklad vyšel na 13,3 kg a u ErgoCARP na 15,5 kg. Integrovaný Trakker už spacák zahrnuje; s modelovým obalem 0,5 kg počítejte přibližně s 19,9 kg. Nejde o vážení hotových sestav ani o doporučení konkrétního spacáku. Skutečné hmotnosti zjistíte zvážením svého vybavení; potřebnou izolaci připočtěte zvlášť, pokud ji zvolená sestava nezahrnuje.</p>
+<p>Pro představu při 400 m od auta a cestě tam i zpět představuje rozdíl 7,8 kg mezi modelovým Flat6 a Trakkerem výraznou změnu neseného nákladu. Pokud používáte vozík, zkontrolujte šířku, rozložení nákladu, stabilitu na cestě a jeho povolené zatížení. Pokud k lovišti vedou schody nebo úzké pěšiny, zvažte raději lehčí sestavu nebo více bezpečných cest. V zimě přitom nesnižujte izolaci pouze kvůli hmotnosti.</p>
+<h2>Kdy se vyplatí investovat do dražšího spacího systému?</h2>
+<p>Pro rozhodování porovnejte očekávaný počet nocí, ne jen pořizovací cenu. U modelové modulární sestavy za 6 000 Kč a 60 nocí vychází jednoduchý náklad na 100 Kč za noc. U kompletní sestavy za 12 000 Kč a stejných 60 nocí je to 200 Kč; při 120 nocích 100 Kč. Jde o účetní příklad bez údržby a zůstatkové hodnoty, nikoli odhad životnosti nebo skutečné ceny uvedených produktů. Zvažte, zda lze samostatně vyměnit spacák, potah, nohy či další díly a zda je servis dostupný.</p>
+<h2>Výběr podle tří konkrétních výprav</h2>
+<ul><li><strong>Víkend s dlouhým přístupem:</strong> porovnejte lehčí samostatné rámy, které odpovídají vaší postavě a povolenému zatížení. Zvažte hmotnost s vlastním spacákem.</li><li><strong>Tři až sedm nocí poblíž auta:</strong> větší prostor, možnost sušení a vhodná matrace mohou mít větší význam než rozdíl několika kilogramů. Prověřte vnější rozměr celé sestavy a volný východ.</li><li><strong>Chladné vícedenní výpravy:</strong> nejdřív ověřte teplotní parametry spacáku, izolaci pod tělem a plán ukončení výpravy. Označení počtem sezon nestačí k určení bezpečné teploty.</li></ul>
+<h3>Kontrola před nákupem a před cestou</h3><p>Změřte kufr auta, šířku přístupové cesty a využitelný prostor bivaku ve výšce matrace. V obchodě si ověřte, co balení opravdu obsahuje. Doma vyzkoušejte lehátko, aretaci nohou, složení se spacákem a možnost rychlého výstupu. Mokrou výbavu při balení oddělte od suchých vrstev. U nerovného podkladu se řiďte návodem výrobce; počet nohou není náhradou za bezpečné usazení.</p>
+<div class="nry-gear-archive-entry"><p class="nry-gear-archive-entry__eyebrow">Vyřešte celou sestavu</p><nav aria-label="Další rozhodovací průvodci"><a class="nry-gear-archive-entry__choice" data-nry-load-path="fit" href="https://na-ryby.eu/rybarska-lehatka-kompletni-pruvodce-vyberem-pro-rybare/"><strong>Kalkulačka rozměrů lehátka a bivaku</strong><span>Ověřte vlastní rozměry a průchod.</span></a><a class="nry-gear-archive-entry__choice" data-nry-load-path="winter" href="https://na-ryby.eu/jake-rybarske-lehatko-na-zimu-prakticky-vyber/"><strong>Zimní spací sestava</strong><span>Izolace, teplotní údaje a rozpočet.</span></a><a class="nry-gear-archive-entry__choice" data-nry-load-path="budget" href="https://na-ryby.eu/nejlepsi-rybarska-lehatka-do-5000-kc/"><strong>Lehátka do 5 000 Kč</strong><span>Porovnejte sedm konkrétních modelů.</span></a></nav><p class="nry-gear-archive-entry__note">Původní produktové karty níže mohou obsahovat partnerské odkazy. Před objednáním ověřte cenu, variantu a dostupnost u prodejce.</p></div>
+</section>
+HTML;
+    }
     public static function transform($html,$r){
         if(!is_string($html)||strlen($html)<3000||strlen($html)>250000||strpos($html,self::MARKER)!==false
           ||substr_count(self::plain($html),$r['anchor'])!==1)return $html;
@@ -240,14 +266,27 @@ HTML;
             usort($edits,function($a,$b){return $b[0]<=>$a[0];});
             foreach($edits as $edit)$out=substr_replace($out,$edit[1],$edit[0],0);
         }
+        if($r['role']==='trip'){
+            $edits=array();
+            foreach(array('xl6'=>'Mivardi Lehátko Comfort XL6','ergo'=>'Delphin Lehátko ErgoCarp','flat6'=>'Lehátko MIVARDI CamoCODE Flat6','els'=>'Trakker Lehátko Levelite ELS-MF Bed System') as $key=>$name){
+                $m=self::headings($out,'h3',$name);
+                if(count($m)!==1||strpos($out,'nry-trip-'.$key)!==false){
+                    if(defined('NRY_FIT_PREFLIGHT'))fwrite(STDERR,"TRIP_MODEL_DRIFT ".$key."\n");
+                    return $html;
+                }
+                $edits[]=array($m[0][1],'<span id="nry-trip-'.$key.'" aria-hidden="true" style="display:block;scroll-margin-top:100px"></span>');
+            }
+            usort($edits,function($a,$b){return $b[0]<=>$a[0];});
+            foreach($edits as $edit)$out=substr_replace($out,$edit[1],$edit[0],0);
+        }
         $h=self::headings($out,'h1',$r['h1']);if(count($h)!==1)return $html;
         $old=$h[0][0];$offset=$h[0][1];
         $heading=preg_replace('~^<h1\b~i','<h2',$old);
         $heading=preg_replace('~</h1\s*>$~i','</h2>',$heading);
         $out=substr_replace($out,$heading,$offset,strlen($old));
         if(self::attrs($out)!==self::attrs($html))return $html;
-        $panel=$r['role']==='scenario'?self::scenario():self::shortlist();
-        if(substr_count($panel,self::MARKER)!==1||substr_count($panel,'data-nry-load-path=')!==2)return $html;
+        $panel=$r['role']==='scenario'?self::scenario():($r['role']==='trip'?self::trip():self::shortlist());
+        if(substr_count($panel,self::MARKER)!==1||substr_count($panel,'data-nry-load-path=')!==($r['role']==='trip'?3:2))return $html;
         $at=$offset+strlen($heading);
         return substr($out,0,$at)."\n".$panel.substr($out,$at);
     }
