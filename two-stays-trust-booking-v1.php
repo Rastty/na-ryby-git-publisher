@@ -42,16 +42,29 @@ final class NRY_Two_Stays_Trust_20261128_V1 {
         // Exact visible phrase; never alter attributes. Existing links remain.
         $quoted=preg_quote($old,'~');
         $pattern='~(?<=>|\s)'.$quoted.'(?=[\s<.,;:!?]|$)~u';
-        if(preg_match_all($pattern,$html)!==1)return false;
+        if(preg_match_all($pattern,$html)!==1){if(defined('NRY_TWO_STAYS_PREFLIGHT'))fwrite(STDERR,'SOURCE_TEXT_GUARD '.$old."\n");return false;}
         $html=preg_replace($pattern,$new,$html,1);
         return is_string($html);
     }
     private static function block(&$html,$tag,$start,$new){
-        // Only plain-text blocks; if media/links unexpectedly appear, stop.
-        $pattern='~<'.$tag.'\b([^>]*)>\s*'.preg_quote($start,'~').'[^<]*</'.$tag.'\s*>~u';
-        if(preg_match_all($pattern,$html)!==1)return false;
-        $html=preg_replace_callback($pattern,function($m)use($tag,$new){return '<'.$tag.$m[1].'>'.$new.'</'.$tag.'>';},$html,1);
-        return is_string($html);
+        // WordPress may wrap plain historical text with inline formatting
+        // or hard line breaks. Match normalized visible text exactly at
+        // the start of one bounded element. Never remove a link or image.
+        $pattern='~<'.$tag.'\b([^>]*)>((?:(?!</?'.$tag.'\b).)*?)</'.$tag.'\s*>~isu';
+        $n=0;
+        $candidate=preg_replace_callback($pattern,function($m)use($tag,$start,$new,&$n){
+            $plain=trim(preg_replace('~[\s\x{00a0}]+~u',' ',html_entity_decode(strip_tags($m[2]),ENT_QUOTES|ENT_HTML5,'UTF-8')));
+            if(strpos($plain,$start)!==0)return $m[0];
+            if(preg_match('~<(?!/?(?:br|strong|b|em|i|span)\b)[^>]+>~i',$m[2])||self::attrs($m[2]))return $m[0];
+            $n++;
+            return '<'.$tag.$m[1].'>'.$new.'</'.$tag.'>';
+        },$html);
+        if($n!==1||!is_string($candidate)){
+            if(defined('NRY_TWO_STAYS_PREFLIGHT'))fwrite(STDERR,"SOURCE_BLOCK_GUARD ".$tag." ".$start." matched=".$n."\n");
+            return false;
+        }
+        $html=$candidate;
+        return true;
     }
     private static function attrs($html){
         preg_match_all('~(?:href|src)\s*=\s*(["\x27])([^"\x27]*)\1~i',$html,$m);
@@ -96,7 +109,7 @@ final class NRY_Two_Stays_Trust_20261128_V1 {
             foreach($pairs as $a=>$b)if(!self::replaceText($out,$a,$b))return $html;
         }
         $heading='~<h1\b([^>]*)>\s*'.preg_quote($r['h1'],'~').'\s*</h1\s*>~u';
-        if(preg_match_all($heading,$out)!==1)return $html;
+        if(preg_match_all($heading,$out)!==1){if(defined('NRY_TWO_STAYS_PREFLIGHT'))fwrite(STDERR,"SOURCE_HEADING_GUARD\n");return $html;}
         $out=preg_replace_callback($heading,function($m)use($r){return '<h2'.$m[1].'>'.($r['role']==='destinations-v1'?'Další plánování pobytu u vody':'Další informace k výběru revíru a pobytu').'</h2>';},$out,1);
         if(self::attrs($out)!==self::attrs($html))return $html;
         foreach($r['source'] as $s)if(strpos($out,$s)!==false)return $html;
