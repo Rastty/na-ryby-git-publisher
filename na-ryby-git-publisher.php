@@ -57,6 +57,7 @@ require_once __DIR__ . '/legacy-net-buyer-guides-v1.php';
 require_once __DIR__ . '/legacy-2023-buyer-rescue-v1.php';
 require_once __DIR__ . '/kayak-buyer-trust-119602-v1.php';
 require_once __DIR__ . '/six-real-stay-offers-v1.php';
+require_once __DIR__ . '/stay-editorial-rescue-v1.php';
 require_once __DIR__ . '/carp-mat-buyer-trust-v1.php';
 require_once __DIR__ . '/barrow-buyer-trust-v1.php';
 require_once __DIR__ . '/bivak-budget-buyer-trust-119575-v1.php';
