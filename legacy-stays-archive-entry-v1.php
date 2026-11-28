@@ -50,6 +50,20 @@ final class NRY_Legacy_Stays_Archive_Entry_V1 {
             .'<p class="nry-legacy-stays-entry__eyebrow">Rybářská dovolená</p>'
             .'<h2>Kam na ryby s ubytováním?</h2>'
             .'<p>Vyberte podle oblasti nebo typu výpravy. Každá karta vás zavede na konkrétní nabídku nebo rozhodovací průvodce, kde ověříte další podmínky.</p>'
+
+            .'<div data-nry-stay-planner="v1" class="nry-stay-planner" hidden>'
+            .'<h3>Naplánujte si vlastní rybářský pobyt</h3>'
+            .'<p>Vyberte oblast a typ výpravy. Rozpočet vyplňte podle sebe; nepracujeme s neověřenými cenami ubytování.</p>'
+            .'<div class="nry-stay-planner__fields">'
+            .'<label>Oblast<select data-nry-plan="region"><option value="any">Zatím nerozhodnuto</option><option value="slapy">Slapy a střední Čechy</option><option value="lipno">Lipno a jižní Čechy</option><option value="vranov">Vranovská přehrada</option></select></label>'
+            .'<label>Typ pobytu<select data-nry-plan="type"><option value="any">Libovolný</option><option value="family">Rodina</option><option value="group">Rybářská parta</option><option value="wellness">Wellness a pohodlí</option><option value="private">Soukromý revír</option></select></label>'
+            .'<label>Počet osob<input data-nry-plan="people" type="number" inputmode="numeric" min="1" max="30" step="1" value="2"></label>'
+            .'<label>Počet nocí<input data-nry-plan="nights" type="number" inputmode="numeric" min="1" max="60" step="1" value="2"></label>'
+            .'<label>Celkový rozpočet (Kč)<input data-nry-plan="budget" type="number" inputmode="numeric" min="0" max="1000000" step="1" value="8000"></label>'
+            .'<label>Doprava, lov, jídlo a další náklady (Kč)<input data-nry-plan="extras" type="number" inputmode="numeric" min="0" max="1000000" step="1" value="2000"></label></div>'
+            .'<div class="nry-stay-planner__result" role="status" aria-live="polite" aria-atomic="true">'
+            .'<p data-nry-plan-output="recommendation"></p><p data-nry-plan-output="total"></p><p data-nry-plan-output="perperson"></p></div>'
+            .'<p class="nry-stay-planner__hint">Výsledek je váš limit, ne cena ani dostupnost konkrétní nabídky. Zvýrazněná karta je tip, kde začít; ostatní možnosti zůstávají dostupné.</p></div>'
             .'<nav class="nry-legacy-stays-entry__choices" aria-label="Možnosti výběru pobytu">'
             .'<a href="'.self::GUIDE.'"><strong>Porovnat rybářské pobyty</strong>'
             .'<span>Konkrétní nabídky a na co dát pozor</span></a>'
@@ -116,15 +130,15 @@ final class NRY_Legacy_Stays_Archive_Entry_V1 {
             && function_exists('plugins_url')) {
             wp_enqueue_style('nry-legacy-stays-entry-v1',
                 plugins_url('assets/nry-legacy-stays-entry-v1.css', __FILE__),
-                array(), '1.1.0');
+                array(), '1.2.0');
         }
         // Existing exact-page eligibility also guards the independent read-only
-        // click observer. The JS itself requires the unique live panel + 3 URLs.
+        // click observer. The JS itself requires the unique live panel + 6 URLs.
         if (self::eligible() && function_exists('wp_enqueue_script')
             && function_exists('plugins_url')) {
             wp_enqueue_script('nry-archive-stay-click-v1',
                 plugins_url('assets/nry-archive-stay-click-v1.js', __FILE__),
-                array(), '1.1.0', true);
+                array(), '1.2.0', true);
         }
     }
 

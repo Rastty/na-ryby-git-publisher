@@ -49,6 +49,65 @@
     urls.slice(1).every((url,i)=>url===expected[i])
   );
   if (!allowed) return;
+
+  // Local planner is independent of analytics and never submits user inputs.
+  // Reuse the six already verified anchor targets, without changing their order.
+  function initStayPlanner() {
+    if (location.pathname!=='/ubytovani-2/' || typeof panel.querySelector!=='function') return;
+    const root=panel.querySelector('[data-nry-stay-planner="v1"]');
+    if (!root || root.hidden!==true) return;
+    const fields=Object.fromEntries(['region','type','people','nights','budget','extras'].map(
+      key=>[key,root.querySelector('[data-nry-plan="'+key+'"]')]));
+    const out=Object.fromEntries(['recommendation','total','perperson'].map(
+      key=>[key,root.querySelector('[data-nry-plan-output="'+key+'"]')]));
+    if (Object.values(fields).some(x=>!x) || Object.values(out).some(x=>!x)) return;
+    const format=new Intl.NumberFormat('cs-CZ',{maximumFractionDigits:0});
+    const money=n=>format.format(n)+' Kč';
+    const number=(field,min,max)=>{
+      const value=field.value.trim();
+      if (!/^\d+$/.test(value)) return null;
+      const n=Number(value);
+      return Number.isSafeInteger(n)&&n>=min&&n<=max?n:null;
+    };
+    function update(){
+      let index=0,reason='Porovnejte více lokalit a typů ubytování.';
+      const region=fields.region.value, type=fields.type.value;
+      if(type==='private'){
+        index=5;reason='Nejprve vyberte provozovatele soukromé vody a ověřte konkrétní lovné místo; průvodce zahrnuje různé oblasti.';
+      } else if(region==='slapy'){
+        index=1;reason='Začněte u Slap; ověřte typ ubytování a vzdálenost k povolenému lovišti.';
+      } else if(region==='lipno'){
+        index=2;reason='Na Lipně porovnejte ubytování, břeh a dostupnost zamýšleného loviště.';
+      } else if(region==='vranov'||(region==='any'&&(type==='wellness'||type==='group'))){
+        index=type==='wellness'?4:3;
+        reason=type==='wellness'?'Vranovský srub je tip pro pohodlný pobyt; potvrďte kapacitu, vybavení a stav vody.':'U Vranova začněte Cyklochatou; potvrďte kapacitu, cenu a přístup k vodě.';
+      } else if(type==='family'){
+        reason='Pro rodinu porovnejte zázemí pro děti, bezpečný přístup k vodě a stravování.';
+      }
+      const target=ORIGIN+cfg.choices[index][1];
+      anchors.forEach(a=>{
+        if(a.getAttribute('href')===target)a.setAttribute('data-nry-recommended','true');
+        else a.removeAttribute('data-nry-recommended');
+      });
+      out.recommendation.textContent=reason;
+      const p=number(fields.people,1,30),n=number(fields.nights,1,60),
+        b=number(fields.budget,0,1000000),e=number(fields.extras,0,1000000);
+      if([p,n,b,e].includes(null)){
+        out.total.textContent='Vyplňte celé hodnoty v povoleném rozsahu.';
+        out.perperson.textContent='';return;
+      }
+      if(e>b){
+        out.total.textContent='Ostatní náklady překračují rozpočet o '+money(e-b)+'.';
+        out.perperson.textContent='Na ubytování nezbývá rozpočet.';return;
+      }
+      out.total.textContent='Na ubytování zbývá '+money(b-e)+' za celý pobyt.';
+      out.perperson.textContent='Max. '+money(Math.floor((b-e)/(p*n)))+' na osobu a noc';
+    }
+    Object.values(fields).forEach(f=>{f.addEventListener('input',update);f.addEventListener('change',update);});
+    update();root.hidden=false;
+  }
+  initStayPlanner();
+
   window.__nryArchiveStayClickV1=true;
   document.addEventListener('click', event => {
     if (event.isTrusted!==true || typeof window.gtag!=='function' ||

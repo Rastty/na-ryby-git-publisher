@@ -111,3 +111,48 @@ for(const cfg of cases) {
 const wrong={...cases[0],path:'/something-unrelated/'};
 assert.equal(emulate({cfg:wrong}).listener,null);
 console.log('ARCHIVE_STAY_TWO_TRUSTED_CLICK_ROUTES_OFFLINE_PASS');
+
+
+// Actual planner behavior, using the same real script and reviewed six routes.
+{
+  const cfg=cases[0], fields={}, output={}, events=[];
+  const values={region:'any',type:'any',people:'2',nights:'2',budget:'8000',extras:'2000'};
+  for(const [key,value] of Object.entries(values)){
+    fields[key]={value,handlers:{},addEventListener(name,fn){this.handlers[name]=fn;}};
+  }
+  for(const key of ['recommendation','total','perperson'])output[key]={textContent:''};
+  const root={hidden:true,querySelector(sel){
+    const match=sel.match(/data-nry-plan(-output)?="([^"]+)"/);
+    return match?(match[1]?output:fields)[match[2]]:null;
+  }};
+  const panel={querySelector:()=>root};
+  const anchors=cfg.choices.map(row=>{
+    const href=ORIGIN+row[1];
+    return {href,attrs:{},getAttribute:key=>key==='href'?href:null,
+      setAttribute(key,value){this.attrs[key]=value;},removeAttribute(key){delete this.attrs[key];}};
+  });
+  panel.querySelectorAll=()=>anchors;
+  vm.runInNewContext(source,{
+    location:{origin:ORIGIN,pathname:cfg.path,search:'',hash:''},
+    window:{gtag:(...args)=>events.push(args)},
+    document:{querySelectorAll:()=>[panel],addEventListener(){}},
+    URL,Intl
+  });
+  assert.equal(root.hidden,false);
+  const number=text=>text.replace(/\s/g,'');
+  assert.match(number(output.total.textContent),/6000Kč/);
+  assert.match(number(output.perperson.textContent),/1500Kč/);
+  function set(key,value){fields[key].value=value;fields[key].handlers.input();}
+  set('region','vranov');set('type','wellness');
+  assert.equal(anchors[4].attrs['data-nry-recommended'],'true');
+  assert.equal(anchors.filter(a=>a.attrs['data-nry-recommended']==='true').length,1);
+  set('type','private');
+  assert.equal(anchors[5].attrs['data-nry-recommended'],'true');
+  set('people','3');assert.match(number(output.perperson.textContent),/1000Kč/);
+  set('extras','9000');assert.match(number(output.total.textContent),/1000Kč/);
+  assert.match(output.perperson.textContent,/nezbývá/);
+  set('nights','0');assert.match(output.total.textContent,/povoleném rozsahu/);
+  assert.equal(output.perperson.textContent,'');
+  assert.equal(events.length,0,'planner input does not emit analytics');
+  console.log('STAY_PLANNER_LOCAL_CALCULATION_PASS');
+}

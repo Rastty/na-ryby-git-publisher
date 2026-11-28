@@ -33,7 +33,7 @@ function check($ok,$msg){if(!$ok){fwrite(STDERR,"FAIL ".$msg."\n");exit(1);}}
 $c::click_js();
 check(count($GLOBALS['scripts'])===1 && $GLOBALS['scripts'][0]['h']==='nry-archive-stay-click-v1'
  && str_ends_with($GLOBALS['scripts'][0]['u'],'/assets/nry-archive-stay-click-v1.js')
- && $GLOBALS['scripts'][0]['v']==='1.1.0' && $GLOBALS['scripts'][0]['f']===true,
+ && $GLOBALS['scripts'][0]['v']==='1.2.0' && $GLOBALS['scripts'][0]['f']===true,
  'only own canonical published post queues local script');
 foreach(array('enabled','admin','host','url','post') as $k){
  $orig=$GLOBALS[$k];

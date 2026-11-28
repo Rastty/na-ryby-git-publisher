@@ -26,6 +26,7 @@ jobs:
       - name: Offline exact-page identity and DOM order contracts
         run: |
           php -l legacy-stays-archive-entry-v1.php
+          node --check assets/nry-archive-stay-click-v1.js
           php tests/test-legacy-stays-archive-entry-v1.php
           python3 -m py_compile scripts/verify-legacy-stays-archive-entry-public.py
           python3 tests/test-legacy-stays-archive-public.py
