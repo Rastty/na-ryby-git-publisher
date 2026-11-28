@@ -35,6 +35,28 @@ def verify(html: str) -> None:
     if 'www.slevomat.cz/akce/2462030-' not in html:
         raise ValueError("original Slevomat offer missing")
 
+
+def verify_expanded(html: str) -> None:
+    from html.parser import HTMLParser
+    from urllib.parse import urlsplit
+    class Offers(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.found=0;self.anchors=[]
+        def handle_starttag(self,tag,attrs):
+            a=dict(attrs)
+            if tag=='div' and a.get('data-nry-lipno-hub-offers')=='v1':self.found+=1
+            if tag=='a' and 'data-nry-lipno-hub-offer' in a:
+                self.anchors.append((a['data-nry-lipno-hub-offer'],a.get('href'),a.get('rel'),a.get('target')))
+    p=Offers();p.feed(html);p.close()
+    approved='https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2F'
+    want=[(key,approved+slug,'sponsored nofollow noopener','_blank') for key,slug in (
+        ('vyhlidka','komfortny-penzion-so-saunou-na-lipne'),('jbx','jbx-resort-albatros'))]
+    if p.found!=1 or p.anchors!=want:raise ValueError('LIPNO_HUB_OFFERS_NOT_EXACT')
+    if not (html.find(MARKER)<html.find('data-nry-lipno-hub-offers="v1"')<html.find(NEXT)):
+        raise ValueError('LIPNO_HUB_POSITION_DRIFT')
+    print('LIPNO_HUB_TWO_APPROVED_AFFILIATE_OFFERS_PUBLIC_VERIFIED')
+
 def main() -> int:
     try:
         req = Request(HUB, headers={"User-Agent": "NaRyby-PublicReadback/1.0",
@@ -45,7 +67,9 @@ def main() -> int:
             raw = response.read(1_000_001)
             if len(raw) > 1_000_000:
                 raise ValueError("unexpected public size")
-        verify(raw.decode("utf-8"))
+        body=raw.decode("utf-8")
+        verify(body)
+        if "--expanded" in sys.argv:verify_expanded(body)
     except (ValueError, UnicodeError, HTTPError, URLError, TimeoutError) as exc:
         print("VRANOV_STAYS_59891_PUBLIC_NOT_VERIFIED:", type(exc).__name__)
         return 1

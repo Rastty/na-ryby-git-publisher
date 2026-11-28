@@ -21,6 +21,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   offline:
     if: github.event_name == 'pull_request'
@@ -49,7 +50,21 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-          ref: main
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Confirm exact protected production deployment
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_RUN: ${{ github.event.workflow_run.id }}
+          RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+          test "$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RELEASE_RUN}/jobs?per_page=100" --jq '.jobs[] | select(.name=="deploy") | .conclusion')" = success
       - run: |
           set -euo pipefail
-          python3 scripts/verify-stays-vranov-public-59891.py
+          if [ "${{ github.event_name }}" = workflow_run ]; then
+            python3 scripts/verify-stays-vranov-public-59891.py --expanded
+          else
+            python3 scripts/verify-stays-vranov-public-59891.py
+          fi
