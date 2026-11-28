@@ -35,6 +35,7 @@ require_once __DIR__ . '/orlik-expired-stay-cta-119551-v1.php';
 require_once __DIR__ . '/lipno-pair-offers-119692-v1.php';
 require_once __DIR__ . '/private-fishing-stay-trust-59113-v1.php';
 require_once __DIR__ . '/jihocesky-lipno-stays-13088-v1.php';
+require_once __DIR__ . '/lipno-five-reservation-paths-v1.php';
 require_once __DIR__ . '/seo-stredni-cechy-stay-92205-v1.php';
 require_once __DIR__ . '/sport-stays-source-proof-85384-v1.php';
 require_once __DIR__ . '/sport-stays-offers-85384-v1.php';
