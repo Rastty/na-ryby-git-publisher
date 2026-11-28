@@ -34,6 +34,21 @@ const data={
     ['bedchair_budget','/nejlepsi-rybarska-lehatka-do-5000-kc/'],
     ['bedchair_load','/jake-rybarske-lehatko-pro-tezsi-rybare-jak-vybrat-spravne/']
   ],
+  'cluny-a-belly-boats':[
+    ['boat_guide','/nejlepsi-nafukovaci-cluny-pro-rybare/'],
+    ['boat_vs_kayak','/belly-boat-vs-kajak-vs-maly-clun-co-dava-smysl-ceskemu-vlackari/'],
+    ['boat_motor','/nejlepsi-lodni-elektromotory-pro-rybare/']
+  ],
+  'elektromotory':[
+    ['motor_battery','/nejlepsi-lodni-elektromotory-pro-rybare/'],
+    ['motor_boat','/nejlepsi-nafukovaci-cluny-pro-rybare/'],
+    ['motor_sonar','/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/']
+  ],
+  'rybarske-kajaky':[
+    ['kayak_guide','/rybarsky-kajak-pro-koho-dava-smysl-a-jak-vybrat/'],
+    ['kayak_sonar','/echolot-na-kajak-a-belly-boat-jak-vybrat-kompaktni-sonar/'],
+    ['kayak_alternatives','/belly-boat-vs-kajak-vs-maly-clun-co-dava-smysl-ceskemu-vlackari/']
+  ],
   'zavazeci-lodky':[
     ['baitboat_choice','/zavazeci-lodky-pro-rybare/'],
     ['baitboat_sonar','/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/']
@@ -118,5 +133,5 @@ for(const [slug,routes] of Object.entries(data)) {
       'exact first homepage context only');
   }
 }
-assert.equal(positive,20);
-console.log('GEAR_ARCHIVE_TWENTY_TRUSTED_GUIDE_ROLES_OFFLINE_VERIFIED');
+assert.equal(positive,29);
+console.log('GEAR_ARCHIVE_TWENTY_NINE_TRUSTED_GUIDE_ROLES_OFFLINE_VERIFIED');

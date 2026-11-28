@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Anonymous public proof of seven equipment-category buyer entry sections.
+"""Anonymous public proof of ten equipment-category buyer entry sections.
 
 GET only current first-party pages and the two exact local assets. Never
 follow anchor/merchant URLs, synthesize clicks, write WP or fabricate economics.
@@ -21,7 +21,7 @@ ROOT=ORIGIN+'/category/vybaveni-pro-rybare/'
 MARKER='data-nry-gear-archive="v1"'
 ASSET_PREFIX=ORIGIN+'/wp-content/plugins/na-ryby-git-publisher/assets/'
 CSS=ASSET_PREFIX+'nry-gear-archive-entry-v1.css?ver=1.0.0'
-JS=ASSET_PREFIX+'nry-gear-archive-click-v1.js?ver=1.2.0'
+JS=ASSET_PREFIX+'nry-gear-archive-click-v1.js?ver=1.3.0'
 ROUTES={
  'pruty':{
     'title':'Kaprové pruty',
@@ -64,6 +64,27 @@ ROUTES={
       ('bedchair_fit',ORIGIN+'/rybarska-lehatka-kompletni-pruvodce-vyberem-pro-rybare/'),
       ('bedchair_budget',ORIGIN+'/nejlepsi-rybarska-lehatka-do-5000-kc/'),
       ('bedchair_load',ORIGIN+'/jake-rybarske-lehatko-pro-tezsi-rybare-jak-vybrat-spravne/')
+    ]},
+ 'cluny-a-belly-boats':{
+    'title':'Čluny a Belly Boats',
+    'links':[
+      ('boat_guide',ORIGIN+'/nejlepsi-nafukovaci-cluny-pro-rybare/'),
+      ('boat_vs_kayak',ORIGIN+'/belly-boat-vs-kajak-vs-maly-clun-co-dava-smysl-ceskemu-vlackari/'),
+      ('boat_motor',ORIGIN+'/nejlepsi-lodni-elektromotory-pro-rybare/')
+    ]},
+ 'elektromotory':{
+    'title':'Elektromotory',
+    'links':[
+      ('motor_battery',ORIGIN+'/nejlepsi-lodni-elektromotory-pro-rybare/'),
+      ('motor_boat',ORIGIN+'/nejlepsi-nafukovaci-cluny-pro-rybare/'),
+      ('motor_sonar',ORIGIN+'/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/')
+    ]},
+ 'rybarske-kajaky':{
+    'title':'Rybářské kajaky',
+    'links':[
+      ('kayak_guide',ORIGIN+'/rybarsky-kajak-pro-koho-dava-smysl-a-jak-vybrat/'),
+      ('kayak_sonar',ORIGIN+'/echolot-na-kajak-a-belly-boat-jak-vybrat-kompaktni-sonar/'),
+      ('kayak_alternatives',ORIGIN+'/belly-boat-vs-kajak-vs-maly-clun-co-dava-smysl-ceskemu-vlackari/')
     ]},
  'zavazeci-lodky':{
     'title':'Zavážecí loďky',
@@ -151,8 +172,8 @@ def live():
         if hashlib.sha256(served).digest()!=hashlib.sha256(approved).digest():
             raise AssertionError('LIVE_ASSET_SHA_MISMATCH')
         digests[name]=hashlib.sha256(served).hexdigest()
-    return {'status':'GEAR_ARCHIVE_SEVEN_BUYER_ENTRIES_PUBLIC_VERIFIED',
-      'pages':pages,'publishedPaths':7,'exactFirstPartyCTA':sum(x['exactFirstPartyCTA'] for x in pages),
+    return {'status':'GEAR_ARCHIVE_TEN_BUYER_ENTRIES_PUBLIC_VERIFIED',
+      'pages':pages,'publishedPaths':10,'exactFirstPartyCTA':sum(x['exactFirstPartyCTA'] for x in pages),
       'servedAssetSha256':digests,'wpWrites':0,'merchantGETs':0,
       'syntheticClicks':0,'realClicks':'UNKNOWN','GA4Delivery':'UNKNOWN',
       'approvedOrPaidCommissions':'UNKNOWN'}

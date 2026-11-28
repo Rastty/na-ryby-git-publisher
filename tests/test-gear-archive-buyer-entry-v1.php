@@ -1,5 +1,5 @@
 <?php
-/** Seven existing WP archives, fail-closed scoped frontend contracts. No network. */
+/** Ten existing WP archives, fail-closed scoped frontend contracts. No network. */
 define('ABSPATH', __DIR__);
 $_SERVER['REQUEST_METHOD']='GET';
 $GLOBALS['gear'] = array('slug'=>'navijaky','parent'=>22,'url'=>
@@ -30,7 +30,7 @@ function check_gear($ok,$label){if(!$ok)throw new RuntimeException($label);}
 require dirname(__DIR__).'/gear-archive-buyer-entry-v1.php';
 $C='NRY_Gear_Archive_Buyer_Entry_V1';
 $routes=$C::routes();
-check_gear(count($routes)===7,'exact seven eligible categories');
+check_gear(count($routes)===10,'exact ten eligible categories');
 check_gear(isset($GLOBALS['gear_actions']['template_redirect'],$GLOBALS['gear_actions']['loop_start'],$GLOBALS['gear_actions']['wp_enqueue_scripts']),'three guarded WP hooks');
 $total=0;
 foreach($routes as $slug=>$cfg){
@@ -62,6 +62,12 @@ foreach($routes as $slug=>$cfg){
  check_gear(str_replace($block,'',$changed)===str_replace($block,'',$original),
     'original WP archive and category content byte preserved');
  check_gear($C::place_after_archive_h1($changed)===$changed,'idempotent');
+ $noBlock=str_replace($block,'',$original);
+ if(!empty($cfg['fallback'])){
+  check_gear($C::place_after_archive_h1($noBlock)===$C::place_after_archive_h1($original),'exact single-result fallback');
+  $wrong=str_replace($h1,'<h1>Wrong</h1>',$noBlock);
+  check_gear($C::place_after_archive_h1($wrong)===$wrong,'fallback rejects heading drift');
+ } else check_gear($C::place_after_archive_h1($noBlock)===$noBlock,'legacy archives never use fallback');
  check_gear($C::place_after_archive_h1(str_replace($cfg['title'],'Wrong H1',$original))===str_replace($cfg['title'],'Wrong H1',$original),'H1 source drift fails closed');
  check_gear($C::place_after_archive_h1($original.$block)===$original.$block,'duplicate fails closed');
  $span=str_replace($h1,'<h1 class="td-page-title"><span>'.$cfg['title'].'</span></h1>',$original);
@@ -69,7 +75,7 @@ foreach($routes as $slug=>$cfg){
  $bad=str_replace($h1,'<h1><a href="https://merchant.example/">'.$cfg['title'].'</a></h1>',$original);
  check_gear($C::place_after_archive_h1($bad)===$bad,'nested unreviewed title fails closed');
 }
-check_gear($total===20,'twenty relevant first-party paths');
+check_gear($total===29,'twenty-nine relevant first-party paths');
 $GLOBALS['gear']['slug']='navijaky';$GLOBALS['gear']['url']=$routes['navijaky']['url'];
 $C::enqueue();
 check_gear(count($GLOBALS['gear_assets'])===2
@@ -98,4 +104,4 @@ foreach($flags as $key=>$value){
  check_gear($C::place_after_archive_h1($GLOBALS['navijaky_original'])===$GLOBALS['navijaky_original'],'no transform under '.$key);
  $GLOBALS['gear'][$key]=$was;
 }
-echo "GEAR_ARCHIVE_SEVEN_BUYER_PATHS_OFFLINE_VERIFIED\n";
+echo "GEAR_ARCHIVE_TEN_BUYER_PATHS_OFFLINE_VERIFIED\n";

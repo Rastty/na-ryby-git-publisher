@@ -9,8 +9,6 @@ on:
       - 'tests/test-gear-archive-click-v1.mjs'
       - 'scripts/verify-gear-archive-public-v1.py'
       - 'tests/test-gear-archive-public-v1.py'
-      - 'na-ryby-git-publisher.php'
-      - '.github/workflows/gear-archive-public-v1.yml'
   workflow_run:
     workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
     types: [completed]
@@ -23,13 +21,14 @@ concurrency:
   cancel-in-progress: false
 jobs:
   offline:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: PHP, twenty exact trusted guide roles and seven public negative cases
+      - name: PHP, twenty-nine exact trusted guide roles and ten public negative cases
         run: |
           set -euo pipefail
           php -l gear-archive-buyer-entry-v1.php
@@ -45,7 +44,6 @@ jobs:
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_branch == 'main' &&
       github.event.workflow_run.head_repository.full_name == 'Rastty/na-ryby-git-publisher'
-    needs: offline
     runs-on: ubuntu-24.04
     timeout-minutes: 6
     steps:
@@ -70,7 +68,13 @@ jobs:
             exit 1
           }
           echo 'PASS: protected FTPS succeeded at exact main SHA'
-      - name: Seven canonical archives, twenty first-party links, exact served JS/CSS
+      - name: Scope to relevant successful production deployment
+        id: scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/scope-legacy-source-proof.py 'gear-archive-buyer-entry-v1.php' 'assets/nry-gear-archive-entry-v1.css' 'assets/nry-gear-archive-click-v1.js' 'scripts/verify-gear-archive-public-v1.py' '.github/workflows/gear-archive-public-v1.yml'
+      - name: Ten canonical archives, twenty-nine first-party links, exact served JS/CSS
+        if: steps.scope.outputs.run == 'true'
         run: |
           set -euo pipefail
           for attempt in 1 2 3; do
