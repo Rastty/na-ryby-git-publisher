@@ -256,8 +256,8 @@ final class NRY_Premium_Stay_Decision_V1 {
     const SLUG='odpocinte-si-na-soukromem-rybarskem-reviru-s-luxusnim-ubytovanim';
     const TITLE='Odpočiňte si na soukromém rybářském revíru s luxusním ubytováním';
     const DATE='2023-08-05';
-    const ID=0;
-    const MODIFIED='';
+    const ID=58657;
+    const MODIFIED='2026-04-13 07:33:07';
     const MARKER='data-nry-premium-stay-guide="v1"';
     const SOURCE='Pokud berete rybařinu jako dovolenou';
     const BAD=array('Naše rybářské středisko','našem rybářském revíru','www.rybarskyrevirluxusniubytovani.cz');
@@ -295,6 +295,10 @@ final class NRY_Premium_Stay_Decision_V1 {
 <p>Modelový víkend: pokoj za 2 000 Kč na noc po dvě noci, 800 Kč doprava, 1 200 Kč společná strava a 1 000 Kč poplatky za lov pro jednoho rybáře znamenají dohromady 7 000 Kč. Alternativní celý objekt za 3 400 Kč na noc by při stejných ostatních nákladech vyšel na 9 800 Kč. Pokud má sauna samostatný poplatek, připočtěte jej. Jde pouze o ilustrační rozpočet, ne ceník uvedených ubytování ani revírů.</p>
 <h3>Co znamená komfort během skutečné výpravy</h3>
 <p>Ulovit rybu je jedna věc, bezpečně vysušit mokrou výbavu a nepřenášet celý tábor každý den druhá. Pokud vás doprovází nerybář, domluvte se na vlastním programu a společném jídle. Před platbou zjistěte, zda jsou v objektu bezpečné zásuvky pro běžné nabíjení, prostor pro pruty, vlastní hygienické zázemí a možnost parkování. Velké baterie nabíjejte výhradně podle pokynů výrobce a ubytovatele.</p>
+<h3>Proč se vyplatí počítat i čas u vody</h3>
+<p>Pokud je od ubytování na lovné místo 15 minut chůze a během dne se dvakrát vracíte, čtyři cesty znamenají hodinu. U dvoudenní výpravy počítejte i s časem na přípravu výbavy, úklid a přesun. Má-li někdo z doprovodu omezenou pohyblivost, ověřte povrch cesty, schody, toaletu a možnost dopravy až k objektu. Vzdálenost na mapě sama o sobě o přístupnosti nevypovídá.</p>
+<h3>Co když rybářská část pobytu nevyjde?</h3>
+<p>Podmínky na přehradě se mění s hladinou a počasím. Zjistěte, zda lze termín přesunout, jestli je poblíž jiný legálně dostupný úsek a zda máte plán pro den bez rybaření. U nabídky s wellness ověřte, zda jde o soukromé užívání, zda je služba v ceně a zda se objednává zvlášť. Nechte si poslat konkrétní odpověď, nikoli jen obecné potvrzení, že v okolí je možné rybařit.</p>
 <h3>Dotaz, který pošlete před zaplacením zálohy</h3>
 <p>„Máme zájem o pobyt pro dvě osoby v termínu …, jeden z nás bude rybařit. Prosím potvrďte konkrétní vodu a vzdálenost k povolenému lovnému místu, požadované doklady a poplatky, dostupnost wellness a celkovou cenu včetně všech povinných poplatků. Je místo u vody vyhrazené jen pro hosty, nebo veřejně přístupné?“</p>
 <p>Pro svazové vody hledejte aktuální podmínky v <a href="https://ris.rybsvaz.cz/">oficiálním informačním systému ČRS</a>; u soukromé vody přímo u provozovatele. Pokud vám poskytovatel nedokáže potvrdit oprávnění k lovu, nepovažujte pobyt za rybářský balíček.</p>
@@ -305,7 +309,17 @@ HTML;
         if(!self::sourceOk($html)||!class_exists('NRY_Six_Real_Stay_Offers_V1'))return $html;
         $panel=NRY_Six_Real_Stay_Offers_V1::panel(self::row());
         if(substr_count($panel,'data-nry-real-stay-offer=')!==2)return $html;
-        return $panel."\n".self::guide()."\n".$html;
+        $pattern='~<h1\b([^>]*)>((?:(?!</?h1\b)[\s\S])*?)</h1\s*>~iu';
+        $n=0;
+        $out=preg_replace_callback($pattern,function($m)use(&$n){
+            if(self::plain($m[2])!==self::TITLE||preg_match('~<(?!/?(?:span|strong|em)\b)[^>]+>~i',$m[2]))return $m[0];
+            $n++;return '<h2'.$m[1].'>'.$m[2].'</h2>';
+        },$html);
+        if($n!==1||!is_string($out))return $html;
+        preg_match_all('~(?:href|src)\s*=\s*(["\x27])([^"\x27]*)\1~i',$html,$before);
+        preg_match_all('~(?:href|src)\s*=\s*(["\x27])([^"\x27]*)\1~i',$out,$after);
+        if($before[0]!==$after[0])return $html;
+        return $panel."\n".self::guide()."\n".$out;
     }
     public static function render($html){return self::eligible(true)?self::transform($html):$html;}
     public static function enqueue(){

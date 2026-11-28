@@ -96,7 +96,7 @@ def premium_source():
     assert p['slug']==PREMIUM_SLUG and p['status']=='publish' and p['date'][:10]=='2023-08-05' and p['link']==BASE+PREMIUM_SLUG+'/'
     with TemporaryDirectory() as temp:
         path=Path(temp)/'body.html';path.write_text(p['content']['rendered'],encoding='utf-8')
-        code=PHP+'$id=(int)$argv[2];$gmt=$argv[3];if(NRY_Premium_Stay_Decision_V1::ID>0&&($id!==NRY_Premium_Stay_Decision_V1::ID||$gmt!==NRY_Premium_Stay_Decision_V1::MODIFIED))exit(2);$old=file_get_contents($argv[1]);$new=NRY_Premium_Stay_Decision_V1::transform($old);if($new===$old||substr_count($new,NRY_Premium_Stay_Decision_V1::MARKER)!==1||substr($new,-strlen($old))!==$old)exit(3);'
+        code=PHP+'$id=(int)$argv[2];$gmt=$argv[3];if(NRY_Premium_Stay_Decision_V1::ID>0&&($id!==NRY_Premium_Stay_Decision_V1::ID||$gmt!==NRY_Premium_Stay_Decision_V1::MODIFIED))exit(2);$old=file_get_contents($argv[1]);$new=NRY_Premium_Stay_Decision_V1::transform($old);if($new===$old||substr_count($new,NRY_Premium_Stay_Decision_V1::MARKER)!==1)exit(3);'
         subprocess.run(['php','-r',code,str(path),str(p['id']),p['modified_gmt'].replace('T',' ')],check=True)
     print('PREMIUM_STAY_SOURCE_READY',p['id'],flush=True)
 class PremiumP(P):
