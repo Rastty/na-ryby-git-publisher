@@ -15,7 +15,7 @@ import hashlib
 
 
 ROOT = Path(__file__).resolve().parents[1]
-FROZEN_BYTES = (ROOT / "tests" / "v8-frozen-manifest.json").read_bytes()
+FROZEN_BYTES = (ROOT / "tests" / "v8-carp-3m-54272-20261109-frozen.json").read_bytes()
 FROZEN_MANIFEST = json.loads(FROZEN_BYTES)
 
 

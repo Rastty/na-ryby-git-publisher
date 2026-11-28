@@ -696,6 +696,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 tests/test-deployer-trigger-parity.py
+          # Historical disabled-batch tests read the immutable fixture, not the current release manifest.
           python3 -m unittest discover -s tests -p test_guarded_v8_readback.py -v
           python3 -m py_compile scripts/readonly_urlopen_retry.py
           python3 tests/test-readonly-urlopen-retry.py -v
