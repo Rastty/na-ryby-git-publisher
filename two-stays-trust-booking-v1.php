@@ -141,13 +141,13 @@ final class NRY_Cabin_Relax_Stays_V1 {
     const MARKER='data-nry-cabin-relax-guide=';
     public static function routes(){return array(
         'rybareni-a-odpocinek-v-jednom-ubytovani-na-rybarske-chate'=>array(
-            'id'=>92376,'modified'=>'','date'=>'2024-10-21','title'=>'Rybaření a odpočinek v jednom – ubytování na rybářské chatě','role'=>'cabin',
+            'id'=>92376,'modified'=>'2024-10-21 05:00:01','date'=>'2024-10-21','title'=>'Rybaření a odpočinek v jednom – ubytování na rybářské chatě','role'=>'cabin',
             'eyebrow'=>'Dvě skutečné chaty u Vranovské přehrady','headline'=>'Porovnejte termín a podmínky pobytu u vody',
             'intro'=>'Jde o dva nezávislé objekty; Na-ryby.eu žádnou z těchto chat neprovozuje. Lovné místo, povolenku a přístup potvrďte zvlášť.',
             'offers'=>array(array('cyklo','Cyklochata – Štítary','Ověřte termín, kapacitu a cestu k lovišti.'),array('srub','Wellness srub – Vranov','Samostatný objekt; nízká hladina může rybolov omezit.')),
         ),
         'proc-je-rybareni-s-ubytovanim-u-vody-vyhodnou-volbou-pro-vas-relaxacni-pobyt'=>array(
-            'id'=>91503,'modified'=>'','date'=>'2024-09-12','title'=>'Proč je rybaření s ubytováním u vody výhodnou volbou pro váš relaxační pobyt','role'=>'relax',
+            'id'=>91503,'modified'=>'2024-09-12 12:15:29','date'=>'2024-09-12','title'=>'Proč je rybaření s ubytováním u vody výhodnou volbou pro váš relaxační pobyt','role'=>'relax',
             'eyebrow'=>'Pobyt u Lipna nebo Vranova','headline'=>'Porovnejte dvě různé možnosti odpočinku',
             'intro'=>'Penzion v Horní Plané a wellness srub u Vranova jsou samostatná ubytování. Rybaření ani lov přímo z objektu není zaručený.',
             'offers'=>array(array('lipno','Pension U Kohoutů – Horní Planá','Zázemí v obci u Lipna; zkontrolujte termín a cestu k vodě.'),array('srub','Wellness srub – Vranov','Ověřte obsazenost, wellness podmínky a hladinu vody.')),
@@ -238,7 +238,7 @@ HTML;
         $id=(int)get_queried_object_id();$p=get_post($id);
         if(!is_object($p)||(int)$p->ID!==$id||!is_single($id)||$p->post_type!=='post'||$p->post_status!=='publish'||!is_string($p->post_content))return null;
         $routes=self::routes();$slug=$p->post_name;if(!isset($routes[$slug]))return null;$r=$routes[$slug];
-        if($id!==$r['id']||($r['modified']!==''&&$p->post_modified_gmt!==$r['modified'])||substr($p->post_date,0,10)!==$r['date']||self::plain($p->post_title)!==$r['title']||get_permalink($id)!==self::BASE.$slug.'/')return null;
+        if($id!==$r['id']||($r['modified']!==''&&$p->post_modified_gmt!==$r['modified'])||substr($p->post_date,0,10)!==$r['date']||!in_array(self::plain($p->post_title),$r['role']==='cabin'?array($r['title'],str_replace(' – ',' - ',$r['title'])):array($r['title']),true)||get_permalink($id)!==self::BASE.$slug.'/')return null;
         foreach(self::corrections($r['role']) as $old=>$new)if(strpos(self::plain($p->post_content),$old)===false)return null;
         return array('slug'=>$slug)+$r;
     }
