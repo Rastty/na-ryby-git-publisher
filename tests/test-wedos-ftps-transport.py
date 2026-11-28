@@ -298,6 +298,30 @@ class TransportContract(unittest.TestCase):
         self.assertFalse(any("ftps-stage" in key for key in remote.files))
         self.assertFalse(any("access-check" in key for key in remote.files))
 
+    def test_vault_transient_status_retries_only_until_real_denial(self):
+        remote = FakeFTP()
+        def error(code):
+            return HTTPError("https://na-ryby.eu/", code, "test", {}, None)
+        with patch.object(ftps, "urlopen", side_effect=[error(503), error(429), error(403)]) as get:
+            with patch.object(ftps.time, "sleep") as pause:
+                ftps.deploy(remote, "", SHA, FILES)
+        self.assertEqual(get.call_count, 3)
+        self.assertEqual(pause.call_count, 2)
+        self.assertEqual(len(remote.moves), 2)
+        self.assertFalse(any("access-check" in key for key in remote.files))
+
+    def test_vault_outage_never_permits_upload_or_swap(self):
+        remote = FakeFTP()
+        with patch.object(ftps, "urlopen", side_effect=HTTPError(
+                "https://na-ryby.eu/", 503, "test", {}, None)) as get:
+            with patch.object(ftps.time, "sleep"):
+                with self.assertRaisesRegex(ftps.SafeFtpStageError, "vault_denial:503"):
+                    ftps.deploy(remote, "", SHA, FILES)
+        self.assertEqual(get.call_count, 3)
+        self.assertEqual(remote.moves, [])
+        self.assertFalse(any("ftps-stage" in key for key in remote.files))
+        self.assertFalse(any("access-check" in key for key in remote.files))
+
     def test_wrong_remote_plugin_stops_without_moves(self):
         remote = FakeFTP()
         remote.files["/plugins/na-ryby-git-publisher/na-ryby-git-publisher.php"] = b"unknown-plugin"
