@@ -1,0 +1,42 @@
+name: Na-Ryby Bedchair Budget Comparison Source and Public Proof
+on:
+  pull_request:
+    paths:
+      - 'bedchair-budget-5000-v1.php'
+      - 'editorial/bedchair-budget-5000-comparison-20261128.html'
+      - 'scripts/verify-bedchair-budget-5000-v1.py'
+      - '.github/workflows/bedchair-budget-5000-v1.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: python3 scripts/verify-bedchair-budget-5000-v1.py --source
+  public:
+    if: github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == 'Rastty/na-ryby-git-publisher'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: Confirm guarded deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          test "$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RELEASE_RUN}/jobs?per_page=100" --jq '.jobs[] | select(.name=="deploy") | .conclusion')" = success
+      - run: python3 scripts/verify-bedchair-budget-5000-v1.py --public

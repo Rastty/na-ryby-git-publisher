@@ -278,6 +278,8 @@ on:
       - 'two-stays-trust-booking-v1.php'
       - 'bivak-bedchair-fit-v1.php'
       - 'winter-sleep-buyer-v1.php'
+      - 'bedchair-budget-5000-v1.php'
+      - 'editorial/bedchair-budget-5000-comparison-20261128.html'
       - 'editorial/winter-sleep-buyer-guide-20261128.html'
       - 'assets/nry-bivak-bedchair-fit-v1.js'
       - 'assets/nry-bivak-bedchair-fit-v1.css'
@@ -553,6 +555,8 @@ on:
       - 'two-stays-trust-booking-v1.php'
       - 'bivak-bedchair-fit-v1.php'
       - 'winter-sleep-buyer-v1.php'
+      - 'bedchair-budget-5000-v1.php'
+      - 'editorial/bedchair-budget-5000-comparison-20261128.html'
       - 'editorial/winter-sleep-buyer-guide-20261128.html'
       - 'assets/nry-bivak-bedchair-fit-v1.js'
       - 'assets/nry-bivak-bedchair-fit-v1.css'
@@ -648,6 +652,7 @@ jobs:
           php -l two-stays-trust-booking-v1.php
           php -l bivak-bedchair-fit-v1.php
           php -l winter-sleep-buyer-v1.php
+          php -l bedchair-budget-5000-v1.php
           node --check assets/nry-bivak-bedchair-fit-v1.js
           php -l lipno-five-reservation-paths-v1.php
           node --check assets/nry-lipno-reservation-click-v1.js
@@ -750,6 +755,7 @@ jobs:
           php -l two-stays-trust-booking-v1.php
           php -l bivak-bedchair-fit-v1.php
           php -l winter-sleep-buyer-v1.php
+          php -l bedchair-budget-5000-v1.php
           node --check assets/nry-bivak-bedchair-fit-v1.js
           php -l lipno-five-reservation-paths-v1.php
           node --check assets/nry-lipno-reservation-click-v1.js
