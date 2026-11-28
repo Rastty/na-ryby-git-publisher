@@ -1,4 +1,4 @@
-/* Measured genuine first-party guide handoffs from seven exact equipment archives.
+/* Measured genuine first-party guide handoffs from ten exact equipment archives.
  * Uses existing consent-controlled gtag; no merchant hrefs, cookies, user IDs,
  * query strings, new endpoints or synthetic events.
  */
@@ -36,6 +36,21 @@
       ['bedchair_fit','/rybarska-lehatka-kompletni-pruvodce-vyberem-pro-rybare/'],
       ['bedchair_budget','/nejlepsi-rybarska-lehatka-do-5000-kc/'],
       ['bedchair_load','/jake-rybarske-lehatko-pro-tezsi-rybare-jak-vybrat-spravne/']
+    ]),
+    'cluny-a-belly-boats':Object.freeze([
+      ['boat_guide','/nejlepsi-nafukovaci-cluny-pro-rybare/'],
+      ['boat_vs_kayak','/belly-boat-vs-kajak-vs-maly-clun-co-dava-smysl-ceskemu-vlackari/'],
+      ['boat_motor','/nejlepsi-lodni-elektromotory-pro-rybare/']
+    ]),
+    'elektromotory':Object.freeze([
+      ['motor_battery','/nejlepsi-lodni-elektromotory-pro-rybare/'],
+      ['motor_boat','/nejlepsi-nafukovaci-cluny-pro-rybare/'],
+      ['motor_sonar','/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/']
+    ]),
+    'rybarske-kajaky':Object.freeze([
+      ['kayak_guide','/rybarsky-kajak-pro-koho-dava-smysl-a-jak-vybrat/'],
+      ['kayak_sonar','/echolot-na-kajak-a-belly-boat-jak-vybrat-kompaktni-sonar/'],
+      ['kayak_alternatives','/belly-boat-vs-kajak-vs-maly-clun-co-dava-smysl-ceskemu-vlackari/']
     ]),
     'zavazeci-lodky':Object.freeze([
       ['baitboat_choice','/zavazeci-lodky-pro-rybare/'],

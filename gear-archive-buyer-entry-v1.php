@@ -1,6 +1,6 @@
 <?php
 /**
- * Seven existing high-intent equipment archives -> owned buyer decision guides.
+ * Ten existing high-intent equipment archives -> owned buyer decision guides.
  * Render-only, exact current category and canonical URL on first archive page.
  * Reuses the source-guarded H1/loop_start pattern of revir-archive-decision-entry.
  * No WordPress DB/term writes, redirects, merchant URLs or affiliate rewrites.
@@ -79,6 +79,42 @@ final class NRY_Gear_Archive_Buyer_Entry_V1 {
                     array('bedchair_load', 'Lehátko pro těžší rybáře', 'Rozložení hmotnosti, stabilita a ověřená nosnost', 'https://na-ryby.eu/jake-rybarske-lehatko-pro-tezsi-rybare-jak-vybrat-spravne/'),
                 ),
             ),
+            'cluny-a-belly-boats' => array(
+                'title' => 'Čluny a Belly Boats',
+                'url' => 'https://na-ryby.eu/category/vybaveni-pro-rybare/cluny-a-belly-boats/',
+                'fallback' => true,
+                'headline' => 'Vyberte člun, belly boat nebo kajak podle vody a nákladu',
+                'intro' => 'Nejdřív si ujasněte způsob lovu, přístup k vodě, podmínky a místní pravidla. U člunu porovnejte skutečnou nosnost, počet osob a kompletní rozpočet včetně motoru a baterie. Menší plavidlo není automaticky bezpečnější ani vhodnější.',
+                'links' => array(
+                    array('boat_guide', 'Nafukovací čluny: srovnání a nosnost', 'Čtyři modely, kalkulačka zátěže a rozpočet celé sestavy', 'https://na-ryby.eu/nejlepsi-nafukovaci-cluny-pro-rybare/'),
+                    array('boat_vs_kayak', 'Belly boat, kajak nebo člun?', 'Rozhodněte podle stylu lovu a přístupu k vodě', 'https://na-ryby.eu/belly-boat-vs-kajak-vs-maly-clun-co-dava-smysl-ceskemu-vlackari/'),
+                    array('boat_motor', 'Motor a baterie k člunu', 'Napětí, odběr a výpočet kapacity', 'https://na-ryby.eu/nejlepsi-lodni-elektromotory-pro-rybare/'),
+                ),
+            ),
+            'elektromotory' => array(
+                'title' => 'Elektromotory',
+                'url' => 'https://na-ryby.eu/category/vybaveni-pro-rybare/elektromotory/',
+                'fallback' => true,
+                'headline' => 'Vyberte elektromotor společně s kompatibilní baterií a člunem',
+                'intro' => 'Tah v librách neurčuje odběr ani dojezd. Zkontrolujte napětí, maximální proud, povolené uchycení a skutečnou zátěž člunu. Následující průvodci pomohou ověřit jednotlivé části sestavy před nákupem.',
+                'links' => array(
+                    array('motor_battery', 'Elektromotory a kalkulačka baterie', 'Modelové odběry, kapacita a výběr napětí', 'https://na-ryby.eu/nejlepsi-lodni-elektromotory-pro-rybare/'),
+                    array('motor_boat', 'Čluny a kalkulačka nosnosti', 'Ověřte hmotnost posádky, motoru a baterie', 'https://na-ryby.eu/nejlepsi-nafukovaci-cluny-pro-rybare/'),
+                    array('motor_sonar', 'Echolot pro člun', 'Sonda, GPS a rozpočet elektroniky', 'https://na-ryby.eu/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/'),
+                ),
+            ),
+            'rybarske-kajaky' => array(
+                'title' => 'Rybářské kajaky',
+                'url' => 'https://na-ryby.eu/category/vybaveni-pro-rybare/rybarske-kajaky/',
+                'fallback' => true,
+                'headline' => 'Rybářský kajak: nejdřív způsob lovu, potom výbava',
+                'intro' => 'Kajak vybírejte podle povolené zátěže, možnosti přepravy a ovládání na konkrétní vodě. Zvažte, zda potřebujete sonar a jak se liší kajak od belly boatu nebo člunu. Započítejte bezpečnostní výbavu a místní pravidla.',
+                'links' => array(
+                    array('kayak_guide', 'Jak vybrat rybářský kajak', 'Prostor, přeprava a vhodný způsob pohybu', 'https://na-ryby.eu/rybarsky-kajak-pro-koho-dava-smysl-a-jak-vybrat/'),
+                    array('kayak_sonar', 'Echolot na kajak a belly boat', 'Kompaktní sonar, montáž a napájení', 'https://na-ryby.eu/echolot-na-kajak-a-belly-boat-jak-vybrat-kompaktni-sonar/'),
+                    array('kayak_alternatives', 'Kajak, belly boat, nebo člun?', 'Porovnání alternativ podle typu vody', 'https://na-ryby.eu/belly-boat-vs-kajak-vs-maly-clun-co-dava-smysl-ceskemu-vlackari/'),
+                ),
+            ),
             'zavazeci-lodky' => array(
                 'title' => 'Zavážecí loďky',
                 'url' => 'https://na-ryby.eu/category/vybaveni-pro-rybare/zavazeci-lodky/',
@@ -142,10 +178,14 @@ final class NRY_Gear_Archive_Buyer_Entry_V1 {
      */
     public static function place_after_archive_h1($html) {
         $cfg = self::config();
-        if (!$cfg || !is_string($html) || strlen($html) < 5000
-            || substr_count($html, self::MARKER) !== 1) return $html;
+        if (!$cfg || !is_string($html) || strlen($html) < 5000) return $html;
+        $markers = substr_count($html, self::MARKER);
+        // TagDiv single-result archives can omit the main loop hook. Only
+        // the three reviewed watercraft archives may use this narrow fallback.
+        $fallback = !empty($cfg['fallback']) && $markers === 0;
+        if (!$fallback && $markers !== 1) return $html;
         $block = self::block($cfg);
-        if ($block === '' || substr_count($html, $block) !== 1) return $html;
+        if ($block === '' || substr_count($html, $block) !== ($fallback ? 0 : 1)) return $html;
         if (preg_match_all('~<h1\b[^>]{0,800}>([\s\S]{1,400}?)</h1>~u', $html,
                 $matches, PREG_OFFSET_CAPTURE) !== 1
             || !isset($matches[0][0][0],$matches[0][0][1],$matches[1][0][0])) return $html;
@@ -160,6 +200,12 @@ final class NRY_Gear_Archive_Buyer_Entry_V1 {
         if (!is_string($title) || trim($title) !== $cfg['title']) return $html;
         $heading = $matches[0][0][0];
         $end = $matches[0][0][1] + strlen($heading);
+        if ($fallback) {
+            $changed = substr($html, 0, $end).$block.substr($html, $end);
+            return substr_count($changed, self::MARKER) === 1
+                && strlen($changed) === strlen($html) + strlen($block)
+                ? $changed : $html;
+        }
         $blockAt = strpos($html, $block);
         if ($blockAt === false || $blockAt <= $end) return $html;
         $without = substr_replace($html, '', $blockAt, strlen($block));
@@ -195,7 +241,7 @@ final class NRY_Gear_Archive_Buyer_Entry_V1 {
         if (function_exists('wp_enqueue_script')) {
             wp_enqueue_script('nry-gear-archive-click-v1',
                 plugins_url('assets/nry-gear-archive-click-v1.js', __FILE__),
-                array(), '1.2.0', true);
+                array(), '1.3.0', true);
         }
     }
 
