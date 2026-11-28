@@ -1,0 +1,85 @@
+name: NRY Equipment Root Six Guide Cards Public Proof
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/equipment-hub-root-public.yml'
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nry-equipment-root-public-proof
+  cancel-in-progress: false
+
+jobs:
+  public:
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == 'Rastty/na-ryby-git-publisher')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Independent anonymous no-cache GET of six real root guide cards
+        run: |
+          python3 - <<'PY'
+          import html.parser, urllib.request, os, time
+          base = 'https://na-ryby.eu/category/vybaveni-pro-rybare/'
+          paths = [
+              ('carp_rods','/jak-vybrat-kaprovy-prut-kompletni-pruvodce-od-zacatecnika-po-profika/'),
+              ('reels','/jak-vybrat-rybarsky-navijak-velikost-prevod-brzda-a-typy-navijaku/'),
+              ('sonar','/jak-vybrat-echolot-pro-rybareni-kompletni-pruvodce/'),
+              ('alarms','/nejlepsi-signalizatory-zaberu-jak-vybrat-spravny-hlasic-nebo-sadu/'),
+              ('bivvy','/jak-vybrat-rybarsky-bivak-pruvodce-materialy-konstrukci-a-velikosti/'),
+              ('baitboat','/zavazeci-lodky-pro-rybare/'),
+          ]
+          class Extract(html.parser.HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.sections=0; self.links=[]; self.depth=0; self.inside=False
+              def handle_starttag(self,tag,attrs):
+                  a=dict(attrs)
+                  if tag=='section' and a.get('data-nry-equipment-hub')=='v1':
+                      self.sections+=1
+                      self.depth=1
+                      self.inside=True
+                      return
+                  if self.inside:
+                      if tag=='section': self.depth+=1
+                      if tag=='a' and 'data-nry-equipment-choice' in a:
+                          self.links.append((a['data-nry-equipment-choice'], a.get('href')))
+              def handle_endtag(self,tag):
+                  if tag=='section' and self.inside:
+                      self.depth-=1
+                      if self.depth==0: self.inside=False
+          for attempt in range(3):
+              request=urllib.request.Request(
+                  base+'?nry_equipment_root_proof='+os.environ['GITHUB_RUN_ID']+'-'+str(attempt),
+                  headers={'Cache-Control':'no-cache,no-store','Pragma':'no-cache',
+                           'User-Agent':'NRY-Independent-EquipmentRootProof/1.0'})
+              try:
+                  with urllib.request.urlopen(request,timeout=22) as response:
+                      body=response.read(1100000).decode('utf-8','replace')
+                      status=response.status
+                  p=Extract();p.feed(body)
+                  expected=[(k,'https://na-ryby.eu'+v) for k,v in paths]
+                  if status==200 and p.sections==1 and p.links==expected:
+                      print('EQUIPMENT_ROOT_SIX_GUIDES_PUBLIC_VERIFIED',
+                            'sections=1 guides=6 status=200 wordpress_writes=0')
+                      break
+                  print('NOT_YET_VISIBLE', 'status',status,'sections',p.sections,
+                        'roles',','.join(r[0] for r in p.links))
+              except Exception as exc:
+                  print('READBACK_UNAVAILABLE',type(exc).__name__)
+              if attempt==2:
+                  raise SystemExit('PUBLIC_NOT_VERIFIED: six root guide cards absent or mismatched')
+              time.sleep(8)
+          PY
