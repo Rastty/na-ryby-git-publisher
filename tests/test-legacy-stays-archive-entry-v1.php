@@ -29,6 +29,7 @@ require dirname(__DIR__).'/legacy-stays-archive-entry-v1.php';
 $c='NRY_Legacy_Stays_Archive_Entry_V1';
 ok_stays(isset($GLOBALS['actions']['template_redirect']) && isset($GLOBALS['actions']['wp_enqueue_scripts']),'only precise hooks');
 $block=$c::block();
+ok_stays(substr_count($block,'data-nry-stay-planner="v1"')===1 && substr_count($block,'data-nry-plan=')===6,'six local planner fields');
 ok_stays(substr_count($block,$c::MARKER)===1,'unique entry marker');
 foreach(array($c::GUIDE,$c::SLAPY,$c::LIPNO,$c::VRANOV,$c::WELLNESS,$c::PRIVATE_WATER) as $url) {
     ok_stays(substr_count($block,'href="'.$url.'"')===1,'six first-party choices');
@@ -79,7 +80,7 @@ ok_stays(count($GLOBALS['styles'])===1 && strpos($GLOBALS['styles'][0][1],'nry-l
 ok_stays(count($GLOBALS['scripts'])===1
     && $GLOBALS['scripts'][0]['handle']==='nry-archive-stay-click-v1'
     && str_ends_with($GLOBALS['scripts'][0]['url'],'/assets/nry-archive-stay-click-v1.js')
-    && $GLOBALS['scripts'][0]['version']==='1.1.0'
+    && $GLOBALS['scripts'][0]['version']==='1.2.0'
     && $GLOBALS['scripts'][0]['footer']===true,
     'only exact public archive enqueues existing-consent local click observer');
 foreach(array('page','admin','preview','feed','paged','ajax','custom','host','permalink','post') as $key) {

@@ -17,7 +17,7 @@ from readonly_urlopen_retry import guarded_urlopen
 
 BASE='https://na-ryby.eu'
 ASSET_PATH='/wp-content/plugins/na-ryby-git-publisher/assets/nry-archive-stay-click-v1.js'
-JS=BASE+ASSET_PATH+'?ver=1.1.0'
+JS=BASE+ASSET_PATH+'?ver=1.2.0'
 HOMEPAGE=BASE+'/'
 ROUTES={
  '/ubytovani-2/':(

@@ -178,7 +178,7 @@ final class NRY_South_Moravia_Stays_Archive_V1 {
             && function_exists('plugins_url')) {
             wp_enqueue_script('nry-archive-stay-click-v1',
                 plugins_url('assets/nry-archive-stay-click-v1.js', __FILE__),
-                array(), '1.1.0', true);
+                array(), '1.2.0', true);
         }
     }
 
