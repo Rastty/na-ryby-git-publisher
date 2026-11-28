@@ -16,6 +16,7 @@ function home_url($path) { return 'https://na-ryby.eu/'; }
 function get_permalink($id) { return NRY_Stays_Vranov_Discovery_59891_V1::URL; }
 function get_post($id) { return $GLOBALS['nry_post']; }
 require __DIR__.'/../lipno-pair-offers-119692-v1.php';
+require __DIR__.'/../six-real-stay-offers-v1.php';
 require __DIR__.'/../stays-vranov-discovery-59891-v1.php';
 function check_nry($condition,$label) {
     if (!$condition) { fwrite(STDERR, "FAIL: ".$label."\n"); exit(1); }
@@ -33,6 +34,7 @@ check_nry(substr_count($out,$c::MARKER)===1,'one navigation');
 check_nry(strpos($out,$c::CYCLO)<strpos($out,$c::WELLNESS),'order');
 check_nry(str_replace($c::block().$c::lipno(),'',$out)===$source,'source byte preservation');
 check_nry(substr_count($out,'data-nry-lipno-hub-offer=')===2,'two sponsored Lipno offers');
+check_nry(substr_count($out,'data-nry-vranov-hub-offer=')===2,'two sponsored Vranov offers');
 check_nry($c::render($out)===$out,'idempotency');
 $without=str_replace($c::EDIT_MARKER,'changed',$source);
 check_nry($c::render($without)===$without,'source marker mismatch');
