@@ -63,8 +63,9 @@ final class NRY_Lipno_Five_Reservation_Paths_V1 {
             || preg_match('~(?:tracking\.affiliateport\.eu|go\.dognet\.com|dpbolvw\.net|tkqlhce\.com|jdoqocy\.com|anrdoezrs\.net|kqzyfj\.com)~i',$html)) return $html;
         $block=self::panel($r);
         if (substr_count($block,'data-nry-lipno-offer=')!==2) return $html;
-        // Prepend inside the public article: prior body and anchors remain byte-identical.
-        return $block."\n".$html;
+        // Insert directly after the unique source H1; all prior bytes are preserved.
+        $pos=strpos($html,$h[0][0])+strlen($h[0][0]);
+        return substr($html,0,$pos)."\n".$block."\n".substr($html,$pos);
     }
     public static function render($html) { $r=self::eligible(true);return $r?self::transform($html,$r):$html; }
     public static function enqueue() {
