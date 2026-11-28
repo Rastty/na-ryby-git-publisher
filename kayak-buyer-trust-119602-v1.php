@@ -53,7 +53,13 @@ final class NRY_Kayak_Buyer_Trust_119602_V1 {
         }));
         if (count($matches)!==1 || substr_count($html,$matches[0])!==1 || substr_count($html,$heading)!==1) return $html;
         $h2=preg_replace(array('~^<h1\b~i','~</h1\s*>$~i'),array('<h2','</h2>'),$heading);
-        $candidate=str_replace(array($heading,$matches[0]),array($h2,self::block()),$html);
+        // Exact public wrapper observed around the editor note; do not nest
+        // a second panel in it or remove a div with unrelated contents.
+        $wrap='<div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 16px; padding: 18px 20px; margin: 0 0 28px 0;">';
+        $pattern='~'.preg_quote($wrap,'~').'\s*'.preg_quote($matches[0],'~').'\s*</div>~u';
+        if (preg_match_all($pattern,$html,$wrappers)!==1) return $html;
+        $h2=str_replace('font-size: 36px;','font-size: 28px;',$h2);
+        $candidate=str_replace(array($heading,$wrappers[0][0]),array($h2,self::block()),$html);
         if (substr_count($candidate,self::MARKER)!==1) return $html;
         return $candidate;
     }
