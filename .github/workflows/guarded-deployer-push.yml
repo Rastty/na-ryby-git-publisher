@@ -439,6 +439,7 @@ on:
       - 'scripts/verify-hracholusky-stay-trust-public.py'
       - '.github/workflows/hracholusky-stay-public-v1.yml'
       - 'tests/test_guarded_v8_readback.py'
+      - 'tests/v8-frozen-manifest.json'
       - 'scripts/guarded_v8_readback.py'
       - 'scripts/readonly_urlopen_retry.py'
       - 'tests/test-readonly-urlopen-retry.py'
@@ -448,6 +449,8 @@ on:
     branches: [main]
     paths:
       - 'manifest.json'
+      - 'tests/test_guarded_v8_readback.py'
+      - 'tests/v8-frozen-manifest.json'
       - 'tests/v8-carp-3m-54272-20261109-frozen.json'
       - 'tests/v8-echolot-budget-118455-three-offers-frozen.json'
       - 'tests/v8-alarm-ranking-60354-claims-20261107-frozen.json'
@@ -608,6 +611,7 @@ jobs:
           set -euo pipefail
           python3 tests/test-ci-trigger-scoping.py
           python3 tests/test-deployer-trigger-parity.py
+          python3 -m unittest discover -s tests -p test_guarded_v8_readback.py -v
           php -l na-ryby-git-publisher.php
           php -l guarded-auto-publisher.php
           php -l revir-archive-decision-entry-v1.php
