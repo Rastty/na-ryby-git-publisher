@@ -17,14 +17,17 @@ from readonly_urlopen_retry import guarded_urlopen
 
 BASE='https://na-ryby.eu'
 ASSET_PATH='/wp-content/plugins/na-ryby-git-publisher/assets/nry-archive-stay-click-v1.js'
-JS=BASE+ASSET_PATH+'?ver=1.0.0'
+JS=BASE+ASSET_PATH+'?ver=1.1.0'
 HOMEPAGE=BASE+'/'
 ROUTES={
  '/ubytovani-2/':(
     'data-nry-legacy-stays-entry',[
     BASE+'/rybarske-pobyty-v-prirode-nejlepe-hodnocene-ubytovani-pro-rybare/',
     BASE+'/zazitkove-rybareni-s-ubytovanim-ve-strednich-cechach/',
-    BASE+'/rybareni-s-ubytovanim-jihocesky-kraj/']),
+    BASE+'/rybareni-s-ubytovanim-jihocesky-kraj/',
+    BASE+'/rybarska-chata-cyklochata-vranovska-prehrada/',
+    BASE+'/chata-rybarsky-wellness-srub/',
+    BASE+'/nejlepsi-soukrome-reviry-s-ubytovanim-v-ceske-republice-zazitek-ktery-stoji-za-to/']),
  '/rybareni-s-ubytovanim-jihomoravsky-kraj/':(
     'data-nry-jm-archive-stays',[
     BASE+'/rybarska-chata-cyklochata-vranovska-prehrada/',
@@ -79,8 +82,8 @@ def verify_doc(html,path):
     if path=='/rybareni-s-ubytovanim-jihomoravsky-kraj/' and (
         'Zukal' not in html or 'Popůvky' not in html):
         raise ValueError('ORIGINAL_JM_ARCHIVE_NOT_PRESERVED')
-    return {'path':path,'approvedFirstPartyChoices':3,
-        'exactThemeContext':len(p.links)==4,'legacyListPreserved':True}
+    return {'path':path,'approvedFirstPartyChoices':len(expected),
+        'exactThemeContext':len(p.links)==len(expected)+1,'legacyListPreserved':True}
 
 def get(url,limit):
     req=Request(url,method='GET',headers={'User-Agent':'NaRybyArchiveStayClickProof/1.0',

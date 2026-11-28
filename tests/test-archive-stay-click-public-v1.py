@@ -24,7 +24,7 @@ def reject(doc,path):
     raise AssertionError('unsafe public markup accepted')
 
 for path,(marker,expected) in mod.ROUTES.items():
-    assert mod.verify_doc(html(path),path)['approvedFirstPartyChoices']==3
+    assert mod.verify_doc(html(path),path)['approvedFirstPartyChoices']==len(expected)
     assert mod.verify_doc(html(path,[mod.HOMEPAGE]+expected),path)['exactThemeContext'] is True
     reject(html(path,[mod.HOMEPAGE,mod.HOMEPAGE]+expected),path)
     reject(html(path,expected+[mod.HOMEPAGE]),path)
@@ -32,7 +32,7 @@ for path,(marker,expected) in mod.ROUTES.items():
     reject(html(path,[mod.BASE+'/?a=1']+expected),path)
     reject(html(path,[mod.BASE+'/not-reviewed/']+expected),path)
     reject(html(path,list(reversed(expected))),path)
-    reject(html(path,[expected[0],expected[1],expected[1]]),path)
+    reject(html(path,expected[:-1]+[expected[1]]),path)
     reject(html(path,js=mod.BASE+'/wrong.js'),path)
     reject(html(path,can=mod.BASE+'/other/'),path)
     reject(html(path,bad=True),path)

@@ -30,10 +30,10 @@ $c='NRY_Legacy_Stays_Archive_Entry_V1';
 ok_stays(isset($GLOBALS['actions']['template_redirect']) && isset($GLOBALS['actions']['wp_enqueue_scripts']),'only precise hooks');
 $block=$c::block();
 ok_stays(substr_count($block,$c::MARKER)===1,'unique entry marker');
-foreach(array($c::GUIDE,$c::SLAPY,$c::LIPNO) as $url) {
-    ok_stays(substr_count($block,'href="'.$url.'"')===1,'three first-party choices');
+foreach(array($c::GUIDE,$c::SLAPY,$c::LIPNO,$c::VRANOV,$c::WELLNESS,$c::PRIVATE_WATER) as $url) {
+    ok_stays(substr_count($block,'href="'.$url.'"')===1,'six first-party choices');
 }
-ok_stays(substr_count($block,'<a href=')===3,'no affiliate or external links');
+ok_stays(substr_count($block,'<a href=')===6,'no affiliate or external links');
 $html='<html><head><title>Ubytování v ČR – historický přehled</title></head>'
     .'<body><h1 class="td-page-title">Ubytování v ČR</h1>'
     .'<div class="old-list"><h2><a>Rekreační dům Harvánek – Rybařina rybník Sykovec</a></h2>'
@@ -79,7 +79,7 @@ ok_stays(count($GLOBALS['styles'])===1 && strpos($GLOBALS['styles'][0][1],'nry-l
 ok_stays(count($GLOBALS['scripts'])===1
     && $GLOBALS['scripts'][0]['handle']==='nry-archive-stay-click-v1'
     && str_ends_with($GLOBALS['scripts'][0]['url'],'/assets/nry-archive-stay-click-v1.js')
-    && $GLOBALS['scripts'][0]['version']==='1.0.0'
+    && $GLOBALS['scripts'][0]['version']==='1.1.0'
     && $GLOBALS['scripts'][0]['footer']===true,
     'only exact public archive enqueues existing-consent local click observer');
 foreach(array('page','admin','preview','feed','paged','ajax','custom','host','permalink','post') as $key) {

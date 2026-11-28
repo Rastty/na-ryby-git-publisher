@@ -8,7 +8,7 @@ m = SourceFileLoader('nry_stays_archive', str(Path(__file__).resolve().parents[1
 block = ('<section data-nry-legacy-stays-entry="v1"><h2>Vyberte pobyt</h2>'
          + '<nav>' + ''.join('<a href="' + url + '">Zobrazit</a>' for url in m.DESTS)
          + '</nav></section>')
-style = '<link rel="stylesheet" href="https://na-ryby.eu/wp-content/plugins/na-ryby-git-publisher/assets/nry-legacy-stays-entry-v1.css?ver=1.0.0">'
+style = '<link rel="stylesheet" href="https://na-ryby.eu/wp-content/plugins/na-ryby-git-publisher/assets/nry-legacy-stays-entry-v1.css?ver=1.1.0">'
 head = '<html><head>' + style + '</head><body><h1>Ubytování v ČR</h1>'
 listing = '<div><h2><a href="/harvanek/">Rekreační dům Harvánek – Rybařina rybník Sykovec</a></h2></div>'
 good = head + block + listing + '</body></html>'
