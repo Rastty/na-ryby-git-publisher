@@ -7,6 +7,7 @@ on:
       - 'tests/test-boat-load-check-119598-v1.php'
       - 'tests/test-boat-load-check-v1.cjs'
       - 'scripts/verify-boat-load-check-public.py'
+      - 'scripts/verify-boat-system-buyer-v1.py'
   push:
     branches: [main]
     paths:
@@ -16,10 +17,16 @@ on:
       - 'tests/test-boat-load-check-v1.cjs'
       - 'scripts/verify-boat-load-check-public.py'
   workflow_dispatch:
+  workflow_run:
+    workflows: ['Na-Ryby Guarded Deployer Push-to-Deploy']
+    types: [completed]
+    branches: [main]
 permissions:
   contents: read
+  actions: read
 jobs:
   exact-site-contract:
+    if: github.event_name != 'workflow_run'
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
@@ -35,3 +42,23 @@ jobs:
           node tests/test-boat-load-check-v1.cjs
       - name: GET-only public baseline preflight
         run: python3 scripts/verify-boat-load-check-public.py
+      - name: Prove two exact source transformations
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/verify-boat-system-buyer-v1.py --source
+  public-system:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == 'Rastty/na-ryby-git-publisher'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: Scope to relevant successful production deployment
+        id: scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/scope-legacy-source-proof.py 'boat-load-check-119598-v1.php' 'motor-battery-capacity-119594-v1.php' 'scripts/verify-boat-system-buyer-v1.py' '.github/workflows/boat-load-check-v1.yml'
+      - name: Independent public proof of both purchase guides
+        if: steps.scope.outputs.run == 'true'
+        run: python3 scripts/verify-boat-system-buyer-v1.py --public
