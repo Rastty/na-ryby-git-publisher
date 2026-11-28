@@ -13,7 +13,7 @@ final class NRY_Bivak_Bedchair_Fit_V1 {
     const BUDGET='nejlepsi-rybarske-bivaky-do-10-000-kc';
     public static function routes(){
         return array(
-            self::BIVAK=>array('id'=>118388,'date'=>'2026-03-19','modified'=>'2026-11-15 14:03:11','title'=>'Jak vybrat rybářský bivak: průvodce materiály, konstrukcí a velikostí','h1'=>'Jak vybrat rybářský bivak: průvodce materiály, konstrukcí a velikostí (2026)','anchor'=>'1-man vs. 2-man: kde lidi dělají největší chyby','role'=>'bivak','label'=>'Vejde se lehátko do bivaku? Spočítejte prostor před nákupem'),
+            self::BIVAK=>array('id'=>118388,'date'=>'2026-03-19','modified'=>'2026-11-15 14:03:11','title'=>'Jak vybrat rybářský bivak: průvodce materiály, konstrukcí a velikostí','h1'=>'Jak vybrat rybářský bivak: průvodce materiály, konstrukcí a velikostí (2026)','anchor'=>'Pro koho je kvalitní bivak opravdu důležitý','role'=>'bivak','label'=>'Vejde se lehátko do bivaku? Spočítejte prostor před nákupem'),
             self::PILLAR=>array('id'=>0,'date'=>'2026-03-21','modified'=>'','title'=>'Rybářská lehátka: kompletní průvodce výběrem pro rybáře','h1'=>'Rybářská lehátka: kompletní průvodce výběrem pro kapraře i víkendové rybáře','anchor'=>'Komu tenhle článek pomůže a v jaké situaci','role'=>'bedchair','label'=>'Ověřte rozměry lehátka, než objednáte'),
             self::SMALL=>array('id'=>0,'date'=>'2026-03-24','modified'=>'','title'=>'Jaké rybářské lehátko do malého bivaku | Praktický výběr','h1'=>'Jaké rybářské lehátko do malého bivaku','anchor'=>'Co je v malém bivaku opravdu důležité','role'=>'compact','label'=>'Kalkulačka pro malé bivaky: délka, šířka a průchod'),
         );
@@ -40,7 +40,7 @@ final class NRY_Bivak_Bedchair_Fit_V1 {
         if(($r['id']&&$id!==$r['id'])||($r['modified']!==''&&$p->post_modified_gmt!==$r['modified'])
             ||substr($p->post_date,0,10)!==$r['date']
             ||html_entity_decode($p->post_title,ENT_QUOTES|ENT_HTML5,'UTF-8')!==$r['title']
-            ||count(self::headings($p->post_content,'h2',$r['anchor']))!==1||count(self::headings($p->post_content,'h1',$r['h1']))!==1)return null;
+            ||substr_count(self::plain($p->post_content),self::plain($r['anchor']))!==1||count(self::headings($p->post_content,'h1',$r['h1']))!==1)return null;
         return $r;
     }
     private static function e($s){return htmlspecialchars($s,ENT_QUOTES|ENT_HTML5,'UTF-8');}
@@ -81,9 +81,9 @@ final class NRY_Bivak_Bedchair_Fit_V1 {
     public static function transform($html,$r){
         if(!is_string($html)||strlen($html)<3000||strlen($html)>250000||strpos($html,self::MARKER)!==false)return $html;
         $matches=self::headings($html,'h1',$r['h1']);
-        $anchors=self::headings($html,'h2',$r['anchor']);
-        if(count($matches)!==1||count($anchors)!==1){
-            if(defined('NRY_FIT_PREFLIGHT'))fwrite(STDERR,"FIT_HEADING_MATCHES ".count($matches)." ANCHOR_COUNT ".count($anchors)."\n");
+        $anchorCount=substr_count(self::plain($html),self::plain($r['anchor']));
+        if(count($matches)!==1||$anchorCount!==1){
+            if(defined('NRY_FIT_PREFLIGHT'))fwrite(STDERR,"FIT_HEADING_MATCHES ".count($matches)." ANCHOR_COUNT ".$anchorCount."\n");
             return $html;
         }
         $original=$matches[0][0];$offset=$matches[0][1];
