@@ -2,6 +2,8 @@
 """Independent anonymous readback of two first-party stay routes; no merchant requests."""
 from __future__ import annotations
 import re
+from html import unescape
+from pathlib import Path
 import sys
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
@@ -27,7 +29,10 @@ def verify(html: str) -> None:
     if found is None:
         raise ValueError("Vranov marker must be on a nav element")
     expected = ['href="' + link + '"' for link in LINKS]
-    if HREF.findall(found.group(0)) != expected:
+    actual = [unescape(h) for h in HREF.findall(found.group(0))]
+    prefix='https://tracking.affiliateport.eu/click?o=1990&a=1736&sub_id5=https%3A%2F%2Fwww.hauzi.cz%2F'
+    expanded=[expected[0], 'href="'+prefix+'cyklochata"', expected[1], 'href="'+prefix+'rybarsky-srub"']
+    if actual not in (expected, expanded):
         raise ValueError("missing, extra, duplicate or reordered Vranov stay href")
     start, end = html.find(PREV), html.find(NEXT)
     if not (0 <= start < found.start() < found.end() < end):
@@ -56,6 +61,27 @@ def verify_expanded(html: str) -> None:
     if not (html.find(MARKER)<html.find('data-nry-lipno-hub-offers="v1"')<html.find(NEXT)):
         raise ValueError('LIPNO_HUB_POSITION_DRIFT')
     print('LIPNO_HUB_TWO_APPROVED_AFFILIATE_OFFERS_PUBLIC_VERIFIED')
+    class Vranov(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.anchors=[];self.scripts=[]
+        def handle_starttag(self,tag,attrs):
+            a=dict(attrs)
+            if tag=='a' and 'data-nry-vranov-hub-offer' in a:
+                self.anchors.append((a['data-nry-vranov-hub-offer'],a.get('href'),a.get('rel'),a.get('target')))
+            if tag=='script' and 'nry-stay-hub-booking-click-v1.js' in (a.get('src') or ''):
+                self.scripts.append(a['src'])
+    v=Vranov();v.feed(html);v.close()
+    expected=[(key,approved+slug,'sponsored nofollow noopener','_blank') for key,slug in (('cyklo','cyklochata'),('srub','rybarsky-srub'))]
+    if v.anchors!=expected:raise ValueError('VRANOV_HUB_OFFERS_NOT_EXACT')
+    asset='https://na-ryby.eu/wp-content/plugins/na-ryby-git-publisher/assets/nry-stay-hub-booking-click-v1.js?ver=1.0.0'
+    if v.scripts!=[asset]:raise ValueError('STAY_HUB_BOOKING_SCRIPT_MISSING')
+    with urlopen(Request(asset,headers={'User-Agent':'NaRyby-PublicReadback/1.0'}),timeout=20) as resp:
+        if resp.status!=200 or resp.url!=asset:raise ValueError('STAY_HUB_ASSET_REDIRECT')
+        data=resp.read(50001)
+    if data!=(Path(__file__).resolve().parents[1]/'assets/nry-stay-hub-booking-click-v1.js').read_bytes():
+        raise ValueError('STAY_HUB_ASSET_DRIFT')
+    print('STAY_HUB_FOUR_BOOKING_CTAS_AND_SCRIPT_PUBLIC_VERIFIED')
 
 def main() -> int:
     try:

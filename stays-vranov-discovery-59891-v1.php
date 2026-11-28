@@ -36,18 +36,25 @@ final class NRY_Stays_Vranov_Discovery_59891_V1 {
     }
 
     public static function block() {
-        return '<nav '.self::MARKER.' aria-label="Dvě konkrétní chaty u Vranovské přehrady">'
-            .'<h3>Vranovská přehrada: dvě konkrétní chaty</h3>'
-            .'<p>Vybíráte pobyt u Vranova? Porovnejte i tyto dvě samostatné nabídky. '
-            .'Cenu, volný termín, přístup k vodě a možnost rybaření si ověřte před rezervací.</p>'
-            .'<ul>'
-            .'<li><a href="'.self::CYCLO.'"><strong>Cyklochata Vranov</strong></a>'
-            .' – zázemí pro skupinový pobyt. Povolenka a podmínky lovu se ověřují zvlášť.</li>'
-            .'<li><a href="'.self::WELLNESS.'"><strong>Rybářský wellness srub</strong></a>'
-            .' – sauna a koupací sud; možnost lovu může omezit nižší hladina přehrady.</li>'
-            .'</ul></nav>';
+        if (!class_exists('NRY_Six_Real_Stay_Offers_V1')) return '';
+        $urls=NRY_Six_Real_Stay_Offers_V1::approvedLinks();
+        $offers=array(
+            array('cyklo','Štítary · pro partu','Cyklochata Vranov','Samostatné ubytování pro skupinu. Ověřte počet lůžek, parkování a cestu k vodě.',self::CYCLO),
+            array('srub','Lančov · wellness','Rybářský wellness srub','Sauna a koupací sud. Nižší hladina přehrady může omezit možnosti rybaření.',self::WELLNESS)
+        );
+        $out='<nav '.self::MARKER.' aria-label="Dvě konkrétní chaty u Vranovské přehrady" style="margin:22px 0;padding:16px;border:1px solid #b9d9c9;border-radius:12px;background:#fff">'
+            .'<h3 style="margin:0 0 8px;color:#183d2d">Vranovská přehrada: dvě konkrétní chaty</h3>'
+            .'<p>Vyberte mezi skupinovým zázemím a wellness pobytem. Porovnejte konečnou cenu pro stejný termín a ověřte podmínky lovu.</p>'
+            .'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px">';
+        foreach($offers as $o){
+            $out.='<div style="display:flex;flex-direction:column;min-width:0;padding:15px;border:1px solid #c0d9cb;border-radius:10px;background:#f7faf8">'
+                .'<p style="font-size:13px;font-weight:700;color:#276645;margin:0 0 5px">'.$o[1].'</p>'
+                .'<h4 style="margin:0 0 8px;color:#183d2d">'.$o[2].'</h4><p style="flex:1;margin:0 0 14px">'.$o[3].'</p>'
+                .'<a href="'.$o[4].'" style="display:block;padding:9px 0;text-decoration:underline;color:#165637;font-weight:700">Podrobnosti o ubytování – '.$o[2].'</a>'
+                .'<a data-nry-vranov-hub-offer="'.$o[0].'" href="'.htmlspecialchars($urls[$o[0]],ENT_QUOTES|ENT_HTML5,'UTF-8').'" target="_blank" rel="sponsored nofollow noopener" style="display:block;min-height:44px;padding:13px 10px;background:#126747;color:#fff!important;text-align:center;border-radius:8px;font-weight:700;text-decoration:none">Ověřit termín a cenu – '.$o[2].'</a></div>';
+        }
+        return $out.'</div><p style="font-size:13px;margin:12px 0 0">Partnerské odkazy Hauzi. Ubytování nezahrnuje automaticky povolenku ani lovné místo; cenu, dostupnost a přístup k vodě ověřte zvlášť.</p></nav>';
     }
-
 
     /** Two reviewed, existing approved Hauzi destinations. No new offer identity,
      * no nested editorial article/section and no changes to the five v9 anchors. */
@@ -89,7 +96,9 @@ final class NRY_Stays_Vranov_Discovery_59891_V1 {
             || $mark >= $prev || $prev >= $next || ($next - $prev) > 5000) return $html;
         $lipno=self::lipno();
         if(substr_count($lipno,'data-nry-lipno-hub-offer=')!==2)return $html;
-        $insert=self::block().$lipno;
+        $vranov=self::block();
+        if(substr_count($vranov,'data-nry-vranov-hub-offer=')!==2)return $html;
+        $insert=$vranov.$lipno;
         $result = substr($html, 0, $next).$insert.substr($html, $next);
         return substr_count($result, self::MARKER) === 1
             && substr_count($result, 'href="'.self::CYCLO.'"') === 1
@@ -106,9 +115,16 @@ final class NRY_Stays_Vranov_Discovery_59891_V1 {
             ob_start(array(__CLASS__, 'render'));
         }
     }
+    public static function enqueue() {
+        if (self::eligible() && function_exists('wp_enqueue_script') && function_exists('plugins_url'))
+            wp_enqueue_script('nry-stay-hub-booking-click-v1',plugins_url('assets/nry-stay-hub-booking-click-v1.js',__FILE__),array(),'1.0.0',true);
+    }
     public static function boot() {
         if (function_exists('add_filter')) add_filter('the_content', __CLASS__.'::render', PHP_INT_MAX);
-        if (function_exists('add_action')) add_action('template_redirect', __CLASS__.'::buffer', 26);
+        if (function_exists('add_action')) {
+            add_action('template_redirect', __CLASS__.'::buffer', 26);
+            add_action('wp_enqueue_scripts', __CLASS__.'::enqueue', 29);
+        }
     }
 }
 NRY_Stays_Vranov_Discovery_59891_V1::boot();

@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - 'stays-vranov-discovery-59891-v1.php'
+      - 'assets/nry-stay-hub-booking-click-v1.js'
       - 'tests/test-stays-vranov-discovery-59891-v1.php'
       - 'tests/test-stays-vranov-public-59891.py'
       - 'scripts/verify-stays-vranov-public-59891.py'
@@ -33,6 +34,7 @@ jobs:
       - run: |
           set -euo pipefail
           php -l stays-vranov-discovery-59891-v1.php
+          node --check assets/nry-stay-hub-booking-click-v1.js
           php tests/test-stays-vranov-discovery-59891-v1.php
           python3 -m py_compile scripts/verify-stays-vranov-public-59891.py
           python3 tests/test-stays-vranov-public-59891.py
