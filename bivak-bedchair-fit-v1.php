@@ -71,12 +71,20 @@ final class NRY_Bivak_Bedchair_Fit_V1 {
     }
     public static function transform($html,$r){
         if(!is_string($html)||strlen($html)<3000||strlen($html)>250000||strpos($html,self::MARKER)!==false)return $html;
-        $pat='~<h1\b([^>]*)>\s*'.preg_quote($r['h1'],'~').'\s*</h1\s*>~u';
-        if(preg_match_all($pat,$html,$m,PREG_OFFSET_CAPTURE)!==1||substr_count($html,$r['anchor'])!==1)return $html;
-        $original=$m[0][0][0];$offset=$m[0][0][1];
+        $matches=array();
+        preg_match_all('~<h1\b[^>]*>[\s\S]{1,1200}?</h1\s*>~iu',$html,$all,PREG_OFFSET_CAPTURE);
+        foreach($all[0] as $entry){
+            $plain=trim(preg_replace('~[\s\x{00a0}\x{202f}]+~u',' ',html_entity_decode(strip_tags($entry[0]),ENT_QUOTES|ENT_HTML5,'UTF-8')));
+            if($plain===$r['h1'])$matches[]=$entry;
+        }
+        if(count($matches)!==1||substr_count($html,$r['anchor'])!==1){
+            if(defined('NRY_FIT_PREFLIGHT'))fwrite(STDERR,"FIT_HEADING_MATCHES ".count($matches)." ANCHOR_COUNT ".substr_count($html,$r['anchor'])."\n");
+            return $html;
+        }
+        $original=$matches[0][0];$offset=$matches[0][1];
         // Preserve attributes and heading text; replace only heading level.
-        $heading=preg_replace('~^<h1\b~','<h2',$original);
-        $heading=preg_replace('~</h1\s*>$~','</h2>',$heading);
+        $heading=preg_replace('~^<h1\b~i','<h2',$original);
+        $heading=preg_replace('~</h1\s*>$~i','</h2>',$heading);
         $panel=self::panel($r);
         if(substr_count($panel,self::MARKER)!==1||substr_count($panel,'data-nry-fit-choice=')!==2)return $html;
         return substr($html,0,$offset).$heading."\n".$panel.substr($html,$offset+strlen($original));
