@@ -18,6 +18,15 @@ final class NRY_Bivak_Bedchair_Fit_V1 {
             self::SMALL=>array('id'=>0,'date'=>'2026-03-24','modified'=>'','title'=>'Jaké rybářské lehátko do malého bivaku | Praktický výběr','h1'=>'Jaké rybářské lehátko do malého bivaku','anchor'=>'Co je v malém bivaku opravdu důležité','role'=>'compact','label'=>'Kalkulačka pro malé bivaky: délka, šířka a průchod'),
         );
     }
+    private static function plain($s){
+        $s=html_entity_decode(strip_tags($s),ENT_QUOTES|ENT_HTML5,'UTF-8');
+        $s=str_replace(array("\u{2010}","\u{2011}","\u{2013}","\u{2014}"),'-',$s);
+        return trim(preg_replace('~[\s\x{00a0}\x{202f}]+~u',' ',$s));
+    }
+    private static function headings($html,$tag,$text){
+        preg_match_all('~<'.$tag.'\b[^>]*>[\s\S]{1,1200}?</'.$tag.'\s*>~iu',$html,$all,PREG_OFFSET_CAPTURE);
+        return array_values(array_filter($all[0],function($entry)use($text){return self::plain($entry[0])===self::plain($text);}));
+    }
     private static function eligible($loop=false){
         if(!is_singular('post')||is_admin()||is_preview()||is_feed()
             ||(function_exists('is_customize_preview')&&is_customize_preview())
@@ -31,7 +40,7 @@ final class NRY_Bivak_Bedchair_Fit_V1 {
         if(($r['id']&&$id!==$r['id'])||($r['modified']!==''&&$p->post_modified_gmt!==$r['modified'])
             ||substr($p->post_date,0,10)!==$r['date']
             ||html_entity_decode($p->post_title,ENT_QUOTES|ENT_HTML5,'UTF-8')!==$r['title']
-            ||strpos($p->post_content,$r['anchor'])===false||strpos($p->post_content,$r['h1'])===false)return null;
+            ||count(self::headings($p->post_content,'h2',$r['anchor']))!==1||count(self::headings($p->post_content,'h1',$r['h1']))!==1)return null;
         return $r;
     }
     private static function e($s){return htmlspecialchars($s,ENT_QUOTES|ENT_HTML5,'UTF-8');}
@@ -71,14 +80,10 @@ final class NRY_Bivak_Bedchair_Fit_V1 {
     }
     public static function transform($html,$r){
         if(!is_string($html)||strlen($html)<3000||strlen($html)>250000||strpos($html,self::MARKER)!==false)return $html;
-        $matches=array();
-        preg_match_all('~<h1\b[^>]*>[\s\S]{1,1200}?</h1\s*>~iu',$html,$all,PREG_OFFSET_CAPTURE);
-        foreach($all[0] as $entry){
-            $plain=trim(preg_replace('~[\s\x{00a0}\x{202f}]+~u',' ',html_entity_decode(strip_tags($entry[0]),ENT_QUOTES|ENT_HTML5,'UTF-8')));
-            if($plain===$r['h1'])$matches[]=$entry;
-        }
-        if(count($matches)!==1||substr_count($html,$r['anchor'])!==1){
-            if(defined('NRY_FIT_PREFLIGHT'))fwrite(STDERR,"FIT_HEADING_MATCHES ".count($matches)." ANCHOR_COUNT ".substr_count($html,$r['anchor'])."\n");
+        $matches=self::headings($html,'h1',$r['h1']);
+        $anchors=self::headings($html,'h2',$r['anchor']);
+        if(count($matches)!==1||count($anchors)!==1){
+            if(defined('NRY_FIT_PREFLIGHT'))fwrite(STDERR,"FIT_HEADING_MATCHES ".count($matches)." ANCHOR_COUNT ".count($anchors)."\n");
             return $html;
         }
         $original=$matches[0][0];$offset=$matches[0][1];
