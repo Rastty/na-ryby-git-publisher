@@ -6,6 +6,8 @@ final class NRY_Winter_Sleep_Buyer_V1 {
     const URL='https://na-ryby.eu/'.self::SLUG.'/';
     const TITLE='Jaké rybářské lehátko na zimu | Praktický výběr';
     const DATE='2026-03-24';
+    const ID=118787;
+    const MODIFIED='2026-03-24 10:13:30';
     const MARKER='data-nry-winter-sleep-guide="v1"';
     const H1='Jaké rybářské lehátko na zimu';
     const ANCHOR='Co je v zimě opravdu důležité';
@@ -25,7 +27,7 @@ final class NRY_Winter_Sleep_Buyer_V1 {
           ||($_SERVER['REQUEST_METHOD']??'GET')!=='GET'||rtrim(home_url('/'),'/')!=='https://na-ryby.eu'
           ||($loop&&(!in_the_loop()||!is_main_query())))return false;
         $id=(int)get_queried_object_id();$p=get_post($id);
-        return is_object($p)&&(int)$p->ID===$id&&is_single($id)&&$p->post_type==='post'&&$p->post_status==='publish'
+        return $id===self::ID&&is_object($p)&&(int)$p->ID===$id&&$p->post_modified_gmt===self::MODIFIED&&is_single($id)&&$p->post_type==='post'&&$p->post_status==='publish'
           &&$p->post_name===self::SLUG&&get_permalink($id)===self::URL
           &&substr($p->post_date,0,10)===self::DATE&&self::plain($p->post_title)===self::TITLE
           &&is_string($p->post_content)&&substr_count(self::plain($p->post_content),self::ANCHOR)===1
@@ -37,16 +39,23 @@ final class NRY_Winter_Sleep_Buyer_V1 {
         if(!is_string($html)||strlen($html)<3000||strlen($html)>250000||strpos($html,self::MARKER)!==false
            ||substr_count(self::plain($html),self::ANCHOR)!==1)return $html;
         $out=$html;
-        // Exact visible text, allowing only benign entity encoding and white space.
+        // Replace only one bounded plain-text element per claim. Inline emphasis
+        // is allowed, but any original link, image or unknown tag blocks.
+        $pattern='~<(p|li|div|span)\b([^>]*)>((?:(?!</?(?:p|li|div|ul|ol|table|h[1-6])\b)[\s\S])*?)</\1\s*>~iu';
         foreach(self::changes() as $old=>$new){
-            $parts=explode(' ',$old);
-            $pattern='~(?<=>|\s)'.implode('(?:\s|&nbsp;)+',array_map(function($x){return preg_quote($x,'~');},$parts)).'(?=[\s<.,;:!?]|$)~u';
-            // Text may be in an element with wrappers: fail on any ambiguous or missing match.
-            if(preg_match_all($pattern,$out)!==1){
-                if(defined('NRY_WINTER_SOURCE_PREFLIGHT'))fwrite(STDERR,"WINTER_SOURCE_COPY_DRIFT ".substr($old,0,80)."\n");
+            $count=0;
+            $candidate=preg_replace_callback($pattern,function($m)use($old,$new,&$count){
+                $plain=self::plain($m[3]);
+                if(substr_count($plain,$old)!==1)return $m[0];
+                if(self::attrs($m[3])||preg_match('~<(?!/?(?:br|strong|b|em|i|span)\b)[^>]+>~i',$m[3]))return $m[0];
+                $count++;
+                return '<'.$m[1].$m[2].'>'.htmlspecialchars(str_replace($old,$new,$plain),ENT_QUOTES|ENT_HTML5,'UTF-8').'</'.$m[1].'>';
+            },$out);
+            if(!is_string($candidate)||$count!==1){
+                if(defined('NRY_WINTER_SOURCE_PREFLIGHT'))fwrite(STDERR,"WINTER_SOURCE_COPY_DRIFT ".substr($old,0,80)." count=".$count."\n");
                 return $html;
             }
-            $out=preg_replace_callback($pattern,function()use($new){return $new;},$out,1);
+            $out=$candidate;
         }
         preg_match_all('~<h1\b[^>]*>[\s\S]{1,1200}?</h1\s*>~iu',$out,$all,PREG_OFFSET_CAPTURE);
         $matches=array_values(array_filter($all[0],function($m){return self::plain($m[0])===self::H1;}));
