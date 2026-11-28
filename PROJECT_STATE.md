@@ -1,6 +1,11 @@
 # Na-Ryby.eu — PROJECT_STATE
 
-**Aktualizováno: 2026-11-27.** Zdroj pravdy: aktuální GitHub `main`, exact-SHA chráněné WEDOS FTPS a **nezávislé anonymní veřejné GET**, nikoli samotné PR/commit. Cíl: kvalifikovaná česká rybářská návštěvnost → relevantní konkrétní nabídky → skutečné prokliky → **schválené/vyplacené affiliate provize**. Reuse Prometheus Core; žádný paralelní engine.
+**Aktualizováno: 2026-11-28.** Zdroj pravdy: aktuální GitHub `main`, exact-SHA chráněné WEDOS FTPS a **nezávislé anonymní veřejné GET**, nikoli samotné PR/commit. Cíl: kvalifikovaná česká rybářská návštěvnost → relevantní konkrétní nabídky → skutečné prokliky → **schválené/vyplacené affiliate provize**. Reuse Prometheus Core; žádný paralelní engine.
+
+## TURBO 28. 11. 2026 — produkčně ověřený dopad
+
+- **Nové prvostranové rozhodnutí na hlavní kategorii Vybavení: 6 konkrétních nákupních cest LIVE.** [PR #393](https://github.com/Rastty/na-ryby-git-publisher/pull/393) MERGED do runtime SHA `3d7d597aa9e9c2c207266c6c35d4c84adc1a6984`, chráněný [FTPS #46123212920](https://github.com/Rastty/na-ryby-git-publisher/actions/runs/46123212920) `verify/ftps_inspect/deploy=SUCCESS`; samostatný [anonymní public GET #46123960467](https://github.com/Rastty/na-ryby-git-publisher/actions/runs/46123960467) `EQUIPMENT_ROOT_SIX_GUIDES_PUBLIC_VERIFIED`: HTTP 200, **1 viditelný panel / 6 přesných prvostránkových odkazů** na kaprové pruty, navijáky, echoloty, signalizátory, bivaky, zavážecí loďky. Existující mobilní CSS, consent-aware pouze reálný `nry_buyer_guide_click` (`buyer_page=equipment_hub`); 0 WP DB writes, 0 merchant GET, 0 affiliate URL/SEO/redirect změn, 0 syntetických kliků. Jediný následný read-only proof workflow byl zapsán samostatně jako `59e02cc0d25648ad8b18d238dce17d99fe02ba47` (**není další FTPS release**). **Skutečné prokliky, GA4 ingestion a partnerské provize UNKNOWN.**
+- **Další obchodní priorita:** po prvním uzavřeném GA4/BQ období zjistit, zda root `equipment_hub` skutečně posílá návštěvníky do nákupních průvodců a které z těchto šesti cest mají schválenou přesnou partnerskou nabídku; posílit přímé ověřené merchant CTA u nejvýkonnější skupiny. CJ cross-property opravy/nové merchant odkazy nepovolovat bez potvrzené atribuce.
 
 ## TURBO 27. 11. 2026 — nejnovější ověřený release a ekonomická fronta
 
@@ -59,7 +64,7 @@
 
 ## MĚŘENÍ / BEZPEČNÝ PROVOZ
 
-- Poslední doložený **produkční kód runtime**: `388efd4b0eaffdf8cc874d4d3835cf01fa69855b` (PR #392, chráněný FTPS #46061258740 `verify/ftps_inspect/deploy=SUCCESS`, samostatný public proof #46062402265 SUCCESS, 6/6 článků a 12/12 přímých partner-offer CTA; předchozí 6/6 legacy buyer/18 CTA #389 a 6/6 archive/16 CTA #388 zachovány). Následující docs-only main SHA není druhý produkční deploy; zachovat jediné WP writer lock, rollback a ekonomickou read-only návaznost na Core.
+- Poslední doložený **produkční kód runtime**: `3d7d597aa9e9c2c207266c6c35d4c84adc1a6984` (PR #392, chráněný FTPS #46061258740 `verify/ftps_inspect/deploy=SUCCESS`, samostatný public proof #46062402265 SUCCESS, 6/6 článků a 12/12 přímých partner-offer CTA; předchozí 6/6 legacy buyer/18 CTA #389 a 6/6 archive/16 CTA #388 zachovány). Následující docs-only main SHA není druhý produkční deploy; zachovat jediné WP writer lock, rollback a ekonomickou read-only návaznost na Core.
 - Existující Core WIF BigQuery denní ekonomická dávka pro buyer/advisor a homepage (Core [#2427](https://github.com/Rastty/prometheus-growth-os/pull/2427)/[#2431](https://github.com/Rastty/prometheus-growth-os/pull/2431)), první úplné UTC období po změně homepage 2026-11-22; ověřit následující uzavřenou dávku 2026-11-23. V minulých 7 úplných dnech bylo zachyceno 17 GA4 `page_view` na 12 cestách, enhanced CJ clicks nezaznamenány; **není to důkaz nulové návštěvnosti nebo provizí**. Skutečný ekonomický efekt dvou nových Hauzi stránek dosud UNKNOWN.
 - Opakovatelný postup site→Core zaznamenán do existujícího [Core learning #2221](https://github.com/Rastty/prometheus-growth-os/issues/2221), bez nové architektury. Staré superseded DRAFT PR [#285](https://github.com/Rastty/na-ryby-git-publisher/pull/285), [#286](https://github.com/Rastty/na-ryby-git-publisher/pull/286), [#287](https://github.com/Rastty/na-ryby-git-publisher/pull/287) uzavřeny bez smazání historie.
 
