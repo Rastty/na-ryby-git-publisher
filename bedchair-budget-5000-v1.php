@@ -8,6 +8,8 @@ final class NRY_Bedchair_Budget_5000_V1 {
     const URL='https://na-ryby.eu/'.self::SLUG.'/';
     const TITLE='Nejlepší rybářská lehátka do 5000 Kč';
     const DATE='2026-01-21';
+    const ID=118608;
+    const MODIFIED='2026-03-21 19:00:55';
     const MARKER='data-nry-bedchair-budget-guide="v1"';
     const SOURCE='Rychlé srovnání doporučených variant';
     public static function models(){return array(
@@ -30,7 +32,7 @@ final class NRY_Bedchair_Budget_5000_V1 {
           ||($_SERVER['REQUEST_METHOD']??'GET')!=='GET'||rtrim(home_url('/'),'/')!=='https://na-ryby.eu'
           ||($loop&&(!in_the_loop()||!is_main_query())))return false;
         $id=(int)get_queried_object_id();$p=get_post($id);
-        return is_object($p)&&(int)$p->ID===$id&&is_single($id)&&$p->post_type==='post'&&$p->post_status==='publish'
+        return $id===self::ID&&is_object($p)&&(int)$p->ID===$id&&$p->post_modified_gmt===self::MODIFIED&&is_single($id)&&$p->post_type==='post'&&$p->post_status==='publish'
           &&$p->post_name===self::SLUG&&get_permalink($id)===self::URL
           &&substr($p->post_date,0,10)===self::DATE&&self::plain($p->post_title)===self::TITLE
           &&is_string($p->post_content)&&substr_count(self::plain($p->post_content),self::SOURCE)===1;
@@ -47,7 +49,7 @@ final class NRY_Bedchair_Budget_5000_V1 {
         $edits=array();
         foreach(self::models() as $key=>$name){
             $m=self::headings($html,'h3',$name);
-            if(count($m)!==1||strpos($html,'nry-budget-'.$key)!==false){
+            if(count($m)!==1||$m[0][1]<$h[0][1]+strlen($h[0][0])||strpos($html,'nry-budget-'.$key)!==false){
                 if(defined('NRY_BUDGET_PREFLIGHT'))fwrite(STDERR,"BUDGET_MODEL_DRIFT ".$key."\n");
                 return $html;
             }

@@ -18,7 +18,7 @@ def source():
     data=json.loads(get(BASE+'wp-json/wp/v2/posts?slug='+SLUG+'&_fields=id,slug,date,modified_gmt,title,link,content,status'))
     assert len(data)==1
     p=data[0]
-    assert p['slug']==SLUG and p['status']=='publish' and p['date'][:10]=='2026-01-21' and p['link']==URL and html.unescape(p['title']['rendered'])=='Nejlepší rybářská lehátka do 5000 Kč'
+    assert p['id']==118608 and p['modified_gmt']=='2026-03-21T19:00:55' and p['slug']==SLUG and p['status']=='publish' and p['date'][:10]=='2026-01-21' and p['link']==URL and html.unescape(p['title']['rendered'])=='Nejlepší rybářská lehátka do 5000 Kč'
     print('BEDCHAIR_BUDGET_SOURCE_ID',p['id'],p['modified_gmt'],flush=True)
     with TemporaryDirectory() as temp:
         path=Path(temp)/'body.html';path.write_text(p['content']['rendered'],encoding='utf-8')
