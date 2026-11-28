@@ -7,7 +7,7 @@ from urllib.request import Request
 from tempfile import TemporaryDirectory
 from readonly_urlopen_retry import guarded_urlopen
 BASE='https://na-ryby.eu/'
-PHP='define("ABSPATH",__DIR__);require "bivak-bedchair-fit-v1.php";'
+PHP='define("ABSPATH",__DIR__);define("NRY_FIT_PREFLIGHT",true);require "bivak-bedchair-fit-v1.php";'
 ROUTES=json.loads(subprocess.check_output(['php','-r',PHP+'echo json_encode(NRY_Bivak_Bedchair_Fit_V1::routes());']))
 def get(url):
     with guarded_urlopen(Request(url,headers={'User-Agent':'NaRybyEditorialProof/1.0','Cache-Control':'no-cache'}),timeout=25) as r:
