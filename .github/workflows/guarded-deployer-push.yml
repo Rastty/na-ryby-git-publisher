@@ -66,9 +66,12 @@ on:
       - 'revir-main-menu-discovery-v1.php'
       - 'revir-archive-decision-entry-v1.php'
       - 'gear-archive-buyer-entry-v1.php'
+      - 'equipment-hub-decision-entry-v1.php'
+      - 'assets/nry-equipment-hub-click-v1.js'
       - 'assets/nry-gear-archive-entry-v1.css'
       - 'assets/nry-gear-archive-click-v1.js'
       - 'tests/test-gear-archive-buyer-entry-v1.php'
+      - 'tests/test-equipment-hub-entry-v1.php'
       - 'tests/test-gear-archive-click-v1.mjs'
       - 'scripts/verify-gear-archive-public-v1.py'
       - 'tests/test-gear-archive-public-v1.py'
@@ -468,6 +471,8 @@ on:
       - 'revir-main-menu-discovery-v1.php'
       - 'revir-archive-decision-entry-v1.php'
       - 'gear-archive-buyer-entry-v1.php'
+      - 'equipment-hub-decision-entry-v1.php'
+      - 'assets/nry-equipment-hub-click-v1.js'
       - 'assets/nry-gear-archive-entry-v1.css'
       - 'assets/nry-gear-archive-click-v1.js'
       - 'assets/nry-revir-archive-entry-v1.css'
@@ -609,6 +614,9 @@ jobs:
           php tests/test-revir-archive-decision-entry-v1.php
           php -l gear-archive-buyer-entry-v1.php
           php tests/test-gear-archive-buyer-entry-v1.php
+          php -l equipment-hub-decision-entry-v1.php
+          php tests/test-equipment-hub-entry-v1.php
+          node --check assets/nry-equipment-hub-click-v1.js
           node --check assets/nry-gear-archive-click-v1.js
           node tests/test-gear-archive-click-v1.mjs
           python3 -m py_compile scripts/verify-gear-archive-public-v1.py
@@ -697,6 +705,9 @@ jobs:
           php tests/test-revir-archive-decision-entry-v1.php
           php -l gear-archive-buyer-entry-v1.php
           php tests/test-gear-archive-buyer-entry-v1.php
+          php -l equipment-hub-decision-entry-v1.php
+          php tests/test-equipment-hub-entry-v1.php
+          node --check assets/nry-equipment-hub-click-v1.js
           node --check assets/nry-gear-archive-click-v1.js
           node tests/test-gear-archive-click-v1.mjs
           python3 -m py_compile scripts/verify-gear-archive-public-v1.py
